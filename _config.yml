@@ -28,8 +28,13 @@ baseurl: ""
 url: "https://uiwwsw.github.io"
 # Build settings
 theme: minima
-# plugins:
-#   - jekyll-feed
+header_pages:
+  - meringuetrip/index.markdown
+  - privacy.md
+  - support.md
+
+plugins:
+  - jekyll-feed
 # Exclude from processing.
 # The following items will not be processed, by default.
 # Any item listed under the `exclude:` key here will be automatically added to

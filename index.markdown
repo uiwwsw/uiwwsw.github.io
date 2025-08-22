@@ -1,19 +1,48 @@
 ---
-layout: home
-title: "Matthew Yoon's Blog"
+layout: default
 ---
 
-# 👋 Hi, I'm Matthew Yoon
+# 👋 brewstar
 
-10년차 프론트엔드 개발자, TypeScript · React · Ionic · NestJS · Docker 관심.  
-이 블로그에는 **사이드 프로젝트 기록**, **개발 팁**, **앱 배포 경험** 등을 공유합니다.
+별을 끓여 식혀 내리는 기술, **브루스타**.  
+버너의 이름이 어느새 명사가 되어버린 것처럼, 내가 만들 세계에서도 **브루스타**는 방식이자 태도다.
+
+> 하늘에 떠 있는 차가운 별을 끓여서,  
+> 다시 식혀서, 맑은 한 잔으로 내린다.  
+> 닿기 어려운 것, 뜨겁고 차가운 것,  
+> 그 모든 난도를 내가 감당하고  
+> 사람들은 원하는 것을 손에 쥔다.  
+> 그래서 **브루스타**다.
+
+나는 복잡한 걸 품고 단순하게 건넨다.  
+보이지 않던 연결을 드러내고, 느리던 것을 빠르게 만든다.  
+한 번 끓이고, 한 번 식힌 것만이 가지는 선명함—그게 내가 만드는 결과의 온도다.
 
 ---
 
-## 📌 Featured Pages
+## 📐 Principles — 브루스타의 작업 원칙
 
-- [github](https://github.com/uiwwsw/)
-- [velog](https://velog.io/@uiwwsw/)
-- [머랭트립](/meringuetrip/)
+- **끓이는 집중**: 본질만 남을 때까지 쓸데없는 것을 태운다.
+- **식히는 판단**: 거리를 두고, 다시 본다. 남는 것만 남긴다.
+- **한 잔의 명료함**: 복잡은 내가, 단순은 사용자가 가진다.
+- **현실의 성능**: 네트워크가 끊겨도, 손은 멈추지 않게.
 
 ---
+
+## 🧑‍💻 Matthew — 만드는 사람
+
+- 프론트엔드 개발자 / TypeScript · React · Ionic
+- 오프라인 우선, 지리·지도, 성능 최적화에 집착합니다.
+- 코드는 짧게, 경험은 길게. 결과는 명료하게.
+
+**Contact & Profiles**
+
+- GitHub: [@uiwwsw](https://github.com/uiwwsw)
+- Velog: [@uiwwsw](https://velog.io/@uiwwsw/)
+- Email: uiwwsw@icloud.com
+
+---
+
+## 🚀 Featured
+
+- [머랭트립 (Meringue Trip)](/meringuetrip/) — 여행자를 위한 위치 기반 탐색

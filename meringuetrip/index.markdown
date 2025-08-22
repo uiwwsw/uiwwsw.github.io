@@ -1,6 +1,5 @@
 ---
-layout: page
-title: "머랭트립"
+layout: default
 permalink: /meringuetrip/
 ---
 
