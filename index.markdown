@@ -22,7 +22,7 @@ title: Matthew Yoon — 윤창원
       </article>
       <article class="hero__card">
         <h3>지금 집중하는 것</h3>
-        <p>한국어 조합을 다루는 가상 키보드와, React Query 코드를 자동 생성하는 CLI를 병행해 “몰입”과 “속도”를 동시에 높입니다.</p>
+        <p>한국어 조합을 다루는 가상 키보드, React Query 코드를 자동 생성하는 CLI, 암호화폐 자동투자 프로그램을 병행해 “몰입”과 “속도”를 동시에 높입니다.</p>
         <p class="hero__note">설계 → 구현 → 배포 → 문서화까지 한 묶음으로 움직입니다.</p>
       </article>
       <article class="hero__card">
