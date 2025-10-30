@@ -99,6 +99,18 @@ title: Matthew Yoon — 윤창원
     <div class="timeline" data-timeline>
       <article class="timeline-item">
         <div class="timeline-item__meta">
+          <span>2024.08</span>
+          <span>Interaction Utility</span>
+        </div>
+        <h3 class="timeline-item__title">easter-egg — Konami Code를 감지하는 인터랙션 유틸</h3>
+        <p class="timeline-item__summary">Konami Code 입력을 감지해 원하는 콜백을 실행하고, 커스텀 시퀀스도 등록할 수 있는 경량 TypeScript 라이브러리.</p>
+        <button class="timeline-item__toggle" type="button" aria-expanded="false">맥락 더 보기</button>
+        <div class="timeline-item__detail" hidden>
+          <p>window 이벤트에 안전하게 keyup 리스너를 붙이고 떼는 헬퍼를 제공해 리액트/바닐라 어디서든 쉽게 쓸 수 있습니다. Konami Code 외에도 원하는 키 시퀀스를 타입으로 정의하고, 반복 입력 제한이나 중첩 등록을 옵션으로 제어해 Easter Egg 연출을 빠르게 연결했습니다.</p>
+        </div>
+      </article>
+      <article class="timeline-item">
+        <div class="timeline-item__meta">
           <span>2024.07</span>
           <span>Virtual Keyboard</span>
         </div>
@@ -171,6 +183,16 @@ title: Matthew Yoon — 윤창원
       <button class="chip" type="button" data-filter="experience">경험 설계</button>
     </div>
     <div class="project-grid" data-project-list>
+      <article class="project-card" data-category="experience tooling">
+        <span class="project-card__meta">2024 · Interaction Utility</span>
+        <h3 class="project-card__title">easter-egg</h3>
+        <p class="project-card__description">Konami Code 시퀀스를 감지해 easter egg 콜백을 실행하는 경량 TypeScript 라이브러리. 리스너 등록/해제를 헬퍼로 추상화했습니다.</p>
+        <ul class="project-card__tags">
+          <li>TypeScript</li>
+          <li>Konami Code</li>
+          <li>Micro Interaction</li>
+        </ul>
+      </article>
       <article class="project-card" data-category="story experience">
         <span class="project-card__meta">2024 · Story Engine</span>
         <h3 class="project-card__title">Polaroid Syntax</h3>
