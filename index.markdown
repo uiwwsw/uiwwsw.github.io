@@ -12,6 +12,7 @@ title: Matthew Yoon — 윤창원
       <div class="hero__actions" role="group" aria-label="바로 가기">
         <a class="button" href="#projects">최근 빌드 살펴보기</a>
         <a class="button button--ghost" href="https://velog.io/@uiwwsw" target="_blank" rel="noopener">Velog에서 읽기</a>
+        <a class="button button--ghost" href="https://github.com/uiwwnw/uitetris" target="_blank" rel="noopener">테트리스 프로젝트 보기</a>
       </div>
     </div>
     <div class="hero__grid">
