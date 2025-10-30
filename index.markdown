@@ -12,7 +12,6 @@ title: Matthew Yoon — 윤창원
       <div class="hero__actions" role="group" aria-label="바로 가기">
         <a class="button" href="#projects">최근 빌드 살펴보기</a>
         <a class="button button--ghost" href="https://velog.io/@uiwwsw" target="_blank" rel="noopener">Velog에서 읽기</a>
-        <a class="button button--ghost" href="https://github.com/uiwwnw/uitetris" target="_blank" rel="noopener">테트리스 프로젝트 보기</a>
       </div>
     </div>
     <div class="hero__grid">
@@ -231,6 +230,16 @@ title: Matthew Yoon — 윤창원
           <li>React</li>
           <li>TypeScript</li>
           <li>Storybook</li>
+        </ul>
+      </article>
+      <article class="project-card" data-category="experience">
+        <span class="project-card__meta">2022 · Game Prototype</span>
+        <h3 class="project-card__title">uitetris</h3>
+        <p class="project-card__description">Canvas 위에서 테트로미노 회전과 낙하를 직접 구현한 웹 테트리스. 반응형 입력과 라인 클리어 애니메이션을 커스텀 처리했습니다.</p>
+        <ul class="project-card__tags">
+          <li>TypeScript</li>
+          <li>Canvas</li>
+          <li>Game Loop</li>
         </ul>
       </article>
     </div>
