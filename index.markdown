@@ -98,6 +98,19 @@ title: Matthew Yoon — 윤창원
     <div class="timeline" data-timeline>
       <article class="timeline-item">
         <div class="timeline-item__meta">
+          <span>2024.09</span>
+          <span>Payment Experiment</span>
+        </div>
+        <h3 class="timeline-item__title">pre-pay — 선불권을 디지털 워크플로로 전환한 프리페이 실험</h3>
+        <p class="timeline-item__summary">선불권 구매·사용 경험을 웹으로 옮겨, 사용자가 잔액을 직접 확인하고 운영자가 사용 이력을 추적할 수 있도록 설계한 실험 프로젝트.</p>
+        <button class="timeline-item__toggle" type="button" aria-expanded="false">맥락 더 보기</button>
+        <div class="timeline-item__detail" hidden>
+          <p>Velog 포스트 <a href="https://velog.io/@uiwwsw/%EC%84%A0%EB%B6%88%EA%B6%8C%EC%9D%84-%EB%94%94%EC%A7%80%ED%84%B8%EB%A1%9C-%ED%94%84%EB%A6%AC%ED%8E%98%EC%9D%B4-%EC%8B%A4%ED%97%98%EA%B8%B0" target="_blank" rel="noopener">선불권을 디지털로 프리페이 실험기</a>에서 공유한 흐름을 따라, 온라인 결제 이후 자동으로 선불권을 발급하고 사용 시 잔여 금액을 갱신하는 파이프라인을 구축했습니다. 오프라인 매장의 수기 정산을 대신해, 발급·사용 내역이 하나의 대시보드에 정리되도록 했습니다.</p>
+          <p><code>pre-pay</code> 저장소는 실 서비스 결제 데이터가 포함돼 GitHub Private Repository로 운영하고 있습니다.</p>
+        </div>
+      </article>
+      <article class="timeline-item">
+        <div class="timeline-item__meta">
           <span>2024.08</span>
           <span>Interaction Utility</span>
         </div>
