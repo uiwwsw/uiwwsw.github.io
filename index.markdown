@@ -97,6 +97,61 @@ title: Matthew Yoon — 윤창원
     <div class="timeline" data-timeline>
       <article class="timeline-item">
         <div class="timeline-item__meta">
+          <span>2005.10</span>
+          <span>Interaction Utility</span>
+        </div>
+        <h3 class="timeline-item__title">easter-egg — Konami Code 기반 이스터에그 시퀀스 엔진</h3>
+        <p class="timeline-item__summary">Konami Code와 커스텀 키 시퀀스를 감지해 원하는 콜백을 실행하는 경량 TypeScript 라이브러리로, 2005년 7월 시작한 실험을
+2005년 10월까지 확장했습니다.</p>
+        <button class="timeline-item__toggle" type="button" aria-expanded="false">맥락 더 보기</button>
+        <div class="timeline-item__detail" hidden>
+          <p>window keyup 이벤트 리스너의 등록/해제를 안전하게 헬퍼로 추상화하고, 반복 입력 제한과 중첩 등록 방지를 옵션으로 제공해
+어떤 프레임워크에서도 이스터에그를 빠르게 연결할 수 있게 했습니다.</p>
+        </div>
+      </article>
+      <article class="timeline-item">
+        <div class="timeline-item__meta">
+          <span>2005.09</span>
+          <span>DX Automation</span>
+        </div>
+        <h3 class="timeline-item__title">react-query-help — React Query 코드 자동 생성기</h3>
+        <p class="timeline-item__summary">API 스키마에서 React Query 훅·옵션·테스트 토대를 자동 생성하는 CLI를 2005년 9월에 마무리하며, 팀 캐싱 전략을 코드 생성으로
+표준화했습니다.</p>
+        <button class="timeline-item__toggle" type="button" aria-expanded="false">맥락 더 보기</button>
+        <div class="timeline-item__detail" hidden>
+          <p>watch 모드에서 OpenAPI 변화를 감지해 템플릿을 재생성하고, Bun·npm 중 원하는 런타임을 선택할 수 있도록 설계했습니다.
+Changesets와 Husky를 포함한 릴리스 자동화 파이프라인도 함께 구축했습니다.</p>
+        </div>
+      </article>
+      <article class="timeline-item">
+        <div class="timeline-item__meta">
+          <span>2005.08</span>
+          <span>Virtual Keyboard</span>
+        </div>
+        <h3 class="timeline-item__title">virtual-keyboard — 한국어 IME 제어 가상 키보드</h3>
+        <p class="timeline-item__summary">브라우저 컴포지션 이슈를 우회하기 위해 2005년 8월에 제작한 React 가상 키보드. 모바일 네이티브 키보드를 차단하고 한국어 조합을
+직접 제어합니다.</p>
+        <button class="timeline-item__toggle" type="button" aria-expanded="false">맥락 더 보기</button>
+        <div class="timeline-item__detail" hidden>
+          <p>컴포지션 상태를 스테이트 머신으로 관리해 중첩 입력을 안정적으로 처리하고, Storybook 데모와 Typedoc 문서를 CI로 배포해 팀
+온보딩 시간을 줄였습니다.</p>
+        </div>
+      </article>
+      <article class="timeline-item">
+        <div class="timeline-item__meta">
+          <span>2005.07</span>
+          <span>Automation Bot</span>
+        </div>
+        <h3 class="timeline-item__title">crypto-auto-trader — 이더리움 추세 추종 자동 투자 봇</h3>
+        <p class="timeline-item__summary">이더리움 추세 추종 알고리즘과 커스텀 전략을 합성해 자동 투자하고 텔레그램으로 알림을 전달하는 Node.js 봇을 2005년 7월에 구축했습니다.</p>
+        <button class="timeline-item__toggle" type="button" aria-expanded="false">맥락 더 보기</button>
+        <div class="timeline-item__detail" hidden>
+          <p>트렌드 지표와 커스텀 전략을 병렬로 평가해 합의된 시그널에서만 주문을 발행하고, 포지션·리스크 관리를 텔레그램 메시지와 대시보드로
+실시간 노출했습니다. 스케줄러는 Node Cron으로 구성해 24시간 자동 매매를 유지했습니다.</p>
+        </div>
+      </article>
+      <article class="timeline-item">
+        <div class="timeline-item__meta">
           <span>2024.09</span>
           <span>Payment Experiment</span>
         </div>
@@ -182,8 +237,38 @@ title: Matthew Yoon — 윤창원
       <button class="chip" type="button" data-filter="experience">경험 설계</button>
     </div>
     <div class="project-grid" data-project-list>
+      <article class="project-card" data-category="automation tooling">
+        <span class="project-card__meta">2005 · Automation Bot</span>
+        <h3 class="project-card__title">crypto-auto-trader</h3>
+        <p class="project-card__description">이더리움 추세 추종과 커스텀 전략을 합성해 자동 투자하고, 텔레그램으로 포지션 알림을 전송하는 Node.js 기반 거래 봇.</p>
+        <ul class="project-card__tags">
+          <li>Node.js</li>
+          <li>Telegram Bot</li>
+          <li>Crypto Trading</li>
+        </ul>
+      </article>
       <article class="project-card" data-category="experience tooling">
-        <span class="project-card__meta">2024 · Interaction Utility</span>
+        <span class="project-card__meta">2005 · Virtual Keyboard</span>
+        <h3 class="project-card__title">virtual-keyboard</h3>
+        <p class="project-card__description">한국어 IME 컴포지션을 자체 처리하고 모바일 네이티브 키보드를 차단하는 React 가상 키보드 라이브러리.</p>
+        <ul class="project-card__tags">
+          <li>React</li>
+          <li>TypeScript</li>
+          <li>Storybook</li>
+        </ul>
+      </article>
+      <article class="project-card" data-category="automation tooling">
+        <span class="project-card__meta">2005 · DX Automation</span>
+        <h3 class="project-card__title">react-query-help</h3>
+        <p class="project-card__description">OpenAPI 스키마에서 React Query 훅과 옵션, 테스트 토대를 자동 생성하는 CLI. watch 모드와 템플릿 확장으로 팀 일관성을 확보합니다.</p>
+        <ul class="project-card__tags">
+          <li>TypeScript</li>
+          <li>OpenAPI</li>
+          <li>CLI</li>
+        </ul>
+      </article>
+      <article class="project-card" data-category="experience tooling">
+        <span class="project-card__meta">2005 · Interaction Utility</span>
         <h3 class="project-card__title">easter-egg</h3>
         <p class="project-card__description">Konami Code 시퀀스를 감지해 easter egg 콜백을 실행하는 경량 TypeScript 라이브러리. 리스너 등록/해제를 헬퍼로 추상화했습니다.</p>
         <ul class="project-card__tags">
