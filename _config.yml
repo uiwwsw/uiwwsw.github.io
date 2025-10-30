@@ -1,14 +1,14 @@
-title: brewstar
+title: Matthew Yoon — 윤창원
 email: uiwwsw@icloud.com
-description: 오프라인 퍼스트 경험을 설계하는 프론트엔드 개발자 Matthew Kim의 작업 노트.
+description: 윤창원(Matthew Yoon)의 실험실. 인터랙티브 프론트엔드와 글쓰기를 사랑하는 개발자의 프로젝트 로그.
 baseurl: ""
 url: "https://uiwwsw.github.io"
 theme: minima
 navigation:
-  - title: Focus
-    url: /#focus
-  - title: Work Log
-    url: /#worklog
+  - title: Profile
+    url: /#profile
+  - title: Capabilities
+    url: /#capabilities
   - title: Projects
     url: /#projects
   - title: Writing
@@ -16,8 +16,8 @@ navigation:
 plugins:
   - jekyll-feed
 author:
-  name: Matthew Kim
-  role: Frontend Engineer
+  name: 윤창원 · Matthew Yoon
+  role: Frontend Developer & Narrative Maker
   github: uiwwsw
   velog: uiwwsw
   email: uiwwsw@icloud.com
