@@ -43,7 +43,6 @@ title: Matthew Yoon — 윤창원
     <p class="section__intro">인터랙션 난제 해결과 DX 자동화를 동시에 밀어붙인 대표 사례 다섯 가지를 요약했습니다.</p>
     <ul class="highlight-list">
       <li><strong>한국어 IME 난제 해결:</strong> <em>virtual-keyboard</em>로 composition 이벤트를 직접 제어하고 모바일 네이티브 키보드를 차단합니다.</li>
-      <li><strong>스크롤 연출 전문성:</strong> <em>ux-scroll</em>로 “애플식” 스크롤 모션을 구간 기반 API로 제공해 선언적 연출을 가능하게 합니다.</li>
       <li><strong>DX 자동화:</strong> <em>react-query-helper</em>가 API 함수에서 React Query 훅·옵션·테스트를 자동 생성해 팀 캐싱 전략을 표준화합니다.</li>
       <li><strong>언어 실험:</strong> <em>koreanscript</em>로 한글 키워드 기반 TypeScript 트랜스파일링과 --check 타입 검증을 지원합니다.</li>
       <li><strong>스토리텔링 툴링:</strong> <em>visual-novel</em>로 JSON 시나리오, 자산 매핑, 저장/불러오기를 갖춘 웹 비주얼 노블 엔진을 배포합니다.</li>
@@ -147,18 +146,6 @@ title: Matthew Yoon — 윤창원
       </article>
       <article class="timeline-item">
         <div class="timeline-item__meta">
-          <span>2023.11</span>
-          <span>Scroll Experience</span>
-        </div>
-        <h3 class="timeline-item__title">ux-scroll — 스크롤 구간 기반 연출 엔진</h3>
-        <p class="timeline-item__summary">스크롤 위치를 세분화해 애플식 전환을 구현하는 TypeScript 라이브러리. 구간별 콜백과 트랜지션 API를 제공합니다.</p>
-        <button class="timeline-item__toggle" type="button" aria-expanded="false">맥락 더 보기</button>
-        <div class="timeline-item__detail" hidden>
-          <p>requestAnimationFrame을 구간별로 라우팅해 레이아웃 리플로우를 최소화하고, React/Vue 예제를 분리해 문서에 포함했습니다. CodePen 데모를 자동 배포하는 GitHub Actions 워크플로우를 구성했습니다.</p>
-        </div>
-      </article>
-      <article class="timeline-item">
-        <div class="timeline-item__meta">
           <span>2023.08</span>
           <span>Story Engine</span>
         </div>
@@ -233,16 +220,6 @@ title: Matthew Yoon — 윤창원
           <li>Storybook</li>
         </ul>
       </article>
-      <article class="project-card" data-category="experience tooling">
-        <span class="project-card__meta">2023 · Motion Toolkit</span>
-        <h3 class="project-card__title">ux-scroll</h3>
-        <p class="project-card__description">스크롤 구간을 기준으로 트리거와 트랜지션을 다루는 연출 엔진. React/Vue 샘플과 CodePen 데모를 함께 제공합니다.</p>
-        <ul class="project-card__tags">
-          <li>TypeScript</li>
-          <li>Scroll</li>
-          <li>Animation</li>
-        </ul>
-      </article>
     </div>
   </section>
 
@@ -266,7 +243,6 @@ title: Matthew Yoon — 윤창원
       <ul>
         <li>한국어 IME를 제어하는 virtual-keyboard 설계기</li>
         <li>OpenAPI 변화에 반응하는 React Query 코드 생성 파이프라인</li>
-        <li>스크롤 구간으로 스토리텔링을 모델링하는 ux-scroll 사례</li>
       </ul>
     </div>
   </section>
