@@ -220,7 +220,7 @@ export const HeroCTA = ({ focus }: HeroCTAProps) => {
     <div class="timeline" data-timeline>
       <article class="timeline-item">
         <div class="timeline-item__meta">
-          <span>2024.10</span>
+          <span>2025.10</span>
           <span>AI Platform</span>
         </div>
         <h3 class="timeline-item__title">Cushion.AI — AI-중재형 심리상담 지원 모노레포</h3>
@@ -233,12 +233,12 @@ export const HeroCTA = ({ focus }: HeroCTAProps) => {
       </article>
       <article class="timeline-item">
         <div class="timeline-item__meta">
-          <span>2005.10</span>
+          <span>2025.10</span>
           <span>Interaction Utility</span>
         </div>
         <h3 class="timeline-item__title">easter-egg — Konami Code 기반 이스터에그 시퀀스 엔진</h3>
-        <p class="timeline-item__summary">Konami Code와 커스텀 키 시퀀스를 감지해 원하는 콜백을 실행하는 경량 TypeScript 라이브러리로, 2005년 7월 시작한 실험을
-2005년 10월까지 확장했습니다.</p>
+        <p class="timeline-item__summary">Konami Code와 커스텀 키 시퀀스를 감지해 원하는 콜백을 실행하는 경량 TypeScript 라이브러리로, 2025년 7월 시작한 실험을
+2025년 10월까지 확장했습니다.</p>
         <button class="timeline-item__toggle" type="button" aria-expanded="false">맥락 더 보기</button>
         <div class="timeline-item__detail" hidden>
           <p>window keyup 이벤트 리스너의 등록/해제를 안전하게 헬퍼로 추상화하고, 반복 입력 제한과 중첩 등록 방지를 옵션으로 제공해
@@ -247,11 +247,11 @@ export const HeroCTA = ({ focus }: HeroCTAProps) => {
       </article>
       <article class="timeline-item">
         <div class="timeline-item__meta">
-          <span>2005.09</span>
+          <span>2025.09</span>
           <span>DX Automation</span>
         </div>
         <h3 class="timeline-item__title">react-query-help — React Query 코드 자동 생성기</h3>
-        <p class="timeline-item__summary">API 스키마에서 React Query 훅·옵션·테스트 토대를 자동 생성하는 CLI를 2005년 9월에 마무리하며, 팀 캐싱 전략을 코드 생성으로
+        <p class="timeline-item__summary">API 스키마에서 React Query 훅·옵션·테스트 토대를 자동 생성하는 CLI를 2025년 9월에 마무리하며, 팀 캐싱 전략을 코드 생성으로
 표준화했습니다.</p>
         <button class="timeline-item__toggle" type="button" aria-expanded="false">맥락 더 보기</button>
         <div class="timeline-item__detail" hidden>
@@ -261,11 +261,11 @@ Changesets와 Husky를 포함한 릴리스 자동화 파이프라인도 함께 �
       </article>
       <article class="timeline-item">
         <div class="timeline-item__meta">
-          <span>2005.08</span>
+          <span>2025.08</span>
           <span>Virtual Keyboard</span>
         </div>
         <h3 class="timeline-item__title">virtual-keyboard — 한국어 IME 제어 가상 키보드</h3>
-        <p class="timeline-item__summary">브라우저 컴포지션 이슈를 우회하기 위해 2005년 8월에 제작한 React 가상 키보드. 모바일 네이티브 키보드를 차단하고 한국어 조합을
+        <p class="timeline-item__summary">브라우저 컴포지션 이슈를 우회하기 위해 2025년 8월에 제작한 React 가상 키보드. 모바일 네이티브 키보드를 차단하고 한국어 조합을
 직접 제어합니다.</p>
         <button class="timeline-item__toggle" type="button" aria-expanded="false">맥락 더 보기</button>
         <div class="timeline-item__detail" hidden>
@@ -275,11 +275,11 @@ Changesets와 Husky를 포함한 릴리스 자동화 파이프라인도 함께 �
       </article>
       <article class="timeline-item">
         <div class="timeline-item__meta">
-          <span>2005.07</span>
+          <span>2025.07</span>
           <span>Automation Bot</span>
         </div>
         <h3 class="timeline-item__title">crypto-auto-trader — 이더리움 추세 추종 자동 투자 봇</h3>
-        <p class="timeline-item__summary">이더리움 추세 추종 알고리즘과 커스텀 전략을 합성해 자동 투자하고 텔레그램으로 알림을 전달하는 Node.js 봇을 2005년 7월에 구축했습니다.</p>
+        <p class="timeline-item__summary">이더리움 추세 추종 알고리즘과 커스텀 전략을 합성해 자동 투자하고 텔레그램으로 알림을 전달하는 Node.js 봇을 2025년 7월에 구축했습니다.</p>
         <button class="timeline-item__toggle" type="button" aria-expanded="false">맥락 더 보기</button>
         <div class="timeline-item__detail" hidden>
           <p>트렌드 지표와 커스텀 전략을 병렬로 평가해 합의된 시그널에서만 주문을 발행하고, 포지션·리스크 관리를 텔레그램 메시지와 대시보드로
@@ -288,7 +288,7 @@ Changesets와 Husky를 포함한 릴리스 자동화 파이프라인도 함께 �
       </article>
       <article class="timeline-item">
         <div class="timeline-item__meta">
-          <span>2024.09</span>
+          <span>2025.09</span>
           <span>Payment Experiment</span>
         </div>
         <h3 class="timeline-item__title">pre-pay — 선불권을 디지털 워크플로로 전환한 프리페이 실험</h3>
@@ -301,7 +301,7 @@ Changesets와 Husky를 포함한 릴리스 자동화 파이프라인도 함께 �
       </article>
       <article class="timeline-item">
         <div class="timeline-item__meta">
-          <span>2024.08</span>
+          <span>2025.08</span>
           <span>Interaction Utility</span>
         </div>
         <h3 class="timeline-item__title">easter-egg — Konami Code를 감지하는 인터랙션 유틸</h3>
@@ -313,7 +313,7 @@ Changesets와 Husky를 포함한 릴리스 자동화 파이프라인도 함께 �
       </article>
       <article class="timeline-item">
         <div class="timeline-item__meta">
-          <span>2024.07</span>
+          <span>2025.07</span>
           <span>Virtual Keyboard</span>
         </div>
         <h3 class="timeline-item__title">virtual-keyboard — 한국어 IME를 제어하는 입력 엔진</h3>
@@ -325,7 +325,7 @@ Changesets와 Husky를 포함한 릴리스 자동화 파이프라인도 함께 �
       </article>
       <article class="timeline-item">
         <div class="timeline-item__meta">
-          <span>2024.05</span>
+          <span>2025.05</span>
           <span>DX Automation</span>
         </div>
         <h3 class="timeline-item__title">react-query-helper — OpenAPI에서 훅까지</h3>
@@ -337,7 +337,7 @@ Changesets와 Husky를 포함한 릴리스 자동화 파이프라인도 함께 �
       </article>
       <article class="timeline-item">
         <div class="timeline-item__meta">
-          <span>2024.03</span>
+          <span>2025.03</span>
           <span>Transpiler</span>
         </div>
         <h3 class="timeline-item__title">koreanscript — 한글 키워드 기반 TS 트랜스파일러</h3>
@@ -349,7 +349,7 @@ Changesets와 Husky를 포함한 릴리스 자동화 파이프라인도 함께 �
       </article>
       <article class="timeline-item">
         <div class="timeline-item__meta">
-          <span>2023.08</span>
+          <span>2025.08</span>
           <span>Story Engine</span>
         </div>
         <h3 class="timeline-item__title">visual-novel — JSON 기반 비주얼 노블 툴킷</h3>
