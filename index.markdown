@@ -220,6 +220,19 @@ export const HeroCTA = ({ focus }: HeroCTAProps) => {
     <div class="timeline" data-timeline>
       <article class="timeline-item">
         <div class="timeline-item__meta">
+          <span>2024.10</span>
+          <span>AI Platform</span>
+        </div>
+        <h3 class="timeline-item__title">Cushion.AI — AI-중재형 심리상담 지원 모노레포</h3>
+        <p class="timeline-item__summary">Ionic 프론트엔드와 NestJS 백엔드, PostgreSQL, ChatGPT API를 묶어 상담 전 과정을 안전하게 안내하는 구독형 플랫폼을 구축하고 있습니다.</p>
+        <button class="timeline-item__toggle" type="button" aria-expanded="false">맥락 더 보기</button>
+        <div class="timeline-item__detail" hidden>
+          <p>pnpm 워크스페이스 기반 모노레포로 Web · iOS · Android를 단일 코드베이스에서 제공하고, Prisma ORM과 PostgreSQL을 결합해 상담 세션 데이터를 영속화합니다. ChatGPT 통합으로 상담 전/중/후 안전장치를 강화하고, SNS 로그인과 구독 + 일일 무료 크레딧 정책을 실험 중입니다.</p>
+          <p>SEO와 한국어 지역화를 고려한 SSR 전략은 <code>docs/architecture.md</code>에 정리하고, 향후 요구사항 변경은 <code>docs/</code> 디렉터리 문서로 기록해 협업 속도를 유지합니다.</p>
+        </div>
+      </article>
+      <article class="timeline-item">
+        <div class="timeline-item__meta">
           <span>2005.10</span>
           <span>Interaction Utility</span>
         </div>
@@ -360,6 +373,16 @@ Changesets와 Husky를 포함한 릴리스 자동화 파이프라인도 함께 �
       <button class="chip" type="button" data-filter="experience">경험 설계</button>
     </div>
     <div class="project-grid" data-project-list>
+      <article class="project-card" data-category="automation experience tooling">
+        <span class="project-card__meta">2024 · AI Platform</span>
+        <h3 class="project-card__title">Cushion.AI</h3>
+        <p class="project-card__description">Ionic + NestJS + PostgreSQL 기반 AI 중재 상담 플랫폼. ChatGPT 안전장치와 구독·크레딧 정책을 모노레포에서 실험합니다.</p>
+        <ul class="project-card__tags">
+          <li>Ionic</li>
+          <li>NestJS</li>
+          <li>ChatGPT API</li>
+        </ul>
+      </article>
       <article class="project-card" data-category="automation tooling">
         <span class="project-card__meta">2005 · Automation Bot</span>
         <h3 class="project-card__title">crypto-auto-trader</h3>
