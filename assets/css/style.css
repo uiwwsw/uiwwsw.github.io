@@ -55,6 +55,27 @@ a:hover {
   color: var(--accent);
 }
 
+.site-main p a,
+.site-main li a,
+.site-main blockquote a,
+.site-main figcaption a {
+  text-decoration: underline;
+  text-decoration-thickness: 0.1em;
+  text-underline-offset: 0.18em;
+  text-decoration-color: color-mix(in srgb, currentColor 60%, var(--accent) 40%);
+}
+
+.site-main p a:hover,
+.site-main li a:hover,
+.site-main blockquote a:hover,
+.site-main figcaption a:hover,
+.site-main p a:focus-visible,
+.site-main li a:focus-visible,
+.site-main blockquote a:focus-visible,
+.site-main figcaption a:focus-visible {
+  text-decoration-color: var(--accent);
+}
+
 .container {
   width: min(960px, calc(100% - 3rem));
   margin: 0 auto;

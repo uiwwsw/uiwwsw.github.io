@@ -30,12 +30,13 @@
 .tetris-links a {
   color: var(--color-primary, #2563eb);
   font-weight: 600;
-  text-decoration: none;
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
 }
 
 .tetris-links a:hover,
 .tetris-links a:focus {
-  text-decoration: underline;
+  color: color-mix(in srgb, var(--color-primary, #2563eb) 80%, white 20%);
 }
 
 .tetris-intro {
