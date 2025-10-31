@@ -7,45 +7,168 @@ title: Matthew Yoon — 윤창원
   <section id="profile" class="hero">
     <div class="hero__lead">
       <p class="hero__eyebrow">윤창원 · Matthew Yoon</p>
-      <h1 class="hero__title">타입세이프한 인터랙션과 자동화를 동시에 몰아가는 TypeScript 개발자입니다.</h1>
-      <p class="hero__subtitle">한국어 IME 같은 까다로운 입력 UX를 직접 라이브러리로 풀고, 팀의 반복 의사결정은 CLI와 코드 생성으로 자동화합니다. 모든 실험의 목표는 “사용자가 느끼는 몰입”과 “팀이 얻는 속도”를 함께 끌어올리는 것입니다.</p>
+      <h1 class="hero__title">타입세이프한 인터랙션과 자동화를 동시에 몰아가는 TypeScript Interaction Engineer.</h1>
+      <p class="hero__subtitle">React · Vue에서 상태 전이를 설계하고, 반복되는 의사결정은 CLI와 코드 생성으로 자동화합니다. 입력 난제와 DX 파이프라인을 하나의 스토리로 묶어 팀이 <strong>몰입</strong>과 <strong>속도</strong>를 동시에 획득하도록 설계합니다.</p>
+      <ul class="hero__meta" aria-label="현재 작업 요약">
+        <li><span class="badge badge--live">Live Build</span> React Query scaffolder와 Typedoc 워크플로를 Changesets로 자동 배포.</li>
+        <li><span class="badge badge--mono">Focus</span> 한국어 IME 제어 가상 키보드와 Scene Graph 기반 인터랙션 엔진.</li>
+      </ul>
       <div class="hero__actions" role="group" aria-label="바로 가기">
         <a class="button" href="#projects">최근 빌드 살펴보기</a>
         <a class="button button--ghost" href="https://velog.io/@uiwwsw" target="_blank" rel="noopener">Velog에서 읽기</a>
       </div>
     </div>
-    <div class="hero__grid">
-      <article class="hero__card">
-        <h3>한 줄 소개</h3>
-        <p>타입세이프한 프론트엔드와 DX 툴링을 동시에 몰아가는 “인터랙션+자동화” 지향의 TypeScript 개발자.</p>
-        <p class="hero__note">가장 어려운 입력/연출 문제를 직접 도구화하고, 팀이 재사용할 수 있게 배포합니다.</p>
+    <div class="hero__code" aria-hidden="true">
+      <div class="code-card">
+        <header class="code-card__header">
+          <span>app/hero.tsx</span>
+          <span class="code-card__status">build ✅</span>
+        </header>
+        <pre class="code-card__body"><code>import { createScene } from '@matthew/interaction-kit';
+
+type HeroCTAProps = {
+  focus: 'interaction' | 'automation';
+};
+
+export const HeroCTA = ({ focus }: HeroCTAProps) => {
+  const scene = createScene({
+    focus,
+    onShip: deploy('typed-ux'),
+  });
+
+  return (
+    &lt;Stack spacing={12}&gt;
+      &lt;HeroHeading&gt;Type safe delivery&lt;/HeroHeading&gt;
+      &lt;Button variant="accent" onClick={scene.launch}&gt;
+        Ship immersive UX
+      &lt;/Button&gt;
+    &lt;/Stack&gt;
+  );
+};</code></pre>
+      </div>
+    </div>
+    <div class="hero__grid" role="list">
+      <article class="hero__card" role="listitem">
+        <div class="hero__card-head">
+          <span class="badge">Core Loop</span>
+          <h3>Interaction &amp; Automation</h3>
+        </div>
+        <p>상태 전이를 스토리보드처럼 모델링하고, CLI로 반복 작업을 자동화해 프로덕트 실험 속도를 올립니다.</p>
+        <p class="hero__note">스토리텔링과 빌드 파이프라인을 같은 레포에서 관리합니다.</p>
       </article>
-      <article class="hero__card">
-        <h3>지금 집중하는 것</h3>
-        <p>한국어 조합을 다루는 가상 키보드, React Query 코드를 자동 생성하는 CLI, 암호화폐 자동투자 프로그램을 병행해 “몰입”과 “속도”를 동시에 높입니다.</p>
-        <p class="hero__note">설계 → 구현 → 배포 → 문서화까지 한 묶음으로 움직입니다.</p>
+      <article class="hero__card" role="listitem">
+        <div class="hero__card-head">
+          <span class="badge">Systems</span>
+          <h3>IME · 입력 시스템</h3>
+        </div>
+        <p>한국어 조합, Pointer, MIDI 이벤트까지 제어하는 입력 파이프라인을 직접 구축해 어려운 UX를 타입으로 보장합니다.</p>
+        <p class="hero__note">Virtual Keyboard Guard · Composition Orchestrator</p>
       </article>
-      <article class="hero__card">
-        <h3>즐겨 쓰는 스택</h3>
-        <ul class="pill-list">
-          <li>TypeScript</li>
-          <li>React · React Query</li>
-          <li>Vue · Vite</li>
-          <li>Bun · pnpm · Changesets</li>
-        </ul>
+      <article class="hero__card" role="listitem">
+        <div class="hero__card-head">
+          <span class="badge">Stack</span>
+          <ul class="pill-list">
+            <li>TypeScript 5.x</li>
+            <li>React · Vue</li>
+            <li>TanStack Query</li>
+            <li>Bun · pnpm · Changesets</li>
+          </ul>
+        </div>
+        <p class="hero__note">DX 실험은 모두 mono-repo 템플릿과 CI recipe로 재배포합니다.</p>
       </article>
     </div>
   </section>
 
   <section id="highlights" class="section">
     <h2 class="section__title">Key Signals</h2>
-    <p class="section__intro">인터랙션 난제 해결과 DX 자동화를 동시에 밀어붙인 대표 사례 다섯 가지를 요약했습니다.</p>
-    <ul class="highlight-list">
-      <li><strong>한국어 IME 난제 해결:</strong> <em>virtual-keyboard</em>로 composition 이벤트를 직접 제어하고 모바일 네이티브 키보드를 차단합니다.</li>
-      <li><strong>DX 자동화:</strong> <em>react-query-helper</em>가 API 함수에서 React Query 훅·옵션·테스트를 자동 생성해 팀 캐싱 전략을 표준화합니다.</li>
-      <li><strong>언어 실험:</strong> <em>koreanscript</em>로 한글 키워드 기반 TypeScript 트랜스파일링과 --check 타입 검증을 지원합니다.</li>
-      <li><strong>스토리텔링 툴링:</strong> <em>visual-novel</em>로 JSON 시나리오, 자산 매핑, 저장/불러오기를 갖춘 웹 비주얼 노블 엔진을 배포합니다.</li>
-    </ul>
+    <p class="section__intro">인터랙션 난제 해결과 DX 자동화를 동시에 밀어붙인 대표 사례를 모듈 카드로 정리했습니다.</p>
+    <div class="signal-grid" role="list">
+      <article class="signal-card" role="listitem">
+        <header>
+          <span class="badge badge--mono">virtual-keyboard</span>
+          <h3>한국어 IME 난제 해결</h3>
+        </header>
+        <p>Composition 이벤트와 커스텀 키보드를 하나의 상태 머신으로 통제해 모바일 네이티브 키보드가 개입할 여지를 제거했습니다.</p>
+        <ul class="signal-meta">
+          <li>React 가상 키보드</li>
+          <li>IME Latency Guard</li>
+          <li>Storybook + Typedoc 배포</li>
+        </ul>
+      </article>
+      <article class="signal-card" role="listitem">
+        <header>
+          <span class="badge badge--mono">react-query-helper</span>
+          <h3>DX 자동화</h3>
+        </header>
+        <p>OpenAPI 스키마만으로 React Query 훅·옵션·테스트를 scaffold하는 CLI를 제작해 팀 캐싱 전략을 코드 생성으로 표준화했습니다.</p>
+        <ul class="signal-meta">
+          <li>Watch Mode Scaffold</li>
+          <li>Bun · pnpm 지원</li>
+          <li>Changesets 릴리스</li>
+        </ul>
+      </article>
+      <article class="signal-card" role="listitem">
+        <header>
+          <span class="badge badge--mono">koreanscript</span>
+          <h3>언어 실험</h3>
+        </header>
+        <p>한글 키워드 기반 TypeScript 트랜스파일러를 제작해 --check 타입 검증과 인터랙티브 플레이그라운드까지 제공했습니다.</p>
+        <ul class="signal-meta">
+          <li>AST Transform</li>
+          <li>Playground Deploy</li>
+          <li>Type-level Spec</li>
+        </ul>
+      </article>
+      <article class="signal-card" role="listitem">
+        <header>
+          <span class="badge badge--mono">visual-novel</span>
+          <h3>스토리텔링 툴링</h3>
+        </header>
+        <p>JSON 시나리오와 자산 매핑, 저장/불러오기를 갖춘 웹 비주얼 노블 엔진을 배포해 팀이 바로 서사를 실험하도록 만들었습니다.</p>
+        <ul class="signal-meta">
+          <li>Scene Graph Runtime</li>
+          <li>State Sync Layer</li>
+          <li>Cloud Save Hook</li>
+        </ul>
+      </article>
+    </div>
+  </section>
+
+  <section id="tooling" class="section">
+    <h2 class="section__title">Toolchain Playbook</h2>
+    <p class="section__intro">현업에서 반복 사용하는 엔지니어링 툴과 워크플로를 컴포넌트 레벨로 문서화했습니다.</p>
+    <div class="stack-grid" role="list">
+      <article class="stack-card" role="listitem">
+        <h3>Frontend Runtime</h3>
+        <p>React 18 · Vue 3를 Scene Graph와 State Machine으로 엮어 인터랙션을 컴포저블하게 유지합니다.</p>
+        <ul class="stack-card__tags">
+          <li>React 18</li>
+          <li>Vue 3</li>
+          <li>XState</li>
+          <li>Framer Motion</li>
+        </ul>
+      </article>
+      <article class="stack-card" role="listitem">
+        <h3>API &amp; Data Layer</h3>
+        <p>TanStack Query와 OpenAPI 스키마를 CLI로 잇고, Contract-first 개발을 Changesets 릴리스로 묶습니다.</p>
+        <ul class="stack-card__tags">
+          <li>TanStack Query</li>
+          <li>OpenAPI</li>
+          <li>Zod</li>
+          <li>MSW</li>
+        </ul>
+      </article>
+      <article class="stack-card" role="listitem">
+        <h3>Automation &amp; DevOps</h3>
+        <p>pnpm Workspace, Bun 런타임, GitHub Actions로 빌드-테스트-배포 파이프라인을 자동화합니다.</p>
+        <ul class="stack-card__tags">
+          <li>Bun</li>
+          <li>pnpm</li>
+          <li>GitHub Actions</li>
+          <li>Typedoc</li>
+        </ul>
+      </article>
+    </div>
   </section>
 
   <section id="capabilities" class="section">
