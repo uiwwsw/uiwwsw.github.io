@@ -111,6 +111,7 @@ export const HeroCTA = ({ focus }: HeroCTAProps) => {
       <article class="signal-card" role="listitem">
         <header>
           <span class="badge badge--mono">koreanscript</span>
+          <span class="badge badge--ai" aria-label="AI 시스템">AI</span>
           <h3>언어 실험</h3>
         </header>
         <p>한글 키워드 기반 TypeScript 트랜스파일러를 제작해 --check 타입 검증과 인터랙티브 플레이그라운드까지 제공했습니다.</p>
@@ -370,7 +371,10 @@ Changesets와 Husky를 포함한 릴리스 자동화 파이프라인도 함께 �
       <article class="timeline-item">
         <div class="timeline-item__meta">
           <span>2025.03</span>
-          <span>Transpiler</span>
+          <span class="timeline-item__labels">
+            <span class="badge badge--ai" aria-label="AI 시스템">AI</span>
+            Transpiler
+          </span>
         </div>
         <h3 class="timeline-item__title">koreanscript — 한글 키워드 기반 TS 트랜스파일러</h3>
         <p class="timeline-item__summary">한글 키워드로 작성한 .ks 파일을 TypeScript로 변환하고, --check 모드로 타입 검증을 제공하는 실험적 도구입니다.</p>
@@ -504,7 +508,10 @@ Changesets와 Husky를 포함한 릴리스 자동화 파이프라인도 함께 �
         </ul>
       </article>
       <article class="project-card" data-category="tooling">
-        <span class="project-card__meta">2024 · Language Experiment</span>
+        <span class="project-card__meta">
+          <span class="badge badge--ai" aria-label="AI 시스템">AI</span>
+          2024 · Language Experiment
+        </span>
         <h3 class="project-card__title">koreanscript</h3>
         <p class="project-card__description">한글 키워드 기반 .ks 코드를 TypeScript로 트랜스파일하고, --check 모드로 타입 오류를 바로 피드백하는 실험적 도구입니다.</p>
         <ul class="project-card__tags">
