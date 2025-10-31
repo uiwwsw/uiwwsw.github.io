@@ -98,6 +98,7 @@ export const HeroCTA = ({ focus }: HeroCTAProps) => {
       <article class="signal-card" role="listitem">
         <header>
           <span class="badge badge--mono">react-query-helper</span>
+          <span class="badge badge--ai" aria-label="AI 시스템">AI</span>
           <h3>DX 자동화</h3>
         </header>
         <p>OpenAPI 스키마만으로 React Query 훅·옵션·테스트를 scaffold하는 CLI를 제작해 팀 캐싱 전략을 코드 생성으로 표준화했습니다.</p>
@@ -122,6 +123,7 @@ export const HeroCTA = ({ focus }: HeroCTAProps) => {
       <article class="signal-card" role="listitem">
         <header>
           <span class="badge badge--mono">visual-novel</span>
+          <span class="badge badge--ai-half" aria-label="AI 보조">AI ½</span>
           <h3>스토리텔링 툴링</h3>
         </header>
         <p>JSON 시나리오와 자산 매핑, 저장/불러오기를 갖춘 웹 비주얼 노블 엔진을 배포해 팀이 바로 서사를 실험하도록 만들었습니다.</p>
@@ -220,8 +222,26 @@ export const HeroCTA = ({ focus }: HeroCTAProps) => {
     <div class="timeline" data-timeline>
       <article class="timeline-item">
         <div class="timeline-item__meta">
+          <span>2025.11</span>
+          <span class="timeline-item__labels">
+            <span class="badge badge--ai" aria-label="AI 시스템">AI</span>
+            Personal Site
+          </span>
+        </div>
+        <h3 class="timeline-item__title">uiwwsw.github.io — 인터랙션 &amp; 자동화 포트폴리오 허브</h3>
+        <p class="timeline-item__summary">Hero 카피부터 프로젝트 타임라인까지 AI 협업 스토리를 반영해, 상담 자동화와 DX 실험을 한눈에 정리한 최신 웹 레포입니다.</p>
+        <button class="timeline-item__toggle" type="button" aria-expanded="false">맥락 더 보기</button>
+        <div class="timeline-item__detail" hidden>
+          <p>Next-gen Hero와 Key Signal 섹션에 AI 배지를 배치해, 상담 플랫폼과 자동화 툴의 AI 사용 맥락을 빠르게 파악하도록 설계했습니다. GitHub Pages와 Actions로 지속 배포하며, 신규 레포와 문서가 생길 때마다 메타를 자동 업데이트합니다.</p>
+        </div>
+      </article>
+      <article class="timeline-item">
+        <div class="timeline-item__meta">
           <span>2025.10</span>
-          <span>AI Platform</span>
+          <span class="timeline-item__labels">
+            <span class="badge badge--ai" aria-label="AI 시스템">AI</span>
+            AI Platform
+          </span>
         </div>
         <h3 class="timeline-item__title">Cushion.AI — AI-중재형 심리상담 지원 모노레포</h3>
         <p class="timeline-item__summary">Ionic 프론트엔드와 NestJS 백엔드, PostgreSQL, ChatGPT API를 묶어 상담 전 과정을 안전하게 안내하는 구독형 플랫폼을 구축하고 있습니다.</p>
@@ -234,7 +254,10 @@ export const HeroCTA = ({ focus }: HeroCTAProps) => {
       <article class="timeline-item">
         <div class="timeline-item__meta">
           <span>2025.10</span>
-          <span>Interaction Utility</span>
+          <span class="timeline-item__labels">
+            <span class="badge badge--ai-half" aria-label="AI 보조">AI ½</span>
+            Interaction Utility
+          </span>
         </div>
         <h3 class="timeline-item__title">easter-egg — Konami Code 기반 이스터에그 시퀀스 엔진</h3>
         <p class="timeline-item__summary">Konami Code와 커스텀 키 시퀀스를 감지해 원하는 콜백을 실행하는 경량 TypeScript 라이브러리로, 2025년 7월 시작한 실험을
@@ -248,7 +271,10 @@ export const HeroCTA = ({ focus }: HeroCTAProps) => {
       <article class="timeline-item">
         <div class="timeline-item__meta">
           <span>2025.09</span>
-          <span>DX Automation</span>
+          <span class="timeline-item__labels">
+            <span class="badge badge--ai" aria-label="AI 시스템">AI</span>
+            DX Automation
+          </span>
         </div>
         <h3 class="timeline-item__title">react-query-help — React Query 코드 자동 생성기</h3>
         <p class="timeline-item__summary">API 스키마에서 React Query 훅·옵션·테스트 토대를 자동 생성하는 CLI를 2025년 9월에 마무리하며, 팀 캐싱 전략을 코드 생성으로
@@ -302,7 +328,10 @@ Changesets와 Husky를 포함한 릴리스 자동화 파이프라인도 함께 �
       <article class="timeline-item">
         <div class="timeline-item__meta">
           <span>2025.08</span>
-          <span>Interaction Utility</span>
+          <span class="timeline-item__labels">
+            <span class="badge badge--ai-half" aria-label="AI 보조">AI ½</span>
+            Interaction Utility
+          </span>
         </div>
         <h3 class="timeline-item__title">easter-egg — Konami Code를 감지하는 인터랙션 유틸</h3>
         <p class="timeline-item__summary">Konami Code 입력을 감지해 원하는 콜백을 실행하고, 커스텀 시퀀스도 등록할 수 있는 경량 TypeScript 라이브러리.</p>
@@ -326,7 +355,10 @@ Changesets와 Husky를 포함한 릴리스 자동화 파이프라인도 함께 �
       <article class="timeline-item">
         <div class="timeline-item__meta">
           <span>2025.05</span>
-          <span>DX Automation</span>
+          <span class="timeline-item__labels">
+            <span class="badge badge--ai" aria-label="AI 시스템">AI</span>
+            DX Automation
+          </span>
         </div>
         <h3 class="timeline-item__title">react-query-helper — OpenAPI에서 훅까지</h3>
         <p class="timeline-item__summary">API 함수에서 React Query 훅과 옵션, 테스트 토대를 자동 생성하는 CLI로 팀 캐싱 전략을 일관화했습니다.</p>
@@ -350,7 +382,10 @@ Changesets와 Husky를 포함한 릴리스 자동화 파이프라인도 함께 �
       <article class="timeline-item">
         <div class="timeline-item__meta">
           <span>2025.08</span>
-          <span>Story Engine</span>
+          <span class="timeline-item__labels">
+            <span class="badge badge--ai-half" aria-label="AI 보조">AI ½</span>
+            Story Engine
+          </span>
         </div>
         <h3 class="timeline-item__title">visual-novel — JSON 기반 비주얼 노블 툴킷</h3>
         <p class="timeline-item__summary">React+Vite 기반으로 장면, 자산, 세이브 시스템을 갖춘 웹 비주얼 노블 엔진을 구축했습니다.</p>
@@ -373,8 +408,24 @@ Changesets와 Husky를 포함한 릴리스 자동화 파이프라인도 함께 �
       <button class="chip" type="button" data-filter="experience">경험 설계</button>
     </div>
     <div class="project-grid" data-project-list>
+      <article class="project-card" data-category="experience automation tooling">
+        <span class="project-card__meta">
+          <span class="badge badge--ai" aria-label="AI 시스템">AI</span>
+          2025 · Personal Site
+        </span>
+        <h3 class="project-card__title">uiwwsw.github.io</h3>
+        <p class="project-card__description">TypeScript 인터랙션과 AI 협업 스토리를 통합한 최신 포트폴리오. Hero 복사부터 타임라인까지 자동화 레포와 상담 플랫폼을 연결합니다.</p>
+        <ul class="project-card__tags">
+          <li>Jekyll</li>
+          <li>TypeScript DX</li>
+          <li>GitHub Actions</li>
+        </ul>
+      </article>
       <article class="project-card" data-category="automation experience tooling">
-        <span class="project-card__meta">2024 · AI Platform</span>
+        <span class="project-card__meta">
+          <span class="badge badge--ai" aria-label="AI 시스템">AI</span>
+          2024 · AI Platform
+        </span>
         <h3 class="project-card__title">Cushion.AI</h3>
         <p class="project-card__description">Ionic + NestJS + PostgreSQL 기반 AI 중재 상담 플랫폼. ChatGPT 안전장치와 구독·크레딧 정책을 모노레포에서 실험합니다.</p>
         <ul class="project-card__tags">
@@ -404,7 +455,10 @@ Changesets와 Husky를 포함한 릴리스 자동화 파이프라인도 함께 �
         </ul>
       </article>
       <article class="project-card" data-category="automation tooling">
-        <span class="project-card__meta">2005 · DX Automation</span>
+        <span class="project-card__meta">
+          <span class="badge badge--ai" aria-label="AI 시스템">AI</span>
+          2005 · DX Automation
+        </span>
         <h3 class="project-card__title">react-query-help</h3>
         <p class="project-card__description">OpenAPI 스키마에서 React Query 훅과 옵션, 테스트 토대를 자동 생성하는 CLI. watch 모드와 템플릿 확장으로 팀 일관성을 확보합니다.</p>
         <ul class="project-card__tags">
@@ -414,7 +468,10 @@ Changesets와 Husky를 포함한 릴리스 자동화 파이프라인도 함께 �
         </ul>
       </article>
       <article class="project-card" data-category="experience tooling">
-        <span class="project-card__meta">2005 · Interaction Utility</span>
+        <span class="project-card__meta">
+          <span class="badge badge--ai-half" aria-label="AI 보조">AI ½</span>
+          2005 · Interaction Utility
+        </span>
         <h3 class="project-card__title">easter-egg</h3>
         <p class="project-card__description">Konami Code 시퀀스를 감지해 easter egg 콜백을 실행하는 경량 TypeScript 라이브러리. 리스너 등록/해제를 헬퍼로 추상화했습니다.</p>
         <ul class="project-card__tags">
@@ -434,7 +491,10 @@ Changesets와 Husky를 포함한 릴리스 자동화 파이프라인도 함께 �
         </ul>
       </article>
       <article class="project-card" data-category="automation tooling">
-        <span class="project-card__meta">2024 · DX Automation</span>
+        <span class="project-card__meta">
+          <span class="badge badge--ai" aria-label="AI 시스템">AI</span>
+          2024 · DX Automation
+        </span>
         <h3 class="project-card__title">react-query-helper</h3>
         <p class="project-card__description">OpenAPI 스키마에서 React Query 훅과 옵션, 테스트 토대를 자동 생성하는 CLI. watch 모드와 템플릿 확장으로 팀 일관성을 확보합니다.</p>
         <ul class="project-card__tags">
