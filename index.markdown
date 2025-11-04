@@ -448,16 +448,6 @@ Changesets와 Husky를 포함한 릴리스 자동화 파이프라인도 함께 �
           <li>Crypto Trading</li>
         </ul>
       </article>
-      <article class="project-card" data-category="experience tooling">
-        <span class="project-card__meta">2005 · Virtual Keyboard</span>
-        <h3 class="project-card__title">virtual-keyboard</h3>
-        <p class="project-card__description">한국어 IME 컴포지션을 자체 처리하고 모바일 네이티브 키보드를 차단하는 React 가상 키보드 라이브러리.</p>
-        <ul class="project-card__tags">
-          <li>React</li>
-          <li>TypeScript</li>
-          <li>Storybook</li>
-        </ul>
-      </article>
       <article class="project-card" data-category="automation tooling">
         <span class="project-card__meta">
           <span class="badge badge--ai" aria-label="AI 시스템">AI</span>
