@@ -1,0 +1,22 @@
+---
+layout: default
+---
+<article class="post">
+  <div class="container post-container">
+    <header class="post-header">
+      <p class="post-meta">
+        <time datetime="{{ page.date | date_to_xmlschema }}">{{ page.date | date: '%Y년 %m월 %d일' }}</time>
+        {% if page.categories %}
+          · {{ page.categories | array_to_sentence_string }}
+        {% endif %}
+      </p>
+      <h1 class="post-title">{{ page.title }}</h1>
+      {% if page.description or page.excerpt %}
+        <p class="post-excerpt">{{ page.description | default: page.excerpt }}</p>
+      {% endif %}
+    </header>
+    <div class="post-content">
+      {{ content }}
+    </div>
+  </div>
+</article>
