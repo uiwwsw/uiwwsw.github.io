@@ -7,13 +7,13 @@ title: Matthew Yoon — 윤창원
   <section id="profile" class="hero">
     <div class="hero__lead">
       <p class="hero__eyebrow">윤창원 · Matthew Yoon</p>
-      <h1 class="hero__title">10년 차 프론트엔드 리더, 조직 전환을 설계하는 CTO 지향 Interaction Strategist.</h1>
-      <p class="hero__subtitle">React · Vue 실험과 CLI 기반 자동화를 한 호흡으로 엮어, 팀이 고객 여정과 내부 운영을 동시에 제어하도록 이끕니다. 입력 난제와 DX 파이프라인을 하나의 스토리로 묶어 <strong>몰입</strong>과 <strong>속도</strong>를 동시에 확보합니다.</p>
+      <h1 class="hero__title">윤창원은 인터랙션과 자동화를 한 레포 안에 정리하는 프론트엔드 엔지니어입니다.</h1>
+      <p class="hero__subtitle">이 사이트에는 virtual-keyboard, react-query-helper, koreanscript, visual-novel처럼 실제로 운영 중인 실험을 그대로 기록했습니다. React/Vue UI, CLI, 문서를 함께 다루며 프로젝트의 흐름이 어떻게 이어지는지 보여줍니다.</p>
       <ul class="hero__meta" aria-label="현재 작업 요약">
-        <li><span class="badge badge--team">Leadership</span> 8인 프론트엔드 챕터를 리딩하며 분기별 실험 성공률 72%와 SLA 99.9%를 유지.</li>
-        <li><span class="badge badge--live">Live Build</span> React Query scaffolder와 Typedoc 워크플로를 Changesets로 자동 배포.</li>
-        <li><span class="badge badge--mono">Focus</span> 한국어 IME 제어 가상 키보드와 Scene Graph 기반 인터랙션 엔진.</li>
-        <li><span class="badge badge--org">Org Context</span> 상담/구독형 SaaS 모노레포에서 Web · AI 인터랙션 파이프라인 총괄.</li>
+        <li><span class="badge badge--team">virtual-keyboard</span> React 기반 한국어 가상 키보드로 composition 이벤트를 직접 제어하는 실험.</li>
+        <li><span class="badge badge--live">react-query-helper</span> OpenAPI 스키마에서 React Query 훅과 테스트 토대를 생성하는 CLI.</li>
+        <li><span class="badge badge--mono">koreanscript</span> 한글 키워드로 작성한 .ks 파일을 TypeScript로 트랜스파일하는 언어 실험.</li>
+        <li><span class="badge badge--org">visual-novel</span> JSON 시나리오와 Scene Graph를 묶어 인터랙티브 스토리를 구현한 웹 툴킷.</li>
       </ul>
       <div class="hero__actions" role="group" aria-label="바로 가기">
         <a class="button" href="#projects">최근 빌드 살펴보기</a>
@@ -23,14 +23,14 @@ title: Matthew Yoon — 윤창원
     <div class="hero__code" aria-hidden="true">
       <div class="flow-card">
         <header class="flow-card__header">
-          <span>조직 운영 Flow</span>
-          <span class="flow-card__status">People → Product → Platform</span>
+          <span>프로젝트 운영 Flow</span>
+          <span class="flow-card__status">문제 → 프로토타입 → 문서</span>
         </header>
         <ul class="flow-card__body">
-          <li><strong>Discovery</strong> · 분기별 고객 인터뷰 5회, Pain → KPI 정의, Product Council 공유.</li>
-          <li><strong>Squad Orchestration</strong> · Interaction/Automation 2개의 스쿼드를 리딩해 실험 Backlog를 주간으로 조정.</li>
-          <li><strong>Delivery</strong> · Storybook/Typedoc/CLI 템플릿을 묶어 2주 스프린트 안에 재사용 가능한 모듈로 배포.</li>
-          <li><strong>Ops Loop</strong> · KPI 보드와 Incident Review를 같은 mono-repo에 기록해 학습 자산화를 보장.</li>
+          <li><strong>Discovery</strong> · 필요한 인터랙션이나 자동화 포인트를 Velog와 docs/ 노트에 먼저 정의합니다.</li>
+          <li><strong>Prototype</strong> · React/Vue, CLI, Scene Graph 등 적합한 도구를 골라 별도 레포로 실험을 분리합니다.</li>
+          <li><strong>Delivery</strong> · Storybook, Typedoc, README 템플릿으로 결과를 문서화하고 GitHub Pages로 배포합니다.</li>
+          <li><strong>Ops Loop</strong> · 코드/문서/데모를 같은 모노레포 흐름으로 관리해 이후 프로젝트에서도 재사용합니다.</li>
         </ul>
       </div>
     </div>
@@ -72,53 +72,50 @@ title: Matthew Yoon — 윤창원
     <div class="signal-grid" role="list">
       <article class="signal-card" role="listitem">
         <header>
-          <span class="badge badge--mono">Leadership</span>
-          <h3>한국어 IME 난제 해결</h3>
+          <span class="badge badge--mono">Systems</span>
+          <h3>virtual-keyboard — 한국어 IME 제어</h3>
         </header>
-        <p>8인 챕터가 동일한 가상 키보드 엔진을 재사용하도록 설계해 모바일 상담 흐름의 입력 실패율을 32% 줄이고 CS 티켓을 제로화했습니다.</p>
+        <p>브라우저 composition 이벤트가 불안정한 환경에서도 한국어 입력을 직접 제어하려고 만든 React 가상 키보드 실험입니다. 모바일에선 포커스 가드로 네이티브 키보드를 차단하고, PC에선 커서/조합 상태를 스테이트 머신으로 추적합니다.</p>
         <ul class="signal-meta">
-          <li>virtual-keyboard squad · 4주 안착</li>
-          <li>Storybook/Typedoc + 온보딩 가이드</li>
-          <li>KPI: 모바일 전환율 +18pp</li>
+          <li>React + XState 구조로 composition 상태 관리</li>
+          <li>Storybook/Typedoc 데모로 인터랙션 문서화</li>
+          <li>모바일 포커스 가드로 네이티브 키보드 차단</li>
         </ul>
       </article>
       <article class="signal-card" role="listitem">
         <header>
-          <span class="badge badge--mono">Scaling</span>
-          <span class="badge badge--ai" aria-label="AI 시스템">AI</span>
-          <h3>DX 자동화</h3>
+          <span class="badge badge--mono">Automation</span>
+          <h3>react-query-helper — API 계약 자동화</h3>
         </header>
-        <p>OpenAPI 스키마 기반 CLI로 React Query 훅·옵션·테스트를 생성해 3개 제품 라인의 캐싱 정책을 표준화하고 배포 리드타임을 40% 단축했습니다.</p>
+        <p>OpenAPI 스키마를 읽어 React Query 훅, 옵션, 기본 테스트 파일을 생성하는 CLI입니다. watch 모드로 스키마 변화에 맞춰 템플릿을 재생성하고, Changesets를 붙여 릴리스를 자동화했습니다.</p>
         <ul class="signal-meta">
-          <li>react-query-helper · CLI Ownership</li>
-          <li>KPI: 캐시 관련 장애 0건, 배포 주기 주 2회 → 주 3회</li>
-          <li>Changesets + Bun/pnpm 릴리스 파이프라인</li>
+          <li>CLI + OpenAPI 스키마 파이프라인</li>
+          <li>watch 모드와 타입/테스트 동시 생성</li>
+          <li>Changesets · Bun/pnpm 릴리스 템플릿</li>
         </ul>
       </article>
       <article class="signal-card" role="listitem">
         <header>
-          <span class="badge badge--mono">Innovation</span>
-          <span class="badge badge--ai" aria-label="AI 시스템">AI</span>
-          <h3>언어 실험</h3>
+          <span class="badge badge--mono">Language</span>
+          <h3>koreanscript — 타입 학습 실험</h3>
         </header>
-        <p>koreanscript 트랜스파일러로 내부 교육용 샌드박스를 열어 주니어 6명이 타입 시스템 사고를 빠르게 습득했고, 실험 repo 제출률을 2배 높였습니다.</p>
+        <p>한글 키워드로 작성한 .ks 파일을 TypeScript로 변환하고 --check 모드로 타입 오류를 바로 확인할 수 있는 트랜스파일러입니다. 언어 표와 CLI UX를 함께 제공해 타입 학습용 샌드박스로도 사용할 수 있습니다.</p>
         <ul class="signal-meta">
-          <li>Type-level Spec + Playground Deploy</li>
-          <li>CLI --check 모드로 품질 자동화</li>
-          <li>KPI: 학습 과제 재작업률 55% → 20%</li>
+          <li>토큰 맵핑 표 + CLI 문서 동시 제공</li>
+          <li>--check 모드로 tsserver 기반 타입 검증</li>
+          <li>Playground에서 코드 샘플 실험</li>
         </ul>
       </article>
       <article class="signal-card" role="listitem">
         <header>
-          <span class="badge badge--mono">Enablement</span>
-          <span class="badge badge--ai-half" aria-label="AI 보조">AI ½</span>
-          <h3>스토리텔링 툴링</h3>
+          <span class="badge badge--mono">Story</span>
+          <h3>visual-novel — 스토리텔링 툴킷</h3>
         </header>
-        <p>visual-novel 툴킷으로 CX·콘텐츠 팀 5명이 UI 엔지니어 도움 없이 시나리오를 시험해, 신규 캠페인 리드타임을 3주에서 1주로 줄였습니다.</p>
+        <p>JSON 시나리오, Scene Graph, Cloud Save를 조합해 웹에서 바로 비주얼 노블을 만들 수 있는 React+Vite 기반 툴킷입니다. 스토리 편집과 인터랙션 검증을 UI 엔지니어 없이도 반복할 수 있게 구성했습니다.</p>
         <ul class="signal-meta">
-          <li>Scene Graph Runtime + Cloud Save</li>
-          <li>State Sync Layer로 QA 병행</li>
-          <li>KPI: 캠페인 실험/분기 2건 → 6건</li>
+          <li>Scene Graph Runtime + IndexedDB 저장</li>
+          <li>State Sync Layer로 QA와 디버깅 병행</li>
+          <li>튜토리얼 + 스타터 템플릿 동봉</li>
         </ul>
       </article>
     </div>
