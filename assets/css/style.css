@@ -407,8 +407,10 @@ a:hover {
 
 .code-card__footer {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.75rem;
   padding: 0.85rem 1.4rem;
   font-family: var(--font-mono);
   font-size: 0.78rem;
@@ -416,6 +418,15 @@ a:hover {
   text-transform: uppercase;
   color: color-mix(in srgb, var(--fg) 75%, rgba(151, 210, 255, 0.6) 25%);
   border-top: 1px solid color-mix(in srgb, var(--border) 60%, transparent);
+}
+
+.code-card__footer span {
+  min-width: 0;
+  white-space: normal;
+}
+
+.code-card__footer span:last-child {
+  flex-shrink: 0;
 }
 
 .hero__meta {
