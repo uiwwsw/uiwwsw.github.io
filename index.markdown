@@ -7,11 +7,13 @@ title: Matthew Yoon — 윤창원
   <section id="profile" class="hero">
     <div class="hero__lead">
       <p class="hero__eyebrow">윤창원 · Matthew Yoon</p>
-      <h1 class="hero__title">타입세이프한 인터랙션과 자동화를 동시에 몰아가는 TypeScript Interaction Engineer.</h1>
-      <p class="hero__subtitle">React · Vue에서 상태 전이를 설계하고, 반복되는 의사결정은 CLI와 코드 생성으로 자동화합니다. 입력 난제와 DX 파이프라인을 하나의 스토리로 묶어 팀이 <strong>몰입</strong>과 <strong>속도</strong>를 동시에 획득하도록 설계합니다.</p>
+      <h1 class="hero__title">10년 차 프론트엔드 리더, 조직 전환을 설계하는 CTO 지향 Interaction Strategist.</h1>
+      <p class="hero__subtitle">React · Vue 실험과 CLI 기반 자동화를 한 호흡으로 엮어, 팀이 고객 여정과 내부 운영을 동시에 제어하도록 이끕니다. 입력 난제와 DX 파이프라인을 하나의 스토리로 묶어 <strong>몰입</strong>과 <strong>속도</strong>를 동시에 확보합니다.</p>
       <ul class="hero__meta" aria-label="현재 작업 요약">
+        <li><span class="badge badge--team">Leadership</span> 8인 프론트엔드 챕터를 리딩하며 분기별 실험 성공률 72%와 SLA 99.9%를 유지.</li>
         <li><span class="badge badge--live">Live Build</span> React Query scaffolder와 Typedoc 워크플로를 Changesets로 자동 배포.</li>
         <li><span class="badge badge--mono">Focus</span> 한국어 IME 제어 가상 키보드와 Scene Graph 기반 인터랙션 엔진.</li>
+        <li><span class="badge badge--org">Org Context</span> 상담/구독형 SaaS 모노레포에서 Web · AI 인터랙션 파이프라인 총괄.</li>
       </ul>
       <div class="hero__actions" role="group" aria-label="바로 가기">
         <a class="button" href="#projects">최근 빌드 살펴보기</a>
@@ -19,32 +21,17 @@ title: Matthew Yoon — 윤창원
       </div>
     </div>
     <div class="hero__code" aria-hidden="true">
-      <div class="code-card">
-        <header class="code-card__header">
-          <span>app/hero.tsx</span>
-          <span class="code-card__status">build ✅</span>
+      <div class="flow-card">
+        <header class="flow-card__header">
+          <span>조직 운영 Flow</span>
+          <span class="flow-card__status">People → Product → Platform</span>
         </header>
-        <pre class="code-card__body"><code>import { createScene } from '@matthew/interaction-kit';
-
-type HeroCTAProps = {
-  focus: 'interaction' | 'automation';
-};
-
-export const HeroCTA = ({ focus }: HeroCTAProps) => {
-  const scene = createScene({
-    focus,
-    onShip: deploy('typed-ux'),
-  });
-
-  return (
-    &lt;Stack spacing={12}&gt;
-      &lt;HeroHeading&gt;Type safe delivery&lt;/HeroHeading&gt;
-      &lt;Button variant="accent" onClick={scene.launch}&gt;
-        Ship immersive UX
-      &lt;/Button&gt;
-    &lt;/Stack&gt;
-  );
-};</code></pre>
+        <ul class="flow-card__body">
+          <li><strong>Discovery</strong> · 분기별 고객 인터뷰 5회, Pain → KPI 정의, Product Council 공유.</li>
+          <li><strong>Squad Orchestration</strong> · Interaction/Automation 2개의 스쿼드를 리딩해 실험 Backlog를 주간으로 조정.</li>
+          <li><strong>Delivery</strong> · Storybook/Typedoc/CLI 템플릿을 묶어 2주 스프린트 안에 재사용 가능한 모듈로 배포.</li>
+          <li><strong>Ops Loop</strong> · KPI 보드와 Incident Review를 같은 mono-repo에 기록해 학습 자산화를 보장.</li>
+        </ul>
       </div>
     </div>
     <div class="hero__grid" role="list">
@@ -85,53 +72,53 @@ export const HeroCTA = ({ focus }: HeroCTAProps) => {
     <div class="signal-grid" role="list">
       <article class="signal-card" role="listitem">
         <header>
-          <span class="badge badge--mono">virtual-keyboard</span>
+          <span class="badge badge--mono">Leadership</span>
           <h3>한국어 IME 난제 해결</h3>
         </header>
-        <p>Composition 이벤트와 커스텀 키보드를 하나의 상태 머신으로 통제해 모바일 네이티브 키보드가 개입할 여지를 제거했습니다.</p>
+        <p>8인 챕터가 동일한 가상 키보드 엔진을 재사용하도록 설계해 모바일 상담 흐름의 입력 실패율을 32% 줄이고 CS 티켓을 제로화했습니다.</p>
         <ul class="signal-meta">
-          <li>React 가상 키보드</li>
-          <li>IME Latency Guard</li>
-          <li>Storybook + Typedoc 배포</li>
+          <li>virtual-keyboard squad · 4주 안착</li>
+          <li>Storybook/Typedoc + 온보딩 가이드</li>
+          <li>KPI: 모바일 전환율 +18pp</li>
         </ul>
       </article>
       <article class="signal-card" role="listitem">
         <header>
-          <span class="badge badge--mono">react-query-helper</span>
+          <span class="badge badge--mono">Scaling</span>
           <span class="badge badge--ai" aria-label="AI 시스템">AI</span>
           <h3>DX 자동화</h3>
         </header>
-        <p>OpenAPI 스키마만으로 React Query 훅·옵션·테스트를 scaffold하는 CLI를 제작해 팀 캐싱 전략을 코드 생성으로 표준화했습니다.</p>
+        <p>OpenAPI 스키마 기반 CLI로 React Query 훅·옵션·테스트를 생성해 3개 제품 라인의 캐싱 정책을 표준화하고 배포 리드타임을 40% 단축했습니다.</p>
         <ul class="signal-meta">
-          <li>Watch Mode Scaffold</li>
-          <li>Bun · pnpm 지원</li>
-          <li>Changesets 릴리스</li>
+          <li>react-query-helper · CLI Ownership</li>
+          <li>KPI: 캐시 관련 장애 0건, 배포 주기 주 2회 → 주 3회</li>
+          <li>Changesets + Bun/pnpm 릴리스 파이프라인</li>
         </ul>
       </article>
       <article class="signal-card" role="listitem">
         <header>
-          <span class="badge badge--mono">koreanscript</span>
+          <span class="badge badge--mono">Innovation</span>
           <span class="badge badge--ai" aria-label="AI 시스템">AI</span>
           <h3>언어 실험</h3>
         </header>
-        <p>한글 키워드 기반 TypeScript 트랜스파일러를 제작해 --check 타입 검증과 인터랙티브 플레이그라운드까지 제공했습니다.</p>
+        <p>koreanscript 트랜스파일러로 내부 교육용 샌드박스를 열어 주니어 6명이 타입 시스템 사고를 빠르게 습득했고, 실험 repo 제출률을 2배 높였습니다.</p>
         <ul class="signal-meta">
-          <li>AST Transform</li>
-          <li>Playground Deploy</li>
-          <li>Type-level Spec</li>
+          <li>Type-level Spec + Playground Deploy</li>
+          <li>CLI --check 모드로 품질 자동화</li>
+          <li>KPI: 학습 과제 재작업률 55% → 20%</li>
         </ul>
       </article>
       <article class="signal-card" role="listitem">
         <header>
-          <span class="badge badge--mono">visual-novel</span>
+          <span class="badge badge--mono">Enablement</span>
           <span class="badge badge--ai-half" aria-label="AI 보조">AI ½</span>
           <h3>스토리텔링 툴링</h3>
         </header>
-        <p>JSON 시나리오와 자산 매핑, 저장/불러오기를 갖춘 웹 비주얼 노블 엔진을 배포해 팀이 바로 서사를 실험하도록 만들었습니다.</p>
+        <p>visual-novel 툴킷으로 CX·콘텐츠 팀 5명이 UI 엔지니어 도움 없이 시나리오를 시험해, 신규 캠페인 리드타임을 3주에서 1주로 줄였습니다.</p>
         <ul class="signal-meta">
-          <li>Scene Graph Runtime</li>
-          <li>State Sync Layer</li>
-          <li>Cloud Save Hook</li>
+          <li>Scene Graph Runtime + Cloud Save</li>
+          <li>State Sync Layer로 QA 병행</li>
+          <li>KPI: 캠페인 실험/분기 2건 → 6건</li>
         </ul>
       </article>
     </div>
