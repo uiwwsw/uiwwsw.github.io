@@ -302,18 +302,56 @@ a:hover {
   backdrop-filter: blur(18px);
 }
 
-.code-card__header {
+.code-card__chrome {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  gap: 0.75rem;
-  padding: 1rem 1.35rem;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.85rem 1.4rem;
+  background: linear-gradient(
+    120deg,
+    color-mix(in srgb, var(--surface-elevated) 90%, rgba(69, 71, 255, 0.15) 10%),
+    color-mix(in srgb, var(--surface) 88%, rgba(21, 168, 192, 0.12) 12%)
+  );
+  border-bottom: 1px solid color-mix(in srgb, var(--border) 60%, transparent);
   font-family: var(--font-mono);
   font-size: 0.78rem;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
-  background: color-mix(in srgb, var(--surface-elevated) 85%, rgba(108, 99, 255, 0.18) 15%);
-  border-bottom: 1px solid color-mix(in srgb, var(--border) 65%, transparent);
+}
+
+.code-card__dots {
+  display: inline-flex;
+  gap: 0.25rem;
+}
+
+.code-card__dots span {
+  width: 0.6rem;
+  height: 0.6rem;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--accent) 60%, white 40%);
+  opacity: 0.65;
+  box-shadow: 0 0 12px rgba(81, 214, 255, 0.25);
+}
+
+.code-card__tabs {
+  display: inline-flex;
+  gap: 0.5rem;
+  align-items: center;
+  color: color-mix(in srgb, var(--fg) 80%, rgba(149, 162, 255, 0.6) 20%);
+}
+
+.code-card__tabs span {
+  padding: 0.2rem 0.65rem;
+  border-radius: 999px;
+  background: transparent;
+  border: 1px solid transparent;
+}
+
+.code-card__tabs span[aria-selected='true'] {
+  background: color-mix(in srgb, var(--surface) 80%, rgba(77, 148, 255, 0.32) 20%);
+  border-color: color-mix(in srgb, var(--accent) 70%, transparent);
+  color: color-mix(in srgb, var(--accent) 85%, white 15%);
 }
 
 .code-card__status {
@@ -321,19 +359,42 @@ a:hover {
   font-weight: 600;
 }
 
+.code-card__editor {
+  display: flex;
+  background: radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.08), transparent 55%),
+    linear-gradient(
+      170deg,
+      color-mix(in srgb, var(--surface-elevated) 85%, transparent 15%),
+      color-mix(in srgb, var(--surface) 70%, rgba(14, 25, 41, 0.75) 30%)
+    );
+}
+
+.code-card__gutter {
+  margin: 0;
+  padding: 1.35rem 0.9rem 1.55rem 1.35rem;
+  list-style: none;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  line-height: 1.75;
+  color: color-mix(in srgb, var(--fg) 45%, rgba(255, 255, 255, 0.2) 55%);
+  border-right: 1px solid color-mix(in srgb, var(--border) 60%, transparent);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.03), transparent);
+}
+
+.code-card__gutter li {
+  counter-increment: line;
+  min-width: 2ch;
+  text-align: right;
+}
+
 .code-card__body {
   margin: 0;
+  flex: 1;
   padding: 1.35rem 1.6rem 1.55rem;
   font-family: var(--font-mono);
   font-size: 0.85rem;
   line-height: 1.75;
   color: color-mix(in srgb, var(--fg) 94%, rgba(140, 195, 255, 0.8) 6%);
-  background: linear-gradient(
-      160deg,
-      color-mix(in srgb, var(--surface-elevated) 90%, transparent 10%),
-      color-mix(in srgb, var(--surface) 78%, rgba(108, 99, 255, 0.1) 22%)
-    ),
-    radial-gradient(circle at 82% 12%, rgba(112, 174, 255, 0.15), transparent 55%);
   overflow-x: auto;
   text-shadow: 0 1px 0 rgba(0, 0, 0, 0.3);
 }
@@ -342,6 +403,19 @@ a:hover {
   display: block;
   white-space: pre;
   font-variant-ligatures: contextual;
+}
+
+.code-card__footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.85rem 1.4rem;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--fg) 75%, rgba(151, 210, 255, 0.6) 25%);
+  border-top: 1px solid color-mix(in srgb, var(--border) 60%, transparent);
 }
 
 .hero__meta {
