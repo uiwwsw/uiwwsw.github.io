@@ -20,31 +20,56 @@ title: Matthew Yoon — 윤창원
     </div>
     <div class="hero__code" aria-hidden="true">
       <div class="code-card">
-        <header class="code-card__header">
-          <span>app/hero.tsx</span>
+        <div class="code-card__chrome" role="presentation">
+          <div class="code-card__dots" aria-hidden="true">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+          <div class="code-card__tabs" role="tablist" aria-label="Code tabs">
+            <span role="tab" aria-selected="true">app/hero.tsx</span>
+            <span role="tab" aria-selected="false">workflow.ts</span>
+          </div>
           <span class="code-card__status">build ✅</span>
-        </header>
-        <pre class="code-card__body"><code>import { createScene } from '@matthew/interaction-kit';
+        </div>
+        <div class="code-card__editor">
+          <ol class="code-card__gutter" aria-hidden="true">
+            <li>1</li>
+            <li>2</li>
+            <li>3</li>
+            <li>4</li>
+            <li>5</li>
+            <li>6</li>
+            <li>7</li>
+            <li>8</li>
+            <li>9</li>
+            <li>10</li>
+            <li>11</li>
+            <li>12</li>
+            <li>13</li>
+            <li>14</li>
+            <li>15</li>
+            <li>16</li>
+          </ol>
+          <pre class="code-card__body"><code>import { composeInputPipeline, storyboard, deployPlaybook } from '@uiwwsw/frontend-lab';
 
-type HeroCTAProps = {
-  focus: 'interaction' | 'automation';
-};
+type TenYearFrontend = ReturnType&lt;typeof storyboard&gt;;
 
-export const HeroCTA = ({ focus }: HeroCTAProps) => {
-  const scene = createScene({
-    focus,
-    onShip: deploy('typed-ux'),
-  });
+const matthew: TenYearFrontend = storyboard({
+  tenure: '10Y',
+  stack: ['React', 'Vue', 'IME systems'],
+  rituals: ['scene graph sketch', 'CLI automation'],
+  guardrails: composeInputPipeline(['keyboard', 'pointer', 'midi']),
+});
 
-  return (
-    &lt;Stack spacing={12}&gt;
-      &lt;HeroHeading&gt;Type safe delivery&lt;/HeroHeading&gt;
-      &lt;Button variant="accent" onClick={scene.launch}&gt;
-        Ship immersive UX
-      &lt;/Button&gt;
-    &lt;/Stack&gt;
-  );
-};</code></pre>
+export const Hero = () => (
+  &lt;HeroCanvas focus="interaction+automation" onShip={deployPlaybook(matthew)} /&gt;
+);</code></pre>
+        </div>
+        <div class="code-card__footer">
+          <span>10Y Frontend · Interaction Systems Artisan</span>
+          <span aria-hidden="true">⌘ + ⇧ + P</span>
+        </div>
       </div>
     </div>
     <div class="hero__grid" role="list">
