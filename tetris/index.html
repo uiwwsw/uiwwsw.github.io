@@ -227,6 +227,7 @@ extra_css:
       players = Number(players);
       var stage = document.querySelector('.tetris-stage');
       if (stage) {
+        stage.classList.add('is-playing');
         stage.classList.toggle('is-singleplayer', players === 1);
         stage.classList.toggle('is-multiplayer', players > 1);
       }
