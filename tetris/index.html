@@ -225,11 +225,24 @@ extra_css:
 
     function tetris(players) {
       players = Number(players);
+      var stage = document.querySelector('.tetris-stage');
+      if (stage) {
+        stage.classList.toggle('is-singleplayer', players === 1);
+        stage.classList.toggle('is-multiplayer', players > 1);
+      }
       document.querySelectorAll('.tetris-board').forEach(function (board, index) {
-        if (index < players) {
+        var isActive = index < players;
+        var preview = board.querySelector('.tetris-preview');
+        if (isActive) {
           board.removeAttribute('hidden');
+          if (preview) {
+            preview.removeAttribute('hidden');
+          }
         } else {
           board.setAttribute('hidden', 'hidden');
+          if (preview) {
+            preview.setAttribute('hidden', 'hidden');
+          }
         }
       });
       for (var i = 0; i < players; i++) {
