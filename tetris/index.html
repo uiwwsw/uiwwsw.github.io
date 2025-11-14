@@ -27,8 +27,20 @@ extra_css:
     <div class="tetris-controls" aria-live="polite">
       <button id="startBtn" type="button" class="tetris-start">게임 시작</button>
       <div class="tetris-canvases">
-        <canvas id="canvas1" data-index="0" aria-label="플레이어 1 게임 보드" role="img"></canvas>
-        <canvas id="canvas2" data-index="1" aria-label="플레이어 2 게임 보드" role="img"></canvas>
+        <div class="tetris-board" data-player="1" hidden>
+          <canvas id="canvas1" data-index="0" aria-label="플레이어 1 게임 보드" role="img"></canvas>
+          <div class="tetris-preview" aria-label="플레이어 1 다음 블록">
+            <p class="tetris-preview-label">다음 블록</p>
+            <canvas id="preview1" aria-label="플레이어 1 다음 블록 미리보기" role="img"></canvas>
+          </div>
+        </div>
+        <div class="tetris-board" data-player="2" hidden>
+          <canvas id="canvas2" data-index="1" aria-label="플레이어 2 게임 보드" role="img"></canvas>
+          <div class="tetris-preview" aria-label="플레이어 2 다음 블록">
+            <p class="tetris-preview-label">다음 블록</p>
+            <canvas id="preview2" aria-label="플레이어 2 다음 블록 미리보기" role="img"></canvas>
+          </div>
+        </div>
       </div>
     </div>
     <aside class="tetris-help" aria-label="조작 설명">
@@ -203,6 +215,7 @@ extra_css:
           ],
         ],
       };
+    var shapeList = Object.values(shape);
 
     var playerNumber = (function ask() {
       var n = prompt('플레이할 인원을 숫자로 적어주세요. 1 또는 2를 입력하세요.');
@@ -211,12 +224,26 @@ extra_css:
     tetris(playerNumber);
 
     function tetris(players) {
+      players = Number(players);
+      document.querySelectorAll('.tetris-board').forEach(function (board, index) {
+        if (index < players) {
+          board.removeAttribute('hidden');
+        } else {
+          board.setAttribute('hidden', 'hidden');
+        }
+      });
       for (var i = 0; i < players; i++) {
         makePlayGround();
         player[i].canvas = document.getElementById('canvas' + Number(i + 1));
         player[i].ctx = player[i].canvas.getContext('2d');
         player[i].canvas.setAttribute('width', width * pixel);
         player[i].canvas.setAttribute('height', height * pixel);
+        player[i].previewCanvas = document.getElementById('preview' + Number(i + 1));
+        if (player[i].previewCanvas) {
+          player[i].previewCanvas.setAttribute('width', pixel * 5);
+          player[i].previewCanvas.setAttribute('height', pixel * 4);
+          player[i].previewCtx = player[i].previewCanvas.getContext('2d');
+        }
         newGame(player[i], localStorage.uiTetrisLevel === undefined ? 1 : localStorage.uiTetrisLevel);
       }
       var highlightKey = function (key, active) {
@@ -379,6 +406,7 @@ extra_css:
       clearTimeout(_player.dropSto);
       _player.map = [];
       _player.level = level;
+      _player.nextRandom = getRandomShapeIndex();
       for (var i = 0; i < height; i++) {
         var _row = [];
         for (var j = 0; j < width; j++) {
@@ -546,14 +574,56 @@ extra_css:
 
     function makeShape(_player) {
       _player.vertical = -1;
-      _player.random = Math.floor(Math.random() * 7 + 1) - 1;
+      if (typeof _player.nextRandom !== 'number') {
+        _player.nextRandom = getRandomShapeIndex();
+      }
+      _player.random = _player.nextRandom;
       _player.rotate = 0;
-      _player.arrayGroup = Object.values(shape)[_player.random];
+      _player.arrayGroup = shapeList[_player.random];
       _player.array = _player.arrayGroup[_player.rotate];
       _player.horizon = (5 - Math.floor(_player.array[0].length / 2));
       moveShape(_player);
+      prepareNextShape(_player);
       clearTimeout(_player.dropSto);
       intervalShape(_player);
+    }
+
+    function prepareNextShape(_player) {
+      _player.nextRandom = getRandomShapeIndex();
+      drawNextPreview(_player);
+    }
+
+    function drawNextPreview(_player) {
+      if (!_player.previewCtx) {
+        return;
+      }
+      var ctx = _player.previewCtx;
+      ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+      if (typeof _player.nextRandom !== 'number') {
+        return;
+      }
+      var previewArray = shapeList[_player.nextRandom][0];
+      var blockSize = Math.max(12, Math.floor(pixel * 0.6));
+      var previewHeight = previewArray.length * blockSize;
+      var previewWidth = previewArray[0].length * blockSize;
+      var offsetX = Math.floor((ctx.canvas.width - previewWidth) / 2);
+      var offsetY = Math.floor((ctx.canvas.height - previewHeight) / 2);
+      ctx.fillStyle = colors[_player.nextRandom];
+      ctx.strokeStyle = 'rgba(255,255,255,.25)';
+      for (var i = 0; i < previewArray.length; i++) {
+        for (var j = 0; j < previewArray[i].length; j++) {
+          if (previewArray[i][j] === 1) {
+            var x = offsetX + j * blockSize;
+            var y = offsetY + i * blockSize;
+            ctx.fillRect(x, y, blockSize, blockSize);
+            ctx.strokeRect(x, y, blockSize, blockSize);
+          }
+        }
+      }
+    }
+
+    function getRandomShapeIndex() {
+      return Math.floor(Math.random() * colors.length);
     }
 
     function architect(_player) {
@@ -628,6 +698,8 @@ extra_css:
         dropSto: null,
         canvas: null,
         ctx: null,
+        previewCanvas: null,
+        previewCtx: null,
         score: 0,
         level: 1,
         touchRotate: null,
@@ -639,6 +711,7 @@ extra_css:
         arrayGroup: 0,
         array: 0,
         random: 1,
+        nextRandom: null,
       };
     }
 
