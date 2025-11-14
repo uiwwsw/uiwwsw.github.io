@@ -114,6 +114,14 @@ extra_css:
       score = 15,
       player = [],
       colors = ['red', 'orange', 'yellow', 'green', 'cyan', 'blue', 'violet'],
+      speedSetting = {
+        min: 120,
+        baseFloor: 350,
+        timeAccelerationRate: 0.4,
+        maxTimeBonus: 250,
+        lineAccelerationStep: 12,
+        maxLineBonus: 200,
+      },
       shape = {
         a: [
           [
@@ -271,20 +279,37 @@ extra_css:
           element.classList.remove('is-active');
         }
       };
-      var checkCommonTurn = function (_player, rotate) {
-        if (isRotate(_player, rotate) === false) {
+      var rotatePiece = function (_player, direction) {
+        if (!_player || !_player.arrayGroup) {
           return false;
         }
-        return true;
-      };
-      var commonTurn = function (_player) {
-        if (_player.rotate >= _player.arrayGroup.length) {
-          _player.rotate = 0;
+        var rotate = direction === 'left' ? _player.rotate - 1 : _player.rotate + 1;
+        if (rotate >= _player.arrayGroup.length) {
+          rotate = 0;
         }
-        if (_player.rotate < 0) {
-          _player.rotate = _player.arrayGroup.length - 1;
+        if (rotate < 0) {
+          rotate = _player.arrayGroup.length - 1;
         }
-        _player.array = _player.arrayGroup[_player.rotate];
+        var targetArray = _player.arrayGroup[rotate];
+        var kicks = [
+          { x: 0, y: 0 },
+          { x: -1, y: 0 },
+          { x: 1, y: 0 },
+          { x: -2, y: 0 },
+          { x: 2, y: 0 },
+          { x: 0, y: -1 },
+        ];
+        for (var i = 0; i < kicks.length; i++) {
+          var offset = kicks[i];
+          if (canPlaceArray(_player, targetArray, _player.horizon + offset.x, _player.vertical + offset.y)) {
+            _player.horizon += offset.x;
+            _player.vertical += offset.y;
+            _player.rotate = rotate;
+            _player.array = targetArray;
+            return true;
+          }
+        }
+        return false;
       };
       var nextRight = function (_player) {
         if (isWall(_player, true)) {
@@ -303,16 +328,10 @@ extra_css:
         }
       };
       var turnRight = function (_player) {
-        if (checkCommonTurn(_player, 'right')) {
-          _player.rotate += 1;
-          commonTurn(_player);
-        }
+        rotatePiece(_player, 'right');
       };
       var turnLeft = function (_player) {
-        if (checkCommonTurn(_player, 'left')) {
-          _player.rotate -= 1;
-          commonTurn(_player);
-        }
+        rotatePiece(_player, 'left');
       };
       window.addEventListener('touchstart', function (event) {
         var _player = player[Number(event.target.dataset.index)];
@@ -421,6 +440,8 @@ extra_css:
       _player.map = [];
       _player.level = level;
       _player.nextRandom = getRandomShapeIndex();
+      _player.lineAcceleration = 0;
+      _player.speedStart = Date.now();
       for (var i = 0; i < height; i++) {
         var _row = [];
         for (var j = 0; j < width; j++) {
@@ -493,8 +514,7 @@ extra_css:
     }
 
     function intervalShape(_player) {
-      var _speed = 1000 - (_player.level * 100);
-      var speed = _speed < 300 ? 300 : _speed;
+      var speed = getDropSpeed(_player);
       _player.vertical++;
       moveShape(_player);
       _player.dropSto = setTimeout(function () {
@@ -547,40 +567,23 @@ extra_css:
       }).length === 0;
     }
 
-    function isRotate(_player, rotate) {
-      switch (rotate) {
-        case 'left':
-          if (_player.rotate === 0) {
-            rotate = _player.arrayGroup.length - 1;
-          } else {
-            rotate = _player.rotate - 1;
+    function canPlaceArray(_player, array, horizon, vertical) {
+      for (var i = 0; i < array.length; i++) {
+        for (var j = 0; j < array[i].length; j++) {
+          if (array[i][j] !== 1) {
+            continue;
           }
-          break;
-        case 'right':
-          if (_player.rotate === _player.arrayGroup.length - 1) {
-            rotate = 0;
-          } else {
-            rotate = _player.rotate + 1;
+          var x = horizon + j;
+          var y = vertical + i;
+          if (x < 0 || x >= width) {
+            return false;
           }
-          break;
-      }
-      var _array = _player.arrayGroup[rotate];
-      var col = Number(_array[0].length);
-      var row = Number(_array.length);
-      for (var i = 0; i < col; i++) {
-        if (_player.vertical + row - 1 >= height) {
-          return false;
-        }
-        if (_array[row - 1][i] === 1 && _player.map[_player.vertical + row - 1][_player.horizon + i] !== 0) {
-          return false;
-        }
-      }
-      for (var j = 0; j < row; j++) {
-        if (_array[j][0] === 1 && _player.map[_player.vertical + j][_player.horizon] !== 0) {
-          return false;
-        }
-        if (_array[j][col - 1] === 1 && _player.map[_player.vertical + j][_player.horizon + col - 1] !== 0) {
-          return false;
+          if (y >= height) {
+            return false;
+          }
+          if (y >= 0 && _player.map[y][x] !== 0) {
+            return false;
+          }
         }
       }
       return true;
@@ -673,6 +676,7 @@ extra_css:
       }
       var _score = score + Number(_player.level) - 1;
       _player.score += Math.pow(row, row);
+      increaseLineAcceleration(_player, row);
       if (playerNumber == 2) {
         var me = Number(_player.canvas.dataset.index) === 0 ? 1 : 0;
         makeSomeTrouble(player[me], row * _player.level);
@@ -716,6 +720,8 @@ extra_css:
         previewCtx: null,
         score: 0,
         level: 1,
+        lineAcceleration: 0,
+        speedStart: Date.now(),
         touchRotate: null,
         touchStartX: null,
         touchStartY: null,
@@ -727,6 +733,35 @@ extra_css:
         random: 1,
         nextRandom: null,
       };
+    }
+
+    function increaseLineAcceleration(_player, lines) {
+      if (!lines) {
+        return;
+      }
+      var bonus = lines * speedSetting.lineAccelerationStep;
+      _player.lineAcceleration = Math.min(
+        (_player.lineAcceleration || 0) + bonus,
+        speedSetting.maxLineBonus
+      );
+    }
+
+    function getDropSpeed(_player) {
+      var base = 1000 - _player.level * 100;
+      if (base < speedSetting.baseFloor) {
+        base = speedSetting.baseFloor;
+      }
+      var elapsedSeconds = (_player.speedStart ? Date.now() - _player.speedStart : 0) / 1000;
+      var timeBonus = Math.min(
+        elapsedSeconds * speedSetting.timeAccelerationRate,
+        speedSetting.maxTimeBonus
+      );
+      var lineBonus = Math.min(_player.lineAcceleration || 0, speedSetting.maxLineBonus);
+      var speed = base - timeBonus - lineBonus;
+      if (speed < speedSetting.min) {
+        speed = speedSetting.min;
+      }
+      return speed;
     }
 
     function makePlayGround() {
