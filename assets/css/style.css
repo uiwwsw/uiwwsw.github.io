@@ -1,15 +1,17 @@
 :root {
-  --bg: #070814;
+  --bg: #03060f;
+  --bg-alt: #0d1427;
   --fg: #f6f7fb;
   --muted: rgba(246, 247, 255, 0.68);
   --text-secondary: rgba(246, 247, 255, 0.82);
-  --accent: #72a7ff;
-  --accent-strong: #8a7dff;
-  --border: rgba(130, 164, 255, 0.28);
-  --surface: rgba(20, 24, 42, 0.9);
-  --surface-elevated: color-mix(in srgb, var(--surface) 85%, rgba(130, 164, 255, 0.25) 15%);
-  --prism-bg: color-mix(in srgb, rgba(9, 11, 20, 0.9) 70%, rgba(71, 109, 255, 0.2) 30%);
-  --prism-border: rgba(130, 164, 255, 0.25);
+  --accent: #8d9eff;
+  --accent-strong: #6d8bff;
+  --border: rgba(133, 163, 255, 0.32);
+  --grid-line: rgba(133, 163, 255, 0.12);
+  --surface: rgba(10, 14, 27, 0.82);
+  --surface-elevated: color-mix(in srgb, var(--surface) 90%, rgba(141, 158, 255, 0.35) 10%);
+  --prism-bg: color-mix(in srgb, rgba(5, 7, 15, 0.95) 75%, rgba(90, 130, 255, 0.25) 25%);
+  --prism-border: rgba(133, 163, 255, 0.32);
   --prism-keyword: #9cdcfe;
   --prism-string: #a5ffb8;
   --prism-function: #ffb86c;
@@ -22,15 +24,17 @@
 }
 
 [data-theme='light'] {
-  --bg: #f7f8fc;
+  --bg: #f5f7ff;
+  --bg-alt: #e7ebff;
   --fg: #15161c;
   --muted: rgba(21, 22, 28, 0.58);
   --text-secondary: rgba(21, 22, 28, 0.74);
   --accent: #155fff;
   --accent-strong: #0f45c2;
   --border: rgba(21, 22, 28, 0.12);
-  --surface: rgba(255, 255, 255, 0.82);
-  --surface-elevated: color-mix(in srgb, var(--surface) 82%, rgba(15, 95, 255, 0.1) 18%);
+  --grid-line: rgba(15, 23, 42, 0.08);
+  --surface: rgba(255, 255, 255, 0.9);
+  --surface-elevated: color-mix(in srgb, var(--surface) 92%, rgba(15, 95, 255, 0.15) 8%);
   --prism-bg: color-mix(in srgb, rgba(246, 248, 255, 0.95) 88%, rgba(15, 95, 255, 0.08) 12%);
   --prism-border: rgba(21, 22, 28, 0.12);
   --prism-keyword: #155fff;
@@ -50,11 +54,36 @@ html,
 body {
   margin: 0;
   padding: 0;
-  background: var(--bg);
+  background: radial-gradient(circle at 10% 20%, rgba(109, 91, 255, 0.35), transparent 55%),
+    radial-gradient(circle at 80% 0%, rgba(0, 255, 213, 0.15), transparent 45%), var(--bg);
   color: var(--fg);
   font-family: var(--font-body);
   letter-spacing: -0.01em;
   line-height: 1.6;
+  min-height: 100%;
+  position: relative;
+}
+
+body::before,
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: -2;
+}
+
+body::before {
+  background: radial-gradient(circle at 50% -10%, rgba(142, 158, 255, 0.2), transparent 55%);
+  filter: blur(40px);
+}
+
+body::after {
+  background-image: linear-gradient(0deg, var(--grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+  background-size: 120px 120px;
+  opacity: 0.4;
+  mix-blend-mode: screen;
 }
 
 img {
@@ -93,7 +122,7 @@ a:hover {
 }
 
 .container {
-  width: min(960px, calc(100% - 3rem));
+  width: min(1100px, calc(100% - 3rem));
   margin: 0 auto;
 }
 
@@ -197,6 +226,8 @@ a:hover {
 
 .site-main {
   padding: 5rem 0 6rem;
+  position: relative;
+  z-index: 1;
 }
 
 .post {
@@ -533,11 +564,30 @@ a:hover {
 .hero__card {
   padding: 1.5rem;
   border: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
-  background: var(--surface-elevated);
+  background: color-mix(in srgb, var(--surface-elevated) 92%, rgba(255, 255, 255, 0.02) 8%);
   border-radius: 1.25rem;
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(14px);
+}
+
+.hero__card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(135deg, rgba(142, 158, 255, 0.18), transparent 60%);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.hero__card:hover::after,
+.hero__card:focus-within::after {
+  opacity: 1;
 }
 
 .hero__note {
@@ -629,6 +679,17 @@ a:hover {
 
 .section {
   padding: 4rem 0;
+  position: relative;
+}
+
+.section::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at top right, color-mix(in srgb, var(--accent) 18%, transparent) 0%, transparent 55%);
+  opacity: 0.6;
+  pointer-events: none;
+  z-index: -1;
 }
 
 .section__title {
@@ -737,9 +798,10 @@ a:hover {
   padding: 1.6rem;
   border-radius: 1.35rem;
   border: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
-  background: var(--surface-elevated);
+  background: color-mix(in srgb, var(--surface-elevated) 92%, rgba(255, 255, 255, 0.03) 8%);
   display: grid;
   gap: 1rem;
+  box-shadow: 0 20px 50px rgba(3, 6, 15, 0.3);
 }
 
 .stack-card h3 {
@@ -849,8 +911,20 @@ ul.focus-card li {
 }
 
 .timeline {
+  position: relative;
   display: grid;
-  gap: 1.5rem;
+  gap: 1.75rem;
+  padding-left: 1.5rem;
+}
+
+.timeline::before {
+  content: '';
+  position: absolute;
+  top: 0.5rem;
+  bottom: 0.5rem;
+  left: 0.5rem;
+  width: 2px;
+  background: linear-gradient(180deg, rgba(141, 158, 255, 0.4), transparent);
 }
 
 ol.timeline {
@@ -860,12 +934,27 @@ ol.timeline {
 }
 
 .timeline-item {
+  position: relative;
   display: grid;
   gap: 0.5rem;
   padding: 1.5rem;
   border-radius: 1.25rem;
   border: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
-  background: var(--surface-elevated);
+  background: color-mix(in srgb, var(--surface-elevated) 95%, rgba(255, 255, 255, 0.02) 5%);
+  box-shadow: 0 25px 60px rgba(6, 8, 20, 0.35);
+}
+
+.timeline-item::before {
+  content: '';
+  position: absolute;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: var(--bg-alt);
+  border: 2px solid var(--accent);
+  left: -1.15rem;
+  top: 1.5rem;
+  box-shadow: 0 0 0 6px color-mix(in srgb, var(--accent) 20%, transparent);
 }
 
 .timeline-item__meta {
@@ -920,9 +1009,10 @@ ol.timeline {
   margin: 0;
   padding: 0.75rem 1rem;
   border-radius: 0.9rem;
-  background: color-mix(in srgb, var(--surface) 70%, rgba(130, 164, 255, 0.2) 30%);
+  background: color-mix(in srgb, var(--surface) 70%, rgba(130, 164, 255, 0.25) 30%);
   color: var(--text-secondary);
   font-size: 0.9rem;
+  border: 1px solid color-mix(in srgb, var(--border) 60%, transparent);
 }
 
 .timeline-item__detail p {
@@ -973,10 +1063,29 @@ ol.timeline {
   border: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
   border-radius: 1.25rem;
   padding: 1.5rem;
-  background: var(--surface-elevated);
+  background: color-mix(in srgb, var(--surface-elevated) 95%, rgba(255, 255, 255, 0.02) 5%);
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 20px 50px rgba(4, 6, 15, 0.32);
+}
+
+.project-card::after {
+  content: '';
+  position: absolute;
+  inset: 1px;
+  border-radius: inherit;
+  background: linear-gradient(130deg, rgba(141, 158, 255, 0.25), transparent 60%);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.project-card:hover::after,
+.project-card:focus-within::after {
+  opacity: 1;
 }
 
 .project-card__meta {

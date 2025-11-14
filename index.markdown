@@ -7,11 +7,11 @@ title: Matthew Yoon — 윤창원
   <section id="profile" class="hero">
     <div class="hero__lead">
       <p class="hero__eyebrow">윤창원 · Matthew Yoon</p>
-      <h1 class="hero__title">TypeScript로 인터랙션을 설계하고 자동화 도구까지 직접 만드는 프런트엔드 엔지니어입니다.</h1>
-      <p class="hero__subtitle">React · Vue에서 필요한 상태 전이를 직접 모델링하고, 반복 작업은 CLI와 코드 생성기로 정리합니다. 입력 제어와 DX 파이프라인을 한 흐름으로 묶어 팀이 <strong>집중</strong>과 <strong>지속성</strong>을 얻도록 돕습니다.</p>
+      <h1 class="hero__title">인터랙션과 디자인 시스템을 연결해 제품 팀의 속도를 높이는 프런트엔드 개발자입니다.</h1>
+      <p class="hero__subtitle">React · Vue 모노레포에서 상태 전이를 모델링하고, CLI와 코드 생성기로 반복 작업을 자동화합니다. 입력 제어, 디자인 토큰, 문서를 한 파이프라인으로 묶어 팀이 <strong>집중</strong>과 <strong>지속성</strong>을 얻도록 설계합니다.</p>
       <ul class="hero__meta" aria-label="현재 작업 요약">
-        <li><span class="badge badge--live">Live Build</span> React Query 스캐폴더와 Typedoc 워크플로를 Changesets로 꾸준히 배포 중입니다.</li>
-        <li><span class="badge badge--mono">Focus</span> 한국어 IME 제어 가상 키보드와 Scene Graph 기반 인터랙션 엔진.</li>
+        <li><span class="badge badge--live">Live Build</span> React Query 스캐폴더와 Storybook/Typedoc 워크플로를 Changesets로 꾸준히 배포 중입니다.</li>
+        <li><span class="badge badge--mono">Focus</span> 한국어 IME 제어 가상 키보드, Scene Graph 기반 인터랙션 엔진, 상담 플랫폼 디자인 시스템.</li>
       </ul>
       <div class="hero__actions" role="group" aria-label="바로 가기">
         <a class="button" href="#projects">최근 빌드 살펴보기</a>
@@ -216,189 +216,164 @@ export const Hero = () => (
     </div>
   </section>
 
-  <section id="worklog" class="section">
-    <h2 class="section__title">Project Signals</h2>
-    <p class="section__intro">문제를 정의하고 실험한 뒤 기록하는 흐름을 반복합니다. 항목을 펼쳐 배경과 설계 노트를 볼 수 있습니다.</p>
-    <div class="timeline" data-timeline>
-      <article class="timeline-item">
-        <div class="timeline-item__meta">
-          <span>2025.11</span>
-          <span class="timeline-item__labels">
-            <span class="badge badge--ai" aria-label="AI 시스템">AI</span>
-            Personal Site
-          </span>
-        </div>
-        <h3 class="timeline-item__title">uiwwsw.github.io — 인터랙션 &amp; 자동화 포트폴리오 허브</h3>
-        <p class="timeline-item__summary">Hero 카피와 프로젝트 타임라인을 직접 다듬어 상담 자동화와 DX 실험을 한 화면에서 볼 수 있도록 정리했습니다.</p>
-        <button class="timeline-item__toggle" type="button" aria-expanded="false">맥락 더 보기</button>
-        <div class="timeline-item__detail" hidden>
-          <p>Hero와 Key Signal 섹션에 AI 배지를 배치해 상담 플랫폼과 자동화 툴에서 AI를 어떻게 쓰는지 바로 파악하도록 했습니다. GitHub Pages와 Actions로 계속 배포하며, 새 레포와 문서가 생기면 메타 정보를 스크립트로 업데이트합니다.</p>
-        </div>
-      </article>
-      <article class="timeline-item">
-        <div class="timeline-item__meta">
-          <span>2025.10</span>
-          <span class="timeline-item__labels">
-            <span class="badge badge--ai" aria-label="AI 시스템">AI</span>
-            AI Platform
-          </span>
-        </div>
-        <h3 class="timeline-item__title">Cushion.AI — AI-중재형 심리상담 지원 모노레포</h3>
-        <p class="timeline-item__summary">Ionic 프런트엔드, NestJS 백엔드, PostgreSQL, ChatGPT API를 묶어 상담 전 과정을 단계별로 안내하는 구독형 플랫폼을 만들고 있습니다.</p>
-        <button class="timeline-item__toggle" type="button" aria-expanded="false">맥락 더 보기</button>
-        <div class="timeline-item__detail" hidden>
-          <p>pnpm 워크스페이스 기반 모노레포로 Web · iOS · Android를 같은 코드베이스에서 제공하고, Prisma ORM과 PostgreSQL로 상담 세션 데이터를 저장합니다. ChatGPT 통합으로 상담 전·중·후 안전장치를 강화했고, SNS 로그인과 구독 + 일일 무료 크레딧 정책을 실험 중입니다.</p>
-          <p>SEO와 한국어 지역화를 고려한 SSR 전략은 <code>docs/architecture.md</code>에 기록하고, 요구사항 변경은 <code>docs/</code> 디렉터리 문서로 이어서 남깁니다.</p>
-        </div>
-      </article>
-      <article class="timeline-item">
-        <div class="timeline-item__meta">
-          <span>2025.10</span>
-          <span class="timeline-item__labels">
-            <span class="badge badge--ai-half" aria-label="AI 보조">AI ½</span>
-            Interaction Utility
-          </span>
-        </div>
-        <h3 class="timeline-item__title">easter-egg — Konami Code 기반 이스터에그 시퀀스 엔진</h3>
-        <p class="timeline-item__summary">Konami Code와 커스텀 키 시퀀스를 감지해 원하는 콜백을 실행하는 경량 TypeScript 라이브러리로, 2025년 7월에 시작해
-2025년 10월까지 다듬었습니다.</p>
-        <button class="timeline-item__toggle" type="button" aria-expanded="false">맥락 더 보기</button>
-        <div class="timeline-item__detail" hidden>
-          <p>window keyup 리스너 등록/해제를 헬퍼로 추상화하고, 반복 입력 제한과 중첩 등록 방지를 옵션으로 제공해
-어떤 프레임워크에서도 이스터에그를 쉽게 붙일 수 있게 했습니다.</p>
-        </div>
-      </article>
-      <article class="timeline-item">
-        <div class="timeline-item__meta">
-          <span>2025.09</span>
-          <span class="timeline-item__labels">
-            <span class="badge badge--ai" aria-label="AI 시스템">AI</span>
-            DX Automation
-          </span>
-        </div>
-        <h3 class="timeline-item__title">react-query-help — React Query 코드 자동 생성기</h3>
-        <p class="timeline-item__summary">API 스키마에서 React Query 훅·옵션·테스트 토대를 자동 생성하는 CLI를 2025년 9월에 마무리해 팀 캐싱 전략을 코드 생성으로
-        정리했습니다.</p>
-        <button class="timeline-item__toggle" type="button" aria-expanded="false">맥락 더 보기</button>
-        <div class="timeline-item__detail" hidden>
-          <p>watch 모드에서 OpenAPI 변화를 감지해 템플릿을 재생성하고, Bun·npm 중 원하는 런타임을 선택할 수 있도록 설계했습니다.
-        Changesets와 Husky를 포함한 릴리스 자동화 파이프라인도 붙였습니다.</p>
-        </div>
-      </article>
-      <article class="timeline-item">
-        <div class="timeline-item__meta">
-          <span>2025.08</span>
-          <span>Virtual Keyboard</span>
-        </div>
-        <h3 class="timeline-item__title">virtual-keyboard — 한국어 IME 제어 가상 키보드</h3>
-        <p class="timeline-item__summary">브라우저 컴포지션 이슈를 우회하기 위해 2025년 8월에 만든 React 가상 키보드입니다. 모바일 네이티브 키보드를 차단하고 한국어 조합을
-        직접 제어합니다.</p>
-        <button class="timeline-item__toggle" type="button" aria-expanded="false">맥락 더 보기</button>
-        <div class="timeline-item__detail" hidden>
-          <p>컴포지션 상태를 상태 머신으로 관리해 중첩 입력을 안정적으로 처리했고, Storybook 데모와 Typedoc 문서를 CI로 배포해 팀
-        온보딩 시간을 줄였습니다.</p>
-        </div>
-      </article>
-      <article class="timeline-item">
-        <div class="timeline-item__meta">
-          <span>2025.07</span>
-          <span>Automation Bot</span>
-        </div>
-        <h3 class="timeline-item__title">crypto-auto-trader — 이더리움 추세 추종 자동 투자 봇</h3>
-        <p class="timeline-item__summary">이더리움 추세 추종 알고리즘과 커스텀 전략을 합성해 자동 투자하고 텔레그램으로 알림을 전달하는 Node.js 봇을 2025년 7월에 만들었습니다.</p>
-        <button class="timeline-item__toggle" type="button" aria-expanded="false">맥락 더 보기</button>
-        <div class="timeline-item__detail" hidden>
-          <p>트렌드 지표와 커스텀 전략을 병렬로 평가해 합의된 시그널에서만 주문을 발행하고, 포지션·리스크 관리를 텔레그램 메시지와 대시보드로
-        실시간 노출했습니다. 스케줄러는 Node Cron으로 구성해 24시간 자동 매매를 유지했습니다.</p>
-        </div>
-      </article>
-      <article class="timeline-item">
-        <div class="timeline-item__meta">
-          <span>2025.09</span>
-          <span>Payment Experiment</span>
-        </div>
-        <h3 class="timeline-item__title">pre-pay — 선불권을 디지털 워크플로로 전환한 프리페이 실험</h3>
-        <p class="timeline-item__summary">선불권 구매·사용 경험을 웹으로 옮겨 사용자가 잔액을 직접 확인하고 운영자가 사용 이력을 추적할 수 있도록 정리한 실험 프로젝트입니다.</p>
-        <button class="timeline-item__toggle" type="button" aria-expanded="false">맥락 더 보기</button>
-        <div class="timeline-item__detail" hidden>
-          <p>Velog 포스트 <a href="https://velog.io/@uiwwsw/%EC%84%A0%EB%B6%88%EA%B6%8C%EC%9D%84-%EB%94%94%EC%A7%80%ED%84%B8%EB%A1%9C-%ED%94%84%EB%A6%AC%ED%8E%98%EC%9D%B4-%EC%8B%A4%ED%97%98%EA%B8%B0" target="_blank" rel="noopener">선불권을 디지털로 프리페이 실험기</a>에서 공유한 흐름을 토대로 온라인 결제 이후 자동으로 선불권을 발급하고, 사용 시 잔여 금액을 갱신하는 파이프라인을 만들었습니다. 발급·사용 내역을 하나의 대시보드에 모아 오프라인 매장의 수기 정산을 대신합니다.</p>
-          <p><code>pre-pay</code> 저장소는 실 서비스 결제 데이터가 포함돼 GitHub Private Repository로 운영하고 있습니다.</p>
-        </div>
-      </article>
-      <article class="timeline-item">
-        <div class="timeline-item__meta">
-          <span>2025.08</span>
-          <span class="timeline-item__labels">
-            <span class="badge badge--ai-half" aria-label="AI 보조">AI ½</span>
-            Interaction Utility
-          </span>
-        </div>
-        <h3 class="timeline-item__title">easter-egg — Konami Code를 감지하는 인터랙션 유틸</h3>
-        <p class="timeline-item__summary">Konami Code 입력을 감지해 원하는 콜백을 실행하고, 커스텀 시퀀스도 등록할 수 있는 경량 TypeScript 라이브러리입니다.</p>
-        <button class="timeline-item__toggle" type="button" aria-expanded="false">맥락 더 보기</button>
-        <div class="timeline-item__detail" hidden>
-          <p>window 이벤트에 안전하게 keyup 리스너를 붙이고 떼는 헬퍼를 제공해 리액트/바닐라 어디서든 바로 쓸 수 있습니다. Konami Code 외에도 원하는 키 시퀀스를 타입으로 정의하고, 반복 입력 제한이나 중첩 등록을 옵션으로 제어해 Easter Egg 연출을 빠르게 붙였습니다.</p>
-        </div>
-      </article>
-      <article class="timeline-item">
-        <div class="timeline-item__meta">
-          <span>2025.07</span>
-          <span>Virtual Keyboard</span>
-        </div>
-        <h3 class="timeline-item__title">virtual-keyboard — 한국어 IME를 제어하는 입력 엔진</h3>
-        <p class="timeline-item__summary">composition 이벤트에 의존하지 않고 한국어 조합을 제어하는 React 가상 키보드입니다. 모바일 네이티브 키보드 차단도 지원합니다.</p>
-        <button class="timeline-item__toggle" type="button" aria-expanded="false">맥락 더 보기</button>
-        <div class="timeline-item__detail" hidden>
-          <p>컴포지션 상태를 상태 머신으로 직접 관리해 중첩 입력을 안전하게 처리하고, 모바일에선 포커스 가드로 네이티브 키보드를 차단했습니다. Storybook 데모와 Typedoc 문서를 CI로 자동 배포해 팀 온보딩 시간을 줄였습니다.</p>
-        </div>
-      </article>
-      <article class="timeline-item">
-        <div class="timeline-item__meta">
-          <span>2025.05</span>
-          <span class="timeline-item__labels">
-            <span class="badge badge--ai" aria-label="AI 시스템">AI</span>
-            DX Automation
-          </span>
-        </div>
-        <h3 class="timeline-item__title">react-query-helper — OpenAPI에서 훅까지</h3>
-        <p class="timeline-item__summary">API 함수에서 React Query 훅과 옵션, 테스트 토대를 자동 생성하는 CLI로 팀 캐싱 전략을 일관되게 유지했습니다.</p>
-        <button class="timeline-item__toggle" type="button" aria-expanded="false">맥락 더 보기</button>
-        <div class="timeline-item__detail" hidden>
-          <p>watch 모드에서 OpenAPI 스키마 변화를 감지해 훅/타입/테스트를 재생성하고, Bun과 npm 중 원하는 런타임을 선택할 수 있도록 템플릿을 분리했습니다. Changesets와 Husky를 기본 탑재해 릴리스 과정도 자동화했습니다.</p>
-        </div>
-      </article>
-      <article class="timeline-item">
-        <div class="timeline-item__meta">
-          <span>2025.03</span>
-          <span class="timeline-item__labels">
-            <span class="badge badge--ai" aria-label="AI 시스템">AI</span>
-            Transpiler
-          </span>
-        </div>
-        <h3 class="timeline-item__title">koreanscript — 한글 키워드 기반 TS 트랜스파일러</h3>
-        <p class="timeline-item__summary">한글 키워드로 작성한 .ks 파일을 TypeScript로 변환하고 --check 모드로 타입 검증을 제공하는 실험적 도구입니다.</p>
-        <button class="timeline-item__toggle" type="button" aria-expanded="false">맥락 더 보기</button>
-        <div class="timeline-item__detail" hidden>
-          <p>KS → TS 변환에 토큰 맵핑 표를 제공하고, 타입 체크 모드에서는 tsserver를 child process로 구동해 즉시 오류를 피드백합니다. CLI는 Commander 기반으로 설계해 플러그인 확장이 쉽습니다.</p>
-        </div>
-      </article>
-      <article class="timeline-item">
-        <div class="timeline-item__meta">
-          <span>2025.08</span>
-          <span class="timeline-item__labels">
-            <span class="badge badge--ai-half" aria-label="AI 보조">AI ½</span>
-            Story Engine
-          </span>
-        </div>
-        <h3 class="timeline-item__title">visual-novel — JSON 기반 비주얼 노블 툴킷</h3>
-        <p class="timeline-item__summary">React+Vite 기반으로 장면, 자산, 세이브 시스템을 갖춘 웹 비주얼 노블 엔진을 만들었습니다.</p>
-        <button class="timeline-item__toggle" type="button" aria-expanded="false">맥락 더 보기</button>
-        <div class="timeline-item__detail" hidden>
-          <p>JSON 시나리오를 XState 머신으로 해석해 선택지 분기를 관리하고, 자산 매핑과 저장 데이터를 IndexedDB에 기록했습니다. 튜토리얼과 스타터 템플릿을 함께 배포해 누구나 바로 실험할 수 있게 했습니다.</p>
-        </div>
-      </article>
-    </div>
-  </section>
+
+<section id="worklog" class="section">
+  <h2 class="section__title">Project Signals</h2>
+  <p class="section__intro">실제 제품과 운영 도구에서 맡은 프런트엔드 역할을 시기별로 정리했습니다. 각 항목을 펼쳐 문제 정의와 설계 기록을 확인할 수 있습니다.</p>
+  <div class="timeline" data-timeline>
+    <article class="timeline-item">
+      <div class="timeline-item__meta">
+        <span>2025.11</span>
+        <span class="timeline-item__labels">
+          <span class="badge badge--ai" aria-label="AI 시스템">AI</span>
+          Personal Site
+        </span>
+      </div>
+      <h3 class="timeline-item__title">uiwwsw.github.io — 인터랙션 &amp; 자동화 포트폴리오 허브</h3>
+      <p class="timeline-item__summary">Hero, Signal, Timeline 컴포넌트를 재구성해 프런트엔드 설계 역량과 실험 노트를 한 화면에서 탐색할 수 있게 했습니다.</p>
+      <button class="timeline-item__toggle" type="button" aria-expanded="false">맥락 더 보기</button>
+      <div class="timeline-item__detail" hidden>
+        <p>GitHub Actions로 스타일 가이드, 포스트 메타 데이터를 자동 반영하는 스크립트를 붙여 새 프로젝트를 추가할 때마다 Hero, 프로젝트 카드가 동시에 갱신되도록 했습니다.</p>
+      </div>
+    </article>
+    <article class="timeline-item">
+      <div class="timeline-item__meta">
+        <span>2025.10</span>
+        <span class="timeline-item__labels">
+          <span class="badge badge--ai" aria-label="AI 시스템">AI</span>
+          AI Platform
+        </span>
+      </div>
+      <h3 class="timeline-item__title">Cushion.AI — 상담 구독형 모노레포</h3>
+      <p class="timeline-item__summary">Ionic + React 프런트엔드와 NestJS API를 pnpm 모노레포로 묶어 상담 예약, 구독 결제, AI 세션 요약을 한 파이프라인으로 제공합니다.</p>
+      <button class="timeline-item__toggle" type="button" aria-expanded="false">맥락 더 보기</button>
+      <div class="timeline-item__detail" hidden>
+        <p>Design System과 입력 가드를 공유할 수 있도록 Storybook/Docs 배포를 통합했고, Prisma + PostgreSQL 스키마를 React Query 코드 생성기와 연결해 계약 변경에 즉시 대응했습니다.</p>
+      </div>
+    </article>
+    <article class="timeline-item">
+      <div class="timeline-item__meta">
+        <span>2025.10</span>
+        <span class="timeline-item__labels">
+          <span class="badge badge--ai-half" aria-label="AI 보조">AI ½</span>
+          Design System
+        </span>
+      </div>
+      <h3 class="timeline-item__title">Cushion Design Kit — 상담팀 UI 토큰</h3>
+      <p class="timeline-item__summary">타이포, 컬러, 컴포넌트를 디자인 토큰으로 추상화해 Web · iOS · Android가 동일한 Scene Graph와 Motion 프리셋을 사용할 수 있게 했습니다.</p>
+      <button class="timeline-item__toggle" type="button" aria-expanded="false">맥락 더 보기</button>
+      <div class="timeline-item__detail" hidden>
+        <p>다크/라이트 테마와 모달 상호작용을 Storybook Docs + Figma Tokens로 동기화하고, QA 노트를 GitHub Issue Form으로 자동화해 팀 피드백 루프를 줄였습니다.</p>
+      </div>
+    </article>
+    <article class="timeline-item">
+      <div class="timeline-item__meta">
+        <span>2025.09</span>
+        <span class="timeline-item__labels">
+          <span class="badge badge--ai" aria-label="AI 시스템">AI</span>
+          DX Automation
+        </span>
+      </div>
+      <h3 class="timeline-item__title">react-query-help — React Query 코드 자동 생성기</h3>
+      <p class="timeline-item__summary">OpenAPI → 훅/테스트/문서까지 이어지는 CLI를 만들어 대규모 상담 API를 안전하게 소비하고, 캐싱 정책을 레포에서 통합 관리했습니다.</p>
+      <button class="timeline-item__toggle" type="button" aria-expanded="false">맥락 더 보기</button>
+      <div class="timeline-item__detail" hidden>
+        <p>watch 모드에서 스키마 변화를 감지해 TanStack Query 훅을 재생성하고, Bun/pnpm 기반 샌드박스로 바로 검증할 수 있게 했습니다.</p>
+      </div>
+    </article>
+    <article class="timeline-item">
+      <div class="timeline-item__meta">
+        <span>2025.08</span>
+        <span class="timeline-item__labels">
+          <span class="badge badge--ai-half" aria-label="AI 보조">AI ½</span>
+          Input System
+        </span>
+      </div>
+      <h3 class="timeline-item__title">virtual-keyboard — 한국어 IME 제어 가상 키보드</h3>
+      <p class="timeline-item__summary">한국어 조합 상태를 직접 다루는 React 입력 엔진으로 상담 기록 중 모바일 네이티브 키보드가 끼어드는 문제를 해결했습니다.</p>
+      <button class="timeline-item__toggle" type="button" aria-expanded="false">맥락 더 보기</button>
+      <div class="timeline-item__detail" hidden>
+        <p>Composition 이벤트를 상태 머신으로 재구성하고, Storybook + Typedoc을 CI에서 동시에 배포해 QA와 온보딩 시간을 줄였습니다.</p>
+      </div>
+    </article>
+    <article class="timeline-item">
+      <div class="timeline-item__meta">
+        <span>2025.08</span>
+        <span class="timeline-item__labels">
+          <span class="badge badge--ai" aria-label="AI 시스템">AI</span>
+          Admin App
+        </span>
+      </div>
+      <h3 class="timeline-item__title">Studio Admin — 예약/정산 대시보드</h3>
+      <p class="timeline-item__summary">React + Next.js로 스튜디오 예약, 정산, 알림을 관리하는 운영 도구를 구축해 운영자의 수기 시트를 제거했습니다.</p>
+      <button class="timeline-item__toggle" type="button" aria-expanded="false">맥락 더 보기</button>
+      <div class="timeline-item__detail" hidden>
+        <p>Stripe 결제 이벤트를 Webhook으로 수신해 대시보드에 반영하고, Prisma + Supabase를 통해 잔여 크레딧과 이용 이력을 시각화했습니다.</p>
+      </div>
+    </article>
+    <article class="timeline-item">
+      <div class="timeline-item__meta">
+        <span>2025.07</span>
+        <span class="timeline-item__labels">
+          <span class="badge badge--ai-half" aria-label="AI 보조">AI ½</span>
+          Ops Console
+        </span>
+      </div>
+      <h3 class="timeline-item__title">CareOps Dashboard — 상담 운영 React 대시보드</h3>
+      <p class="timeline-item__summary">실시간 상담 지표와 사용자 피드백을 WebSocket + Zustand 상태로 묶어 상담 코디네이터가 상황을 한눈에 파악하도록 했습니다.</p>
+      <button class="timeline-item__toggle" type="button" aria-expanded="false">맥락 더 보기</button>
+      <div class="timeline-item__detail" hidden>
+        <p>멀티 패널 구성과 단축키를 제공해 상담 배정, 캔드 리스폰스, 고객 티켓 변동을 키보드 중심으로 처리할 수 있도록 개선했습니다.</p>
+      </div>
+    </article>
+    <article class="timeline-item">
+      <div class="timeline-item__meta">
+        <span>2025.05</span>
+        <span class="timeline-item__labels">
+          <span class="badge badge--ai" aria-label="AI 시스템">AI</span>
+          Docs Automation
+        </span>
+      </div>
+      <h3 class="timeline-item__title">DX Playbook — Storybook · Typedoc 자동화</h3>
+      <p class="timeline-item__summary">Design System과 API 문서를 같은 릴리스 파이프라인에 묶어, 배포 시점마다 가이드/샘플 코드가 동시에 갱신되도록 했습니다.</p>
+      <button class="timeline-item__toggle" type="button" aria-expanded="false">맥락 더 보기</button>
+      <div class="timeline-item__detail" hidden>
+        <p>Turbo + Changesets 조합으로 패키지별 독립 버전을 유지하고, GitHub Actions에서 Lighthouse/Playwright 리포트를 첨부해 품질 지표를 자동으로 남겼습니다.</p>
+      </div>
+    </article>
+    <article class="timeline-item">
+      <div class="timeline-item__meta">
+        <span>2025.03</span>
+        <span class="timeline-item__labels">
+          <span class="badge badge--ai" aria-label="AI 시스템">AI</span>
+          Transpiler
+        </span>
+      </div>
+      <h3 class="timeline-item__title">koreanscript — 한글 키워드 기반 TS 트랜스파일러</h3>
+      <p class="timeline-item__summary">한글 키워드와 TypeScript 타입 체커를 묶어 디자이너·기획자도 프로토타이핑에 참여할 수 있게 만든 언어 실험입니다.</p>
+      <button class="timeline-item__toggle" type="button" aria-expanded="false">맥락 더 보기</button>
+      <div class="timeline-item__detail" hidden>
+        <p>토큰 매핑 테이블과 Playground를 제공해 브라우저에서 즉시 실행할 수 있도록 했고, VS Code 확장 샘플을 배포해 편집기 통합을 시험했습니다.</p>
+      </div>
+    </article>
+    <article class="timeline-item">
+      <div class="timeline-item__meta">
+        <span>2025.02</span>
+        <span class="timeline-item__labels">
+          <span class="badge badge--ai-half" aria-label="AI 보조">AI ½</span>
+          Story Engine
+        </span>
+      </div>
+      <h3 class="timeline-item__title">visual-novel — JSON 기반 비주얼 노블 툴킷</h3>
+      <p class="timeline-item__summary">Scene Graph, 자산 매핑, 저장 시스템을 React+Vite로 제공해 스토리 작가가 직접 인터랙션을 조립할 수 있게 했습니다.</p>
+      <button class="timeline-item__toggle" type="button" aria-expanded="false">맥락 더 보기</button>
+      <div class="timeline-item__detail" hidden>
+        <p>XState 상태 머신으로 분기/저장을 관리하고, IndexedDB를 백업 스토리지로 사용해 오프라인에서도 스토리 테스트가 가능하도록 했습니다.</p>
+      </div>
+    </article>
+  </div>
+</section>
+
 
   <section id="projects" class="section">
     <h2 class="section__title">Project Showcase</h2>
@@ -437,14 +412,14 @@ export const Hero = () => (
           <li>ChatGPT API</li>
         </ul>
       </article>
-      <article class="project-card" data-category="automation tooling">
-        <span class="project-card__meta">2025 · Automation Bot</span>
-        <h3 class="project-card__title">crypto-auto-trader</h3>
-        <p class="project-card__description">이더리움 추세 추종과 커스텀 전략을 합성해 자동 투자하고 텔레그램으로 포지션 알림을 전송하는 Node.js 기반 거래 봇입니다.</p>
+      <article class="project-card" data-category="experience automation tooling">
+        <span class="project-card__meta">2025 · Ops Console</span>
+        <h3 class="project-card__title">CareOps Dashboard</h3>
+        <p class="project-card__description">상담 운영자가 사용하는 React 대시보드로, 세션 큐, SLA 타이머, 실시간 피드백 스트림을 WebSocket으로 연결했습니다.</p>
         <ul class="project-card__tags">
-          <li>Node.js</li>
-          <li>Telegram Bot</li>
-          <li>Crypto Trading</li>
+          <li>React</li>
+          <li>Zustand</li>
+          <li>WebSocket</li>
         </ul>
       </article>
       <article class="project-card" data-category="automation tooling">
@@ -483,17 +458,14 @@ export const Hero = () => (
           <li>XState</li>
         </ul>
       </article>
-      <article class="project-card" data-category="automation tooling">
-        <span class="project-card__meta">
-          <span class="badge badge--ai" aria-label="AI 시스템">AI</span>
-          2024 · DX Automation
-        </span>
-        <h3 class="project-card__title">react-query-helper</h3>
-        <p class="project-card__description">OpenAPI 스키마에서 React Query 훅과 옵션, 테스트 토대를 자동 생성하는 CLI입니다. watch 모드와 템플릿 확장으로 팀 일관성을 유지합니다.</p>
+      <article class="project-card" data-category="experience automation">
+        <span class="project-card__meta">2024 · Admin App</span>
+        <h3 class="project-card__title">Studio Admin</h3>
+        <p class="project-card__description">Next.js 기반 운영 도구로 예약, 정산, 알림을 통합했고 Stripe Webhook과 Supabase를 연결해 잔여 크레딧을 실시간 반영합니다.</p>
         <ul class="project-card__tags">
-          <li>TypeScript</li>
-          <li>OpenAPI</li>
-          <li>CLI</li>
+          <li>Next.js</li>
+          <li>Stripe</li>
+          <li>Supabase</li>
         </ul>
       </article>
       <article class="project-card" data-category="tooling">
