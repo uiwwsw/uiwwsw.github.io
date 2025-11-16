@@ -969,8 +969,9 @@ ul.focus-card li {
 .timeline::before {
   content: '';
   position: absolute;
-  top: 0.5rem;
-  bottom: 0.5rem;
+  /* Align the vertical guide with the first and last timeline markers */
+  top: calc(1.5rem + 5.5px);
+  bottom: calc(1.5rem + 5.5px);
   left: 0.5rem;
   width: 2px;
   background: linear-gradient(180deg, rgba(141, 158, 255, 0.4), transparent);
