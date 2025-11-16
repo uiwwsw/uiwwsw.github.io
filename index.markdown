@@ -83,55 +83,118 @@ export const Hero = () => (
     <p class="section__intro">최근 프로젝트 가운데 인터랙션 문제와 DX 자동화를 동시에 다룬 작업을 짧게 기록했습니다.</p>
     <div class="signal-grid" role="list">
       <article class="signal-card" role="listitem">
-        <header>
-          <span class="badge badge--mono">virtual-keyboard</span>
-          <h3>한국어 IME 난제 해결</h3>
-        </header>
-        <p>Composition 이벤트와 커스텀 키보드를 상태 머신 하나로 묶어 모바일 네이티브 키보드가 끼어들 틈을 줄였습니다.</p>
-        <ul class="signal-meta">
-          <li>React 가상 키보드</li>
-          <li>IME Latency Guard</li>
-          <li>Storybook + Typedoc 배포</li>
-        </ul>
+        <a class="signal-card__surface" href="https://github.com/uiwwsw/virtual-keyboard" target="_blank" rel="noopener">
+          <header>
+            <span class="badge badge--mono">virtual-keyboard</span>
+            <h3>한국어 IME 난제 해결</h3>
+          </header>
+          <p>Composition 이벤트와 커스텀 키보드를 상태 머신 하나로 묶어 모바일 네이티브 키보드가 끼어들 틈을 줄였습니다.</p>
+          <ul class="signal-meta">
+            <li>React 가상 키보드</li>
+            <li>IME Latency Guard</li>
+            <li>Storybook + Typedoc 배포</li>
+          </ul>
+        </a>
+        <div class="signal-card__links" aria-label="관련 레포지토리">
+          <a class="signal-card__link" href="https://github.com/uiwwsw/virtual-keyboard" target="_blank" rel="noopener">virtual-keyboard</a>
+          <a class="signal-card__link" href="https://github.com/uiwwsw/virtual-keyboard-storybook" target="_blank" rel="noopener">storybook 패키지</a>
+        </div>
       </article>
       <article class="signal-card" role="listitem">
-        <header>
-          <span class="badge badge--mono">react-query-helper</span>
-          <span class="badge badge--ai" aria-label="AI 시스템">AI</span>
-          <h3>DX 자동화</h3>
-        </header>
-        <p>OpenAPI 스키마만으로 React Query 훅·옵션·테스트를 만들어 팀 캐싱 전략을 코드 생성으로 정리했습니다.</p>
-        <ul class="signal-meta">
-          <li>Watch Mode Scaffold</li>
-          <li>Bun · pnpm 지원</li>
-          <li>Changesets 릴리스</li>
-        </ul>
+        <a class="signal-card__surface" href="https://github.com/uiwwsw/react-query-helper" target="_blank" rel="noopener">
+          <header>
+            <span class="badge badge--mono">react-query-helper</span>
+            <span class="badge badge--ai" aria-label="AI 시스템">AI</span>
+            <h3>DX 자동화</h3>
+          </header>
+          <p>OpenAPI 스키마만으로 React Query 훅·옵션·테스트를 만들어 팀 캐싱 전략을 코드 생성으로 정리했습니다.</p>
+          <ul class="signal-meta">
+            <li>Watch Mode Scaffold</li>
+            <li>Bun · pnpm 지원</li>
+            <li>Changesets 릴리스</li>
+          </ul>
+        </a>
+        <div class="signal-card__links" aria-label="관련 레포지토리">
+          <a class="signal-card__link" href="https://github.com/uiwwsw/react-query-helper" target="_blank" rel="noopener">CLI 레포</a>
+          <a class="signal-card__link" href="https://github.com/uiwwsw/react-query-helper-templates" target="_blank" rel="noopener">템플릿</a>
+          <a class="signal-card__link" href="https://github.com/uiwwsw/react-query-helper-docs" target="_blank" rel="noopener">Storybook · Docs</a>
+        </div>
       </article>
       <article class="signal-card" role="listitem">
-        <header>
-          <span class="badge badge--mono">koreanscript</span>
-          <span class="badge badge--ai" aria-label="AI 시스템">AI</span>
-          <h3>언어 실험</h3>
-        </header>
-        <p>한글 키워드 기반 TypeScript 트랜스파일러를 만들어 --check 타입 검증과 인터랙티브 플레이그라운드를 붙였습니다.</p>
-        <ul class="signal-meta">
-          <li>AST Transform</li>
-          <li>Playground Deploy</li>
-          <li>Type-level Spec</li>
-        </ul>
+        <a class="signal-card__surface" href="https://github.com/uiwwsw/koreanscript" target="_blank" rel="noopener">
+          <header>
+            <span class="badge badge--mono">koreanscript</span>
+            <span class="badge badge--ai" aria-label="AI 시스템">AI</span>
+            <h3>언어 실험</h3>
+          </header>
+          <p>한글 키워드 기반 TypeScript 트랜스파일러를 만들어 --check 타입 검증과 인터랙티브 플레이그라운드를 붙였습니다.</p>
+          <ul class="signal-meta">
+            <li>AST Transform</li>
+            <li>Playground Deploy</li>
+            <li>Type-level Spec</li>
+          </ul>
+        </a>
+        <div class="signal-card__links" aria-label="관련 레포지토리">
+          <a class="signal-card__link" href="https://github.com/uiwwsw/koreanscript" target="_blank" rel="noopener">koreanscript</a>
+          <a class="signal-card__link" href="https://github.com/uiwwsw/koreanscript-playground" target="_blank" rel="noopener">Playground</a>
+        </div>
       </article>
       <article class="signal-card" role="listitem">
-        <header>
-          <span class="badge badge--mono">visual-novel</span>
-          <span class="badge badge--ai-half" aria-label="AI 보조">AI ½</span>
-          <h3>스토리텔링 툴링</h3>
-        </header>
-        <p>JSON 시나리오, 자산 매핑, 저장/불러오기를 갖춘 웹 비주얼 노블 엔진을 배포해 바로 서사를 실험할 수 있게 했습니다.</p>
-        <ul class="signal-meta">
-          <li>Scene Graph Runtime</li>
-          <li>State Sync Layer</li>
-          <li>Cloud Save Hook</li>
-        </ul>
+        <a class="signal-card__surface" href="https://github.com/uiwwsw/visual-novel" target="_blank" rel="noopener">
+          <header>
+            <span class="badge badge--mono">visual-novel</span>
+            <span class="badge badge--ai-half" aria-label="AI 보조">AI ½</span>
+            <h3>스토리텔링 툴링</h3>
+          </header>
+          <p>JSON 시나리오, 자산 매핑, 저장/불러오기를 갖춘 웹 비주얼 노블 엔진을 배포해 바로 서사를 실험할 수 있게 했습니다.</p>
+          <ul class="signal-meta">
+            <li>Scene Graph Runtime</li>
+            <li>State Sync Layer</li>
+            <li>Cloud Save Hook</li>
+          </ul>
+        </a>
+        <div class="signal-card__links" aria-label="관련 레포지토리">
+          <a class="signal-card__link" href="https://github.com/uiwwsw/visual-novel" target="_blank" rel="noopener">엔진 레포</a>
+          <a class="signal-card__link" href="https://github.com/uiwwsw/visual-novel-assets" target="_blank" rel="noopener">Asset Pack</a>
+        </div>
+      </article>
+      <article class="signal-card" role="listitem">
+        <a class="signal-card__surface" href="https://github.com/uiwwsw/cushion-ai" target="_blank" rel="noopener">
+          <header>
+            <span class="badge badge--mono">cushion.ai</span>
+            <span class="badge badge--ai" aria-label="AI 시스템">AI</span>
+            <h3>AI 상담 파이프라인</h3>
+          </header>
+          <p>Ionic + NestJS 모노레포에서 상담 예약, 구독 결제, AI 세션 요약을 연결해 운영팀과 사용자 경험을 동시에 개선했습니다.</p>
+          <ul class="signal-meta">
+            <li>구독/크레딧 정책</li>
+            <li>pnpm Workspace</li>
+            <li>유효성 스키마 공유</li>
+          </ul>
+        </a>
+        <div class="signal-card__links" aria-label="관련 레포지토리">
+          <a class="signal-card__link" href="https://github.com/uiwwsw/cushion-ai" target="_blank" rel="noopener">App 레포</a>
+          <a class="signal-card__link" href="https://github.com/uiwwsw/cushion-ai-designkit" target="_blank" rel="noopener">Design Kit</a>
+        </div>
+      </article>
+      <article class="signal-card" role="listitem">
+        <a class="signal-card__surface" href="https://github.com/uiwwsw/dx-playbook" target="_blank" rel="noopener">
+          <header>
+            <span class="badge badge--mono">dx-playbook</span>
+            <h3>Docs · Storybook 자동화</h3>
+          </header>
+          <p>Storybook, Typedoc, Lighthouse 리포트를 같은 GitHub Actions 파이프라인에서 배포해 인터랙션 실험과 문서화를 동시에 추적합니다.</p>
+          <ul class="signal-meta">
+            <li>Turbo + Changesets</li>
+            <li>QA Report Upload</li>
+            <li>Reusable Recipes</li>
+          </ul>
+        </a>
+        <div class="signal-card__links" aria-label="관련 레포지토리">
+          <a class="signal-card__link" href="https://github.com/uiwwsw/dx-playbook" target="_blank" rel="noopener">Playbook</a>
+          <a class="signal-card__link" href="https://github.com/uiwwsw/dx-playbook-actions" target="_blank" rel="noopener">Actions</a>
+          <a class="signal-card__link" href="https://github.com/uiwwsw/dx-playbook-recipes" target="_blank" rel="noopener">Recipes</a>
+        </div>
       </article>
     </div>
   </section>
