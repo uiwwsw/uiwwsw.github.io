@@ -58,6 +58,9 @@ extra_css:
             <span class="key" data-key="s" aria-label="S: 빠른 하강">S<span>↓</span></span>
             <span class="key" data-key="d" aria-label="D: 오른쪽 이동">D<span>→</span></span>
           </div>
+          <div class="key-row">
+            <span class="key" data-key="space" aria-label="Space: 하드 드롭">Space<span>하드</span></span>
+          </div>
         </div>
         <div class="virtual-keyboard" aria-label="플레이어 2 키보드">
           <h3>플레이어 2</h3>
@@ -70,6 +73,9 @@ extra_css:
             <span class="key" data-key="5" aria-label="5: 빠른 하강">5<span>↓</span></span>
             <span class="key" data-key="6" aria-label="6: 오른쪽 이동">6<span>→</span></span>
           </div>
+          <div class="key-row">
+            <span class="key" data-key="8" aria-label="8: 하드 드롭">8<span>하드</span></span>
+          </div>
         </div>
       </div>
       <p class="touch-tip">모바일에서는 좌우 스와이프와 위로 탭하여 회전할 수 있습니다.</p>
@@ -78,14 +84,24 @@ extra_css:
 </div>
 
 <script>
+  function normalizeKey(key) {
+    if (key === ' ') {
+      return 'space';
+    }
+    if (!key) {
+      return '';
+    }
+    return key.length === 1 ? key.toLowerCase() : key.toLowerCase();
+  }
+
   (function attachVirtualKeyboardHighlighting() {
     const keyElements = new Map();
     document.querySelectorAll('.virtual-keyboards [data-key]').forEach((element) => {
-      keyElements.set(element.dataset.key, element);
+      keyElements.set(normalizeKey(element.dataset.key), element);
     });
 
     const setActive = (key, active) => {
-      const normalized = key.length === 1 ? key.toLowerCase() : key;
+      const normalized = normalizeKey(key);
       const element = keyElements.get(normalized);
       if (!element) return;
       element.classList.toggle('is-active', active);
@@ -269,7 +285,7 @@ extra_css:
         newGame(player[i], localStorage.uiTetrisLevel === undefined ? 1 : localStorage.uiTetrisLevel);
       }
       var highlightKey = function (key, active) {
-        var element = document.querySelector('[data-key="' + key + '"]');
+        var element = document.querySelector('[data-key="' + normalizeKey(key) + '"]');
         if (!element) {
           return;
         }
@@ -311,28 +327,134 @@ extra_css:
         }
         return false;
       };
-      var nextRight = function (_player) {
+      var moveRight = function (_player) {
+        if (!_player) {
+          return;
+        }
         if (isWall(_player, true)) {
           _player.horizon += 1;
         }
+        moveShape(_player);
       };
-      var nextLeft = function (_player) {
+      var moveLeft = function (_player) {
+        if (!_player) {
+          return;
+        }
         if (isWall(_player, false)) {
           _player.horizon -= 1;
         }
+        moveShape(_player);
       };
-      var nextDown = function (_player) {
+      var softDrop = function (_player) {
+        if (!_player) {
+          return;
+        }
         if (isFloor(_player)) {
           clearTimeout(_player.dropSto);
           intervalShape(_player);
         }
       };
       var turnRight = function (_player) {
-        rotatePiece(_player, 'right');
+        if (!_player) {
+          return;
+        }
+        if (rotatePiece(_player, 'right')) {
+          moveShape(_player);
+        }
       };
       var turnLeft = function (_player) {
-        rotatePiece(_player, 'left');
+        if (!_player) {
+          return;
+        }
+        if (rotatePiece(_player, 'left')) {
+          moveShape(_player);
+        }
       };
+      var hardDrop = function (_player) {
+        if (!_player) {
+          return;
+        }
+        clearTimeout(_player.dropSto);
+        while (isFloor(_player)) {
+          _player.vertical++;
+        }
+        moveShape(_player);
+        architect(_player);
+        makeShape(_player);
+      };
+
+      function createInputAdapter(binding) {
+        var normalizedBinding = Object.keys(binding).reduce(function (acc, key) {
+          acc[normalizeKey(key)] = binding[key];
+          return acc;
+        }, {});
+        var queue = [];
+        var scheduled = false;
+
+        function flushQueue() {
+          scheduled = false;
+          while (queue.length) {
+            var action = queue.shift();
+            action();
+          }
+        }
+
+        return function (key) {
+          var action = normalizedBinding[normalizeKey(key)];
+          if (typeof action !== 'function') {
+            return false;
+          }
+          queue.push(action);
+          if (!scheduled) {
+            scheduled = true;
+            requestAnimationFrame(flushQueue);
+          }
+          return true;
+        };
+      }
+
+      var keyboardAdapters = [
+        createInputAdapter({
+          d: function () {
+            moveRight(player[0]);
+          },
+          s: function () {
+            softDrop(player[0]);
+          },
+          a: function () {
+            moveLeft(player[0]);
+          },
+          e: function () {
+            turnRight(player[0]);
+          },
+          q: function () {
+            turnLeft(player[0]);
+          },
+          space: function () {
+            hardDrop(player[0]);
+          },
+        }),
+        createInputAdapter({
+          6: function () {
+            moveRight(player[1]);
+          },
+          5: function () {
+            softDrop(player[1]);
+          },
+          4: function () {
+            moveLeft(player[1]);
+          },
+          9: function () {
+            turnRight(player[1]);
+          },
+          7: function () {
+            turnLeft(player[1]);
+          },
+          8: function () {
+            hardDrop(player[1]);
+          },
+        }),
+      ];
       window.addEventListener('touchstart', function (event) {
         var _player = player[Number(event.target.dataset.index)];
         if (!_player) return;
@@ -347,23 +469,20 @@ extra_css:
         var y = (_player.touchStartY || 0) - event.touches[0].pageY;
 
         if (x > pixel * 3) {
-          nextLeft(_player);
+          moveLeft(_player);
           _player.touchRotate = false;
           _player.touchStartX = event.touches[0].pageX;
-          moveShape(_player);
           return false;
         }
         if (x < -pixel * 3) {
-          nextRight(_player);
+          moveRight(_player);
           _player.touchRotate = false;
           _player.touchStartX = event.touches[0].pageX;
-          moveShape(_player);
           return false;
         }
         if (y < -pixel * 3) {
-          nextDown(_player);
+          softDrop(_player);
           _player.touchRotate = false;
-          moveShape(_player);
           return false;
         }
       });
@@ -372,64 +491,28 @@ extra_css:
         if (!_player) return;
         if (_player.touchRotate) {
           turnRight(_player);
-          moveShape(_player);
         }
       });
       window.addEventListener('keydown', function (event) {
-        var key = event.key;
-        var lowerKey = key.length === 1 ? key.toLowerCase() : key;
-        highlightKey(lowerKey, true);
-        var player1 = (function () {
-          switch (lowerKey) {
-            case 'd':
-              nextRight(player[0]);
-              break;
-            case 's':
-              nextDown(player[0]);
-              break;
-            case 'a':
-              nextLeft(player[0]);
-              break;
-            case 'e':
-              turnRight(player[0]);
-              break;
-            case 'q':
-              turnLeft(player[0]);
-              break;
+        var key = normalizeKey(event.key);
+        highlightKey(key, true);
+        var handled = false;
+        keyboardAdapters.forEach(function (adapter, index) {
+          if (index >= players) {
+            return;
           }
-          moveShape(player[0]);
-        }());
-        var player2 = (function (players) {
-          if (players < 2) {
-            return false;
-          }
-          switch (lowerKey) {
-            case '6':
-              nextRight(player[1]);
-              break;
-            case '5':
-              nextDown(player[1]);
-              break;
-            case '4':
-              nextLeft(player[1]);
-              break;
-            case '9':
-              turnRight(player[1]);
-              break;
-            case '7':
-              turnLeft(player[1]);
-              break;
-          }
-          moveShape(player[1]);
-        }(players));
+          handled = adapter(key) || handled;
+        });
+        if (handled) {
+          event.preventDefault();
+        }
       });
       window.addEventListener('keyup', function (event) {
-        var key = event.key;
-        var lowerKey = key.length === 1 ? key.toLowerCase() : key;
-        highlightKey(lowerKey, false);
+        var key = normalizeKey(event.key);
+        highlightKey(key, false);
       });
       window.addEventListener('blur', function () {
-        ['a', 's', 'd', 'q', 'e', '4', '5', '6', '7', '9'].forEach(function (key) {
+        ['a', 's', 'd', 'q', 'e', 'space', '4', '5', '6', '7', '8', '9'].forEach(function (key) {
           highlightKey(key, false);
         });
       });
