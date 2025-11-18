@@ -898,13 +898,13 @@ extra_css:
     }
 
     function restartMatch() {
+      gameState.ended = false;
       player.forEach(function (_player) {
         if (!_player) return;
         _player.score = 0;
         _player.level = localStorage.uiTetrisLevel === undefined ? 1 : localStorage.uiTetrisLevel;
         newGame(_player, _player.level);
       });
-      gameState.ended = false;
       setStatus('새 게임을 다시 시작했습니다. 행운을 빌어요!');
     }
 
