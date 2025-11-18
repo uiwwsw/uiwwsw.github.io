@@ -130,6 +130,7 @@ extra_css:
       height = 20,
       score = 15,
       player = [],
+      gameState = { ended: false },
       colors = ['red', 'orange', 'yellow', 'green', 'cyan', 'blue', 'violet'],
       speedSetting = {
         min: 120,
@@ -251,9 +252,7 @@ extra_css:
     function tetris(players) {
       players = Number(players);
       var statusArea = document.querySelector('.tetris-status');
-      var gameState = {
-        ended: false,
-      };
+      gameState.ended = false;
       var stage = document.querySelector('.tetris-stage');
       if (stage) {
         stage.classList.add('is-playing');
