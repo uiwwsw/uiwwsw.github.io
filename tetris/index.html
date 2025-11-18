@@ -739,7 +739,7 @@ extra_css:
     function architect(_player) {
       if (_player.vertical === 0) {
         clearTimeout(_player.dropSto);
-        if (players > 1) {
+        if (playerNumber > 1) {
           declareWinner(_player);
         } else if (confirm('다시 시작하시겠습니까?')) {
           newGame(_player, localStorage.uiTetrisLevel === undefined ? 1 : localStorage.uiTetrisLevel);
