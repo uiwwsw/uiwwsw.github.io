@@ -26,6 +26,7 @@ extra_css:
   <section class="tetris-stage" aria-label="테트리스 게임 영역">
     <div class="tetris-controls" aria-live="polite">
       <button id="startBtn" type="button" class="tetris-start">게임 시작</button>
+      <p class="tetris-status" role="status" aria-live="polite"></p>
       <div class="tetris-canvases">
         <div class="tetris-board" data-player="1" hidden>
           <canvas id="canvas1" data-index="0" aria-label="플레이어 1 게임 보드" role="img"></canvas>
@@ -249,6 +250,10 @@ extra_css:
 
     function tetris(players) {
       players = Number(players);
+      var statusArea = document.querySelector('.tetris-status');
+      var gameState = {
+        ended: false,
+      };
       var stage = document.querySelector('.tetris-stage');
       if (stage) {
         stage.classList.add('is-playing');
@@ -400,6 +405,9 @@ extra_css:
         }
 
         return function (key) {
+          if (gameState.ended) {
+            return false;
+          }
           var action = normalizedBinding[normalizeKey(key)];
           if (typeof action !== 'function') {
             return false;
@@ -597,6 +605,9 @@ extra_css:
     }
 
     function intervalShape(_player) {
+      if (gameState.ended) {
+        return;
+      }
       var speed = getDropSpeed(_player);
       _player.vertical++;
       moveShape(_player);
@@ -729,7 +740,9 @@ extra_css:
     function architect(_player) {
       if (_player.vertical === 0) {
         clearTimeout(_player.dropSto);
-        if (confirm('다시 시작하시겠습니까?')) {
+        if (players > 1) {
+          declareWinner(_player);
+        } else if (confirm('다시 시작하시겠습니까?')) {
           newGame(_player, localStorage.uiTetrisLevel === undefined ? 1 : localStorage.uiTetrisLevel);
         }
         return false;
@@ -849,6 +862,48 @@ extra_css:
 
     function makePlayGround() {
       player.push(returnDefaultInfo());
+    }
+
+    function setStatus(message) {
+      if (!statusArea) {
+        return;
+      }
+      statusArea.textContent = message;
+    }
+
+    function stopAllPlayers() {
+      player.forEach(function (_player) {
+        if (_player && _player.dropSto) {
+          clearTimeout(_player.dropSto);
+        }
+      });
+    }
+
+    function restartMatch() {
+      player.forEach(function (_player) {
+        if (!_player) return;
+        _player.score = 0;
+        _player.level = localStorage.uiTetrisLevel === undefined ? 1 : localStorage.uiTetrisLevel;
+        newGame(_player, _player.level);
+      });
+      gameState.ended = false;
+      setStatus('새 게임을 다시 시작했습니다. 행운을 빌어요!');
+    }
+
+    function declareWinner(loser) {
+      if (gameState.ended) {
+        return;
+      }
+      var loserIndex = Number(loser && loser.canvas && loser.canvas.dataset.index) || 0;
+      var winnerIndex = loserIndex === 0 ? 1 : 0;
+      var winner = player[winnerIndex];
+      gameState.ended = true;
+      stopAllPlayers();
+      var message = winner ? '플레이어 ' + (winnerIndex + 1) + ' 승리!' : '두 플레이어 모두 패배했습니다.';
+      setStatus(message);
+      if (confirm(message + ' 다시 시작하시겠습니까?')) {
+        restartMatch();
+      }
     }
   }
   window.addEventListener('load', function () {
