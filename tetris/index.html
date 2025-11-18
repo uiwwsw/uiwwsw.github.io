@@ -123,16 +123,17 @@ extra_css:
 </script>
 
 <script>
-  function uiTetris() {
-    'use strict';
-    var pixel = 25,
-      width = 10,
-      height = 20,
-      score = 15,
-      player = [],
-      gameState = { ended: false },
-      colors = ['red', 'orange', 'yellow', 'green', 'cyan', 'blue', 'violet'],
-      speedSetting = {
+    function uiTetris() {
+      'use strict';
+      var pixel = 25,
+        width = 10,
+        height = 20,
+        score = 15,
+        player = [],
+        gameState = { ended: false },
+        statusArea = null,
+        colors = ['red', 'orange', 'yellow', 'green', 'cyan', 'blue', 'violet'],
+        speedSetting = {
         min: 120,
         baseFloor: 350,
         timeAccelerationRate: 0.4,
@@ -249,12 +250,12 @@ extra_css:
     }());
     tetris(playerNumber);
 
-    function tetris(players) {
-      players = Number(players);
-      var statusArea = document.querySelector('.tetris-status');
-      gameState.ended = false;
-      var stage = document.querySelector('.tetris-stage');
-      if (stage) {
+      function tetris(players) {
+        players = Number(players);
+        statusArea = document.querySelector('.tetris-status');
+        gameState.ended = false;
+        var stage = document.querySelector('.tetris-stage');
+        if (stage) {
         stage.classList.add('is-playing');
         stage.classList.toggle('is-singleplayer', players === 1);
         stage.classList.toggle('is-multiplayer', players > 1);
@@ -863,12 +864,30 @@ extra_css:
       player.push(returnDefaultInfo());
     }
 
-    function setStatus(message) {
-      if (!statusArea) {
-        return;
+      function ensureStatusArea() {
+        if (statusArea) {
+          return statusArea;
+        }
+        var controls = document.querySelector('.tetris-controls');
+        if (!controls) {
+          return null;
+        }
+        var created = document.createElement('p');
+        created.className = 'tetris-status';
+        created.setAttribute('role', 'status');
+        created.setAttribute('aria-live', 'polite');
+        controls.insertBefore(created, controls.querySelector('.tetris-canvases'));
+        statusArea = created;
+        return statusArea;
       }
-      statusArea.textContent = message;
-    }
+
+      function setStatus(message) {
+        var area = ensureStatusArea();
+        if (!area) {
+          return;
+        }
+        area.textContent = message;
+      }
 
     function stopAllPlayers() {
       player.forEach(function (_player) {
