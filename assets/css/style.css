@@ -254,8 +254,10 @@ img {
 }
 
 .hero__actions {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, max-content));
+  justify-content: start;
+  align-items: stretch;
   gap: 0.75rem;
   margin-top: 0.25rem;
 }
@@ -265,6 +267,9 @@ img {
   align-items: center;
   gap: 0.4rem;
   padding: 0.85rem 1.2rem;
+  min-height: 3rem;
+  line-height: 1.2;
+  justify-content: center;
   border-radius: 12px;
   border: 1px solid var(--border);
   background: var(--surface);
