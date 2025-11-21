@@ -80,6 +80,54 @@ full_bleed: true
       <article class="feature-card" role="listitem">
         <div class="feature-card__meta">
           <div>
+            <p class="badge">meringuetrip</p>
+            <h3>머랭트립 군집 지도</h3>
+          </div>
+          <a class="link-pill" href="https://brewstar-code.github.io/meringuetrip/" target="_blank" rel="noopener">Demo</a>
+        </div>
+        <p>React(Ionic) + Cloudflare 조합으로 "카페·스터디룸·지하철역"처럼 복수 조건을 겹쳐보는 군집 검색 지도를 만들었습니다. Cloudflare Worker에서 군집별 점수를 계산해 조건이 겹치는 구역만 하이라이트합니다.</p>
+        <ul class="tag-list" aria-label="기술 스택">
+          <li class="tag">React · Ionic</li>
+          <li class="tag">Cloudflare Worker</li>
+          <li class="tag">D1 · KV</li>
+        </ul>
+      </article>
+
+      <article class="feature-card" role="listitem">
+        <div class="feature-card__meta">
+          <div>
+            <p class="badge">real-review</p>
+            <h3>찐리뷰</h3>
+          </div>
+          <a class="link-pill" href="/2025/01/05/prisma-nextjs-real-review.html">회고</a>
+        </div>
+        <p>Prisma 스키마를 Next.js와 공유해 타입 변환을 최소화한 리뷰 플랫폼입니다. 좋아요 많은 리뷰는 강조하고, 싫어요가 몰린 리뷰는 블라인드 처리해 "진짜 후기"만 보이도록 운영했습니다.</p>
+        <ul class="tag-list" aria-label="기술 스택">
+          <li class="tag">Prisma</li>
+          <li class="tag">Next.js</li>
+          <li class="tag">PostgreSQL</li>
+        </ul>
+      </article>
+
+      <article class="feature-card" role="listitem">
+        <div class="feature-card__meta">
+          <div>
+            <p class="badge">prepay</p>
+            <h3>프리페이</h3>
+          </div>
+          <a class="link-pill" href="/2025/01/07/prepay-qrcode-prepay.html">MVP 기록</a>
+        </div>
+        <p>QR코드 선불권을 스캔하면 자동으로 사용 이력을 남겨, 가맹점이 수기로 기록하지 않아도 되는 MVP를 만들었습니다. 토스의 선불 결제 정책이 이미 있는 것을 확인해 MVP까지만 진행했습니다.</p>
+        <ul class="tag-list" aria-label="기술 스택">
+          <li class="tag">Next.js</li>
+          <li class="tag">QR 인증</li>
+          <li class="tag">MVP</li>
+        </ul>
+      </article>
+
+      <article class="feature-card" role="listitem">
+        <div class="feature-card__meta">
+          <div>
             <p class="badge">virtual-keyboard</p>
             <h3>한국어 IME 가상 키보드</h3>
           </div>
