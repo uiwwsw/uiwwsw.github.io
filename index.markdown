@@ -69,6 +69,26 @@ full_bleed: true
   </div>
 </section>
 
+<section class="section" id="profile" aria-labelledby="profile-heading">
+  <div class="container grid-two">
+    <div class="surface-block">
+      <p class="section__eyebrow">Profile</p>
+      <h2 id="profile-heading" class="section__title">문제 정의부터 책임 있는 AI 운영까지</h2>
+      <p class="section__intro">문제를 정의하고 제약을 명료화하며, AI 목표를 오케스트레이션해 책임 있는 의사결정 체계를 설계·운영합니다.</p>
+    </div>
+    <div class="stack" aria-label="주요 역할">
+      <h3 class="stack__title">하는 일</h3>
+      <ul class="stack__list">
+        <li><strong>문제 정의·본질 파악 전문가</strong> — 표면적 현상보다 구조적 원인을 정확히 짚어내 핵심 쟁점을 선명히 합니다.</li>
+        <li><strong>제약 조건 설계자</strong> — 예산·성능·보안·규제 등 현실적 제약을 명료화해 실현 가능한 솔루션만 남기는 프레임을 만듭니다.</li>
+        <li><strong>AI 오케스트레이터</strong> — 데이터 품질, 모델 지표, 서비스 KPI를 연결해 AI에게 “무엇을, 어떻게” 할지 분명한 목표와 조건을 제시합니다.</li>
+        <li><strong>의사결정 구조 설계자</strong> — 인간·AI 역할 분담, 승인 절차, 모니터링 기준을 설계해 일관되고 재현 가능한 판단 흐름을 만듭니다.</li>
+        <li><strong>Responsible AI 리더</strong> — 투명성·공정성·안전성 원칙을 지키며 위험 평가와 거버넌스 프로세스를 책임 있게 운영합니다.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
 <section class="section" id="projects" aria-labelledby="projects-heading">
   <div class="container">
     <div class="section__header">
