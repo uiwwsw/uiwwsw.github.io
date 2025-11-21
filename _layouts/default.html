@@ -38,7 +38,13 @@
       </div>
     </header>
     <main id="content" class="site-main">
-      {{ content }}
+      {% if page.full_bleed %}
+        {{ content }}
+      {% else %}
+        <div class="container content-body">
+          {{ content }}
+        </div>
+      {% endif %}
     </main>
     <footer class="site-footer">
       <div class="container">
