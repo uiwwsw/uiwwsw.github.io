@@ -11,6 +11,8 @@ navigation:
     url: /#projects
   - title: Operating System
     url: /#operating
+  - title: Writing
+    url: /writing
 plugins:
   - jekyll-feed
 author:
