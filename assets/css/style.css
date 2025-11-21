@@ -97,7 +97,7 @@ img {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 1.1rem 0;
+  padding-block: 1.1rem;
 }
 
 .site-title {
@@ -145,6 +145,37 @@ img {
 
 .site-main {
   padding-bottom: 4rem;
+}
+
+.content-body {
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+  padding: clamp(1.25rem, 4vw, 2.75rem) 0;
+}
+
+.content-body h1,
+.content-body h2,
+.content-body h3 {
+  margin: 0;
+}
+
+.content-body p,
+.content-body ul,
+.content-body ol {
+  margin: 0;
+  color: var(--fg);
+}
+
+.content-body ul,
+.content-body ol {
+  padding-left: 1.25rem;
+}
+
+.content-body hr {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 0;
 }
 
 .section {
