@@ -248,3 +248,36 @@ full_bleed: true
     </div>
   </div>
 </section>
+
+<section class="section" id="writing" aria-labelledby="writing-heading">
+  <div class="container">
+    <div class="section__header">
+      <p class="section__eyebrow">Writing</p>
+      <h2 id="writing-heading" class="section__title">팀이 바로 쓰도록 남겨둔 기록</h2>
+      <p class="section__intro">프로세스와 실패까지 그대로 남긴 글을 고른 목록입니다. 최근 글 3개만 보여줍니다.</p>
+    </div>
+
+    <div class="posts-grid" role="list">
+      {% for post in site.posts limit: 3 %}
+        <article class="post-card" role="listitem">
+          <p class="post-meta">{{ post.date | date: '%Y.%m.%d' }} · {{ post.categories | join: ' · ' }}</p>
+          <h3 class="post-title">
+            <a href="{{ post.url | relative_url }}">{{ post.title }}</a>
+          </h3>
+          <p class="post-excerpt">{{ post.excerpt | strip_html | truncate: 140 }}</p>
+          {% if post.tags %}
+            <div class="post-tags" aria-label="태그">
+              {% for tag in post.tags %}
+                <span class="post-tag">{{ tag }}</span>
+              {% endfor %}
+            </div>
+          {% endif %}
+        </article>
+      {% endfor %}
+    </div>
+
+    <div class="card-footer writing-footer">
+      <a class="link-pill" href="{{ '/writing' | relative_url }}" aria-label="전체 글 보러가기">전체 글 보러가기</a>
+    </div>
+  </div>
+</section>
