@@ -447,6 +447,14 @@ img {
   flex-wrap: wrap;
 }
 
+.writing-footer {
+  margin-top: 1.4rem;
+}
+
+.writing-footer .link-pill {
+  font-weight: 700;
+}
+
 .link-pill {
   display: inline-flex;
   align-items: center;
@@ -481,7 +489,7 @@ img {
   color: var(--muted);
 }
 
-.timeline {
+.timeline { 
   list-style: none;
   padding: 0;
   margin: 0;
@@ -579,6 +587,69 @@ img {
   border: none;
   border-top: 1px solid var(--border);
   margin: 0;
+}
+
+.posts-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+}
+
+.post-card {
+  background: color-mix(in srgb, var(--bg) 88%, var(--surface) 12%);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 1.2rem 1.35rem;
+  display: grid;
+  gap: 0.55rem;
+  height: 100%;
+  transition: border-color 0.2s ease, transform 0.15s ease;
+}
+
+.post-card:hover,
+.post-card:focus-within {
+  border-color: var(--accent);
+  transform: translateY(-2px);
+}
+
+.post-meta {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+.post-title {
+  margin: 0;
+  font-size: 1.2rem;
+}
+
+.post-title a {
+  color: var(--text);
+}
+
+.post-title a:hover,
+.post-title a:focus-visible {
+  color: var(--accent);
+}
+
+.post-excerpt {
+  color: var(--muted);
+  margin: 0;
+}
+
+.post-tags {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.post-tag {
+  background: var(--surface-strong);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 0.35rem 0.65rem;
+  font-size: 0.88rem;
+  color: var(--muted);
 }
 
 @media (max-width: 860px) {
