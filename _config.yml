@@ -5,14 +5,12 @@ baseurl: ""
 url: "https://uiwwsw.github.io"
 theme: minima
 navigation:
-  - title: Profile
-    url: /#profile
-  - title: Capabilities
-    url: /#capabilities
+  - title: Overview
+    url: /#intro
   - title: Projects
     url: /#projects
-  - title: Writing
-    url: /#writing
+  - title: Operating System
+    url: /#operating
 plugins:
   - jekyll-feed
 author:
