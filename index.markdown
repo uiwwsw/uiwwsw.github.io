@@ -1,6 +1,7 @@
 ---
 layout: default
 title: Matthew Yoon — 윤창원
+full_bleed: true
 ---
 
 <section class="masthead" aria-labelledby="intro-heading">
