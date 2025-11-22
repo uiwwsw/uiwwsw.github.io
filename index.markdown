@@ -69,26 +69,6 @@ full_bleed: true
   </div>
 </section>
 
-<section class="section" id="profile" aria-labelledby="profile-heading">
-  <div class="container grid-two">
-    <div class="surface-block">
-      <p class="section__eyebrow">Profile</p>
-      <h2 id="profile-heading" class="section__title">문제 정의부터 책임 있는 AI 운영까지</h2>
-      <p class="section__intro">문제를 정의하고 제약을 명료화하며, AI 목표를 오케스트레이션해 책임 있는 의사결정 체계를 설계·운영합니다.</p>
-    </div>
-    <div class="stack" aria-label="주요 역할">
-      <h3 class="stack__title">하는 일</h3>
-      <ul class="stack__list">
-        <li><strong>문제 정의·본질 파악 전문가</strong> — 표면적 현상보다 구조적 원인을 정확히 짚어내 핵심 쟁점을 선명히 합니다.</li>
-        <li><strong>제약 조건 설계자</strong> — 예산·성능·보안·규제 등 현실적 제약을 명료화해 실현 가능한 솔루션만 남기는 프레임을 만듭니다.</li>
-        <li><strong>AI 오케스트레이터</strong> — 데이터 품질, 모델 지표, 서비스 KPI를 연결해 AI에게 “무엇을, 어떻게” 할지 분명한 목표와 조건을 제시합니다.</li>
-        <li><strong>의사결정 구조 설계자</strong> — 인간·AI 역할 분담, 승인 절차, 모니터링 기준을 설계해 일관되고 재현 가능한 판단 흐름을 만듭니다.</li>
-        <li><strong>Responsible AI 리더</strong> — 투명성·공정성·안전성 원칙을 지키며 위험 평가와 거버넌스 프로세스를 책임 있게 운영합니다.</li>
-      </ul>
-    </div>
-  </div>
-</section>
-
 <section class="section" id="projects" aria-labelledby="projects-heading">
   <div class="container">
     <div class="section__header">
@@ -192,22 +172,6 @@ full_bleed: true
           <li class="tag">Shared schema</li>
         </ul>
       </article>
-
-      <article class="feature-card" role="listitem">
-        <div class="feature-card__meta">
-          <div>
-            <p class="badge">dx-playbook</p>
-            <h3>Docs · Storybook 동기화</h3>
-          </div>
-          <a class="link-pill" href="https://github.com/uiwwsw/dx-playbook" target="_blank" rel="noopener">GitHub</a>
-        </div>
-        <p>Storybook, Typedoc, Lighthouse 리포트를 같은 Actions 파이프라인으로 묶어뒀습니다. 실험 코드와 문서가 함께 배포돼서 서로 어긋나지 않습니다.</p>
-        <ul class="tag-list" aria-label="기술 스택">
-          <li class="tag">Turbo · Changesets</li>
-          <li class="tag">QA Report Upload</li>
-          <li class="tag">Reusable Recipes</li>
-        </ul>
-      </article>
     </div>
   </div>
 </section>
@@ -249,35 +213,3 @@ full_bleed: true
   </div>
 </section>
 
-<section class="section" id="writing" aria-labelledby="writing-heading">
-  <div class="container">
-    <div class="section__header">
-      <p class="section__eyebrow">Writing</p>
-      <h2 id="writing-heading" class="section__title">팀이 바로 쓰도록 남겨둔 기록</h2>
-      <p class="section__intro">프로세스와 실패까지 그대로 남긴 글을 고른 목록입니다. 최근 글 3개만 보여줍니다.</p>
-    </div>
-
-    <div class="posts-grid" role="list">
-      {% for post in site.posts limit: 3 %}
-        <article class="post-card" role="listitem">
-          <p class="post-meta">{{ post.date | date: '%Y.%m.%d' }} · {{ post.categories | join: ' · ' }}</p>
-          <h3 class="post-title">
-            <a href="{{ post.url | relative_url }}">{{ post.title }}</a>
-          </h3>
-          <p class="post-excerpt">{{ post.excerpt | strip_html | truncate: 140 }}</p>
-          {% if post.tags %}
-            <div class="post-tags" aria-label="태그">
-              {% for tag in post.tags %}
-                <span class="post-tag">{{ tag }}</span>
-              {% endfor %}
-            </div>
-          {% endif %}
-        </article>
-      {% endfor %}
-    </div>
-
-    <div class="card-footer writing-footer">
-      <a class="link-pill" href="{{ '/writing' | relative_url }}" aria-label="전체 글 보러가기">전체 글 보러가기</a>
-    </div>
-  </div>
-</section>
