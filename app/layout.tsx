@@ -13,7 +13,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="ko">
       <body>
         <header className="border-b border-slate-800 bg-slate-950">
           <nav className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4 text-sm font-medium text-slate-200">
