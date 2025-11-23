@@ -1,0 +1,35 @@
+---
+title: "Hello, MDX"
+summary: "Demonstrates MDX loading inside the Next.js App Router."
+date: "2024-06-01"
+tags:
+  - nextjs
+  - mdx
+  - tailwind
+---
+
+Welcome to your new **Next.js** starter. This file lives in `content/hello-world.mdx` and is compiled at build time using the React Server Components MDX pipeline.
+
+## What to try next
+
+- Duplicate this file to create additional posts.
+- Customize shared components in `app/mdx-components.tsx` to style headings, links, or code.
+- Import React components directly inside MDX.
+
+## Rendering React inside MDX
+
+You can drop in JSX:
+
+```tsx
+function Note({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="rounded border border-blue-700/40 bg-blue-950/60 px-4 py-3 text-sm text-blue-100">
+      {children}
+    </div>
+  );
+}
+
+<Note>MDX blends Markdown with React components for rich, reusable content.</Note>
+```
+
+Happy shipping!
