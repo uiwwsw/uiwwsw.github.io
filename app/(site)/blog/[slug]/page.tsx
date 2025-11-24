@@ -3,8 +3,6 @@ import { notFound } from 'next/navigation';
 import { getPostBySlug, getPostSlugs } from '@/lib/mdx';
 import { buildMetadata, siteMetadata } from '@/lib/metadata';
 
-export const dynamicParams = false;
-
 export async function generateStaticParams() {
   const slugs = await getPostSlugs();
   return slugs.map((slug) => ({ slug }));
@@ -43,7 +41,10 @@ export async function generateMetadata({ params }: { params: { slug: string } })
 
 export default async function PostPage({ params }: { params: { slug: string } }) {
   const { slug } = params;
-  const post = await getPostBySlug(slug).catch(() => null);
+  const post = await getPostBySlug(slug).catch((error) => {
+    console.error('블로그 포스트 로딩에 실패했습니다.', slug, error);
+    return null;
+  });
 
   if (!post) return notFound();
 
@@ -78,7 +79,7 @@ export default async function PostPage({ params }: { params: { slug: string } })
       </header>
 
       <div className="grid gap-10 lg:grid-cols-[minmax(0,3fr)_minmax(260px,1fr)]">
-        <div className="prose prose-invert prose-headings:scroll-m-24 prose-p:text-slate-200 prose-li:text-slate-200 max-w-none">
+        <div className="prose prose-invert prose-headings:scroll-m-24 prose-p:text-slate-200 prose-li:text-slate-200 max-w-none break-words">
           {post.content}
         </div>
         <aside className="h-fit space-y-4 rounded-2xl border border-slate-800/80 bg-slate-950/60 p-5 shadow-sm">
