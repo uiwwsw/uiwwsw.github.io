@@ -46,16 +46,16 @@ const projects: ProjectMeta[] = [
     featured: true,
   },
   {
-    slug: 'prefay',
+    slug: 'freepay',
     title: '프리페이',
-    subtitle: '선불형 핀테크 온보딩',
+    subtitle: 'Next 기반 선불 결제/핀테크',
     timeframe: '2021.03 - 2022.03',
     summary:
-      '본인인증/한도 관리, 기능 토글 기반 실험, 하이브리드 앱 UI킷을 구축해 신규 가입 플로우를 빠르게 실험했습니다.',
-    tags: ['Fintech', 'Webview', 'Feature Toggle'],
+      'Next.js + React Query로 KYC→충전→결제 플로우를 설계하고, 보안/한도/상태 관리를 통합한 선불 결제 케이스 스터디.',
+    tags: ['Fintech', 'Next.js', 'tRPC'],
     type: 'case-study',
     ctaLabel: '케이스 스터디',
-    href: '/posts/prefay',
+    href: '/projects/freepay',
   },
   {
     slug: 'design-systems',
