@@ -19,7 +19,7 @@ const highlightedProjects = [
     subtitle: '여행 메타검색 · 시나리오 추천',
     timeframe: '2022.04 - 2023.08',
     summary:
-      '도시·테마·동선 추천을 묶은 검색 경험을 설계했습니다. 오프라인 캐싱과 지도 뷰 최적화로 체류 시간을 늘리고 예약 전환을 올렸습니다.',
+      '도시·테마·동선 추천을 묶은 검색 경험을 설계했습니다. 오프라인 캐싱과 지도 뷰 최적화를 통해 체류 시간을 늘리고 예약 전환을 개선했습니다.',
     highlights: [
       'React 기반 마이크로프런트엔드로 항공/숙소/투어 검색 도메인 분리',
       'Next.js ISR + Algolia 프리페치로 인기 루트 초콜드 스타트 1.2s → 450ms',
@@ -84,7 +84,7 @@ export default async function HomePage() {
             <p className="text-xs uppercase tracking-[0.3em] text-sky-300">Highlighted Work</p>
             <h2 className="text-3xl font-bold text-white">최근 리드한 프로젝트</h2>
             <p className="max-w-2xl text-slate-300">
-              커머스, 여행, 핀테크 도메인에서 제품 목표를 지표로 연결하고, 디자인 시스템과 실험 문화로 속도를 냈습니다.
+              커머스, 여행, 핀테크 도메인에서 제품 목표를 지표로 연결하고, 디자인 시스템과 실험 절차로 반복 작업을 줄였습니다.
             </p>
           </div>
           <div className="flex flex-wrap gap-2 text-xs text-slate-300">

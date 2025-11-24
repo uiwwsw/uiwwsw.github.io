@@ -14,7 +14,7 @@ published: true
 
 ## 1주차: 기본 빌드와 에셋 캐시
 
-- `npm run build` 기준 빌드 시간이 **2분 40초 → 1분 5초**로 줄었다. Cloudflare의 캐시된 `node_modules` 덕분이다.
+- `npm run build` 기준 빌드 시간이 **2분 40초 → 1분 5초**로 줄었다. Cloudflare에서 `node_modules` 캐싱이 재사용된 결과다.
 - `/assets` 정적 파일을 **`Cache-Control: public, max-age=31536000, immutable`**으로 서빙하도록 `_headers`에 추가했다.
 - iOS Safari에서 탭 복귀 시 화면이 하얗게 깜빡였는데, 원인은 CSS chunk가 캐시에서 즉시 내려오지 않은 탓이었다. CSS를 `app.css`로 묶어 헤더에서 preload하도록 변경했다.
 
@@ -48,10 +48,10 @@ export const onRequest = async ({ request, next }) => {
 
 ## 3주차: CI, 프리뷰, 롤백
 
-- GitHub Actions에서 `pages build`의 평균이 **64초**, 프리뷰 URL 생성까지 **90초**였다. CloudFront 때보다 체감 2배 빠르다.
+- GitHub Actions에서 `pages build`의 평균이 **64초**, 프리뷰 URL 생성까지 **90초**였다. 이전 S3 + CloudFront 파이프라인은 프리뷰가 없고 배포 후 무효화까지 3분 이상 걸려 상대적으로 느렸다.
 - 프리뷰에서 `ionic capacitor run`을 돌리면 `Capacitor Config missing` 에러가 났다. Pages 빌드 컨테이너에는 Android/iOS SDK가 없으니 **프리뷰는 웹만** 테스트하도록 워크플로를 분리했다.
-- 롤백은 `wrangler pages deployments rollback <id>`로 바로 가능했다. 6월에 실제로 실패 버전을 배포했다가 **3분 내** 원복했던 기록이 있다.
+- 롤백은 `wrangler pages deployments rollback <id>`로 처리했다. 6월에 실패 버전을 배포했을 때 **3분 내** 되돌린 기록을 남겼다.
 
 ## 마무리
 
-Cloudflare Pages는 CDN, 프리뷰, 롤백을 한 번에 제공해 배포 스트레스를 크게 줄여줬다. Ionic 특성상 SPA fallback과 CSS preload만 챙기면 모바일 웹앱도 안정적으로 서비스할 수 있다.
+Cloudflare Pages는 CDN, 프리뷰, 롤백을 한 번에 제공해 배포 스트레스를 줄였다. Ionic 특성상 SPA fallback과 CSS preload만 챙기면 모바일 웹앱도 안정적으로 서비스할 수 있었다.
