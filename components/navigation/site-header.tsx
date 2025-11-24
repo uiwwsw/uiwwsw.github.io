@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation';
 
 const navLinks = [
   { href: '/', label: '홈' },
+  { href: '/about', label: '소개' },
   { href: '/posts', label: '포스트' },
   {
     href: 'https://nextjs.org/docs/app',
@@ -60,6 +61,7 @@ export function SiteHeader() {
 
   const activeHref = useMemo(() => {
     if (pathname === '/') return '/';
+    if (pathname?.startsWith('/about')) return '/about';
     if (pathname?.startsWith('/posts')) return '/posts';
     return pathname;
   }, [pathname]);
