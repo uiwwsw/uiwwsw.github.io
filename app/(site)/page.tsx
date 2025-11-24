@@ -78,11 +78,11 @@ export default async function HomePage() {
     <div className="space-y-10 text-slate-100">
       <Hero />
 
-      <section className="space-y-6">
+      <section className="reveal-section space-y-6">
         <header className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <p className="text-xs uppercase tracking-[0.3em] text-sky-300">Highlighted Work</p>
-            <h2 className="text-3xl font-bold text-white">최근 리드한 프로젝트</h2>
+            <h2 className="text-2xl font-bold leading-tight text-white sm:text-3xl lg:text-4xl">최근 리드한 프로젝트</h2>
             <p className="max-w-2xl text-slate-300">
               커머스, 여행, 핀테크 도메인에서 제품 목표를 지표로 연결하고, 디자인 시스템과 실험 절차로 반복 작업을 줄였습니다.
             </p>
@@ -94,36 +94,36 @@ export default async function HomePage() {
           </div>
         </header>
 
-        <div className="grid gap-4 lg:grid-cols-3">
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {highlightedProjects.map((project) => (
             <ProjectCard key={project.title} {...project} />
           ))}
         </div>
       </section>
 
-      <section className="grid gap-6 lg:grid-cols-3">
-        <div className="lg:col-span-2 space-y-4 rounded-3xl border border-slate-800/80 bg-slate-900/60 p-6 shadow-sm">
+      <section className="reveal-section grid gap-6 lg:grid-cols-3">
+        <div className="space-y-4 rounded-3xl border border-slate-800/80 bg-slate-900/60 p-5 shadow-sm sm:p-6 lg:col-span-2">
           <div className="flex items-center justify-between gap-3">
             <div>
               <p className="text-xs uppercase tracking-[0.3em] text-sky-300">OSS</p>
-              <h3 className="text-2xl font-semibold text-white">@uiwwsw 패키지</h3>
+              <h3 className="text-xl font-semibold text-white sm:text-2xl">@uiwwsw 패키지</h3>
               <p className="text-slate-300">
                 프로젝트마다 반복되는 설정을 패키지화하고, 콘텐츠 워크플로를 단순화하는 플러그인을 유지보수합니다.
               </p>
             </div>
             <span className="hidden rounded-full bg-sky-500/10 px-3 py-1 text-xs font-semibold text-sky-200 lg:inline-flex">MIT</span>
           </div>
-          <div className="grid gap-3 md:grid-cols-3">
+          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
             {ossPackages.map((pkg) => (
               <article
                 key={pkg.name}
-                className="group rounded-2xl border border-slate-800/70 bg-slate-950/50 p-4 transition hover:-translate-y-1 hover:border-sky-700/60"
+                className="group rounded-2xl border border-slate-800/70 bg-slate-950/50 p-4 transition hover:-translate-y-1 hover:border-sky-700/60 focus-within:border-sky-600/70"
               >
                 <div className="flex items-center justify-between gap-2">
                   <Link
                     href={pkg.link}
                     target="_blank"
-                    className="text-sm font-semibold text-white underline-offset-4 hover:text-sky-200"
+                    className="text-sm font-semibold text-white underline-offset-4 transition hover:text-sky-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-300 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900"
                   >
                     {pkg.name}
                   </Link>
@@ -142,13 +142,13 @@ export default async function HomePage() {
           </div>
         </div>
 
-        <div className="space-y-3 rounded-3xl border border-slate-800/80 bg-slate-900/60 p-6 shadow-sm">
+        <div className="space-y-3 rounded-3xl border border-slate-800/80 bg-slate-900/60 p-5 shadow-sm sm:p-6">
           <p className="text-xs uppercase tracking-[0.3em] text-sky-300">Latest</p>
           <div className="flex items-center justify-between">
-            <h3 className="text-2xl font-semibold text-white">블로그 프리뷰</h3>
+            <h3 className="text-xl font-semibold text-white sm:text-2xl">블로그 프리뷰</h3>
             <Link
               href="/blog"
-              className="text-sm font-medium text-sky-200 underline-offset-4 hover:text-sky-100"
+              className="text-sm font-medium text-sky-200 underline-offset-4 transition hover:text-sky-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-300 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900"
             >
               전체 보기
             </Link>
@@ -200,7 +200,7 @@ export default async function HomePage() {
 
 function Hero() {
   return (
-    <section className="relative overflow-hidden rounded-3xl border border-slate-800/70 bg-gradient-to-br from-slate-900 via-slate-900/60 to-slate-950 p-8 shadow-lg">
+    <section className="reveal-section relative overflow-hidden rounded-3xl border border-slate-800/70 bg-gradient-to-br from-slate-900 via-slate-900/60 to-slate-950 px-5 py-8 shadow-lg sm:p-8">
       <div className="absolute inset-0 opacity-50 blur-3xl" aria-hidden>
         <div className="absolute -left-10 top-0 h-40 w-40 rounded-full bg-sky-500/20" />
         <div className="absolute bottom-0 right-6 h-56 w-56 rounded-full bg-indigo-500/10" />
@@ -208,10 +208,10 @@ function Hero() {
       <div className="relative flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
         <div className="space-y-4 lg:max-w-3xl">
           <p className="text-xs uppercase tracking-[0.3em] text-sky-300">Intro</p>
-          <h1 className="text-4xl font-extrabold leading-tight text-white sm:text-5xl">
+          <h1 className="text-3xl font-extrabold leading-tight text-white sm:text-4xl lg:text-5xl">
             안녕하세요, 제품을 끝까지 책임지는 프런트엔드 엔지니어 우승우(uiwwsw)입니다.
           </h1>
-          <p className="max-w-3xl text-lg text-slate-200">
+          <p className="max-w-3xl text-base text-slate-200 sm:text-lg">
             커머스·여행·핀테크 서비스에서 사용자 흐름을 빠르게 검증하고, 디자인 시스템과 데이터 도구로 팀 전체가 학습 속도를 유지하도록 돕습니다. RSC, 타입 세이프 API, 실험 자동화를 즐깁니다.
           </p>
           <div className="flex flex-wrap gap-2">
@@ -224,20 +224,20 @@ function Hero() {
           <div className="flex flex-wrap gap-3 text-sm text-slate-300">
             <Link
               href="https://github.com/uiwwsw"
-              className="inline-flex items-center gap-2 rounded-lg bg-sky-500 px-4 py-2 font-semibold text-slate-950 shadow transition hover:bg-sky-400"
+              className="inline-flex items-center gap-2 rounded-lg bg-sky-500 px-4 py-2 font-semibold text-slate-950 shadow transition hover:bg-sky-400 active:translate-y-[1px] active:shadow-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-300 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900"
             >
               GitHub 보기
             </Link>
             <Link
               href="mailto:uiwwsw@gmail.com"
-              className="inline-flex items-center gap-2 rounded-lg border border-slate-800 px-4 py-2 font-semibold text-slate-100 transition hover:border-slate-600"
+              className="inline-flex items-center gap-2 rounded-lg border border-slate-800 px-4 py-2 font-semibold text-slate-100 transition hover:border-slate-600 active:translate-y-[1px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-300 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900"
             >
               협업 문의
             </Link>
           </div>
         </div>
 
-        <div className="grid w-full max-w-sm gap-3 rounded-2xl border border-slate-800/70 bg-slate-950/60 p-4 text-sm text-slate-200 shadow-inner">
+        <div className="grid w-full max-w-md gap-3 rounded-2xl border border-slate-800/70 bg-slate-950/60 p-4 text-sm text-slate-200 shadow-inner">
           <HighlightRow label="현재 역할" value="프런트엔드/프로덕트 엔지니어 (커머스·콘텐츠)" />
           <HighlightRow label="최근 관심" value="RSC 데이터 경로, 성능 예산, 실험 자동화" />
           <HighlightRow label="선호 스택" value="TypeScript · Next.js · Tailwind CSS · tRPC · Vercel" />
@@ -252,14 +252,17 @@ function HighlightRow({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex items-start gap-3 rounded-xl border border-slate-800/60 bg-slate-900/40 px-3 py-2">
       <span className="text-[11px] uppercase tracking-wide text-slate-400">{label}</span>
-      <p className="text-sm text-slate-100">{value}</p>
+      <p className="text-sm leading-relaxed text-slate-100">{value}</p>
     </div>
   );
 }
 
 function ProjectCard({ title, subtitle, timeframe, summary, highlights }: ProjectCardProps) {
   return (
-    <article className="group flex h-full flex-col gap-3 rounded-3xl border border-slate-800/70 bg-slate-900/60 p-6 shadow-sm transition hover:-translate-y-1 hover:border-sky-700/70">
+    <article
+      className="group flex h-full flex-col gap-3 rounded-3xl border border-slate-800/70 bg-slate-900/60 p-6 shadow-sm transition hover:-translate-y-1 hover:border-sky-700/70 focus-within:-translate-y-1 focus-within:border-sky-600/70"
+      tabIndex={0}
+    >
       <div className="flex items-start justify-between gap-2">
         <div>
           <p className="text-xs uppercase tracking-[0.25em] text-sky-300">{timeframe}</p>

@@ -10,7 +10,7 @@ const footerLinks = [
 export function SiteFooter() {
   return (
     <footer className="border-t border-slate-800/80 bg-slate-950/60 py-10 text-sm text-slate-300">
-      <div className="mx-auto grid max-w-6xl gap-8 px-4 lg:grid-cols-12 lg:px-6">
+      <div className="mx-auto grid max-w-6xl gap-8 px-5 sm:px-6 lg:grid-cols-12 lg:px-6">
         <div className="lg:col-span-7">
           <p className="text-xs uppercase tracking-[0.25em] text-sky-300">UIWWSW</p>
           <p className="mt-2 text-lg font-semibold text-white">Next.js App Router Starter</p>
@@ -27,7 +27,7 @@ export function SiteFooter() {
                   href={link.href}
                   target={link.external ? '_blank' : undefined}
                   rel={link.external ? 'noreferrer' : undefined}
-                  className="rounded-md px-2 py-1 font-semibold text-slate-100 transition hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950"
+                  className="rounded-md px-2 py-1 font-semibold text-slate-100 transition hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950 active:translate-y-[1px]"
                 >
                   {link.label}
                   {link.external ? (
@@ -44,7 +44,7 @@ export function SiteFooter() {
               href="https://twitter.com"
               target="_blank"
               rel="noreferrer"
-              className="rounded-md border border-slate-800 px-3 py-2 font-semibold text-slate-100 transition hover:border-slate-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950"
+              className="rounded-md border border-slate-800 px-3 py-2 font-semibold text-slate-100 transition hover:border-slate-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950 active:translate-y-[1px]"
             >
               Twitter
             </a>
@@ -52,20 +52,20 @@ export function SiteFooter() {
               href="https://www.linkedin.com"
               target="_blank"
               rel="noreferrer"
-              className="rounded-md border border-slate-800 px-3 py-2 font-semibold text-slate-100 transition hover:border-slate-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950"
+              className="rounded-md border border-slate-800 px-3 py-2 font-semibold text-slate-100 transition hover:border-slate-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950 active:translate-y-[1px]"
             >
               LinkedIn
             </a>
             <a
               href="tel:+821012345678"
-              className="rounded-md border border-slate-800 px-3 py-2 font-semibold text-slate-100 transition hover:border-slate-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950"
+              className="rounded-md border border-slate-800 px-3 py-2 font-semibold text-slate-100 transition hover:border-slate-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950 active:translate-y-[1px]"
             >
               010-1234-5678
             </a>
           </div>
         </div>
       </div>
-      <div className="mt-8 px-4 text-center text-xs text-slate-500 lg:px-6">
+      <div className="mt-8 px-5 text-center text-xs text-slate-500 sm:px-6 lg:px-6">
         © {new Date().getFullYear()} UIWWSW. 빌드와 배포는 Next.js로.
       </div>
     </footer>
