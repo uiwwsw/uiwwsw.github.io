@@ -68,6 +68,24 @@ const introBadges = [
   'OSS Maintainer',
 ];
 
+const heroStats = [
+  {
+    label: '실험 주기',
+    value: '주간',
+    detail: '기능 토글과 계측을 기본으로 배치',
+  },
+  {
+    label: '디자인 시스템',
+    value: '3 kits',
+    detail: '스토리북·Chromatic 기반 UI 운영',
+  },
+  {
+    label: '성능 개선',
+    value: '42%',
+    detail: 'RSC 도입으로 SSR 구간 단축',
+  },
+];
+
 type ProjectCardProps = (typeof highlightedProjects)[number];
 
 export default async function HomePage() {
@@ -200,41 +218,61 @@ export default async function HomePage() {
 
 function Hero() {
   return (
-    <section className="reveal-section relative overflow-hidden rounded-3xl border border-slate-800/70 bg-gradient-to-br from-slate-900 via-slate-900/60 to-slate-950 px-5 py-8 shadow-lg sm:p-8">
-      <div className="absolute inset-0 opacity-50 blur-3xl" aria-hidden>
+    <section className="reveal-section relative overflow-hidden rounded-3xl border border-slate-800/70 bg-gradient-to-br from-slate-950 via-slate-900/70 to-slate-950 px-5 py-8 shadow-xl sm:p-9">
+      <div className="absolute inset-0 opacity-70 blur-3xl" aria-hidden>
         <div className="absolute -left-10 top-0 h-40 w-40 rounded-full bg-sky-500/20" />
         <div className="absolute bottom-0 right-6 h-56 w-56 rounded-full bg-indigo-500/10" />
+        <div className="absolute inset-10 rounded-[32px] border border-sky-500/10" />
       </div>
-      <div className="relative grid gap-6 lg:grid-cols-[minmax(0,1.4fr)_minmax(320px,1fr)] lg:items-center">
-        <div className="space-y-4">
-          <p className="text-xs uppercase tracking-[0.3em] text-sky-300">Intro</p>
-          <h1 className="text-3xl font-extrabold leading-tight text-white sm:text-4xl lg:text-5xl">
-            안녕하세요, 제품을 끝까지 책임지는 프런트엔드 엔지니어 우승우(uiwwsw)입니다.
-          </h1>
-          <p className="max-w-3xl text-base text-slate-200 sm:text-lg">
-            커머스·여행·핀테크 서비스에서 사용자 흐름을 빠르게 검증하고, 디자인 시스템과 데이터 도구로 팀 전체가 학습 속도를 유지하도록 돕습니다. RSC, 타입 세이프 API, 실험 자동화를 즐깁니다.
+      <div className="relative grid gap-8 lg:grid-cols-[minmax(0,1.4fr)_minmax(320px,1fr)] lg:items-center">
+        <div className="space-y-5">
+          <p className="inline-flex items-center gap-2 rounded-full border border-sky-500/30 bg-sky-500/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.3em] text-sky-100">
+            Intro
+            <span aria-hidden className="text-xs text-sky-200/80">
+              • Product-first Frontend
+            </span>
           </p>
-          <div className="flex flex-wrap gap-2">
-            {introBadges.map((badge) => (
-              <span key={badge} className="rounded-full border border-slate-800/80 bg-slate-900/80 px-3 py-1 text-xs text-slate-100">
-                {badge}
-              </span>
+          <div className="space-y-3">
+            <h1 className="text-3xl font-extrabold leading-tight text-white sm:text-4xl lg:text-5xl">
+              안녕하세요, 제품을 끝까지 책임지는 프런트엔드 엔지니어 우승우(uiwwsw)입니다.
+            </h1>
+            <p className="max-w-3xl text-base leading-relaxed text-slate-200 sm:text-lg">
+              커머스·여행·핀테크 서비스에서 사용자 흐름을 빠르게 검증하고, 디자인 시스템과 데이터 도구로 팀 전체가 학습 속도를 유지하도록 돕습니다. RSC, 타입 세이프 API, 실험 자동화를 즐깁니다.
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {introBadges.map((badge) => (
+                <span key={badge} className="rounded-full border border-slate-800/80 bg-slate-900/80 px-3 py-1 text-xs text-slate-100">
+                  {badge}
+                </span>
+              ))}
+            </div>
+            <div className="flex flex-wrap gap-3 text-sm text-slate-300">
+              <Link
+                href="https://github.com/uiwwsw"
+                className="inline-flex items-center gap-2 rounded-lg bg-sky-500 px-4 py-2 font-semibold text-slate-950 shadow transition hover:bg-sky-400 active:translate-y-[1px] active:shadow-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-300 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900"
+              >
+                GitHub 보기
+              </Link>
+              <Link
+                href="mailto:uiwwsw@gmail.com"
+                className="inline-flex items-center gap-2 rounded-lg border border-slate-800 px-4 py-2 font-semibold text-slate-100 transition hover:border-slate-600 active:translate-y-[1px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-300 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900"
+              >
+                협업 문의
+              </Link>
+            </div>
+          </div>
+          <dl className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {heroStats.map((stat) => (
+              <div
+                key={stat.label}
+                className="rounded-2xl border border-slate-800/70 bg-slate-950/60 p-4 shadow-sm ring-1 ring-transparent transition hover:-translate-y-[2px] hover:ring-sky-700/40"
+              >
+                <dt className="text-[11px] uppercase tracking-[0.2em] text-slate-400">{stat.label}</dt>
+                <dd className="mt-1 text-2xl font-semibold text-white">{stat.value}</dd>
+                <p className="text-sm text-slate-300">{stat.detail}</p>
+              </div>
             ))}
-          </div>
-          <div className="flex flex-wrap gap-3 text-sm text-slate-300">
-            <Link
-              href="https://github.com/uiwwsw"
-              className="inline-flex items-center gap-2 rounded-lg bg-sky-500 px-4 py-2 font-semibold text-slate-950 shadow transition hover:bg-sky-400 active:translate-y-[1px] active:shadow-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-300 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900"
-            >
-              GitHub 보기
-            </Link>
-            <Link
-              href="mailto:uiwwsw@gmail.com"
-              className="inline-flex items-center gap-2 rounded-lg border border-slate-800 px-4 py-2 font-semibold text-slate-100 transition hover:border-slate-600 active:translate-y-[1px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-300 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900"
-            >
-              협업 문의
-            </Link>
-          </div>
+          </dl>
         </div>
         <div className="grid gap-4 lg:justify-end">
           <div className="overflow-hidden rounded-2xl border border-slate-800/70 bg-slate-950/60 shadow-inner">

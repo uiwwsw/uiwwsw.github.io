@@ -21,7 +21,12 @@ function unwrapAutolink(children: ReactNode): ReactNode {
 const headingBase = 'scroll-m-20 font-semibold text-white tracking-tight';
 
 export const mdxComponents: MDXComponents = {
-  h1: ({ children }) => <h1 className={clsx(headingBase, 'mb-6 text-4xl')}>{children}</h1>,
+  h1: ({ children }) => (
+    <h1 className="sr-only">
+      {/* 레이아웃 상단에서 이미 타이틀을 노출하므로 화면 중복을 막기 위해 시각적으로 숨깁니다. */}
+      {children}
+    </h1>
+  ),
   h2: ({ id, children }) => {
     const content = unwrapAutolink(children);
     return (
