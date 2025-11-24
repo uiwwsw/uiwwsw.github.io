@@ -1,0 +1,46 @@
+---
+title: "찐리뷰: UGC 커머스 프런트엔드 리드"
+summary: "Next.js + Prisma + PostgreSQL로 실시간 리뷰/크리에이터/어드민을 한 UI 킷으로 묶고 전환 성능을 높인 케이스 스터디."
+date: "2024-07-01"
+tags:
+  - nextjs
+  - prisma
+  - postgresql
+  - commerce
+  - design-system
+---
+
+## Problem
+- 실시간 후기 피드, 제휴 크리에이터 스튜디오, 관리자 콘솔이 각기 다른 SPA로 나뉘어 운영 비용과 UI 일관성이 깨짐.
+- 리뷰 노출이 느려 결제 전환율이 3주 연속 하락(–6%p), SEO 유입 대비 체류 시간이 짧음.
+- 제휴사별 커스터마이징이 잦아 기능 플래그, 롤백 절차가 분산되어 사고 대응 속도가 느림.
+
+## Approach
+- **IA**: Problem → Approach → Architecture → UX → 결과/회고 순으로 구조화해 의사결정 히스토리를 투명하게 공유.
+- **Mono UI Kit**: 리뷰/스튜디오/어드민을 하나의 Next.js App Router 프로젝트로 통합하고 Tailwind 기반 UI 토큰을 재사용.
+- **데이터 계약**: Prisma 스키마에 UGC, 정산, 실험 테이블을 한곳에서 관리하고 Zod 기반 API 스키마로 계약을 명문화.
+- **배포 전략**: PR 미리보기로 크리에이터·CS 팀이 직접 QA, main 병합 시 Vercel + GitHub Actions로 DB 마이그레이션/시드 자동화.
+
+## Architecture (Next.js + Prisma + PostgreSQL)
+- **패턴**: RSC로 상품/리뷰 리스트를 SSR, 클라이언트 전환이 필요한 작성·필터 UI는 `use client` 세그먼트로 분리.
+- **데이터 플로우**:
+  - Route Handler → Prisma Client → PostgreSQL → 캐싱(응답 5분) → Edge Image Optimization.
+  - CQRS 분리: 조회는 Edge SSR, 생성/업데이트는 API Route + Prisma Transaction.
+- **구성 요약**:
+  - `apps/web`(Next.js) ↔ `db`(PostgreSQL, FlyIO) ↔ `prisma`(schema, seed) ↔ `jobs`(CRON: 정산/알림).
+  - Observability: Logflare + Sentry Traces, Slow query 로그를 Prisma middleware로 Slack 알림.
+- **다이어그램(텍스트)**:
+  - Client → Next.js Route Handler → Prisma → PostgreSQL
+  - Client (작성/업데이트) → API Route → Prisma Transaction → PostgreSQL → Webhook(슬랙/정산)
+
+## UX & Delivery
+- 리뷰 작성 플로우를 3단(구매 인증 → 미디어 업로드 → AI 톤 체크)으로 단순화, 평균 작성 시간 42% 단축.
+- 크리에이터 대시보드: 매출/정산/콘텐츠 상태를 카드·타임라인으로 통합, 주요 CTA(콘텐츠 제출) 클릭률 +18%.
+- 관리자 콘솔: 테넌트 스위처 + 기능 토글 보드로 배포 없이 정책 전환. 공지/쿠폰/가이드 콘텐츠를 MDX로 관리해 CS 응답 시간을 줄임.
+- 접근성: 키보드 포커스 링, 스크린리더 라벨, 다국어 번역 키(`next-intl`)를 기본 템플릿으로 묶어 신기능 릴리즈 시 재검증 비용을 최소화.
+
+## 결과 & 회고
+- 상품 상세 리뷰 노출 TTFB 480ms → 210ms, 전환율 –6%p 하락을 4주 내 +3%p로 반전.
+- 크리에이터 제출-정산 사이클을 14일 → 9일로 단축, 어드민 기능 토글로 롤백 시간 30분 → 5분.
+- 학습: RSC + Prisma 캐시 무효화 정책을 명확히 문서화해야 했음. 이후 `afterFind` 미들웨어와 Redis 태그 캐시를 추가할 준비를 진행 중.
+- 사용 스택/역할: Next.js(App Router, RSC), Prisma, PostgreSQL, Tailwind, Vercel, FlyIO, Sentry; 역할은 **프런트엔드 리드 & 테크 PM**으로 IA/스택 선정/QA 파이프라인 구축을 총괄.
