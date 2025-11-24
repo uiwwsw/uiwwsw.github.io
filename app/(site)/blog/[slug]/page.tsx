@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getPostBySlug, getPostSlugs } from '@/lib/mdx';
-import { buildMetadata } from '@/lib/metadata';
+import { buildMetadata, siteMetadata } from '@/lib/metadata';
 
 export const dynamicParams = false;
 
@@ -34,6 +34,9 @@ export async function generateMetadata({ params }: { params: { slug: string } })
     twitter: {
       title,
       description,
+    },
+    alternates: {
+      canonical: `${siteMetadata.siteUrl}${url}`,
     },
   });
 }

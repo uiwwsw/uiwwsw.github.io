@@ -205,8 +205,8 @@ function Hero() {
         <div className="absolute -left-10 top-0 h-40 w-40 rounded-full bg-sky-500/20" />
         <div className="absolute bottom-0 right-6 h-56 w-56 rounded-full bg-indigo-500/10" />
       </div>
-      <div className="relative flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
-        <div className="space-y-4 lg:max-w-3xl">
+      <div className="relative grid gap-6 lg:grid-cols-[minmax(0,1.4fr)_minmax(320px,1fr)] lg:items-center">
+        <div className="space-y-4">
           <p className="text-xs uppercase tracking-[0.3em] text-sky-300">Intro</p>
           <h1 className="text-3xl font-extrabold leading-tight text-white sm:text-4xl lg:text-5xl">
             안녕하세요, 제품을 끝까지 책임지는 프런트엔드 엔지니어 우승우(uiwwsw)입니다.
@@ -236,12 +236,42 @@ function Hero() {
             </Link>
           </div>
         </div>
-
-        <div className="grid w-full max-w-md gap-3 rounded-2xl border border-slate-800/70 bg-slate-950/60 p-4 text-sm text-slate-200 shadow-inner">
-          <HighlightRow label="현재 역할" value="프런트엔드/프로덕트 엔지니어 (커머스·콘텐츠)" />
-          <HighlightRow label="최근 관심" value="RSC 데이터 경로, 성능 예산, 실험 자동화" />
-          <HighlightRow label="선호 스택" value="TypeScript · Next.js · Tailwind CSS · tRPC · Vercel" />
-          <HighlightRow label="일하는 방식" value="문제 정의 → 프로토 → 계측 → 실험/배포 → 회고" />
+        <div className="grid gap-4 lg:justify-end">
+          <div className="overflow-hidden rounded-2xl border border-slate-800/70 bg-slate-950/60 shadow-inner">
+            <div className="relative isolate overflow-hidden p-5 sm:p-6">
+              <div
+                className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(94,234,212,0.18),transparent_35%),radial-gradient(circle_at_82%_12%,rgba(59,130,246,0.16),transparent_32%),radial-gradient(circle_at_50%_100%,rgba(147,197,253,0.12),transparent_38%)]"
+                aria-hidden
+              />
+              <div className="relative flex flex-col gap-4">
+                <div className="space-y-2">
+                  <p className="text-xs uppercase tracking-[0.3em] text-sky-200">Profile</p>
+                  <h2 className="text-2xl font-semibold leading-tight text-white sm:text-3xl">
+                    제품을 더 빠르게 검증하는 프런트엔드 엔지니어
+                  </h2>
+                  <p className="text-sm leading-relaxed text-slate-100/90">
+                    실험 주기를 단축하고, 디자인 시스템과 데이터 관측을 연결해 제품 학습 속도를 유지하는 일을 좋아합니다.
+                  </p>
+                </div>
+                <dl className="grid gap-2 text-sm text-slate-100">
+                  <div className="flex items-start gap-2 rounded-xl border border-slate-800/60 bg-slate-900/40 px-3 py-2">
+                    <dt className="text-[11px] uppercase tracking-wide text-slate-400">Strength</dt>
+                    <dd>기능 토글과 실험 자동화로 팀이 주간 실험을 반복할 수 있도록 설계</dd>
+                  </div>
+                  <div className="flex items-start gap-2 rounded-xl border border-slate-800/60 bg-slate-900/40 px-3 py-2">
+                    <dt className="text-[11px] uppercase tracking-wide text-slate-400">Focus</dt>
+                    <dd>RSC/Edge 환경에서의 데이터 경로, 성능 예산 수립, 접근성 회귀 방지</dd>
+                  </div>
+                </dl>
+              </div>
+            </div>
+          </div>
+          <div className="grid w-full max-w-md gap-3 rounded-2xl border border-slate-800/70 bg-slate-950/60 p-4 text-sm text-slate-200 shadow-inner justify-self-end">
+            <HighlightRow label="현재 역할" value="프런트엔드/프로덕트 엔지니어 (커머스·콘텐츠)" />
+            <HighlightRow label="최근 관심" value="RSC 데이터 경로, 성능 예산, 실험 자동화" />
+            <HighlightRow label="선호 스택" value="TypeScript · Next.js · Tailwind CSS · tRPC · Vercel" />
+            <HighlightRow label="일하는 방식" value="문제 정의 → 프로토 → 계측 → 실험/배포 → 회고" />
+          </div>
         </div>
       </div>
     </section>
