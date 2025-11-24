@@ -52,6 +52,7 @@ const rafScroll = (() => {
 헤더/바디를 서로 다른 컨테이너에 둔 탓에 가로 스크롤이 어긋났다. `scrollLeft` 동기화를 `pointermove`와 `scroll`에서 모두 처리하니 CSS가 매번 reflow를 일으켰다. 최종적으로는 **가로 스크롤은 CSS translate, 세로 스크롤만 native**로 결합했다.
 
 ```tsx
+{% raw %}
 const Header = ({ scrollLeft }: { scrollLeft: number }) => (
   <div
     className="sticky top-0 z-20 h-12 border-b border-slate-800"
@@ -60,6 +61,7 @@ const Header = ({ scrollLeft }: { scrollLeft: number }) => (
     {/* 컬럼 헤더 */}
   </div>
 );
+{% endraw %}
 ```
 
 ### 3) 메모리와 GC 프리징
