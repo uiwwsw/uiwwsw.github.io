@@ -1,0 +1,77 @@
+---
+title: "React Query 패턴: 캐시 레이어를 팀 규칙으로 만드는 법"
+summary: "대시보드 팀에서 6개월간 사용하며 굳어진 React Query 규칙과 실수 리스트." 
+date: "2024-10-20"
+tags:
+  - react-query
+  - caching
+  - frontend
+  - patterns
+published: true
+---
+
+프로젝트를 시작할 때는 모두가 `useQuery`만 쓰다 보니 캐시 키가 제각각이었다. 6개월 동안 운영하면서 쌓인 규칙과, 실제로 문제를 일으켰던 케이스를 정리한다.
+
+## 규칙 1: 키는 도메인-파라미터 순으로 고정
+
+- **형식**: `[도메인, 세부모듈, 식별자, 쿼리스트링]`
+- 예시: 주문 상세 → `['order', 'detail', orderId, { withItems: true }]`
+- 장점: 디버그할 때 `React Query Devtools`에서 키만 보고도 데이터를 추론할 수 있다.
+
+초기에 `['order', orderId, 'detail']`처럼 뒤섞인 키가 많았다. 서버 페이로드가 바뀌면서 `detail`이 누락되자 **캐시 충돌로 잘못된 데이터가 뜨는** 일이 있었다.
+
+## 규칙 2: `staleTime`은 SLA와 묶어서 결정
+
+- 주문/결제처럼 **요청-응답 SLA가 300ms 이하**인 API는 `staleTime: 0`으로 설정해 항상 최신 데이터를 받았다.
+- 로그/메트릭처럼 **10초 단위로 집계**되는 API는 `staleTime: 10_000`으로 맞췄다.
+- 대시보드 진입 시 초기 페칭이 1.8초 걸렸는데, 이 규칙 후 **첫 화면 TTFB가 1.2초 → 0.7초**로 줄었다.
+
+## 규칙 3: 뮤테이션 후 캐시 업데이트는 세 가지로 고정
+
+1. **invalidate**: 리스트가 짧고 요청이 가벼울 때 사용.
+2. **setQueryData**: 상세 화면이 열려 있는 상태에서 optimistic UI가 필요할 때.
+3. **`queryClient.ensureQueryData`**: 뮤테이션 결과가 리스트에 바로 반영되어야 할 때.
+
+```ts
+const useCreateOrder = () => {
+  const queryClient = useQueryClient();
+  return useMutation(createOrderApi, {
+    onSuccess: async (order) => {
+      await queryClient.invalidateQueries(['order', 'list']);
+      queryClient.setQueryData(['order', 'detail', order.id], order);
+      await queryClient.ensureQueryData(['order', 'list', { page: 1 }]);
+    },
+  });
+};
+```
+
+## 규칙 4: Suspense는 서브트리 단위로만
+
+Suspense를 전역으로 켰다가 **에러 바운더리와 섞여 디버깅이 어려워** 서브트리 단위로 한정했다. 로딩 상태는 Skeleton, 에러는 `Boundary` 컴포넌트에서 모아 처리했다.
+
+```tsx
+<Boundary fallback={<ErrorView />}>
+  <Suspense fallback={<OrdersSkeleton />}>
+    <OrderPage />
+  </Suspense>
+</Boundary>
+```
+
+## 규칙 5: `select`에서는 불변성 유지
+
+`select`에서 새로운 객체를 만들지 않고 기존 참조를 반환하면 메모이제이션이 깨진다. 실제로 대시보드 팀에서 **그래프 도메인**이 15%의 렌더 낭비를 겪었다.
+
+```ts
+const useOrders = () =>
+  useQuery({
+    queryKey: ['order', 'list'],
+    queryFn: fetchOrders,
+    select: (data) => data.map((o) => ({ ...o, priceWithVat: o.price * 1.1 })),
+  });
+```
+
+`select`에서 새로운 객체를 만들어야 한다면 `useMemo`와 조합하거나, `serialize`된 값을 명시적으로 반환하는 방식으로 수정했다.
+
+## 정리
+
+React Query 규칙을 팀 차원에서 문서화하니 온보딩 속도가 빨라졌다. 새로 들어온 개발자도 키와 `staleTime` 규칙만 보면 바로 API 코드를 작성할 수 있고, Devtools로 추적하기도 쉬워졌다.

@@ -1,0 +1,57 @@
+---
+title: "Ionic + Cloudflare Pages 배포 노트"
+summary: "Ionic React 앱을 Cloudflare Pages에 올리며 맞닥뜨린 캐시, 라우팅, 빌드 시간 문제를 정리." 
+date: "2024-10-17"
+tags:
+  - ionic
+  - cloudflare
+  - ci
+  - deployment
+published: true
+---
+
+올해 2월, Ionic React로 만든 모바일 웹앱을 Cloudflare Pages로 옮겼다. 기존에는 S3 + CloudFront였는데, 릴리스마다 invalidation 비용이 아깝고 프리뷰 브랜치가 없었다. 이 글은 실제 배포 로그를 시간 순으로 정리한 것이다.
+
+## 1주차: 기본 빌드와 에셋 캐시
+
+- `npm run build` 기준 빌드 시간이 **2분 40초 → 1분 5초**로 줄었다. Cloudflare의 캐시된 `node_modules` 덕분이다.
+- `/assets` 정적 파일을 **`Cache-Control: public, max-age=31536000, immutable`**으로 서빙하도록 `_headers`에 추가했다.
+- iOS Safari에서 탭 복귀 시 화면이 하얗게 깜빡였는데, 원인은 CSS chunk가 캐시에서 즉시 내려오지 않은 탓이었다. CSS를 `app.css`로 묶어 헤더에서 preload하도록 변경했다.
+
+```txt
+/_app.css
+  Cache-Control: public, max-age=31536000
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+```
+
+## 2주차: 라우팅과 SPA fallback
+
+Ionic은 내부적으로 `ion-router-outlet`을 쓰기 때문에 정적 라우팅이 꼬이면 빈 화면이 뜬다. Pages에서 404를 SPA로 돌리려면 `functions/_middleware.ts`에 다음을 추가했다.
+
+```ts
+export const onRequest = async ({ request, next }) => {
+  const url = new URL(request.url);
+  const path = url.pathname;
+  const isAsset = path.startsWith('/assets') || path.endsWith('.js') || path.endsWith('.css');
+
+  if (!isAsset && !path.startsWith('/api')) {
+    const index = await env.ASSETS.fetch(new URL('/index.html', request.url));
+    return new Response(index.body, index);
+  }
+
+  return next();
+};
+```
+
+이후 QA 팀이 직접 URL을 붙여 넣어도 빈 화면이 안 뜨고 바로 `/index.html`로 포워딩되었다.
+
+## 3주차: CI, 프리뷰, 롤백
+
+- GitHub Actions에서 `pages build`의 평균이 **64초**, 프리뷰 URL 생성까지 **90초**였다. CloudFront 때보다 체감 2배 빠르다.
+- 프리뷰에서 `ionic capacitor run`을 돌리면 `Capacitor Config missing` 에러가 났다. Pages 빌드 컨테이너에는 Android/iOS SDK가 없으니 **프리뷰는 웹만** 테스트하도록 워크플로를 분리했다.
+- 롤백은 `wrangler pages deployments rollback <id>`로 바로 가능했다. 6월에 실제로 실패 버전을 배포했다가 **3분 내** 원복했던 기록이 있다.
+
+## 마무리
+
+Cloudflare Pages는 CDN, 프리뷰, 롤백을 한 번에 제공해 배포 스트레스를 크게 줄여줬다. Ionic 특성상 SPA fallback과 CSS preload만 챙기면 모바일 웹앱도 안정적으로 서비스할 수 있다.
