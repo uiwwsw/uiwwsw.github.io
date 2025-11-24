@@ -71,13 +71,17 @@ export function SiteHeader() {
   const close = () => setIsOpen(false);
 
   return (
-    <header className="sticky top-0 z-30 border-b border-slate-800/70 bg-slate-900/80 backdrop-blur">
-      <div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-4 sm:px-6 lg:px-6">
+    <header className="sticky top-0 z-30 overflow-hidden border-b border-slate-800/70 bg-slate-950/85 backdrop-blur supports-[backdrop-filter]:bg-slate-950/70">
+      <div className="pointer-events-none absolute inset-0" aria-hidden>
+        <div className="absolute inset-x-0 top-[-40%] h-48 bg-gradient-to-b from-sky-500/10 via-transparent to-transparent blur-3xl" />
+        <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-slate-700/80 to-transparent" />
+      </div>
+      <div className="relative mx-auto flex max-w-6xl items-center justify-between px-5 py-4 sm:px-6 lg:px-6">
         <Link
           href="/"
           className="flex items-center gap-2 rounded-md text-lg font-semibold text-white transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900 focus-visible:ring-sky-400 hover:text-sky-100"
         >
-          <span className="rounded-full bg-sky-500/20 px-3 py-1 text-xs font-bold uppercase tracking-[0.2em] text-sky-200">
+          <span className="rounded-full bg-gradient-to-r from-sky-500/30 via-indigo-500/30 to-sky-400/30 px-3 py-1 text-xs font-bold uppercase tracking-[0.2em] text-sky-100 shadow-inner">
             UIWWSW
           </span>
           <span className="text-base text-slate-200">Starter Kit</span>
