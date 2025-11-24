@@ -17,9 +17,10 @@ export default function RootLayout({
   return (
     <html
       lang="ko"
+      data-theme="dark"
       className={`h-full ${inter.variable} ${notoSans.variable} ${jetbrainsMono.variable}`}
     >
-      <body className="min-h-screen bg-slate-950 text-slate-100 antialiased">{children}</body>
+      <body className="min-h-screen antialiased">{children}</body>
     </html>
   );
 }
