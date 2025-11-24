@@ -5,7 +5,6 @@ import path from 'path';
 import type { ReactNode } from 'react';
 import rehypeAutolinkHeadings from 'rehype-autolink-headings';
 import rehypeSlug from 'rehype-slug';
-import remarkGfm from 'remark-gfm';
 import type { Pluggable, PluggableList } from 'unified';
 import { compileMDX } from 'next-mdx-remote/rsc';
 import { mdxComponents } from '@/app/mdx-components';
@@ -40,14 +39,8 @@ export type CompiledPost = PostListItem & {
 const CONTENT_PATH = path.join(process.cwd(), 'content', 'posts');
 
 const mdxOptions: { remarkPlugins: PluggableList; rehypePlugins: PluggableList } = {
-  remarkPlugins: [remarkGfm as unknown as Pluggable],
-  rehypePlugins: [
-    rehypeSlug as unknown as Pluggable,
-    [
-      rehypeAutolinkHeadings,
-      { behavior: 'wrap', properties: { className: ['anchor-link'] } },
-    ] as unknown as Pluggable,
-  ],
+  remarkPlugins: [],
+  rehypePlugins: [rehypeSlug as unknown as Pluggable],
 };
 
 export async function getPostSlugs({ includeDrafts = false }: { includeDrafts?: boolean } = {}): Promise<string[]> {
