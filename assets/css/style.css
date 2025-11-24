@@ -337,6 +337,7 @@ img {
   border-radius: 50%;
   background: linear-gradient(135deg, var(--accent), var(--accent-strong));
   margin-top: 0.3rem;
+  flex-shrink: 0;
 }
 
 .signal-item h3 {
