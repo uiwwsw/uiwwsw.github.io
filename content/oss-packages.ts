@@ -142,7 +142,7 @@ const query = createQueryHelper({
 });
 
 export const useUser = (id: string) =>
-  query.useQuery(['user', id], ({ fetchJson }) => fetchJson(`/users/${id}`));
+  query.useQuery(['user', id], ({ fetchJson }) => fetchJson('/users/' + id));
 `,
     repoUrl: 'https://github.com/uiwwsw/react-query-helper',
     npmUrl: 'https://www.npmjs.com/package/@uiwwsw/react-query-helper',
