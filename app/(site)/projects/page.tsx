@@ -29,7 +29,7 @@ const projects: ProjectMeta[] = [
     tags: ['Commerce', 'Design System', 'SSR', 'Growth'],
     type: 'product',
     ctaLabel: '프로젝트 상세',
-    href: '/posts/jinreview',
+    href: '/blog/jinreview',
     featured: true,
   },
   {
@@ -67,7 +67,7 @@ const projects: ProjectMeta[] = [
     tags: ['Design System', 'DX', 'Automation'],
     type: 'product',
     ctaLabel: '워크플로 보기',
-    href: '/posts/design-system-ops',
+    href: '/blog/design-system-ops',
   },
   {
     slug: 'oss-eslint',
@@ -101,7 +101,7 @@ const projects: ProjectMeta[] = [
     tags: ['Growth', 'Analytics', 'DX'],
     type: 'product',
     ctaLabel: '구성 살펴보기',
-    href: '/posts/growth-experiments',
+    href: '/blog/growth-experiments',
   },
 ];
 
