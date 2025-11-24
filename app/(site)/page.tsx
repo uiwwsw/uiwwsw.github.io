@@ -147,7 +147,7 @@ export default async function HomePage() {
           <div className="flex items-center justify-between">
             <h3 className="text-2xl font-semibold text-white">블로그 프리뷰</h3>
             <Link
-              href="/posts"
+              href="/blog"
               className="text-sm font-medium text-sky-200 underline-offset-4 hover:text-sky-100"
             >
               전체 보기
@@ -165,7 +165,7 @@ export default async function HomePage() {
                   <div className="flex items-start justify-between gap-3">
                     <div>
                       <Link
-                        href={`/posts/${post.slug}`}
+                        href={`/blog/${post.slug}`}
                         className="text-base font-semibold text-white underline-offset-4 hover:text-sky-200"
                       >
                         {post.frontmatter.title}
@@ -174,11 +174,10 @@ export default async function HomePage() {
                         <p className="mt-1 text-sm text-slate-300">{post.frontmatter.summary}</p>
                       ) : null}
                     </div>
-                    {post.frontmatter.date ? (
-                      <span className="whitespace-nowrap text-[11px] uppercase tracking-wide text-slate-400">
-                        {post.frontmatter.date}
-                      </span>
-                    ) : null}
+                    <span className="whitespace-nowrap text-[11px] uppercase tracking-wide text-slate-400">
+                      {post.frontmatter.date ? `${post.frontmatter.date} · ` : ''}
+                      {post.readingMinutes}분 읽기
+                    </span>
                   </div>
                   {post.frontmatter.tags?.length ? (
                     <div className="mt-3 flex flex-wrap gap-2 text-[11px] text-slate-200">

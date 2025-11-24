@@ -1,0 +1,43 @@
+---
+title: "MDX 파이프라인: RSC + 목차 + 코드 스타일"
+summary: "frontmatter 계약, 읽기 시간, 목차/코드 블록 스타일을 포함한 블로그 엔진 샘플."
+date: "2024-08-10"
+tags:
+  - mdx
+  - content
+  - nextjs
+  - design-system
+published: true
+---
+
+MDX 파이프라인을 작게라도 제대로 세팅해 두면 콘텐츠 생산과 유지보수가 쉬워집니다. 이 글은 샘플 코드와 함께 frontmatter, RSC 파이프라인, 목차/코드 스타일 가이드를 제공합니다.
+
+## Frontmatter 계약
+
+- **title/summary/date**: 메타데이터와 OG/트위터 카드에 사용됩니다.
+- **tags**: 목록/상세에서 바로 노출되며 검색 필터의 기본 단위로 활용할 수 있습니다.
+- **published**: `false`로 설정하면 정적 경로 생성과 목록에서 자동으로 제외됩니다.
+
+## 빌드 파이프라인
+
+1. `lib/mdx.ts`에서 `compileMDX`로 RSC에서 실행 가능한 JSX를 생성합니다.
+2. `remark-gfm`, `rehype-slug`, `rehype-autolink-headings`를 통해 GitHub 스타일 마크다운, 앵커 링크, ID를 적용합니다.
+3. frontmatter로부터 읽기 시간/word count를 계산해 리스트와 상세 템플릿에서 바로 사용할 수 있습니다.
+
+## 코드 블록 스타일
+
+```tsx
+function CodeSample() {
+  return (
+    <div className="rounded-2xl bg-slate-900/70 p-4 font-mono text-sm text-slate-50">
+      <p>프리셋된 코드 블록은 언어 배지를 표시하고, 긴 줄을 자연스럽게 감쌉니다.</p>
+    </div>
+  );
+}
+```
+
+## 목차(TOC) 적용
+
+- h2/h3 헤딩을 정규화된 slug로 변환해 `#id`로 이동합니다.
+- 데스크톱에서는 사이드바에 고정되고, 모바일에서는 콘텐츠 상단에 표시됩니다.
+- 짧은 글이라도 목차가 있으면 스캔하기 쉽고, 링크 공유 시 섹션 딥링크가 가능합니다.
