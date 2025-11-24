@@ -14,6 +14,8 @@ export function buildMetadata(meta?: Partial<Metadata>): Metadata {
   const title = meta?.title ?? defaultTitle;
   const description = meta?.description ?? siteDescription;
   const openGraphImage = meta?.openGraph?.images;
+  const resolvedTitle =
+    typeof title === 'string' ? title : (title && 'default' in title ? title.default : siteName);
 
   return {
     metadataBase: new URL(siteUrl),
@@ -29,14 +31,14 @@ export function buildMetadata(meta?: Partial<Metadata>): Metadata {
       siteName,
       locale: 'ko_KR',
       type: 'website',
-      title: typeof title === 'string' ? title : title?.default ?? siteName,
+      title: resolvedTitle,
       description,
       ...(openGraphImage ? { images: openGraphImage } : {}),
       ...meta?.openGraph,
     },
     twitter: {
       card: 'summary_large_image',
-      title: typeof title === 'string' ? title : title?.default ?? siteName,
+      title: resolvedTitle,
       description,
       creator: '@nextjs',
       ...(openGraphImage ? { images: openGraphImage } : {}),
