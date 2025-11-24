@@ -13,12 +13,17 @@ const defaultTitle: Metadata['title'] = {
 export function buildMetadata(meta?: Partial<Metadata>): Metadata {
   const title = meta?.title ?? defaultTitle;
   const description = meta?.description ?? siteDescription;
+  const openGraphImage = meta?.openGraph?.images;
 
   return {
     metadataBase: new URL(siteUrl),
     title,
     description,
     applicationName: siteName,
+    keywords: ['Next.js', 'TypeScript', 'RSC', 'Performance', 'SEO', 'MDX'],
+    alternates: {
+      canonical: siteUrl,
+    },
     openGraph: {
       url: siteUrl,
       siteName,
@@ -26,6 +31,7 @@ export function buildMetadata(meta?: Partial<Metadata>): Metadata {
       type: 'website',
       title: typeof title === 'string' ? title : title?.default ?? siteName,
       description,
+      ...(openGraphImage ? { images: openGraphImage } : {}),
       ...meta?.openGraph,
     },
     twitter: {
@@ -33,6 +39,7 @@ export function buildMetadata(meta?: Partial<Metadata>): Metadata {
       title: typeof title === 'string' ? title : title?.default ?? siteName,
       description,
       creator: '@nextjs',
+      ...(openGraphImage ? { images: openGraphImage } : {}),
       ...meta?.twitter,
     },
     icons: {

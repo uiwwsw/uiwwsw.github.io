@@ -1,9 +1,13 @@
 import type { Metadata } from 'next';
-import { SiteFooter } from '@/components/footer/site-footer';
-import { SiteHeader } from '@/components/navigation/site-header';
+import dynamic from 'next/dynamic';
+import { SiteFooter as StaticSiteFooter } from '@/components/footer/site-footer';
+import { SiteHeader as StaticSiteHeader } from '@/components/navigation/site-header';
 import { buildMetadata } from '@/lib/metadata';
 
 export const metadata: Metadata = buildMetadata();
+
+const SiteHeader = dynamic(async () => ({ default: StaticSiteHeader }), { ssr: true });
+const SiteFooter = dynamic(async () => ({ default: StaticSiteFooter }), { ssr: true });
 
 export default function SiteLayout({
   children,
