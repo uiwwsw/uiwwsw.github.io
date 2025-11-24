@@ -87,19 +87,21 @@ export function SiteHeader() {
           <span className="text-base text-slate-200">Starter Kit</span>
         </Link>
 
-        <nav
-          aria-label="주 메뉴"
-          className="hidden md:flex md:items-center md:gap-1 md:rounded-full md:border md:border-slate-800/80 md:bg-slate-950/70 md:px-1 md:py-1 md:shadow-inner"
-        >
-          {navLinks.map((link) => (
-            <NavLink
-              key={link.href}
-              {...link}
-              isActive={activeHref === link.href}
-              onNavigate={close}
-            />
-          ))}
-        </nav>
+        <div className="hidden min-w-0 flex-1 justify-center md:flex">
+          <nav
+            aria-label="주 메뉴"
+            className="flex max-w-[70%] flex-nowrap items-center gap-1 overflow-x-auto rounded-full border border-slate-800/80 bg-slate-950/70 px-1 py-1 shadow-inner [-ms-overflow-style:none] [mask-image:linear-gradient(to_right,transparent,black_12%,black_88%,transparent)] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          >
+            {navLinks.map((link) => (
+              <NavLink
+                key={link.href}
+                {...link}
+                isActive={activeHref === link.href}
+                onNavigate={close}
+              />
+            ))}
+          </nav>
+        </div>
 
         <div className="flex items-center gap-2 md:hidden">
           <button

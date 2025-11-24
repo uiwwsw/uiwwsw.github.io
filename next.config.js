@@ -9,7 +9,7 @@ const nextConfig = {
     formats: ['image/avif', 'image/webp'],
   },
   experimental: {
-    mdxRs: true,
+    mdxRs: false,
   },
 };
 
