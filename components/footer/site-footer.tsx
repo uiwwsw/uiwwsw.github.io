@@ -1,7 +1,7 @@
 import Link from 'next/link';
 
 const footerLinks = [
-  { href: '/posts', label: '포스트 모아보기' },
+  { href: '/blog', label: '블로그 모아보기' },
   { href: 'mailto:hello@example.com', label: '이메일' },
   { href: 'https://github.com/uiwwsw', label: 'GitHub', external: true },
   { href: 'https://nextjs.org', label: 'Next.js', external: true },
