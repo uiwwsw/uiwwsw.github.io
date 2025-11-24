@@ -19,7 +19,7 @@ export default function SiteLayout({
       <SiteHeader />
       <main className="flex-1">
         <div className="mx-auto grid max-w-6xl gap-8 px-5 py-10 sm:px-6 lg:grid-cols-12 lg:px-6">
-          <div className="lg:col-span-8 xl:col-span-9">
+          <div className="min-w-0 lg:col-span-8 xl:col-span-9">
             {children}
           </div>
           <aside className="hidden space-y-4 rounded-2xl border border-slate-800/80 bg-slate-900/40 p-4 text-sm text-slate-300 shadow-inner lg:block lg:col-span-4 xl:col-span-3">
