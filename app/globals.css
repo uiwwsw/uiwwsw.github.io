@@ -28,6 +28,8 @@
   --color-content-secondary: #1e293b;
   --color-content-tertiary: #475569;
   --color-content-inverted: #f8fafc;
+  --shadow-focus: 0 0 0 3px var(--color-ring);
+  --shadow-press: 0 10px 32px rgba(15, 23, 42, 0.18);
 }
 
 :root[data-theme='dark'],
@@ -54,6 +56,8 @@
   --color-content-secondary: #cbd5e1;
   --color-content-tertiary: #94a3b8;
   --color-content-inverted: #0b1120;
+  --shadow-focus: 0 0 0 3px var(--color-ring);
+  --shadow-press: 0 8px 28px rgba(8, 47, 73, 0.35);
 }
 
 * {
@@ -66,7 +70,9 @@ body {
   background-color: var(--color-background);
   color: var(--color-content);
   font-family: 'Pretendard Variable', 'Pretendard', 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: clamp(15px, 0.96rem + 0.15vw, 17px);
   line-height: 1.6;
+  letter-spacing: -0.01em;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
 }
@@ -83,10 +89,22 @@ a:hover {
   text-decoration-color: rgba(14, 165, 233, 0.6);
 }
 
+a:active {
+  color: var(--color-accent);
+  opacity: 0.9;
+}
+
 main {
   margin: 0;
   max-width: none;
   padding: 0;
+}
+
+img,
+picture {
+  display: block;
+  max-width: 100%;
+  height: auto;
 }
 
 .prose h1,
@@ -128,6 +146,54 @@ input:focus-visible,
 select:focus-visible,
 textarea:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 3px var(--color-ring);
+  box-shadow: var(--shadow-focus);
   border-radius: 0.5rem;
+}
+
+.reveal-section {
+  animation: fade-in-up 0.7s ease forwards;
+  opacity: 0;
+}
+
+@keyframes fade-in-up {
+  0% {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 640px) {
+  :root {
+    --layout-padding: 1.25rem;
+  }
+
+  body {
+    line-height: 1.7;
+  }
+}
+
+@media (min-width: 1024px) {
+  :root {
+    --layout-padding: 1.75rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .reveal-section {
+    opacity: 1;
+  }
 }

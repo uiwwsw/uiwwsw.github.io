@@ -14,7 +14,7 @@ export default function SiteLayout({
     <div className="flex min-h-screen flex-col bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950">
       <SiteHeader />
       <main className="flex-1">
-        <div className="mx-auto grid max-w-6xl gap-8 px-4 py-10 lg:grid-cols-12 lg:px-6">
+        <div className="mx-auto grid max-w-6xl gap-8 px-5 py-10 sm:px-6 lg:grid-cols-12 lg:px-6">
           <div className="lg:col-span-8 xl:col-span-9">
             {children}
           </div>

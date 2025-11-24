@@ -72,10 +72,10 @@ export function SiteHeader() {
 
   return (
     <header className="sticky top-0 z-30 border-b border-slate-800/70 bg-slate-900/80 backdrop-blur">
-      <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4 lg:px-6">
+      <div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-4 sm:px-6 lg:px-6">
         <Link
           href="/"
-          className="flex items-center gap-2 rounded-md text-lg font-semibold text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900 focus-visible:ring-sky-400"
+          className="flex items-center gap-2 rounded-md text-lg font-semibold text-white transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900 focus-visible:ring-sky-400 hover:text-sky-100"
         >
           <span className="rounded-full bg-sky-500/20 px-3 py-1 text-xs font-bold uppercase tracking-[0.2em] text-sky-200">
             UIWWSW
@@ -97,7 +97,7 @@ export function SiteHeader() {
         <div className="flex items-center gap-2 md:hidden">
           <button
             type="button"
-            className="flex h-10 w-10 items-center justify-center rounded-md border border-slate-800 bg-slate-900 text-slate-200 shadow-sm transition hover:border-slate-700 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900"
+            className="flex h-10 w-10 items-center justify-center rounded-md border border-slate-800 bg-slate-900 text-slate-200 shadow-sm transition hover:border-slate-700 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900 active:translate-y-[1px] active:shadow-none"
             aria-expanded={isOpen}
             aria-controls="mobile-menu"
             aria-label={isOpen ? '메뉴 닫기' : '메뉴 열기'}
