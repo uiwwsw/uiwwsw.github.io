@@ -30,7 +30,7 @@ function NavLink({
   onNavigate?: () => void;
 }) {
   const baseClasses =
-    'flex items-center gap-2 rounded-md px-3 py-2 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900 focus-visible:ring-sky-400';
+    'flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900 focus-visible:ring-sky-400';
 
   return (
     <Link
@@ -87,7 +87,10 @@ export function SiteHeader() {
           <span className="text-base text-slate-200">Starter Kit</span>
         </Link>
 
-        <nav aria-label="주 메뉴" className="hidden md:flex md:items-center md:gap-2">
+        <nav
+          aria-label="주 메뉴"
+          className="hidden md:flex md:items-center md:gap-1 md:rounded-full md:border md:border-slate-800/80 md:bg-slate-950/70 md:px-1 md:py-1 md:shadow-inner"
+        >
           {navLinks.map((link) => (
             <NavLink
               key={link.href}
