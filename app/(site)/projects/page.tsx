@@ -33,16 +33,16 @@ const projects: ProjectMeta[] = [
     featured: true,
   },
   {
-    slug: 'meringtrip',
+    slug: 'meringuetrip',
     title: '머랭트립',
     subtitle: '여행 메타검색 · 시나리오 추천',
     timeframe: '2022.04 - 2023.08',
     summary:
-      '항공/숙소/투어를 마이크로프런트엔드로 분리하고, Algolia 프리페치 + 지도 최적화로 여행 검색의 전환율을 높였습니다.',
-    tags: ['Travel', 'MFE', 'ISR', 'Algolia'],
+      'Ionic 하이브리드 셸 + Cloudflare Static 배포로 여행 검색을 빠르게 제공하고, Algolia 프리페치와 지도 캐싱으로 전환율을 올린 사례.',
+    tags: ['Travel', 'Ionic', 'Static', 'Algolia'],
     type: 'case-study',
     ctaLabel: '케이스 스터디',
-    href: '/posts/meringtrip',
+    href: '/projects/meringuetrip',
     featured: true,
   },
   {
