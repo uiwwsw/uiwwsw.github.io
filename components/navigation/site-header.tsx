@@ -8,6 +8,7 @@ const navLinks = [
   { href: '/', label: '홈' },
   { href: '/about', label: '소개' },
   { href: '/posts', label: '포스트' },
+  { href: '/oss', label: 'OSS' },
   {
     href: 'https://nextjs.org/docs/app',
     label: '문서',
@@ -63,6 +64,7 @@ export function SiteHeader() {
     if (pathname === '/') return '/';
     if (pathname?.startsWith('/about')) return '/about';
     if (pathname?.startsWith('/posts')) return '/posts';
+    if (pathname?.startsWith('/oss')) return '/oss';
     return pathname;
   }, [pathname]);
 
