@@ -8,14 +8,14 @@ full_bleed: true
   <div class="container hero__grid">
     <div class="hero__intro">
       <p class="eyebrow">윤창원 · Matthew Yoon</p>
-      <h1 id="intro-heading" class="hero__title">현장에서 겪은 문제를 직접 해결하는 프런트엔드 개발자입니다.</h1>
+      <h1 id="intro-heading" class="hero__title">프런트엔드 개발자로서 실제 문제를 해결하는 데 집중해 왔습니다.</h1>
       <p class="hero__lede">
-        번역기 돌린 문구 대신, 실제로 겪은 일을 남깁니다. 한국어 IME 같은 까다로운 입력, 문서와 코드가 따로 놀지 않게 만드는 자동화,
-        팀이 바로 써볼 수 있는 도구를 꾸준히 빌드합니다.
+        한국어 IME처럼 처리 과정이 복잡한 입력 시스템, 문서·컴포넌트·데이터가 분리되지 않는 개발 구조, 그리고 반복되는 작업을 자동화하는
+        도구들을 만들며 팀의 생산성을 높여 왔습니다.
       </p>
       <div class="hero__chips" aria-label="현재 포커스">
-        <span class="chip chip--solid">10년차 프런트엔드</span>
-        <span class="chip">입력 경험</span>
+        <span class="chip chip--solid">10년 차 프런트엔드</span>
+        <span class="chip">입력 시스템</span>
         <span class="chip">디자인 시스템</span>
         <span class="chip">자동화</span>
       </div>
@@ -26,42 +26,42 @@ full_bleed: true
     </div>
     <div class="hero__panel" aria-label="Workboard snapshot">
       <div class="panel-card">
-        <h2 class="panel-card__title">현재 운용 중</h2>
+        <h2 class="panel-card__title">진행 중인 프로젝트</h2>
         <ul class="signal-list">
           <li class="signal-item">
             <span class="signal-dot" aria-hidden="true"></span>
             <div>
               <h3>IME + 입력 가드 레이어</h3>
-              <p>가상 키보드와 하드웨어 입력을 하나의 파이프라인에서 검증하고 병목을 E2E 테스트로 기록.</p>
+              <p>가상 키보드와 하드웨어 입력을 동일한 파이프라인으로 검증하고, Composition 이벤트 충돌을 줄이는 안정화 레이어를 구축.</p>
             </div>
           </li>
           <li class="signal-item">
             <span class="signal-dot" aria-hidden="true"></span>
             <div>
-              <h3>Storybook/Typedoc 동시 배포</h3>
-              <p>모노레포에서 토큰, 문서, 상호작용 데모를 같은 Actions 파이프라인으로 올려 지속성 유지.</p>
+              <h3>Storybook / Typedoc 통합 문서화</h3>
+              <p>컴포넌트 데모와 타입 문서를 모노레포 기준 하나의 파이프라인으로 배포해 문서·디자인·코드 싱크를 유지.</p>
             </div>
           </li>
           <li class="signal-item">
             <span class="signal-dot" aria-hidden="true"></span>
             <div>
               <h3>CLI · 코드 생성 자동화</h3>
-              <p>React Query 훅, 옵션, 테스트를 OpenAPI 스키마 기반으로 생성해 캐싱 전략을 코드로 공유.</p>
+              <p>OpenAPI 스키마 기반으로 React Query 훅, 타입, 테스트 스캐폴딩을 자동 생성해 팀 전체 API 사용 패턴과 캐싱 전략을 일관되게 유지.</p>
             </div>
           </li>
         </ul>
         <div class="metrics-grid" aria-label="현재 스택">
           <div class="metric-card">
             <p class="metric-title">Stack</p>
-            <p class="metric-value">TypeScript · React/Vue · pnpm</p>
+            <p class="metric-value">TypeScript · React/Vue · Bun/pnpm</p>
           </div>
           <div class="metric-card">
             <p class="metric-title">Habits</p>
-            <p class="metric-value">Scene Graph sketch · Playbook</p>
+            <p class="metric-value">Scene Graph · Playbook 기반 시나리오</p>
           </div>
           <div class="metric-card">
             <p class="metric-title">Deploy</p>
-            <p class="metric-value">Storybook · Typedoc · QA Report</p>
+            <p class="metric-value">Storybook · Typedoc · CI 배포 자동화</p>
           </div>
         </div>
       </div>
@@ -73,8 +73,8 @@ full_bleed: true
   <div class="container">
     <div class="section__header">
       <p class="section__eyebrow">Recent work</p>
-      <h2 id="projects-heading" class="section__title">직접 만들고 운영해 본 것들</h2>
-      <p class="section__intro">부풀리지 않은 설명만 남겼습니다. 사용자 문제를 줄이고, 팀이 유지할 수 있는 구조를 만들기 위해 했던 일입니다.</p>
+      <h2 id="projects-heading" class="section__title">최근 작업들</h2>
+      <p class="section__intro">팀의 생산성을 높이고, 입력 경험과 문서 싱크를 안정적으로 유지하기 위해 진행했던 프로젝트를 정리했습니다.</p>
     </div>
     <div class="card-grid" role="list">
       <article class="feature-card" role="listitem">
@@ -85,7 +85,7 @@ full_bleed: true
           </div>
           <a class="link-pill" href="https://brewstar-code.github.io/meringuetrip/" target="_blank" rel="noopener">Demo</a>
         </div>
-        <p>React(Ionic) + Cloudflare 조합으로 "카페·스터디룸·지하철역"처럼 복수 조건을 겹쳐보는 군집 검색 지도를 만들었습니다. Cloudflare Worker에서 군집별 점수를 계산해 조건이 겹치는 구역만 하이라이트합니다.</p>
+        <p>React(Ionic) + Cloudflare로 다중 조건 필터링이 가능한 위치 기반 검색 지도를 구축했습니다. Cloudflare Worker에서 군집 점수를 계산해 교차 조건에 해당하는 구역만 시각적으로 표시합니다.</p>
         <ul class="tag-list" aria-label="기술 스택">
           <li class="tag">React · Ionic</li>
           <li class="tag">Cloudflare Worker</li>
@@ -101,7 +101,7 @@ full_bleed: true
           </div>
           <a class="link-pill" href="/2025/01/05/prisma-nextjs-real-review.html">회고</a>
         </div>
-        <p>Prisma 스키마를 Next.js와 공유해 타입 변환을 최소화한 리뷰 플랫폼입니다. 좋아요 많은 리뷰는 강조하고, 싫어요가 몰린 리뷰는 블라인드 처리해 "진짜 후기"만 보이도록 운영했습니다.</p>
+        <p>Prisma 스키마를 Next.js와 공유하여 타입 변환 비용을 줄인 리뷰 플랫폼입니다. 좋아요/싫어요 기반 가중치를 적용해 신뢰도 높은 리뷰만 노출되도록 설계했습니다.</p>
         <ul class="tag-list" aria-label="기술 스택">
           <li class="tag">Prisma</li>
           <li class="tag">Next.js</li>
@@ -117,7 +117,7 @@ full_bleed: true
           </div>
           <a class="link-pill" href="/2025/01/07/prepay-qrcode-prepay.html">MVP 기록</a>
         </div>
-        <p>QR코드 선불권을 스캔하면 자동으로 사용 이력을 남겨, 가맹점이 수기로 기록하지 않아도 되는 MVP를 만들었습니다. 토스의 선불 결제 정책이 이미 있는 것을 확인해 MVP까지만 진행했습니다.</p>
+        <p>QR 기반으로 사용 기록을 자동 저장하는 MVP를 제작했습니다. 점주는 별도 입력 없이 사용 내역을 조회할 수 있습니다.</p>
         <ul class="tag-list" aria-label="기술 스택">
           <li class="tag">Next.js</li>
           <li class="tag">QR 인증</li>
@@ -133,7 +133,7 @@ full_bleed: true
           </div>
           <a class="link-pill" href="https://github.com/uiwwsw/virtual-keyboard" target="_blank" rel="noopener">GitHub</a>
         </div>
-        <p>Composition 이벤트와 커스텀 키보드를 상태 머신으로 묶어 모바일 입력 간섭을 줄였습니다. 지연이 생기면 테스트로 바로 기록해둡니다.</p>
+        <p>Composition 이벤트와 사용자 정의 키보드를 상태 머신으로 묶어 모바일 입력 간섭을 최소화했습니다. 지연(latency)이 발생하면 테스트 레이어에서 즉시 기록해 개선합니다.</p>
         <ul class="tag-list" aria-label="기술 스택">
           <li class="tag">React</li>
           <li class="tag">IME Latency Guard</li>
@@ -149,27 +149,11 @@ full_bleed: true
           </div>
           <a class="link-pill" href="https://github.com/uiwwsw/react-query-helper" target="_blank" rel="noopener">GitHub</a>
         </div>
-        <p>OpenAPI 스키마로 React Query 훅, 옵션, 테스트를 자동으로 만들고 캐싱 규칙을 코드로 공유했습니다. bun/pnpm 환경에서 돌립니다.</p>
+        <p>OpenAPI 스키마를 기반으로 React Query 훅과 테스트 템플릿을 자동 생성합니다. Bun/pnpm 환경에서 모노레포 전체에서 동일한 캐싱 규칙을 적용합니다.</p>
         <ul class="tag-list" aria-label="기술 스택">
           <li class="tag">TypeScript</li>
           <li class="tag">Bun · pnpm</li>
           <li class="tag">Changesets</li>
-        </ul>
-      </article>
-
-      <article class="feature-card" role="listitem">
-        <div class="feature-card__meta">
-          <div>
-            <p class="badge">cushion.ai</p>
-            <h3>AI 상담 파이프라인</h3>
-          </div>
-          <a class="link-pill" href="https://github.com/uiwwsw/cushion-ai" target="_blank" rel="noopener">GitHub</a>
-        </div>
-        <p>Ionic + NestJS 모노레포에서 상담 예약, 구독/크레딧 결제, 세션 요약을 연결했습니다. 운영팀이 반복 입력을 덜 하고, 사용자는 진행 상황을 바로 볼 수 있게 했습니다.</p>
-        <ul class="tag-list" aria-label="기술 스택">
-          <li class="tag">pnpm workspace</li>
-          <li class="tag">Subscription policy</li>
-          <li class="tag">Shared schema</li>
         </ul>
       </article>
     </div>
@@ -180,19 +164,19 @@ full_bleed: true
   <div class="container grid-two">
     <div class="surface-block">
       <p class="section__eyebrow">Work way</p>
-      <h2 id="pipeline-heading" class="section__title">입력부터 배포까지, 평소에 하는 순서</h2>
+      <h2 id="pipeline-heading" class="section__title">입력부터 문서화·배포까지 한 흐름으로 연결</h2>
       <ul class="timeline" aria-label="작업 루틴">
         <li class="timeline__item">
-          <p class="timeline__title">Input orchestration</p>
-          <p class="timeline__desc">가상 키보드와 하드웨어 입력, IME 이벤트를 같은 가드 레이어에서 시험해보고, 타입으로 막을 곳을 명확히 둡니다.</p>
+          <p class="timeline__title">입력 처리</p>
+          <p class="timeline__desc">한국어 IME처럼 복잡한 입력 시스템을 가상 키보드와 동일한 파이프라인으로 검증하고, Composition 이벤트 충돌을 줄입니다.</p>
         </li>
         <li class="timeline__item">
-          <p class="timeline__title">Design system as product</p>
-          <p class="timeline__desc">토큰, 문서, 상호작용 시나리오를 하나의 모노레포에서 관리하고 Storybook/Typedoc으로 함께 배포합니다.</p>
+          <p class="timeline__title">디자인 시스템 운영</p>
+          <p class="timeline__desc">토큰·문서·데모를 하나의 모노레포에서 관리하고 Storybook/Typedoc으로 함께 배포해 항상 최신 상태를 유지합니다.</p>
         </li>
         <li class="timeline__item">
-          <p class="timeline__title">Automation first</p>
-          <p class="timeline__desc">CLI와 코드 생성기로 스캐폴딩, 테스트, 릴리스를 자동화해 시간이 오래 걸리는 단계를 줄입니다.</p>
+          <p class="timeline__title">자동화</p>
+          <p class="timeline__desc">OpenAPI 스키마 기반 CLI와 코드 생성기로 반복 작업을 줄이고, 팀 전체에 일관된 API 사용과 캐싱 전략을 퍼뜨립니다.</p>
         </li>
       </ul>
     </div>
