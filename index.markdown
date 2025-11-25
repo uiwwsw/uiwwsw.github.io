@@ -78,14 +78,17 @@ full_bleed: true
     </div>
     <div class="card-grid" role="list">
       <article class="feature-card" role="listitem">
-        <div class="feature-card__meta">
-          <div>
-            <p class="badge">meringuetrip</p>
-            <h3>머랭트립 군집 지도</h3>
+        <div class="feature-card__header">
+          <div class="feature-card__identity">
+            <span class="feature-card__icon" aria-hidden="true"></span>
+            <div>
+              <p class="badge">meringuetrip</p>
+              <h3 class="feature-card__title">머랭트립 군집 지도</h3>
+            </div>
           </div>
           <a class="link-pill" href="https://brewstar-code.github.io/meringuetrip/" target="_blank" rel="noopener">Demo</a>
         </div>
-        <p>React(Ionic) + Cloudflare로 다중 조건 필터링이 가능한 위치 기반 검색 지도를 구축했습니다. Cloudflare Worker에서 군집 점수를 계산해 교차 조건에 해당하는 구역만 시각적으로 표시합니다.</p>
+        <p class="feature-card__description">React(Ionic) + Cloudflare로 다중 조건 필터링이 가능한 위치 기반 검색 지도를 구축했습니다. Cloudflare Worker에서 군집 점수를 계산해 교차 조건에 해당하는 구역만 시각적으로 표시합니다.</p>
         <ul class="tag-list" aria-label="기술 스택">
           <li class="tag">React · Ionic</li>
           <li class="tag">Cloudflare Worker</li>
@@ -94,14 +97,17 @@ full_bleed: true
       </article>
 
       <article class="feature-card" role="listitem">
-        <div class="feature-card__meta">
-          <div>
-            <p class="badge">real-review</p>
-            <h3>찐리뷰</h3>
+        <div class="feature-card__header">
+          <div class="feature-card__identity">
+            <span class="feature-card__icon" aria-hidden="true"></span>
+            <div>
+              <p class="badge">real-review</p>
+              <h3 class="feature-card__title">찐리뷰</h3>
+            </div>
           </div>
           <a class="link-pill" href="/2025/01/05/prisma-nextjs-real-review.html">회고</a>
         </div>
-        <p>Prisma 스키마를 Next.js와 공유하여 타입 변환 비용을 줄인 리뷰 플랫폼입니다. 좋아요/싫어요 기반 가중치를 적용해 신뢰도 높은 리뷰만 노출되도록 설계했습니다.</p>
+        <p class="feature-card__description">Prisma 스키마를 Next.js와 공유하여 타입 변환 비용을 줄인 리뷰 플랫폼입니다. 좋아요/싫어요 기반 가중치를 적용해 신뢰도 높은 리뷰만 노출되도록 설계했습니다.</p>
         <ul class="tag-list" aria-label="기술 스택">
           <li class="tag">Prisma</li>
           <li class="tag">Next.js</li>
@@ -110,14 +116,17 @@ full_bleed: true
       </article>
 
       <article class="feature-card" role="listitem">
-        <div class="feature-card__meta">
-          <div>
-            <p class="badge">prepay</p>
-            <h3>프리페이</h3>
+        <div class="feature-card__header">
+          <div class="feature-card__identity">
+            <span class="feature-card__icon" aria-hidden="true"></span>
+            <div>
+              <p class="badge">prepay</p>
+              <h3 class="feature-card__title">프리페이</h3>
+            </div>
           </div>
           <a class="link-pill" href="/2025/01/07/prepay-qrcode-prepay.html">MVP 기록</a>
         </div>
-        <p>QR 기반으로 사용 기록을 자동 저장하는 MVP를 제작했습니다. 점주는 별도 입력 없이 사용 내역을 조회할 수 있습니다.</p>
+        <p class="feature-card__description">QR 기반으로 사용 기록을 자동 저장하는 MVP를 제작했습니다. 점주는 별도 입력 없이 사용 내역을 조회할 수 있습니다.</p>
         <ul class="tag-list" aria-label="기술 스택">
           <li class="tag">Next.js</li>
           <li class="tag">QR 인증</li>
@@ -126,14 +135,17 @@ full_bleed: true
       </article>
 
       <article class="feature-card" role="listitem">
-        <div class="feature-card__meta">
-          <div>
-            <p class="badge">virtual-keyboard</p>
-            <h3>한국어 IME 가상 키보드</h3>
+        <div class="feature-card__header">
+          <div class="feature-card__identity">
+            <span class="feature-card__icon" aria-hidden="true"></span>
+            <div>
+              <p class="badge">virtual-keyboard</p>
+              <h3 class="feature-card__title">한국어 IME 가상 키보드</h3>
+            </div>
           </div>
           <a class="link-pill" href="https://github.com/uiwwsw/virtual-keyboard" target="_blank" rel="noopener">GitHub</a>
         </div>
-        <p>Composition 이벤트와 사용자 정의 키보드를 상태 머신으로 묶어 모바일 입력 간섭을 최소화했습니다. 지연(latency)이 발생하면 테스트 레이어에서 즉시 기록해 개선합니다.</p>
+        <p class="feature-card__description">Composition 이벤트와 사용자 정의 키보드를 상태 머신으로 묶어 모바일 입력 간섭을 최소화했습니다. 지연(latency)이 발생하면 테스트 레이어에서 즉시 기록해 개선합니다.</p>
         <ul class="tag-list" aria-label="기술 스택">
           <li class="tag">React</li>
           <li class="tag">IME Latency Guard</li>
@@ -142,14 +154,17 @@ full_bleed: true
       </article>
 
       <article class="feature-card" role="listitem">
-        <div class="feature-card__meta">
-          <div>
-            <p class="badge">react-query-helper</p>
-            <h3>캐싱 전략 자동화</h3>
+        <div class="feature-card__header">
+          <div class="feature-card__identity">
+            <span class="feature-card__icon" aria-hidden="true"></span>
+            <div>
+              <p class="badge">react-query-helper</p>
+              <h3 class="feature-card__title">캐싱 전략 자동화</h3>
+            </div>
           </div>
           <a class="link-pill" href="https://github.com/uiwwsw/react-query-helper" target="_blank" rel="noopener">GitHub</a>
         </div>
-        <p>OpenAPI 스키마를 기반으로 React Query 훅과 테스트 템플릿을 자동 생성합니다. Bun/pnpm 환경에서 모노레포 전체에서 동일한 캐싱 규칙을 적용합니다.</p>
+        <p class="feature-card__description">OpenAPI 스키마를 기반으로 React Query 훅과 테스트 템플릿을 자동 생성합니다. Bun/pnpm 환경에서 모노레포 전체에서 동일한 캐싱 규칙을 적용합니다.</p>
         <ul class="tag-list" aria-label="기술 스택">
           <li class="tag">TypeScript</li>
           <li class="tag">Bun · pnpm</li>
