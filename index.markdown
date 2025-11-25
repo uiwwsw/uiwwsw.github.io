@@ -179,31 +179,26 @@ full_bleed: true
   <div class="container grid-two">
     <div class="surface-block">
       <p class="section__eyebrow">Work way</p>
-      <h2 id="pipeline-heading" class="section__title">입력부터 문서화·배포까지 한 흐름으로 연결</h2>
+      <h2 id="pipeline-heading" class="section__title">입력 처리부터 문서화·배포까지 하나의 흐름으로 유지</h2>
       <ul class="timeline" aria-label="작업 루틴">
         <li class="timeline__item">
-          <p class="timeline__title">입력 처리</p>
-          <p class="timeline__desc">한국어 IME처럼 복잡한 입력 시스템을 가상 키보드와 동일한 파이프라인으로 검증하고, Composition 이벤트 충돌을 줄입니다.</p>
+          <p class="timeline__title">입력 시스템</p>
+          <p class="timeline__desc">한국어 IME처럼 복잡한 입력 체계를 가상 키보드와 동일한 입력 파이프라인에서 검증하고, Composition 이벤트 충돌을 최소화해 안정적인 입력 경험을 구현합니다.</p>
         </li>
         <li class="timeline__item">
           <p class="timeline__title">디자인 시스템 운영</p>
-          <p class="timeline__desc">토큰·문서·데모를 하나의 모노레포에서 관리하고 Storybook/Typedoc으로 함께 배포해 항상 최신 상태를 유지합니다.</p>
+          <p class="timeline__desc">토큰, 컴포넌트 문서, 인터랙션 데모를 모노레포 기반으로 일관되게 관리합니다. Storybook과 Typedoc을 한 파이프라인에서 배포하며, 설계·문서·코드가 항상 동기화된 상태를 유지합니다.</p>
         </li>
         <li class="timeline__item">
           <p class="timeline__title">자동화</p>
-          <p class="timeline__desc">OpenAPI 스키마 기반 CLI와 코드 생성기로 반복 작업을 줄이고, 팀 전체에 일관된 API 사용과 캐싱 전략을 퍼뜨립니다.</p>
+          <p class="timeline__desc">OpenAPI 스키마를 기반으로 CLI와 코드 생성기를 구축해 반복 작업을 제거합니다. React Query 훅, 타입, 테스트 스캐폴딩을 자동으로 생성해 팀 전체가 동일한 API 패턴과 캐싱 전략을 자연스럽게 따르도록 합니다.</p>
         </li>
       </ul>
     </div>
     <div class="stack">
       <p class="section__eyebrow">Toolkit</p>
       <h3 class="stack__title">재사용 가능한 스택</h3>
-      <ul class="stack__list">
-        <li><strong>TypeScript 5.x</strong> — 모노레포 워크플로, 타입 안전한 API 계약</li>
-        <li><strong>TanStack Query</strong> — 캐싱 정책을 템플릿과 코드 생성기로 관리</li>
-        <li><strong>Bun · pnpm</strong> — 빠른 실행과 패키지 격리</li>
-        <li><strong>Storybook · Typedoc</strong> — UI/UX 실험과 문서를 동일한 배포 경로로 유지</li>
-      </ul>
+      <p class="stack__desc">프로젝트 전반에서 재사용하는 기반 스택(빌드/테스트/문서화 도구, 개발 규칙, 코드 생성 템플릿 등)을 정리해 일관된 개발 경험과 빠른 초기 세팅을 제공합니다.</p>
       <div class="card-footer">
         <a class="link-pill" href="https://github.com/uiwwsw" target="_blank" rel="noopener">GitHub 더보기</a>
         <a class="link-pill" href="mailto:uiwwsw@gmail.com">협업 제안</a>
