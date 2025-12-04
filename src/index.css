@@ -175,9 +175,67 @@ footer {
   letter-spacing: 0.01em;
   border: 1px solid rgba(255, 255, 255, 0.08);
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  transition: opacity 0.35s ease, visibility 0.35s ease, transform 0.35s ease;
+}
+
+.loading.loading--hidden {
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(6px);
 }
 
 canvas {
   width: 100% !important;
   height: 100% !important;
+}
+
+@media (max-width: 900px) {
+  header {
+    padding: 14px 16px;
+  }
+
+  header .badge {
+    padding: 8px 12px;
+  }
+
+  header .links {
+    gap: 10px;
+  }
+
+  main {
+    position: relative;
+    height: 60vh;
+  }
+
+  .hero {
+    position: relative;
+    inset: unset;
+    margin: 20px 16px 0;
+    max-width: none;
+    pointer-events: all;
+  }
+
+  .hero h1 {
+    font-size: 26px;
+  }
+
+  .hero p {
+    font-size: 15px;
+  }
+
+  footer {
+    position: relative;
+    right: unset;
+    bottom: unset;
+    margin: 20px 16px 24px;
+    display: inline-flex;
+  }
+
+  .loading {
+    position: relative;
+    left: unset;
+    bottom: unset;
+    margin: 10px 16px 24px;
+    width: fit-content;
+  }
 }
