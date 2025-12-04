@@ -112,14 +112,23 @@ const DeskSet = () => {
 const HoverRig = ({ children }) => {
   const rigRef = useRef();
   const { camera } = useThree();
+  const flowPointer = useRef(new THREE.Vector2());
+  const idleDrift = useRef(new THREE.Vector2());
+  const targetPointer = useRef(new THREE.Vector2());
 
   useFrame(({ pointer }) => {
-    const targetX = pointer.y * 0.25;
-    const targetY = pointer.x * 0.5;
+    const time = performance.now() * 0.0015;
+    idleDrift.current.set(Math.sin(time) * 0.08, Math.cos(time * 0.85) * 0.08);
+
+    targetPointer.current.set(pointer.x, pointer.y);
+    flowPointer.current.lerp(targetPointer.current, 0.12);
+
+    const blendedX = flowPointer.current.y * 0.25 + idleDrift.current.y;
+    const blendedY = flowPointer.current.x * 0.5 + idleDrift.current.x * 1.2;
 
     if (rigRef.current) {
-      rigRef.current.rotation.x = THREE.MathUtils.lerp(rigRef.current.rotation.x, targetX, 0.08);
-      rigRef.current.rotation.y = THREE.MathUtils.lerp(rigRef.current.rotation.y, targetY, 0.08);
+      rigRef.current.rotation.x = THREE.MathUtils.lerp(rigRef.current.rotation.x, blendedX, 0.08);
+      rigRef.current.rotation.y = THREE.MathUtils.lerp(rigRef.current.rotation.y, blendedY, 0.08);
     }
 
     camera.lookAt(0, 0.6, 0);
@@ -136,6 +145,9 @@ const DataVeil = () => {
   const pointsRef = useRef();
   const materialRef = useRef();
   const count = 1500;
+  const drift = useRef(new THREE.Vector2());
+  const flowPointer = useRef(new THREE.Vector2());
+  const targetPointer = useRef(new THREE.Vector2());
 
   const positions = useMemo(() => {
     const arr = new Float32Array(count * 3);
@@ -160,14 +172,19 @@ const DataVeil = () => {
     return arr;
   }, [count]);
 
-  const pointer2D = useRef(new THREE.Vector2());
-
   useFrame(({ clock, pointer }) => {
     const t = clock.getElapsedTime();
     if (materialRef.current) {
       materialRef.current.uniforms.uTime.value = t;
-      pointer2D.current.set(pointer.x * 2.6, pointer.y * 2.2);
-      materialRef.current.uniforms.uPointer.value.copy(pointer2D.current);
+
+      drift.current.set(Math.sin(t * 0.32) * 0.35, Math.cos(t * 0.27) * 0.32);
+      targetPointer.current.set(pointer.x, pointer.y);
+      flowPointer.current.lerp(targetPointer.current, 0.12);
+
+      materialRef.current.uniforms.uPointer.value.set(
+        (flowPointer.current.x + drift.current.x) * 2.6,
+        (flowPointer.current.y + drift.current.y) * 2.2
+      );
     }
   });
 
