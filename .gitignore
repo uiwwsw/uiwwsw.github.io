@@ -1,5 +1,6 @@
-_site
-.sass-cache
-.jekyll-cache
-.jekyll-metadata
-vendor
+node_modules
+npm-debug.log*
+pnpm-lock.yaml
+yarn.lock
+.DS_Store
+dist
