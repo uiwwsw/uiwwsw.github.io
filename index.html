@@ -105,9 +105,9 @@
     <footer>React · drei · three.js · GitHub Pages</footer>
 
     <script type="text/babel" data-type="module">
-      import React, { useMemo, useRef } from 'https://esm.sh/react@18.3.1';
-      import { createRoot } from 'https://esm.sh/react-dom@18.3.1/client';
-      import { Canvas, useFrame } from 'https://esm.sh/@react-three/fiber@9.0.0?dev&bundle&deps=three@0.160.1';
+      import React, { useMemo, useRef } from 'https://cdn.jsdelivr.net/npm/react@18.3.1/+esm';
+      import { createRoot } from 'https://cdn.jsdelivr.net/npm/react-dom@18.3.1/client/+esm';
+      import { Canvas, useFrame } from 'https://cdn.jsdelivr.net/npm/@react-three/fiber@9.0.0/+esm';
       import {
         OrbitControls,
         Sparkles,
@@ -118,8 +118,8 @@
         Environment,
         EffectComposer,
         Bloom,
-      } from 'https://esm.sh/@react-three/drei@9.105.5?dev&bundle&deps=@react-three/fiber@9.0.0,three@0.160.1';
-      import * as THREE from 'https://esm.sh/three@0.160.1';
+      } from 'https://cdn.jsdelivr.net/npm/@react-three/drei@9.105.5/+esm';
+      import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.160.1/+esm';
 
       const NeonSign = ({ position }) => {
         const glow = new THREE.Color('#7c3aed');
