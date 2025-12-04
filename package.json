@@ -1,0 +1,12 @@
+{
+  "name": "uiwwsw-github-io",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Developer Room landing page",
+  "scripts": {
+    "start": "serve -s ."
+  },
+  "devDependencies": {
+    "serve": "^14.2.1"
+  }
+}
