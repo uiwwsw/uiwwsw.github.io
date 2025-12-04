@@ -11,7 +11,7 @@
 body {
   margin: 0;
   font-family: 'Space Grotesk', system-ui, -apple-system, sans-serif;
-  background: radial-gradient(circle at 20% 20%, #0e1624, #050811 55%);
+  background: radial-gradient(circle at 20% 20%, #0b1220, #04060f 55%);
   color: #c7d2fe;
   min-height: 100vh;
   display: flex;
@@ -90,6 +90,62 @@ main {
   width: 100%;
   height: 100vh;
   overflow: hidden;
+}
+
+.hero {
+  position: fixed;
+  left: 60px;
+  bottom: 110px;
+  max-width: 520px;
+  padding: 26px 28px;
+  background: rgba(4, 6, 15, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 22px;
+  box-shadow: 0 20px 90px rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(10px);
+  color: #e0e7ff;
+  pointer-events: none;
+}
+
+.hero .eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  font-size: 12px;
+  color: #9ca3af;
+  margin-bottom: 10px;
+}
+
+.hero h1 {
+  margin: 0 0 12px;
+  font-size: 32px;
+  line-height: 1.25;
+  color: #e8eaff;
+}
+
+.hero h1 span {
+  color: #a78bfa;
+  display: block;
+}
+
+.hero p {
+  margin: 0 0 16px;
+  color: #cbd5e1;
+  line-height: 1.6;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.chips span {
+  padding: 8px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(124, 58, 237, 0.12);
+  color: #d8b4fe;
+  font-size: 13px;
 }
 
 footer {

@@ -132,6 +132,103 @@ const HoverRig = ({ children }) => {
   );
 };
 
+const DataVeil = () => {
+  const pointsRef = useRef();
+  const materialRef = useRef();
+  const count = 2200;
+
+  const positions = useMemo(() => {
+    const arr = new Float32Array(count * 3);
+    for (let i = 0; i < count; i++) {
+      const i3 = i * 3;
+      arr[i3] = (Math.random() - 0.5) * 6;
+      arr[i3 + 1] = Math.random() * 3 - 1.2;
+      arr[i3 + 2] = (Math.random() - 0.5) * 6;
+    }
+    return arr;
+  }, [count]);
+
+  const shifts = useMemo(() => {
+    const arr = new Float32Array(count * 4);
+    for (let i = 0; i < count; i++) {
+      const i4 = i * 4;
+      arr[i4] = Math.random() * Math.PI * 2;
+      arr[i4 + 1] = Math.random() * Math.PI * 2;
+      arr[i4 + 2] = Math.random() * Math.PI * 2;
+      arr[i4 + 3] = Math.random();
+    }
+    return arr;
+  }, [count]);
+
+  const pointer2D = useRef(new THREE.Vector2());
+
+  useFrame(({ clock, pointer }) => {
+    const t = clock.getElapsedTime();
+    if (materialRef.current) {
+      materialRef.current.uniforms.uTime.value = t;
+      pointer2D.current.set(pointer.x * 2.6, pointer.y * 2.2);
+      materialRef.current.uniforms.uPointer.value.copy(pointer2D.current);
+    }
+  });
+
+  return (
+    <points ref={pointsRef} position={[0, 0.25, 0]} frustumCulled={false}>
+      <bufferGeometry>
+        <bufferAttribute attach="attributes-position" array={positions} count={count} itemSize={3} />
+        <bufferAttribute attach="attributes-shift" array={shifts} count={count} itemSize={4} />
+      </bufferGeometry>
+      <shaderMaterial
+        ref={materialRef}
+        transparent
+        depthWrite={false}
+        blending={THREE.AdditiveBlending}
+        uniforms={{
+          uTime: { value: 0 },
+          uPointer: { value: new THREE.Vector2() },
+        }}
+        vertexShader={`
+          uniform float uTime;
+          uniform vec2 uPointer;
+          attribute vec4 shift;
+          varying float vAlpha;
+          varying vec3 vColor;
+
+          void main() {
+            vec3 p = position;
+            float t = uTime * 0.6;
+            p.x += sin(t * 0.6 + shift.x) * 0.45;
+            p.y += sin(t + shift.y) * 0.35 + shift.w * 0.4;
+            p.z += cos(t * 0.8 + shift.z) * 0.5;
+
+            float pull = 1.0 - smoothstep(0.3, 2.0, length(uPointer - p.xy));
+            p.xy += (uPointer - p.xy) * pull * 0.2;
+
+            vec4 mvPosition = modelViewMatrix * vec4(p, 1.0);
+            gl_Position = projectionMatrix * mvPosition;
+
+            float size = (2.0 + sin(uTime + shift.w * 6.0)) * (140.0 / -mvPosition.z);
+            gl_PointSize = size;
+
+            float tint = clamp(0.2 + p.y * 0.35, 0.0, 1.0);
+            vColor = mix(vec3(0.41, 0.28, 0.91), vec3(0.2, 0.86, 0.97), tint);
+            vAlpha = mix(0.25, 0.85, pull);
+          }
+        `}
+        fragmentShader={`
+          varying float vAlpha;
+          varying vec3 vColor;
+
+          void main() {
+            float d = length(gl_PointCoord - vec2(0.5));
+            float alpha = smoothstep(0.6, 0.18, d) * vAlpha;
+            gl_FragColor = vec4(vColor, alpha);
+          }
+        `}
+      />
+    </points>
+  );
+};
+
 const Scene = () => {
   const sparkColor = useMemo(() => new THREE.Color('#7c3aed'), []);
   const sparkColor2 = useMemo(() => new THREE.Color('#a855f7'), []);
@@ -152,6 +249,10 @@ const Scene = () => {
       <HoverRig>
         <DeskSet />
         <NeonSign position={[0, 1.4, 0]} />
+
+        <group position={[0, 0.3, 0]}>
+          <DataVeil />
+        </group>
 
         <ContactShadows
           position={[0, 0, 0]}
@@ -202,6 +303,23 @@ export default function App() {
       <main>
         <Scene />
       </main>
+
+      <section className="hero">
+        <div className="eyebrow">Antigravity-inspired sandbox</div>
+        <h1>
+          Motion-crafted interface for an
+          <span> unapologetically curious developer</span>
+        </h1>
+        <p>
+          The field behind reacts to your cursor with breathing particles, shimmering ribbons, and
+          subtle neon bloom—like bits of data hovering in zero-gravity.
+        </p>
+        <div className="chips">
+          <span>React · three.js</span>
+          <span>Procedural particles</span>
+          <span>Interactive ambience</span>
+        </div>
+      </section>
 
       <footer>React · drei · three.js · GitHub Pages</footer>
 
