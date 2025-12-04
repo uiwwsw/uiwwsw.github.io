@@ -1,6 +1,6 @@
 import React, { useMemo, useRef } from 'react';
-import { Canvas, useFrame } from '@react-three/fiber';
-import { OrbitControls, Sparkles, Float, Text, ContactShadows, Environment } from '@react-three/drei';
+import { Canvas, useFrame, useThree } from '@react-three/fiber';
+import { Sparkles, Float, Text, ContactShadows, Environment } from '@react-three/drei';
 import { EffectComposer, Bloom } from '@react-three/postprocessing';
 import * as THREE from 'three';
 
@@ -109,6 +109,29 @@ const DeskSet = () => {
   );
 };
 
+const HoverRig = ({ children }) => {
+  const rigRef = useRef();
+  const { camera } = useThree();
+
+  useFrame(({ pointer }) => {
+    const targetX = pointer.y * 0.25;
+    const targetY = pointer.x * 0.5;
+
+    if (rigRef.current) {
+      rigRef.current.rotation.x = THREE.MathUtils.lerp(rigRef.current.rotation.x, targetX, 0.08);
+      rigRef.current.rotation.y = THREE.MathUtils.lerp(rigRef.current.rotation.y, targetY, 0.08);
+    }
+
+    camera.lookAt(0, 0.6, 0);
+  });
+
+  return (
+    <group ref={rigRef} position={[0, -0.15, 0]}>
+      {children}
+    </group>
+  );
+};
+
 const Scene = () => {
   const sparkColor = useMemo(() => new THREE.Color('#7c3aed'), []);
   const sparkColor2 = useMemo(() => new THREE.Color('#a855f7'), []);
@@ -126,17 +149,19 @@ const Scene = () => {
         castShadow
       />
 
-      <DeskSet />
-      <NeonSign position={[0, 1.4, 0]} />
+      <HoverRig>
+        <DeskSet />
+        <NeonSign position={[0, 1.4, 0]} />
 
-      <ContactShadows
-        position={[0, 0, 0]}
-        opacity={0.35}
-        scale={5}
-        blur={1.8}
-        far={2.4}
-        color="#111827"
-      />
+        <ContactShadows
+          position={[0, 0, 0]}
+          opacity={0.35}
+          scale={5}
+          blur={1.8}
+          far={2.4}
+          color="#111827"
+        />
+      </HoverRig>
 
       <Sparkles count={120} speed={0.3} opacity={0.3} color={sparkColor} scale={5} size={4} />
       <Sparkles count={120} speed={0.25} opacity={0.23} color={sparkColor2} scale={5} size={4} />
@@ -151,8 +176,6 @@ const Scene = () => {
       <EffectComposer>
         <Bloom mipmapBlur intensity={1.35} luminanceThreshold={0.2} radius={0.8} />
       </EffectComposer>
-
-      <OrbitControls enablePan={false} enableZoom={false} minPolarAngle={0.8} maxPolarAngle={1.4} />
     </Canvas>
   );
 };
