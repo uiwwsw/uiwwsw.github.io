@@ -1,10 +1,21 @@
 # uiwwsw.github.io
 
-This project hosts the "Developer Room" landing page. If you want to run it locally with Node, install dependencies and use the bundled static server:
+Developer Room landing page built with React, Vite, @react-three/fiber, and drei.
+
+## Local development
 
 ```bash
 npm install
-npm run start
+npm run dev
 ```
 
-The `start` script uses [`serve`](https://www.npmjs.com/package/serve) to host the current directory at `http://localhost:3000` (default). If you change the port, remember to allow it through any firewall or proxy you have enabled.
+Vite will start on the port shown in the terminal (default: http://localhost:5173).
+
+## Production build
+
+```bash
+npm run build
+npm run preview
+```
+
+`npm run preview` serves the production build locally for a final check.
