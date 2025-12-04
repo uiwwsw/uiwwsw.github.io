@@ -1,4 +1,4 @@
-import React, { useMemo, useRef } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { Sparkles, Float, Text, ContactShadows, Environment } from '@react-three/drei';
 import { EffectComposer, Bloom } from '@react-three/postprocessing';
@@ -229,11 +229,18 @@ const DataVeil = () => {
   );
 };
 
-const Scene = () => {
+const Scene = ({ onSceneReady }) => {
   const sparkColor = useMemo(() => new THREE.Color('#7c3aed'), []);
   const sparkColor2 = useMemo(() => new THREE.Color('#a855f7'), []);
   return (
-    <Canvas camera={{ position: [2.6, 1.9, 2.6], fov: 45 }} shadows>
+    <Canvas
+      camera={{ position: [2.6, 1.9, 2.6], fov: 45 }}
+      shadows
+      onCreated={({ gl }) => {
+        gl.toneMapping = THREE.ACESFilmicToneMapping;
+        onSceneReady?.();
+      }}
+    >
       <color attach="background" args={[0x050811]} />
       <ambientLight intensity={0.6} />
       <pointLight position={[5, 6, 3]} intensity={30} color="#7c3aed" />
@@ -282,6 +289,8 @@ const Scene = () => {
 };
 
 export default function App() {
+  const [sceneReady, setSceneReady] = useState(false);
+
   return (
     <div className="page">
       <header>
@@ -301,7 +310,7 @@ export default function App() {
       </header>
 
       <main>
-        <Scene />
+        <Scene onSceneReady={() => setSceneReady(true)} />
       </main>
 
       <section className="hero">
@@ -323,7 +332,8 @@ export default function App() {
 
       <footer>React · drei · three.js · GitHub Pages</footer>
 
-      <div className="loading">Loading scene…</div>
+      <div className={`loading${sceneReady ? ' loading--hidden' : ''}`}>Loading scene…</div>
     </div>
   );
 }
+
