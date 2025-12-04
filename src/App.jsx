@@ -135,7 +135,7 @@ const HoverRig = ({ children }) => {
 const DataVeil = () => {
   const pointsRef = useRef();
   const materialRef = useRef();
-  const count = 2200;
+  const count = 1500;
 
   const positions = useMemo(() => {
     const arr = new Float32Array(count * 3);
@@ -206,12 +206,12 @@ const DataVeil = () => {
             vec4 mvPosition = modelViewMatrix * vec4(p, 1.0);
             gl_Position = projectionMatrix * mvPosition;
 
-            float size = (2.0 + sin(uTime + shift.w * 6.0)) * (140.0 / -mvPosition.z);
+            float size = (1.6 + sin(uTime + shift.w * 6.0)) * (120.0 / -mvPosition.z);
             gl_PointSize = size;
 
             float tint = clamp(0.2 + p.y * 0.35, 0.0, 1.0);
             vColor = mix(vec3(0.41, 0.28, 0.91), vec3(0.2, 0.86, 0.97), tint);
-            vAlpha = mix(0.25, 0.85, pull);
+            vAlpha = mix(0.2, 0.7, pull);
           }
         `}
         fragmentShader={`
@@ -264,8 +264,8 @@ const Scene = () => {
         />
       </HoverRig>
 
-      <Sparkles count={120} speed={0.3} opacity={0.3} color={sparkColor} scale={5} size={4} />
-      <Sparkles count={120} speed={0.25} opacity={0.23} color={sparkColor2} scale={5} size={4} />
+      <Sparkles count={70} speed={0.24} opacity={0.26} color={sparkColor} scale={5} size={3.2} />
+      <Sparkles count={70} speed={0.2} opacity={0.2} color={sparkColor2} scale={5} size={3.2} />
 
       <Environment preset="night" background>
         <mesh>
@@ -275,7 +275,7 @@ const Scene = () => {
       </Environment>
 
       <EffectComposer>
-        <Bloom mipmapBlur intensity={1.35} luminanceThreshold={0.2} radius={0.8} />
+        <Bloom mipmapBlur intensity={1.0} luminanceThreshold={0.28} radius={0.65} />
       </EffectComposer>
     </Canvas>
   );
