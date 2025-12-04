@@ -19,3 +19,10 @@ npm run preview
 ```
 
 `npm run preview` serves the production build locally for a final check.
+
+## Deployment
+
+GitHub Pages deployment is automated through `.github/workflows/deploy.yml`:
+
+- Every push to `main` (or a manual workflow dispatch) installs dependencies, runs `npm run build`, and uploads the contents of `docs` as a Pages artifact.
+- The artifact is published to the GitHub Pages environment so the site stays in sync with the latest code without committing build outputs manually.
