@@ -144,7 +144,7 @@ const HoverRig = ({ children }) => {
 const DataVeil = () => {
   const pointsRef = useRef();
   const materialRef = useRef();
-  const count = 1500;
+  const count = 1350;
   const drift = useRef(new THREE.Vector2());
   const flowPointer = useRef(new THREE.Vector2());
   const targetPointer = useRef(new THREE.Vector2());
