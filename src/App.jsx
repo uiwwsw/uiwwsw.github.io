@@ -1,356 +1,328 @@
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useMemo, useRef, useEffect, useState } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
-import { Sparkles, Float, Text, ContactShadows, Environment } from '@react-three/drei';
-import { EffectComposer, Bloom } from '@react-three/postprocessing';
+import { PerspectiveCamera, Environment, Html } from '@react-three/drei';
 import * as THREE from 'three';
+import './index.css';
 
-const NeonSign = ({ position }) => {
-  const glow = new THREE.Color('#7c3aed');
-  const neon = new THREE.Color('#a855f7');
-  return (
-    <Float speed={1.2} rotationIntensity={0.35} floatIntensity={0.6} position={position}>
-      <group>
-        <Text
-          fontSize={0.32}
-          color={neon}
-          position={[0, 0.1, 0]}
-          letterSpacing={0.02}
-          material-toneMapped={false}
-        >
-          uiwwsw
-          <meshBasicMaterial color={neon} />
-        </Text>
-        <Text
-          fontSize={0.18}
-          color={glow}
-          position={[0, -0.18, 0]}
-          letterSpacing={0.04}
-          material-toneMapped={false}
-        >
-          Frontend Developer
-          <meshBasicMaterial color={glow} />
-        </Text>
-      </group>
-    </Float>
-  );
-};
+// --------------------------------------------------------
+// Shaders for the "Antigravity" Effect
+// --------------------------------------------------------
 
-const DeskSet = () => {
-  const monitorRef = useRef();
-  useFrame(({ clock }) => {
-    const t = clock.getElapsedTime();
-    if (monitorRef.current) {
-      monitorRef.current.emissiveIntensity = 1.4 + Math.sin(t * 2) * 0.2;
+const particleVertexShader = `
+  uniform float uTime;
+  uniform vec2 uMouse;
+  uniform float uHover;
+  
+  attribute vec3 aRandom; // x: size variation, y: speed variation, z: chaotic offset
+  attribute vec3 aColor;  // customized color per particle
+  
+  varying vec3 vColor;
+  varying float vAlpha;
+  
+  // Simplex Noise (simplified for performance)
+  vec3 mod289(vec3 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
+  vec4 mod289(vec4 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
+  vec4 permute(vec4 x) { return mod289(((x*34.0)+1.0)*x); }
+  vec4 taylorInvSqrt(vec4 r) { return 1.79284291400159 - 0.85373472095314 * r; }
+  
+  float snoise(vec3 v) {
+    const vec2  C = vec2(1.0/6.0, 1.0/3.0) ;
+    const vec4  D = vec4(0.0, 0.5, 1.0, 2.0);
+    
+    // First corner
+    vec3 i  = floor(v + dot(v, C.yyy) );
+    vec3 x0 = v - i + dot(i, C.xxx) ;
+    
+    // Other corners
+    vec3 g = step(x0.yzx, x0.xyz);
+    vec3 l = 1.0 - g;
+    vec3 i1 = min( g.xyz, l.zxy );
+    vec3 i2 = max( g.xyz, l.zxy );
+    
+    vec3 x1 = x0 - i1 + C.xxx;
+    vec3 x2 = x0 - i2 + C.yyy; // 2.0*C.x = 1/3 = C.y
+    vec3 x3 = x0 - D.yyy;      // -1.0+3.0*C.x = -0.5 = -D.y
+    
+    // Permutations
+    i = mod289(i); 
+    vec4 p = permute( permute( permute( 
+               i.z + vec4(0.0, i1.z, i2.z, 1.0 ))
+             + i.y + vec4(0.0, i1.y, i2.y, 1.0 )) 
+             + i.x + vec4(0.0, i1.x, i2.x, 1.0 ));
+             
+    // Gradients: 7x7 points over a square, mapped onto an octahedron.
+    // The ring size 17*17 = 289 is close to a multiple of 49 (49*6 = 294)
+    float n_ = 0.142857142857; // 1.0/7.0
+    vec3  ns = n_ * D.wyz - D.xzx;
+    
+    vec4 j = p - 49.0 * floor(p * ns.z * ns.z);  //  mod(p,7*7)
+    
+    vec4 x_ = floor(j * ns.z);
+    vec4 y_ = floor(j - 7.0 * x_ );    // mod(j,N)
+    
+    vec4 x = x_ *ns.x + ns.yyyy;
+    vec4 y = y_ *ns.x + ns.yyyy;
+    vec4 h = 1.0 - abs(x) - abs(y);
+    
+    vec4 b0 = vec4( x.xy, y.xy );
+    vec4 b1 = vec4( x.zw, y.zw );
+    
+    vec4 s0 = floor(b0)*2.0 + 1.0;
+    vec4 s1 = floor(b1)*2.0 + 1.0;
+    vec4 sh = -step(h, vec4(0.0));
+    
+    vec4 a0 = b0.xzyw + s0.xzyw*sh.xxyy ;
+    vec4 a1 = b1.xzyw + s1.xzyw*sh.zzww ;
+    
+    vec3 p0 = vec3(a0.xy,h.x);
+    vec3 p1 = vec3(a0.zw,h.y);
+    vec3 p2 = vec3(a1.xy,h.z);
+    vec3 p3 = vec3(a1.zw,h.w);
+    
+    //Normalise gradients
+    vec4 norm = taylorInvSqrt(vec4(dot(p0,p0), dot(p1,p1), dot(p2, p2), dot(p3,p3)));
+    p0 *= norm.x;
+    p1 *= norm.y;
+    p2 *= norm.z;
+    p3 *= norm.w;
+    
+    // Mix final noise value
+    vec4 m = max(0.6 - vec4(dot(x0,x0), dot(x1,x1), dot(x2,x2), dot(x3,x3)), 0.0);
+    m = m * m;
+    return 42.0 * dot( m*m, vec4( dot(p0,x0), dot(p1,x1), 
+                                  dot(p2,x2), dot(p3,x3) ) );
+  }
+
+  void main() {
+    vColor = aColor;
+    
+    // Initial position based on time and speed
+    vec3 pos = position;
+    
+    // "Antigravity" Rise
+    float riseSpeed = 0.5 * aRandom.y + 0.2;
+    float timeOffset = uTime * riseSpeed;
+    
+    // Loop y position to keep particles in view
+    pos.y = mod(pos.y + timeOffset, 20.0) - 10.0;
+    
+    // Noise Movement (Turbulence)
+    float noiseFreq = 0.5;
+    float noiseAmp = 1.2;
+    vec3 noisePos = vec3(pos.x * noiseFreq + uTime * 0.1, pos.y * noiseFreq, pos.z * noiseFreq);
+    vec3 noise = vec3(
+      snoise(noisePos),
+      snoise(noisePos + 100.0),
+      snoise(noisePos + 200.0)
+    );
+    
+    pos += noise * noiseAmp;
+    
+    // Mouse Interaction (Repulsion/Attraction)
+    // Convert mouse to world space roughly for effect
+    // We assume the camera is at Z=0 looking at Z=-20 or similar, but for this effect
+    // We project the mouse ray into the volume.
+    // Simplified: Just use x/y influence
+    
+    float dist = distance(pos.xy, uMouse * 15.0); // Scale mouse to world coords roughly
+    float interactionRadius = 6.0;
+    
+    if (dist < interactionRadius) {
+      vec3 dir = normalize(pos - vec3(uMouse * 15.0, 0.0));
+      float force = (1.0 - dist / interactionRadius);
+      // Push particles away violently
+      pos += dir * force * 5.0 * uHover; 
     }
-  });
-  return (
-    <group position={[0, 0, 0]}>
-      <mesh position={[0, 0.36, 0]}>
-        <boxGeometry args={[2.4, 0.1, 1.1]} />
-        <meshStandardMaterial color="#111827" metalness={0.2} roughness={0.4} />
-      </mesh>
-      {[-1, 1].map((x) => (
-        <mesh key={x} position={[x, 0.18, -0.45]}>
-          <boxGeometry args={[0.12, 0.36, 0.12]} />
-          <meshStandardMaterial color="#0f172a" roughness={0.5} />
-        </mesh>
-      ))}
-      <mesh position={[0, 0.18, 0.45]}>
-        <boxGeometry args={[0.12, 0.36, 0.12]} />
-        <meshStandardMaterial color="#0f172a" roughness={0.5} />
-      </mesh>
+    
+    vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0);
+    gl_Position = projectionMatrix * mvPosition;
+    
+    // Size attenuation
+    float size = (20.0 * aRandom.x + 10.0) * (1.0 / -mvPosition.z);
+    gl_PointSize = size;
+    
+    // Distance fading
+    float alpha = smoothstep(15.0, 0.0, abs(pos.y)); // Fade at top/bottom
+    vAlpha = alpha;
+  }
+`;
 
-      <group position={[0, 0.78, -0.15]}>
-        <mesh position={[0, 0.15, 0]}>
-          <boxGeometry args={[0.8, 0.5, 0.05]} />
-          <meshStandardMaterial color="#0b1220" metalness={0.1} roughness={0.4} />
-        </mesh>
-        <mesh position={[0, 0.38, -0.12]}>
-          <boxGeometry args={[0.7, 0.05, 0.25]} />
-          <meshStandardMaterial color="#0a162b" metalness={0.2} roughness={0.35} />
-        </mesh>
-        <mesh position={[0, 0.35, 0.12]}>
-          <boxGeometry args={[0.7, 0.4, 0.01]} />
-          <meshStandardMaterial
-            ref={monitorRef}
-            color="#6ee7ff"
-            emissive="#7c3aed"
-            emissiveIntensity={1.4}
-            toneMapped={false}
-          />
-        </mesh>
-      </group>
+const particleFragmentShader = `
+  varying vec3 vColor;
+  varying float vAlpha;
+  
+  void main() {
+    // Circular particle
+    float r = distance(gl_PointCoord, vec2(0.5));
+    if (r > 0.5) discard;
+    
+    // Soft glow edge
+    float glow = 1.0 - smoothstep(0.3, 0.5, r);
+    
+    gl_FragColor = vec4(vColor, vAlpha * glow);
+    
+    // Tone mapping helper (optional, simple reinhard)
+    // gl_FragColor.rgb = gl_FragColor.rgb / (gl_FragColor.rgb + vec3(1.0));
+  }
+`;
 
-      <mesh position={[0, 0.06, 0]}>
-        <cylinderGeometry args={[0.4, 0.4, 0.12, 32]} />
-        <meshStandardMaterial color="#0b1220" metalness={0.15} roughness={0.45} />
-      </mesh>
+// --------------------------------------------------------
+// Particle System Component
+// --------------------------------------------------------
 
-      <mesh position={[0, 0.09, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-        <ringGeometry args={[0.45, 0.6, 32]} />
-        <meshStandardMaterial color="#1f2937" metalness={0.1} roughness={0.55} />
-      </mesh>
+const ParticleField = () => {
+  const meshRef = useRef();
+  const args = useMemo(() => {
+    const count = 4000;
+    const positions = new Float32Array(count * 3);
+    const randoms = new Float32Array(count * 3);
+    const colors = new Float32Array(count * 3);
 
-      <mesh position={[0.7, 0.42, 0.15]} rotation={[0, Math.PI / 6, 0]}>
-        <boxGeometry args={[0.6, 0.14, 0.35]} />
-        <meshStandardMaterial color="#111827" metalness={0.1} roughness={0.5} />
-      </mesh>
+    const palette = [
+      new THREE.Color('#7c3aed'), // Violet
+      new THREE.Color('#06b6d4'), // Cyan
+      new THREE.Color('#f472b6'), // Pink
+      new THREE.Color('#ffffff')  // White accent
+    ];
 
-      <mesh position={[-0.65, 0.42, 0.15]} rotation={[0, -Math.PI / 8, 0]}>
-        <boxGeometry args={[0.55, 0.16, 0.28]} />
-        <meshStandardMaterial color="#0f172a" metalness={0.12} roughness={0.55} />
-      </mesh>
-
-      <mesh position={[0.2, 0.42, 0.15]} rotation={[0, Math.PI / 12, 0]}>
-        <boxGeometry args={[0.3, 0.08, 0.2]} />
-        <meshStandardMaterial color="#0f172a" metalness={0.08} roughness={0.6} />
-      </mesh>
-    </group>
-  );
-};
-
-const HoverRig = ({ children }) => {
-  const rigRef = useRef();
-  const { camera } = useThree();
-  const flowPointer = useRef(new THREE.Vector2());
-  const idleDrift = useRef(new THREE.Vector2());
-  const targetPointer = useRef(new THREE.Vector2());
-
-  useFrame(({ pointer }) => {
-    const time = performance.now() * 0.0015;
-    idleDrift.current.set(Math.sin(time) * 0.08, Math.cos(time * 0.85) * 0.08);
-
-    targetPointer.current.set(pointer.x, pointer.y);
-    flowPointer.current.lerp(targetPointer.current, 0.12);
-
-    const blendedX = flowPointer.current.y * 0.25 + idleDrift.current.y;
-    const blendedY = flowPointer.current.x * 0.5 + idleDrift.current.x * 1.2;
-
-    if (rigRef.current) {
-      rigRef.current.rotation.x = THREE.MathUtils.lerp(rigRef.current.rotation.x, blendedX, 0.08);
-      rigRef.current.rotation.y = THREE.MathUtils.lerp(rigRef.current.rotation.y, blendedY, 0.08);
-    }
-
-    camera.lookAt(0, 0.6, 0);
-  });
-
-  return (
-    <group ref={rigRef} position={[0, -0.15, 0]}>
-      {children}
-    </group>
-  );
-};
-
-const DataVeil = () => {
-  const pointsRef = useRef();
-  const materialRef = useRef();
-  const count = 1350;
-  const drift = useRef(new THREE.Vector2());
-  const flowPointer = useRef(new THREE.Vector2());
-  const targetPointer = useRef(new THREE.Vector2());
-
-  const positions = useMemo(() => {
-    const arr = new Float32Array(count * 3);
     for (let i = 0; i < count; i++) {
-      const i3 = i * 3;
-      arr[i3] = (Math.random() - 0.5) * 6;
-      arr[i3 + 1] = Math.random() * 3 - 1.2;
-      arr[i3 + 2] = (Math.random() - 0.5) * 6;
+      // Random positions in a large cube
+      positions[i * 3] = (Math.random() - 0.5) * 30;     // x
+      positions[i * 3 + 1] = (Math.random() - 0.5) * 20; // y
+      positions[i * 3 + 2] = (Math.random() - 0.5) * 20; // z
+
+      // Random attributes
+      randoms[i * 3] = Math.random(); // size variation
+      randoms[i * 3 + 1] = Math.random(); // speed variation
+      randoms[i * 3 + 2] = Math.random(); // chaotic offset
+
+      // Color
+      const color = palette[Math.floor(Math.random() * palette.length)];
+      colors[i * 3] = color.r;
+      colors[i * 3 + 1] = color.g;
+      colors[i * 3 + 2] = color.b;
     }
-    return arr;
-  }, [count]);
 
-  const shifts = useMemo(() => {
-    const arr = new Float32Array(count * 4);
-    for (let i = 0; i < count; i++) {
-      const i4 = i * 4;
-      arr[i4] = Math.random() * Math.PI * 2;
-      arr[i4 + 1] = Math.random() * Math.PI * 2;
-      arr[i4 + 2] = Math.random() * Math.PI * 2;
-      arr[i4 + 3] = Math.random();
-    }
-    return arr;
-  }, [count]);
+    return { positions, randoms, colors };
+  }, []);
 
-  useFrame(({ clock, pointer }) => {
-    const t = clock.getElapsedTime();
-    if (materialRef.current) {
-      materialRef.current.uniforms.uTime.value = t;
+  const uniforms = useMemo(() => ({
+    uTime: { value: 0 },
+    uMouse: { value: new THREE.Vector2(0, 0) },
+    uHover: { value: 0 }
+  }), []);
 
-      drift.current.set(Math.sin(t * 0.32) * 0.35, Math.cos(t * 0.27) * 0.32);
-      targetPointer.current.set(pointer.x, pointer.y);
-      flowPointer.current.lerp(targetPointer.current, 0.12);
+  const { pointer } = useThree();
+  const targetHover = useRef(0);
 
-      materialRef.current.uniforms.uPointer.value.set(
-        (flowPointer.current.x + drift.current.x) * 2.6,
-        (flowPointer.current.y + drift.current.y) * 2.2
-      );
+  useFrame((state) => {
+    if (meshRef.current) {
+      meshRef.current.material.uniforms.uTime.value = state.clock.elapsedTime;
+
+      // Smooth mouse lerp
+      meshRef.current.material.uniforms.uMouse.value.lerp(pointer, 0.1);
+
+      // Hover effect intensity
+      // If mouse is moving, increase "hover" (disturbance) value
+      const speed = Math.abs(pointer.x - meshRef.current.material.uniforms.uMouse.value.x) +
+        Math.abs(pointer.y - meshRef.current.material.uniforms.uMouse.value.y);
+      targetHover.current = THREE.MathUtils.lerp(targetHover.current, speed * 20.0 + 0.5, 0.05);
+      meshRef.current.material.uniforms.uHover.value = targetHover.current;
     }
   });
 
   return (
-    <points ref={pointsRef} position={[0, 0.25, 0]} frustumCulled={false}>
+    <points ref={meshRef}>
       <bufferGeometry>
-        <bufferAttribute attach="attributes-position" array={positions} count={count} itemSize={3} />
-        <bufferAttribute attach="attributes-shift" array={shifts} count={count} itemSize={4} />
+        <bufferAttribute
+          attach="attributes-position"
+          count={args.positions.length / 3}
+          array={args.positions}
+          itemSize={3}
+        />
+        <bufferAttribute
+          attach="attributes-aRandom"
+          count={args.randoms.length / 3}
+          array={args.randoms}
+          itemSize={3}
+        />
+        <bufferAttribute
+          attach="attributes-aColor"
+          count={args.colors.length / 3}
+          array={args.colors}
+          itemSize={3}
+        />
       </bufferGeometry>
       <shaderMaterial
-        ref={materialRef}
-        transparent
         depthWrite={false}
         blending={THREE.AdditiveBlending}
-        uniforms={{
-          uTime: { value: 0 },
-          uPointer: { value: new THREE.Vector2() },
-        }}
-        vertexShader={`
-          uniform float uTime;
-          uniform vec2 uPointer;
-          attribute vec4 shift;
-          varying float vAlpha;
-          varying vec3 vColor;
-
-          void main() {
-            vec3 p = position;
-            float t = uTime * 0.6;
-            p.x += sin(t * 0.6 + shift.x) * 0.45;
-            p.y += sin(t + shift.y) * 0.35 + shift.w * 0.4;
-            p.z += cos(t * 0.8 + shift.z) * 0.5;
-
-            float pull = 1.0 - smoothstep(0.3, 2.0, length(uPointer - p.xy));
-            p.xy += (uPointer - p.xy) * pull * 0.2;
-
-            vec4 mvPosition = modelViewMatrix * vec4(p, 1.0);
-            gl_Position = projectionMatrix * mvPosition;
-
-            float size = (1.6 + sin(uTime + shift.w * 6.0)) * (120.0 / -mvPosition.z);
-            gl_PointSize = size;
-
-            float tint = clamp(0.2 + p.y * 0.35, 0.0, 1.0);
-            vColor = mix(vec3(0.41, 0.28, 0.91), vec3(0.2, 0.86, 0.97), tint);
-            vAlpha = mix(0.2, 0.7, pull);
-          }
-        `}
-        fragmentShader={`
-          varying float vAlpha;
-          varying vec3 vColor;
-
-          void main() {
-            float d = length(gl_PointCoord - vec2(0.5));
-            float alpha = smoothstep(0.6, 0.18, d) * vAlpha;
-            gl_FragColor = vec4(vColor, alpha);
-          }
-        `}
+        vertexColors
+        uniforms={uniforms}
+        vertexShader={particleVertexShader}
+        fragmentShader={particleFragmentShader}
+        transparent
       />
     </points>
   );
 };
 
-const Scene = ({ onSceneReady }) => {
-  const sparkColor = useMemo(() => new THREE.Color('#7c3aed'), []);
-  const sparkColor2 = useMemo(() => new THREE.Color('#a855f7'), []);
-  return (
-    <Canvas
-      camera={{ position: [2.6, 1.9, 2.6], fov: 45 }}
-      shadows
-      onCreated={({ gl }) => {
-        gl.toneMapping = THREE.ACESFilmicToneMapping;
-        onSceneReady?.();
-      }}
-    >
-      <color attach="background" args={[0x050811]} />
-      <ambientLight intensity={0.6} />
-      <pointLight position={[5, 6, 3]} intensity={30} color="#7c3aed" />
-      <spotLight
-        position={[-5, 8, -5]}
-        angle={0.5}
-        penumbra={0.5}
-        intensity={18}
-        color="#8b5cf6"
-        castShadow
-      />
-
-      <HoverRig>
-        <DeskSet />
-        <NeonSign position={[0, 1.4, 0]} />
-
-        <group position={[0, 0.3, 0]}>
-          <DataVeil />
-        </group>
-
-        <ContactShadows
-          position={[0, 0, 0]}
-          opacity={0.35}
-          scale={5}
-          blur={1.8}
-          far={2.4}
-          color="#111827"
-        />
-      </HoverRig>
-
-      <Sparkles count={70} speed={0.24} opacity={0.26} color={sparkColor} scale={5} size={3.2} />
-      <Sparkles count={70} speed={0.2} opacity={0.2} color={sparkColor2} scale={5} size={3.2} />
-
-      <Environment preset="night" background>
-        <mesh>
-          <sphereGeometry args={[20, 32, 32]} />
-          <meshBasicMaterial color="#050811" side={THREE.BackSide} />
-        </mesh>
-      </Environment>
-
-      <EffectComposer>
-        <Bloom mipmapBlur intensity={1.0} luminanceThreshold={0.28} radius={0.65} />
-      </EffectComposer>
-    </Canvas>
-  );
-};
+// --------------------------------------------------------
+// Main Scenery
+// --------------------------------------------------------
 
 export default function App() {
-  const [sceneReady, setSceneReady] = useState(false);
-
   return (
-    <div className="page">
-      <header>
-        <div className="badge">
-          <span className="dot" />
-          <div>
-            <div className="title">uiwwsw</div>
-            <div className="subtitle">Matthew Yoon · Frontend Developer</div>
+    <>
+      <div className="canvas-container">
+        <Canvas gl={{ antialias: false, alpha: false }}>
+          <color attach="background" args={['#050505']} />
+          <PerspectiveCamera makeDefault position={[0, 0, 15]} fov={50} />
+
+          <ParticleField />
+
+          <Environment preset="city" />
+          <ambientLight intensity={0.5} />
+        </Canvas>
+      </div>
+
+      <div className="overlay">
+        <header className="header">
+          <div className="logo">uiwwsw</div>
+          <nav>
+            <a href="https://github.com/uiwwsw" target="_blank" rel="noopener noreferrer">GitHub</a>
+            <a href="mailto:uiwwsw@icloud.com">Email</a>
+          </nav>
+        </header>
+
+        <main className="content">
+          <h1>
+            <span className="gradient-text">Antigravity</span>
+            <br />
+            Explorer
+          </h1>
+          <p className="subtitle">
+            Frontend Developer based in Seoul.
+            <br />
+            Crafting digital experiences that defy expectations.
+          </p>
+
+          <div className="stats">
+            <div className="stat-item">
+              <span className="value">TypeScript</span>
+              <span className="label">Stack</span>
+            </div>
+            <div className="stat-item">
+              <span className="value">React</span>
+              <span className="label">Core</span>
+            </div>
+            <div className="stat-item">
+              <span className="value">Three.js</span>
+              <span className="label">Visuals</span>
+            </div>
           </div>
-        </div>
-        <div className="links">
-          <a href="https://github.com/uiwwsw" target="_blank" rel="noopener noreferrer">
-            GitHub
-          </a>
-          <a href="mailto:uiwwsw@icloud.com">Contact</a>
-        </div>
-      </header>
-
-      <main>
-        <Scene onSceneReady={() => setSceneReady(true)} />
-      </main>
-
-      <section className="hero">
-        <div className="eyebrow">Antigravity-inspired sandbox</div>
-        <h1>
-          Motion-crafted interface for an
-          <span> unapologetically curious developer</span>
-        </h1>
-        <p>
-          The field behind reacts to your cursor with breathing particles, shimmering ribbons, and
-          subtle neon bloom—like bits of data hovering in zero-gravity.
-        </p>
-        <div className="chips">
-          <span>React · three.js</span>
-          <span>Procedural particles</span>
-          <span>Interactive ambience</span>
-        </div>
-      </section>
-
-      <footer>React · drei · three.js · GitHub Pages</footer>
-
-      <div className={`loading${sceneReady ? ' loading--hidden' : ''}`}>Loading scene…</div>
-    </div>
+        </main>
+      </div>
+    </>
   );
 }
 
