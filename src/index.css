@@ -1,7 +1,11 @@
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600&display=swap');
 
 :root {
-  color-scheme: dark;
+  --bg-color: #050505;
+  --text-main: #ffffff;
+  --text-muted: #94a3b8;
+  --accent: #7c3aed;
+  --accent-glow: #a855f7;
 }
 
 * {
@@ -11,231 +15,141 @@
 body {
   margin: 0;
   font-family: 'Space Grotesk', system-ui, -apple-system, sans-serif;
-  background: radial-gradient(circle at 20% 20%, #0b1220, #04060f 55%);
-  color: #c7d2fe;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
+  background-color: var(--bg-color);
+  color: var(--text-main);
+  overflow: hidden;
+  /* Prevent scroll on the main body */
+  width: 100vw;
+  height: 100vh;
 }
 
-#root {
-  width: 100%;
-  min-height: 100vh;
-}
-
-.page {
-  width: 100%;
-  min-height: 100vh;
-  position: relative;
-}
-
-header {
-  padding: 18px 24px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+/* Canvas Layer - Background */
+.canvas-container {
   position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+}
+
+/* Overlay Layer - UI */
+.overlay {
+  position: relative;
   z-index: 10;
   width: 100%;
+  height: 100%;
   pointer-events: none;
-}
-
-header .badge {
-  display: inline-flex;
-  gap: 10px;
-  align-items: center;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.07);
-  border-radius: 999px;
-  padding: 10px 16px;
-  backdrop-filter: blur(8px);
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45);
-  pointer-events: all;
-}
-
-header .badge .dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: #7c3aed;
-  box-shadow: 0 0 16px #8b5cf6;
-}
-
-header .badge .title {
-  font-weight: 700;
-  color: #cbd5ff;
-}
-
-header .badge .subtitle {
-  font-size: 12px;
-  color: #9fb0ff;
-}
-
-header .links {
-  display: inline-flex;
-  gap: 12px;
-  pointer-events: all;
-}
-
-header a {
-  color: #a5b4fc;
-  text-decoration: none;
-  font-weight: 600;
-  letter-spacing: 0.02em;
-}
-
-main {
-  position: fixed;
-  inset: 0;
-  width: 100%;
-  height: 100vh;
-  overflow: hidden;
-}
-
-.hero {
-  position: fixed;
-  left: 60px;
-  bottom: 110px;
-  max-width: 520px;
-  padding: 26px 28px;
-  background: rgba(4, 6, 15, 0.75);
-  border: 1px solid rgba(255, 255, 255, 0.07);
-  border-radius: 22px;
-  box-shadow: 0 20px 90px rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(10px);
-  color: #e0e7ff;
-  pointer-events: none;
-}
-
-.hero .eyebrow {
-  text-transform: uppercase;
-  letter-spacing: 0.16em;
-  font-size: 12px;
-  color: #9ca3af;
-  margin-bottom: 10px;
-}
-
-.hero h1 {
-  margin: 0 0 12px;
-  font-size: 32px;
-  line-height: 1.25;
-  color: #e8eaff;
-}
-
-.hero h1 span {
-  color: #a78bfa;
-  display: block;
-}
-
-.hero p {
-  margin: 0 0 16px;
-  color: #cbd5e1;
-  line-height: 1.6;
-}
-
-.chips {
+  /* Let clicks pass through to canvas primarily */
   display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 40px;
 }
 
-.chips span {
-  padding: 8px 12px;
-  border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(124, 58, 237, 0.12);
-  color: #d8b4fe;
-  font-size: 13px;
+/* Header */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  pointer-events: auto;
+  /* Re-enable clicks for links */
 }
 
-footer {
-  position: fixed;
-  bottom: 18px;
-  right: 18px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  padding: 12px 16px;
-  border-radius: 12px;
-  font-size: 13px;
-  color: #9ca3af;
-  letter-spacing: 0.01em;
-  backdrop-filter: blur(6px);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+.logo {
+  font-weight: 600;
+  font-size: 1.25rem;
+  letter-spacing: -0.02em;
 }
 
-.loading {
-  position: fixed;
-  left: 24px;
-  bottom: 18px;
-  background: rgba(0, 0, 0, 0.4);
-  padding: 10px 14px;
-  border-radius: 12px;
-  color: #d8b4fe;
-  font-size: 13px;
-  letter-spacing: 0.01em;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-  transition: opacity 0.35s ease, visibility 0.35s ease, transform 0.35s ease;
+.header nav {
+  display: flex;
+  gap: 2rem;
 }
 
-.loading.loading--hidden {
-  opacity: 0;
-  visibility: hidden;
-  transform: translateY(6px);
+.header a {
+  color: var(--text-muted);
+  text-decoration: none;
+  font-size: 0.9rem;
+  transition: color 0.2s ease;
 }
 
-canvas {
-  width: 100% !important;
-  height: 100% !important;
+.header a:hover {
+  color: var(--text-main);
 }
 
-@media (max-width: 900px) {
-  header {
-    padding: 14px 16px;
+/* Main Content */
+.content {
+  pointer-events: none;
+  max-width: 800px;
+}
+
+.content h1 {
+  font-size: 5rem;
+  line-height: 0.9;
+  letter-spacing: -0.04em;
+  margin: 0 0 2rem 0;
+  font-weight: 600;
+}
+
+.gradient-text {
+  background: linear-gradient(to right, #fff, #94a3b8);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+
+}
+
+.subtitle {
+  font-size: 1.5rem;
+  line-height: 1.4;
+  color: var(--text-muted);
+  font-weight: 300;
+  margin: 0 0 4rem 0;
+  max-width: 500px;
+}
+
+/* Stats / Footer Area */
+.stats {
+  display: flex;
+  gap: 4rem;
+  pointer-events: auto;
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.stat-item .value {
+  font-size: 1.25rem;
+  font-weight: 500;
+}
+
+.stat-item .label {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .overlay {
+    padding: 24px;
   }
 
-  header .badge {
-    padding: 8px 12px;
+  .content h1 {
+    font-size: 3.5rem;
   }
 
-  header .links {
-    gap: 10px;
+  .subtitle {
+    font-size: 1.1rem;
   }
 
-  main {
-    position: relative;
-    height: 60vh;
-  }
-
-  .hero {
-    position: relative;
-    inset: unset;
-    margin: 20px 16px 0;
-    max-width: none;
-    pointer-events: all;
-  }
-
-  .hero h1 {
-    font-size: 26px;
-  }
-
-  .hero p {
-    font-size: 15px;
-  }
-
-  footer {
-    position: relative;
-    right: unset;
-    bottom: unset;
-    margin: 20px 16px 24px;
-    display: inline-flex;
-  }
-
-  .loading {
-    position: relative;
-    left: unset;
-    bottom: unset;
-    margin: 10px 16px 24px;
-    width: fit-content;
+  .stats {
+    gap: 2rem;
+    flex-wrap: wrap;
   }
 }
