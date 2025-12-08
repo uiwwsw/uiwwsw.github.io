@@ -50,17 +50,17 @@ const alphabetVertexShader = `
     vec2 dir = normalize(pos.xz - uMouse.xz);
     
     // Strong repulsion (Push away)
-    pos.xz += dir * influence * 6.0 * uHover;
+    pos.xz += dir * influence * 3.0 * uHover;
     
     // Slight lift to create 3D feel even in top down (parallax)
     // Lifts them up towards camera slightly
-    pos.y += influence * 6.0 * uHover;
+    pos.y += influence * 3.0 * uHover;
     
     vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0);
     gl_Position = projectionMatrix * mvPosition;
     
     // Size attenuation
-    gl_PointSize = (500.0) * (1.0 / -mvPosition.z);
+    gl_PointSize = (800.0) * (1.0 / -mvPosition.z);
     
     // Visibility logic
     // Rule: "Initially invisible" (User Request 1). 
@@ -69,7 +69,7 @@ const alphabetVertexShader = `
     // B) Mouse interaction (brightly)
     
     float motionVisibility = smoothstep(0.7, 1.0, abs(breatheX * breatheZ)); // Only show "crests" of density
-    float mouseVisibility = influence * 4.0;
+    float mouseVisibility = influence * 5.0;
     
     // Base State: Very faint / Visible only on movement
     vAlpha = 0.0 + (motionVisibility * 0.15) + mouseVisibility;
@@ -248,12 +248,14 @@ export default function App() {
 
         <main className="content">
           <h1>
-            <span className="gradient-text">Signals</span>
+            <span className="gradient-text">Words</span>
             <br />
-            From the Void.
+            & Code.
           </h1>
           <p className="subtitle">
-            Exploring the intersection of code, motion, and depth.
+            글쓰기와 코딩을 사랑하는 개발자입니다.<br />
+            두 세계의 공통점은 바로 '단어'를 다룬다는 것.<br />
+            이곳은 제 머릿속을 부유하는 수많은 단어들의 우주입니다.
           </p>
 
           <div className="stats">
