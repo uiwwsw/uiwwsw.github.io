@@ -160,7 +160,7 @@ const AlphabetGrid = () => {
 
   const uniforms = useMemo(() => ({
     uTime: { value: 0 },
-    uMouse: { value: new THREE.Vector3(9999, 0, 9999) }, // World Space Target
+    uMouse: { value: new THREE.Vector3(0, 0, 0) }, // World Space Target
     uHover: { value: 1.0 },
     uTexture: { value: texture },
     uAtlasGrid: { value: new THREE.Vector2(cols, rows) }
@@ -168,27 +168,52 @@ const AlphabetGrid = () => {
 
   // Handle Raycasting via Pointer Events on a Plane
   // We need a ref to store the target mouse position from the event
-  const targetMouse = useRef(new THREE.Vector3(9999, 0, 9999));
+  const targetMouse = useRef(new THREE.Vector3(0, 0, 0)); // Start at center
+  const isInteracting = useRef(false);
 
   const handlePointerMove = (e) => {
     // e.point is the Vector3 world intersection point
     // We update our target
     targetMouse.current.copy(e.point);
+    isInteracting.current = true;
+  };
+
+  const handlePointerLeave = () => {
+    isInteracting.current = false;
   };
 
   useFrame((state) => {
     if (meshRef.current) {
-      meshRef.current.material.uniforms.uTime.value = state.clock.elapsedTime;
+      const time = state.clock.elapsedTime;
+      meshRef.current.material.uniforms.uTime.value = time;
+
+      // Idle Random Movement Logic
+      if (!isInteracting.current) {
+        // Create a wandering path using multiple sine waves
+        // Smooth, slow, random-looking motion
+        const x = Math.sin(time * 0.3) * 15 + Math.cos(time * 0.42) * 10;
+        const z = Math.cos(time * 0.25) * 15 + Math.sin(time * 0.38) * 10;
+
+        targetMouse.current.set(x, 0, z);
+      }
 
       // Lerp for smoothness
-      meshRef.current.material.uniforms.uMouse.value.lerp(targetMouse.current, 0.15);
+      // When interacting, it follows mouse smoothly
+      // When idle, it wanders smoothly
+      // When transitioning, it lerps to the new mode's position
+      meshRef.current.material.uniforms.uMouse.value.lerp(targetMouse.current, 0.05);
     }
   });
 
   return (
     <group>
       {/* Interaction Plane: Invisible, covers the grid area */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.5, 0]} onPointerMove={handlePointerMove}>
+      <mesh
+        rotation={[-Math.PI / 2, 0, 0]}
+        position={[0, -0.5, 0]}
+        onPointerMove={handlePointerMove}
+        onPointerLeave={handlePointerLeave}
+      >
         <planeGeometry args={[100, 100]} />
         <meshBasicMaterial visible={false} />
       </mesh>
