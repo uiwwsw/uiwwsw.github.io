@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useEffect, useState } from 'react';
+import React, { useMemo, useRef, useEffect, useState, Suspense } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { PerspectiveCamera, Environment, Html } from '@react-three/drei';
 import { EffectComposer, Bloom, DepthOfField, Vignette } from '@react-three/postprocessing';
@@ -18,7 +18,9 @@ export default function App() {
           <color attach="background" args={['#020204']} />
           <PerspectiveCamera makeDefault position={[0, 0, 20]} fov={50} />
 
-          <FloatingWords />
+          <Suspense fallback={null}>
+            <FloatingWords />
+          </Suspense>
 
           {/* Post Processing for the "Deep/Film" look */}
           <EffectComposer disableNormalPass>
