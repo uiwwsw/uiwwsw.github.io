@@ -8,7 +8,7 @@ export default defineConfig({
   // configured root (e.g., Actions deployments or docs/ publishing).
   base: './',
   build: {
-    outDir: '../docs',
+    outDir: '../dist',
     emptyOutDir: true,
   },
 });
