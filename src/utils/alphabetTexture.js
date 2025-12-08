@@ -9,7 +9,7 @@ export const createAlphabetTexture = () => {
     const ctx = canvas.getContext('2d');
 
     // Settings
-    const size = 1024; // Texture size
+    const size = 2048; // Texture size
     const cols = 8;    // Grid columns
     const rows = 8;    // Grid rows
     const cellSize = size / cols;
@@ -18,7 +18,7 @@ export const createAlphabetTexture = () => {
     canvas.height = size;
 
     // Font settings
-    ctx.font = `bold ${cellSize * 0.7}px "Courier New", monospace`;
+    ctx.font = `bold ${cellSize * 0.8}px "Courier New", monospace`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillStyle = 'white';
