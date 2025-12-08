@@ -1,9 +1,0 @@
-title: Neon Developer Room
-url: https://uiwwsw.github.io
-baseurl: ""
-markdown: kramdown
-theme: null
-plugins: []
-exclude:
-  - node_modules
-  - package-lock.json
