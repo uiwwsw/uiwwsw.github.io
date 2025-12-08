@@ -170,6 +170,8 @@ const AlphabetGrid = () => {
   // We need a ref to store the target mouse position from the event
   const targetMouse = useRef(new THREE.Vector3(0, 0, 0)); // Start at center
   const isInteracting = useRef(false);
+  const wasInteracting = useRef(true); // Start true to init offset
+  const idleOffset = useRef(new THREE.Vector3(0, 0, 0));
 
   const handlePointerMove = (e) => {
     // e.point is the Vector3 world intersection point
@@ -187,15 +189,23 @@ const AlphabetGrid = () => {
       const time = state.clock.elapsedTime;
       meshRef.current.material.uniforms.uTime.value = time;
 
+      // Calculate raw "noise" pattern
+      const rawX = Math.sin(time * 0.3) * 15 + Math.cos(time * 0.42) * 10;
+      const rawZ = Math.cos(time * 0.25) * 15 + Math.sin(time * 0.38) * 10;
+
       // Idle Random Movement Logic
       if (!isInteracting.current) {
-        // Create a wandering path using multiple sine waves
-        // Smooth, slow, random-looking motion
-        const x = Math.sin(time * 0.3) * 15 + Math.cos(time * 0.42) * 10;
-        const z = Math.cos(time * 0.25) * 15 + Math.sin(time * 0.38) * 10;
+        if (wasInteracting.current) {
+          // Just transitioned from Active -> Idle (or Init)
+          // Capture offset so we start wandering from CURRENT position (targetMouse)
+          idleOffset.current.x = targetMouse.current.x - rawX;
+          idleOffset.current.z = targetMouse.current.z - rawZ;
+        }
 
-        targetMouse.current.set(x, 0, z);
+        targetMouse.current.set(rawX + idleOffset.current.x, 0, rawZ + idleOffset.current.z);
       }
+
+      wasInteracting.current = isInteracting.current;
 
       // Lerp for smoothness
       // When interacting, it follows mouse smoothly

@@ -52,7 +52,7 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  pointer-events: auto;
+  pointer-events: none;
   /* Re-enable clicks for links */
 }
 
@@ -72,6 +72,7 @@ body {
   text-decoration: none;
   font-size: 0.9rem;
   transition: color 0.2s ease;
+  pointer-events: auto;
 }
 
 .header a:hover {
@@ -113,7 +114,7 @@ body {
 .stats {
   display: flex;
   gap: 4rem;
-  pointer-events: auto;
+  pointer-events: none;
 }
 
 .stat-item {
