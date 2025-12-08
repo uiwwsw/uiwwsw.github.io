@@ -3,6 +3,7 @@
   "private": true,
   "version": "1.0.0",
   "description": "Developer Room landing page",
+  "homepage": "https://uiwwsw.github.io/",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
