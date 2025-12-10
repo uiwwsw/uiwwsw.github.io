@@ -5,6 +5,7 @@ import { EffectComposer, Bloom, DepthOfField, Vignette } from '@react-three/post
 import * as THREE from 'three';
 import './index.css';
 import { createAlphabetTexture } from './utils/alphabetTexture';
+import ScatterText from './ScatterText';
 
 // --------------------------------------------------------
 // Shaders for the "Fluid Alphabet" Effect (Top Down)
@@ -283,20 +284,22 @@ export default function App() {
 
         <main className="content">
           <h1>
-            <span className="gradient-text">Words</span>
+            <ScatterText>Words</ScatterText>
             <br />
-            & Code.
+            <ScatterText>& Code.</ScatterText>
           </h1>
           <p className="subtitle">
-            글쓰기와 코딩을 사랑하는 개발자입니다.<br />
-            두 세계의 공통점은 바로 '단어'를 다룬다는 것.<br />
-            이곳은 제 머릿속을 부유하는 수많은 단어들의 우주입니다.
+            <ScatterText>
+              글쓰기와 코딩을 사랑하는 개발자입니다.
+              두 세계의 공통점은 바로 '단어'를 다룬다는 것.
+              이곳은 제 머릿속을 부유하는 수많은 단어들의 우주입니다.
+            </ScatterText>
           </p>
 
           <div className="stats">
             <div className="stat-item">
-              <span className="value">System</span>
-              <span className="label">Online</span>
+              <span className="value"><ScatterText>System</ScatterText></span>
+              <span className="label"><ScatterText>Online</ScatterText></span>
             </div>
           </div>
         </main>
