@@ -156,3 +156,75 @@ body {
     flex-wrap: wrap;
   }
 }
+
+/* Detail Overlay */
+.detail-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 50;
+  /* Above canvas, below some buttons if needed */
+  background-color: transparent;
+  /* Rely on 3D whiteout, or use white with fade */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  overflow-y: auto;
+  /* Allow scrolling */
+  pointer-events: auto;
+  /* Enable interaction */
+
+  /* Initial hidden state handled by React/opacity */
+  transition: opacity 1s ease-in-out;
+}
+
+.detail-content {
+  max-width: 600px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  padding-bottom: 100px;
+  /* Space for bottom button */
+}
+
+.detail-sentence {
+  font-family: 'Noto Sans KR', sans-serif;
+  font-size: 1.1rem;
+  line-height: 1.8;
+  color: #aaa;
+  /* Dimmed context */
+  text-align: center;
+  word-break: keep-all;
+  /* Better Korean wrapping */
+  transition: all 0.5s ease;
+}
+
+.detail-sentence.selected {
+  font-size: 1.6rem;
+  /* Bigger selected text */
+  font-weight: 700;
+  color: #000;
+  /* Black text */
+  margin: 1rem 0;
+}
+
+@media (max-width: 768px) {
+  .detail-overlay {
+    padding: 20px;
+    padding-top: 80px;
+    /* Space for back button */
+  }
+
+  .detail-sentence {
+    font-size: 1rem;
+  }
+
+  .detail-sentence.selected {
+    font-size: 1.3rem;
+  }
+}
