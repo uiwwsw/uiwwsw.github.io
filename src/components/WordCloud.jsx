@@ -166,8 +166,8 @@ const WordWrapper = ({ id, text, url, position, mouseRef, activeWordRef }) => {
 };
 
 // Component to handle raycasting for magnet effect WITHOUT physical mesh
-const RaycastHandler = ({ mouseRef }) => {
-    const sphere = useMemo(() => new THREE.Sphere(new THREE.Vector3(0, 0, 0), 85), []);
+const RaycastHandler = ({ mouseRef, sphereRadius }) => {
+    const sphere = useMemo(() => new THREE.Sphere(new THREE.Vector3(0, 0, 0), sphereRadius), [sphereRadius]);
 
     useFrame((state) => {
         // state.raycaster is automatically updated by R3F with mouse position
@@ -209,6 +209,20 @@ const WordCloud = () => {
         });
     }, []);
 
+    // Dynamic sphere sizing based on word count
+    // Base values calibrated for 800 words
+    const BASE_WORD_COUNT = 800;
+    const BASE_SPHERE_RADIUS = 80;
+    const BASE_MAX_DISTANCE = 150;
+
+    // Scale sphere size with cube root of word count ratio to maintain visual density
+    const scaleFactor = Math.cbrt(words.length / BASE_WORD_COUNT);
+    const sphereRadius = BASE_SPHERE_RADIUS * scaleFactor;
+    const maxDistance = BASE_MAX_DISTANCE * scaleFactor;
+
+    // Raycast sphere should be slightly larger than word distribution sphere
+    const raycastRadius = sphereRadius * 1.0625; // 85/80 ratio from original
+
     const handlePointerMove = (e) => {
         mouseRef.current.copy(e.point);
     };
@@ -222,13 +236,13 @@ const WordCloud = () => {
                 enablePan={false}
                 enableZoom={true}
                 minDistance={5}
-                maxDistance={150}
+                maxDistance={maxDistance}
                 radiusFactor={1}
                 dampingFactor={0.1}
             />
 
             {/* Logical helper to update mouseRef without blocking events */}
-            <RaycastHandler mouseRef={mouseRef} />
+            <RaycastHandler mouseRef={mouseRef} sphereRadius={raycastRadius} />
 
             {words.map((w, i) => (
                 <WordWrapper
