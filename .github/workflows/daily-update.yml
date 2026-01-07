@@ -1,0 +1,47 @@
+name: Daily Data Update
+
+on:
+  schedule:
+    # Run at 00:00 UTC every day (9:00 AM KST)
+    - cron: '0 0 * * *'
+  # Allow manual trigger for testing
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update-data:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run Scraper
+        run: node scripts/fetch-velog.js
+
+      - name: Commit and Push Changes
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          
+          # Check if there are changes
+          if [[ -n $(git status -s src/data/velog-words.json) ]]; then
+            git add src/data/velog-words.json
+            git commit -m "chore: update velog words data [skip ci]"
+            # We do NOT use [skip ci] if we want the deploy workflow to run. 
+            # Removing [skip ci] so deploy parses this push.
+            git commit --amend -m "chore: update velog words data"
+            git push
+          else
+            echo "No changes to commit"
+          fi
