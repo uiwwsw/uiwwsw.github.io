@@ -1,35 +1,80 @@
 import React, { useMemo, useRef, useState, useEffect } from 'react';
-import { useFrame } from '@react-three/fiber';
-import { Text, ArcballControls, Billboard } from '@react-three/drei';
+import { useFrame, useThree } from '@react-three/fiber';
+import { Text, ArcballControls, Billboard, Stars } from '@react-three/drei';
 import * as THREE from 'three';
-import wordsData from '../data/velog-words.json';
-// Import font file explicitly from the installed package
+import sentencesData from '../data/velog-words.json';
 import notoFontUrl from '@fontsource/noto-sans-kr/files/noto-sans-kr-korean-900-normal.woff';
 
-const Word = ({ id, text, url, position, mouseRef, activeWordRef }) => {
-    // Unused, but kept for reference structure if needed in future
-    return null;
+function getFirstChar(text) {
+    return text;
+}
+
+// Context sentences display (Black text for White background)
+const ContextSentence = ({ text, isSelected, position }) => {
+    const textRef = useRef();
+    const targetOpacity = useRef(0);
+
+    // Fade in effect
+    useEffect(() => {
+        targetOpacity.current = 1;
+        return () => { targetOpacity.current = 0; };
+    }, []);
+
+    useFrame((state, delta) => {
+        if (textRef.current) {
+            textRef.current.fillOpacity = THREE.MathUtils.lerp(
+                textRef.current.fillOpacity || 0,
+                targetOpacity.current,
+                delta * 3
+            );
+        }
+    });
+
+    return (
+        <Text
+            ref={textRef}
+            position={position}
+            fontSize={isSelected ? 0.8 : 0.5}
+            font={notoFontUrl}
+            color="#000000" // Black text since background will be white
+            anchorX="center"
+            anchorY="middle"
+            maxWidth={15} // Reduced to 15 to force wrapping even on narrow screens
+            textAlign="center"
+            lineHeight={1.4}
+            fillOpacity={0}
+        >
+            {text}
+        </Text>
+    );
 };
 
-const WordWrapper = ({ id, text, url, position, mouseRef, activeWordRef }) => {
+const SentenceWrapper = ({ id, displayText, fullSentence, url, articleId, sentenceIndex, position, mouseRef, activeWordRef, onSelect, isHidden }) => {
+    // ... (keep existing refs and state)
     const groupRef = useRef();
     const [hovered, setHovered] = useState(false);
     const [isTooFar, setIsTooFar] = useState(false);
-
-    // Initial opacity ref for manual control to avoid prop drilling performance hit? 
-    // Text component exposes material via ref? Yes.
     const textRef = useRef();
-    const pointerDownPos = useRef(null);
 
     const vec = new THREE.Vector3();
     const originalPos = useMemo(() => new THREE.Vector3(...position), [position]);
 
     useFrame((state, delta) => {
+        // ... (keep existing useFrame logic exactly as is)
+        // If hidden (during warp), quickly fade out and stop processing
+        if (isHidden) {
+            if (groupRef.current) groupRef.current.scale.setScalar(THREE.MathUtils.lerp(groupRef.current.scale.x, 0, delta * 10));
+            return;
+        } else {
+            if (groupRef.current && groupRef.current.scale.x < 1) {
+                groupRef.current.scale.setScalar(THREE.MathUtils.lerp(groupRef.current.scale.x, 1, delta * 5));
+            }
+        }
+
         if (!groupRef.current) return;
         const time = state.clock.elapsedTime;
         const camera = state.camera;
 
-        // Idle Motion
         const movementRadius = 0.3;
         const idleX = Math.sin(time * 0.5 + originalPos.x * 0.1) * movementRadius;
         const idleZ = Math.cos(time * 0.3 + originalPos.z * 0.1) * movementRadius;
@@ -39,19 +84,15 @@ const WordWrapper = ({ id, text, url, position, mouseRef, activeWordRef }) => {
         const currentBaseZ = originalPos.z + idleZ;
         const currentBaseY = originalPos.y + idleY;
 
-        // Distance Check (Group Position vs Camera)
         const currentPos = groupRef.current.position;
         const distanceToCamera = camera.position.distanceTo(currentPos);
 
-        // Depth Opacity Logic
-        // Radius is ~80.
-        // Nice fade range: 20 (close) to 120 (far)
         let depthOpacity = 1.0;
         const fadeStart = 40;
         const fadeEnd = 120;
 
         if (distanceToCamera > fadeEnd) {
-            depthOpacity = 0.05; // Keep faint trace
+            depthOpacity = 0.05;
         } else if (distanceToCamera > fadeStart) {
             depthOpacity = 1.0 - ((distanceToCamera - fadeStart) / (fadeEnd - fadeStart));
             depthOpacity = Math.max(0.05, depthOpacity);
@@ -67,9 +108,7 @@ const WordWrapper = ({ id, text, url, position, mouseRef, activeWordRef }) => {
         const dz = mousePos.z - currentBaseZ;
         const distToMouse = Math.sqrt(dx * dx + dy * dy + dz * dz);
 
-        // Interaction is blocked if too far
         const isMagnetic = !tooFar && distToMouse < 4.0;
-
         const isLockedByMe = activeWordRef.current === id;
         const isFree = activeWordRef.current === null;
 
@@ -98,9 +137,9 @@ const WordWrapper = ({ id, text, url, position, mouseRef, activeWordRef }) => {
             groupRef.current.position.lerp(vec, delta * 2);
         }
 
-        // Apply Opacity to TEXT
+        // Apply Opacity
         if (textRef.current) {
-            let targetOpacity = 0.3 * depthOpacity; // Base visibility lowered for "cloud" effect
+            let targetOpacity = 0.3 * depthOpacity;
             if (hovered) targetOpacity = 1.0;
 
             textRef.current.fillOpacity = THREE.MathUtils.lerp(
@@ -108,9 +147,6 @@ const WordWrapper = ({ id, text, url, position, mouseRef, activeWordRef }) => {
                 targetOpacity,
                 delta * 5
             );
-            // Also scale
-            const targetScale = hovered ? 1.2 : 1.0;
-            groupRef.current.scale.setScalar(THREE.MathUtils.lerp(groupRef.current.scale.x, targetScale, delta * 5));
         }
     });
 
@@ -137,43 +173,32 @@ const WordWrapper = ({ id, text, url, position, mouseRef, activeWordRef }) => {
                     setHovered(false);
                     document.body.style.cursor = 'auto';
                 }}
-                onPointerDown={(e) => {
-                    // Record start position for click detection
-                    pointerDownPos.current = { x: e.clientX, y: e.clientY };
-                }}
-                onPointerUp={(e) => {
-                    if (!pointerDownPos.current) return;
-
-                    const dx = e.clientX - pointerDownPos.current.x;
-                    const dy = e.clientY - pointerDownPos.current.y;
-                    const dragDistance = Math.sqrt(dx * dx + dy * dy);
-
-                    // Only treat as click if moved less than 5 pixels (prevent drag-click)
-                    // AND if not too far (depth check)
-                    // AND if url exists
-                    if (dragDistance < 5 && !isTooFar && url) {
-                        window.open(url, '_blank');
+                onClick={(e) => {
+                    e.stopPropagation();
+                    if (!isTooFar) {
+                        onSelect({
+                            id,
+                            fullSentence,
+                            link: url,
+                            articleId,
+                            sentenceIndex
+                        });
                     }
-
-                    pointerDownPos.current = null;
                 }}
-                fillOpacity={0} // Controlled by lerp
+                fillOpacity={0}
             >
-                {text}
+                {displayText}
             </Text>
         </Billboard>
     );
 };
 
-// Component to handle raycasting for magnet effect WITHOUT physical mesh
+// ... (RaycastHandler remains same)
 const RaycastHandler = ({ mouseRef, sphereRadius }) => {
     const sphere = useMemo(() => new THREE.Sphere(new THREE.Vector3(0, 0, 0), sphereRadius), [sphereRadius]);
 
     useFrame((state) => {
-        // state.raycaster is automatically updated by R3F with mouse position
-        // We intersect the mathematical sphere
         const intersection = state.raycaster.ray.intersectSphere(sphere, new THREE.Vector3());
-
         if (intersection) {
             mouseRef.current.copy(intersection);
         }
@@ -182,79 +207,212 @@ const RaycastHandler = ({ mouseRef, sphereRadius }) => {
     return null;
 };
 
-const WordCloud = () => {
+const WordCloud = ({ onSelectSentence, selectedSentence, contextSentences }) => {
+    // ... (keep existing WordCloud setup)
+    const { camera } = useThree();
     const mouseRef = useRef(new THREE.Vector3(0, 0, 0));
     const activeWordRef = useRef(null);
     const controlsRef = useRef();
 
-    const words = useMemo(() => {
-        // Full Spherical Volume
-        return wordsData.slice(0, 800).map(w => {
+    // Camera animation state
+    const [cameraStartPos] = useState(() => camera.position.clone());
+    const [cameraStartTarget] = useState(() => new THREE.Vector3(0, 0, 0));
+
+    // Store the camera state right before dimension travel
+    const savedCameraState = useRef({
+        position: new THREE.Vector3(),
+        target: new THREE.Vector3()
+    });
+
+    // State to track if we are currently animating back to start
+    const [isReturning, setIsReturning] = useState(false);
+
+    // Track brightness for background (0=Black, 1=White)
+    const bgBrightness = useRef(0);
+
+    // Ref to prevent initial animation on mount
+    const isMountedRef = useRef(false);
+    const prevSelectionRef = useRef(null);
+
+    // Track mount status
+    useEffect(() => {
+        // Slight delay to ensure controls settle
+        const timer = setTimeout(() => {
+            isMountedRef.current = true;
+        }, 1000);
+        return () => clearTimeout(timer);
+    }, []);
+
+    // Trigger return animation ONLY when transitioning from selected -> null
+    useEffect(() => {
+        // Entering dimension travel: Save current state
+        if (!prevSelectionRef.current && selectedSentence) {
+            savedCameraState.current.position.copy(camera.position);
+            if (controlsRef.current) {
+                savedCameraState.current.target.copy(controlsRef.current.target);
+            }
+        }
+
+        if (prevSelectionRef.current && !selectedSentence && isMountedRef.current) {
+            setIsReturning(true);
+        }
+        prevSelectionRef.current = selectedSentence;
+    }, [selectedSentence, camera]);
+
+    const sentences = useMemo(() => {
+        return sentencesData.slice(0, 490).map((s, index) => {
+            // Random word selection
+            const words = s.fullSentence.split(' ').filter(w => w.length > 0);
+            const displayText = words.length > 0
+                ? words[Math.floor(Math.random() * words.length)]
+                : s.firstWord; // Fallback
+
             const thetaRandom = Math.random() * Math.PI * 2;
             const phiRandom = Math.acos(2 * Math.random() - 1);
 
-            // Random radius 0 to 80 for FULL VOLUME
-            // Cube Root ensures UNIFORM distribution (visual evenness),
-            // preventing the "clumped center" look of linear random.
-            const radius = Math.cbrt(Math.random()) * 80;
+            const BASE_SENTENCE_COUNT = 800;
+            const BASE_SPHERE_RADIUS = 80;
+            const scaleFactor = Math.cbrt(sentencesData.length / BASE_SENTENCE_COUNT);
+            const sphereRadius = BASE_SPHERE_RADIUS * scaleFactor;
+
+            const radius = Math.cbrt(Math.random()) * sphereRadius;
 
             const x = radius * Math.sin(phiRandom) * Math.cos(thetaRandom);
             const y = radius * Math.sin(phiRandom) * Math.sin(thetaRandom);
             const z = radius * Math.cos(phiRandom);
 
             return {
-                ...w,
-                position: [x, y, z]
+                ...s,
+                displayText, // Add random display text
+                position: [x, y, z],
+                index
             };
         });
     }, []);
 
-    // Dynamic sphere sizing based on word count
-    // Base values calibrated for 800 words
-    const BASE_WORD_COUNT = 800;
+    // ... (rest of WordCloud component, including useFrame) 
+    // BUT we need to update the Map loop below to use displayText
+
+    // ... (skip lines to map loop)
+
+
+    const BASE_SENTENCE_COUNT = 800;
     const BASE_SPHERE_RADIUS = 80;
     const BASE_MAX_DISTANCE = 150;
 
-    // Scale sphere size with cube root of word count ratio to maintain visual density
-    const scaleFactor = Math.cbrt(words.length / BASE_WORD_COUNT);
+    const scaleFactor = Math.cbrt(sentences.length / BASE_SENTENCE_COUNT);
     const sphereRadius = BASE_SPHERE_RADIUS * scaleFactor;
     const maxDistance = BASE_MAX_DISTANCE * scaleFactor;
+    const raycastRadius = sphereRadius * 1.0625;
 
-    // Raycast sphere should be slightly larger than word distribution sphere
-    const raycastRadius = sphereRadius * 1.0625; // 85/80 ratio from original
-
-    const handlePointerMove = (e) => {
-        mouseRef.current.copy(e.point);
+    // Helper to get position of selected word for Context Rendering
+    const getContextGroupPosition = () => {
+        if (!selectedSentence) return [0, 0, 0];
+        const targetWord = sentences[selectedSentence.id];
+        return targetWord ? targetWord.position : [0, 0, 0];
     };
+
+    // Camera animation - WHITEOUT ZOOM
+    useFrame((state, delta) => {
+        const scene = state.scene;
+
+        // Handle Background Color Transition (Black <-> White)
+        if (!scene.background) {
+            scene.background = new THREE.Color(0, 0, 0);
+        }
+        // Handle Fog (must match background for seamless effect)
+        if (scene.fog) {
+            scene.fog.color.copy(scene.background);
+        }
+
+        if (selectedSentence) {
+            // Find target word position
+            const targetWord = sentences[selectedSentence.id];
+            const targetPos = targetWord ? new THREE.Vector3(...targetWord.position) : new THREE.Vector3(0, 0, 0);
+
+            // Zoom right INTO the word (unlimited zoom feeling)
+            // We go very close, slightly offset in Z so we don't clip inside
+            const zoomDestination = targetPos.clone().add(new THREE.Vector3(0, 0, 15));
+
+            // 1. Move Camera
+            camera.position.lerp(zoomDestination, delta * 3);
+            camera.lookAt(targetPos);
+
+            // 2. Whiteout Effect
+            // Lerp brightness up to 1 (White)
+            bgBrightness.current = THREE.MathUtils.lerp(bgBrightness.current, 1, delta * 3);
+            scene.background.setScalar(bgBrightness.current);
+
+        } else {
+            // Return to original view
+            if (isReturning) {
+                const destPos = savedCameraState.current.position.lengthSq() > 0
+                    ? savedCameraState.current.position
+                    : cameraStartPos;
+                const destTarget = savedCameraState.current.target;
+
+                camera.position.lerp(destPos, delta * 3);
+                camera.lookAt(destTarget);
+
+                // Fade back to black
+                bgBrightness.current = THREE.MathUtils.lerp(bgBrightness.current, 0, delta * 5);
+                scene.background.setScalar(bgBrightness.current);
+
+                const dist = camera.position.distanceTo(destPos);
+
+                // Stop animating when close enough
+                if (dist < 0.5 && bgBrightness.current < 0.05) {
+                    setIsReturning(false);
+                    scene.background.setScalar(0); // Ensure pure black
+                    if (scene.fog) scene.fog.color.setScalar(0);
+
+                    // Sync controls to saved target
+                    if (controlsRef.current) {
+                        controlsRef.current.target.copy(destTarget);
+                        controlsRef.current.update();
+                    }
+                }
+            }
+        }
+    });
 
     return (
         <group>
-            {/* ArcballControls: True infinite rotation (tumbling) without gimbal lock or polar limits */}
+            {/* Remove WarpStars */}
+
             <ArcballControls
                 makeDefault
                 ref={controlsRef}
                 enablePan={false}
                 enableZoom={true}
+                enabled={!selectedSentence && !isReturning}
                 minDistance={5}
                 maxDistance={maxDistance}
                 radiusFactor={1}
                 dampingFactor={0.1}
             />
 
-            {/* Logical helper to update mouseRef without blocking events */}
             <RaycastHandler mouseRef={mouseRef} sphereRadius={raycastRadius} />
 
-            {words.map((w, i) => (
-                <WordWrapper
+            {/* Main word cloud */}
+            {sentences.map((s, i) => (
+                <SentenceWrapper
                     key={i}
                     id={i}
-                    text={w.text}
-                    url={w.link}
-                    position={w.position}
+                    displayText={s.displayText}
+                    fullSentence={s.fullSentence}
+                    url={s.link}
+                    articleId={s.articleId}
+                    sentenceIndex={s.sentenceIndex}
+                    position={s.position}
                     mouseRef={mouseRef}
                     activeWordRef={activeWordRef}
+                    onSelect={onSelectSentence}
+                    isHidden={!!selectedSentence}
                 />
             ))}
+
+            {/* Context sentences removed - moved to HTML overlay */}
         </group>
     );
 };

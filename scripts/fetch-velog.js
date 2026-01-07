@@ -9,24 +9,49 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const RSS_URL = 'https://v2.velog.io/rss/uiwwsw';
 const OUTPUT_FILE = path.join(__dirname, '../src/data/velog-words.json');
-const MAX_WORDS = 1000;
+const MAX_SENTENCES = 800;
 
-// Simple stop words list (Korean + English common words)
-const STOP_WORDS = new Set([
-    'the', 'and', 'a', 'to', 'of', 'in', 'is', 'that', 'for', 'it', 'with', 'as', 'on',
-    'this', 'by', 'at', 'be', 'are', 'from', 'or', 'an', 'was', 'were', 'but', 'so',
-    'can', 'if', 'has', 'have', 'not', 'which', 'what', 'when', 'how', 'why', 'who',
-    '있다', '있는', '것이다', '한다', '하는', '할', '수', '등', '이', '가', '을', '를',
-    '은', '는', '의', '에', '로', '와', '과', '도', '다', '만', '으로', '에서', '하고',
-    '이다', '그리고', '하지만', '그래서', '때문에', '매우', '정말', '너무', '많이',
-    '더', '좀', '잘', '그', '이런', '저런', '그런', '위해', '통해', '대한', '관한',
-    '같은', '위한', '따라', '모두', '어떤', '또한', '가장', '많은', '바로', '다시',
-    '이제', '여기', '거기', '저기', '경우', '사실', '생각', '사람', '우리', '자신',
-    '문제', '결과', '방법', '사용', '부분', '시간', '정도', '하나', '가지', '때문',
-    '그것', '이것', '저것', '지금', '다음', '이후', '이전', '시작', '관련', '내용',
-    '필요', '중요', '가능', '단어', '코드', '함수', '데이터', '설정', '작성', '실행',
-    'com', 'https', 'http', 'www', 'url', 'log', 'image', 'png', 'jpg', 'gif'
+// Filter for bad/weird words
+const BAD_WORDS = new Set([
+    '보지', '자지'
 ]);
+
+// Extract sentences from text, preserving order
+function extractSentences(text) {
+    const rawSentences = text.split(/[.!?]+/).map(s => s.trim()).filter(s => s.length > 0);
+
+    const sentences = [];
+
+    for (const sentence of rawSentences) {
+        if (sentence.length < 10) continue;
+
+        const trimmed = sentence.length > 100 ? sentence.substring(0, 100) + '...' : sentence;
+        const words = trimmed.split(/\s+/);
+        if (words.length === 0) continue;
+
+        // Filter logic:
+        // 1. Length < 2 (already there)
+        // 2. Numbers only
+        // 3. Bad words
+        // 4. Starts with special char (non-hangul, non-alpha, non-digit)
+        // 5. Incomplete Hangul (Jamo)
+
+        const checkWord = words[0];
+
+        if (checkWord.length < 2 || /^\d+$/.test(checkWord)) continue;
+        if (BAD_WORDS.has(checkWord)) continue;
+
+        // Regex: Check if starts with valid char (Hangul syllables, Alphabet, Number)
+        // Excludes Jamo (ㄱ-ㅎ, ㅏ-ㅣ) and Special Chars
+        if (!/^[가-힣a-zA-Z0-9]/.test(checkWord)) continue;
+
+        sentences.push({
+            fullSentence: trimmed
+        });
+    }
+
+    return sentences;
+}
 
 async function fetchAndProcess() {
     console.log(`Fetching RSS feed from ${RSS_URL}...`);
@@ -36,46 +61,71 @@ async function fetchAndProcess() {
         const feed = await parser.parseURL(RSS_URL);
         console.log(`Found ${feed.items.length} items.`);
 
-        let allWords = [];
+        let allSentences = [];
+        let articleId = 0;
 
         for (const item of feed.items) {
-            // Prefer content:encoded, normally where full content lives in Velog RSS?
-            // Velog RSS usually has 'content' or just 'description'.
-            // Let's check both or fallback.
             const content = item['content:encoded'] || item.content || item.description || '';
             const $ = cheerio.load(content);
             const text = $.text();
 
-            // Tokenize
-            // Remove special chars, keep Korean, English, Numbers
-            const cleanedText = text.replace(/[^a-zA-Z0-9가-힣\s]/g, ' ');
-            const words = cleanedText.split(/\s+/)
-                .map(w => w.trim())
-                .filter(w => w.length >= 2) // Filter short words
-                .filter(w => !STOP_WORDS.has(w.toLowerCase()))
-                .filter(w => !/^\d+$/.test(w)); // Filter pure numbers
+            const cleanedText = text.replace(/\s+/g, ' ').trim();
+            const sentences = extractSentences(cleanedText);
 
-            // Map to object with link
-            words.forEach(word => {
-                allWords.push({
-                    text: word,
-                    link: item.link
+            // Add metadata: articleId, sentenceIndex within article
+            sentences.forEach((sentence, index) => {
+                allSentences.push({
+                    ...sentence,
+                    link: item.link,
+                    title: item.title,
+                    articleId: articleId,
+                    sentenceIndex: index,
+                    totalInArticle: sentences.length
                 });
             });
+
+            articleId++;
         }
 
-        console.log(`Total words extracted: ${allWords.length}`);
+        console.log(`Total sentences extracted: ${allSentences.length}`);
+        console.log(`From ${articleId} articles`);
 
-        // Random shuffle and slice
-        const shuffled = allWords.sort(() => 0.5 - Math.random());
-        const selected = shuffled.slice(0, MAX_WORDS);
+        // Random shuffle but keep metadata
+        const shuffled = [...allSentences].sort(() => 0.5 - Math.random());
+        const selected = shuffled.slice(0, MAX_SENTENCES);
 
-        // Save
+        // Save with full metadata
         const outputDir = path.dirname(OUTPUT_FILE);
         await fs.mkdir(outputDir, { recursive: true });
         await fs.writeFile(OUTPUT_FILE, JSON.stringify(selected, null, 2));
 
-        console.log(`Saved ${selected.length} words to ${OUTPUT_FILE}`);
+        console.log(`\nSaved ${selected.length} sentences to ${OUTPUT_FILE}`);
+        console.log(`Sample sentence with context:`);
+        const sample = selected[0];
+        console.log(`  Article: "${sample.title}"`);
+        console.log(`  Sentence ${sample.sentenceIndex + 1}/${sample.totalInArticle}: "${sample.fullSentence}"`);
+
+        // Also save the FULL ordered dataset for context lookup
+        const contextFile = path.join(__dirname, '../src/data/velog-context.json');
+
+        // Group by article for easy context lookup
+        const byArticle = {};
+        allSentences.forEach(s => {
+            if (!byArticle[s.articleId]) {
+                byArticle[s.articleId] = {
+                    title: s.title,
+                    link: s.link,
+                    sentences: []
+                };
+            }
+            byArticle[s.articleId].sentences.push({
+                fullSentence: s.fullSentence,
+                index: s.sentenceIndex
+            });
+        });
+
+        await fs.writeFile(contextFile, JSON.stringify(byArticle, null, 2));
+        console.log(`Saved context data to ${contextFile}`);
 
     } catch (error) {
         console.error('Error fetching RSS:', error);

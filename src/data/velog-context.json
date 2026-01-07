@@ -1,0 +1,1872 @@
+{
+  "0": {
+    "title": "왜 기품 있는 어른은 회사에 남지 않는가",
+    "link": "https://velog.io/@uiwwsw/%EC%99%9C-%EA%B8%B0%ED%92%88-%EC%9E%88%EB%8A%94-%EC%96%B4%EB%A5%B8%EC%9D%80-%ED%9A%8C%EC%82%AC%EC%97%90-%EB%82%A8%EC%A7%80-%EC%95%8A%EB%8A%94%EA%B0%80",
+    "sentences": [
+      {
+        "fullSentence": "회사 생활을 하다 보면 누구나 한 번쯤 의문을 품는다",
+        "index": 0
+      },
+      {
+        "fullSentence": "맡은 일을 펑크 내지 않고 무난하게 처리하는 사람들은 분명 있다",
+        "index": 1
+      },
+      {
+        "fullSentence": "하지만 기준을 ‘태도’와 ‘기품’으로 높이는 순간 이야기는 달라진다",
+        "index": 2
+      },
+      {
+        "fullSentence": "우리가 마음속으로 기대하는, 합리적인 사고와 무례하지 않은 태도를 겸비한 ‘기품 있는 어른’은 회사라는 공간에 좀처럼 오래 머물지 않는다",
+        "index": 3
+      },
+      {
+        "fullSentence": "나는 이것이 개인의 운이나 성향 문제가 아니라, 철저히 조직의 생리가 만들어낸 ‘구조적 증발’ 현상이라고 생각한다",
+        "index": 4
+      },
+      {
+        "fullSentence": "물론 대기업의 상황은 상대적으로 낫다",
+        "index": 5
+      },
+      {
+        "fullSentence": "체계적인 시스템과 검증된 인재 풀 덕분에 기본적인 매너와 역량을 갖춘 사람들을 만날 확률은 높다",
+        "index": 6
+      },
+      {
+        "fullSentence": "하지만 그곳에서도 ‘존경할 만한 선배’가 실무 현장에 끝까지 남아 있기는 어렵다",
+        "index": 7
+      },
+      {
+        "fullSentence": "아이러니하게도, 기품을 유지할 수 있는 역량(지능과 체력)을 가진 사람일수록 선택지가 많기 때문이다",
+        "index": 8
+      },
+      {
+        "fullSentence": "그들은 임원이 되어 경영진으로 올라가거나, 자신의 가치를 더 높게 인정해 주는 곳으로 이동하거나, 조직 밖에서 자신만의 성취를 찾아 떠난다",
+        "index": 9
+      },
+      {
+        "fullSentence": "결국 현장에서 호흡하며 배울 수 있는 ‘좋은 선배’는 가장 좋은 환경에서도 희귀해질 수밖에 없는 운명이다",
+        "index": 10
+      },
+      {
+        "fullSentence": "중소기업에서는 이 현상이 더 적나라하고 잔혹하게 드러난다",
+        "index": 11
+      },
+      {
+        "fullSentence": "단순히 연봉이나 복지의 차이가 아니다",
+        "index": 12
+      },
+      {
+        "fullSentence": "가장 큰 차이는 회사를 운영하는 ‘관점’에 있다",
+        "index": 13
+      },
+      {
+        "fullSentence": "사람을 ‘성장의 파트너’가 아닌 ‘효율을 위한 소모품’으로 바라보는 조직에서는 상식적이고 합리적인 사람일수록 오래 버티지 못한다",
+        "index": 14
+      },
+      {
+        "fullSentence": "앞서 말했듯, 배려와 존중은 고도의 지능과 에너지가 필요한 일이다",
+        "index": 15
+      },
+      {
+        "fullSentence": "맥락을 읽고, 타인을 존중하며, 지속 가능한 방식을 고민하는 ‘예민한 지성’을 가진 이들은 자신을 갉아먹는 환경을 본능적으로 감지하고 더 나은 토양을 찾아 떠나게 된다",
+        "index": 16
+      },
+      {
+        "fullSentence": "시간이 흐르면 조직에는 일정한 결의 사람들만 남는다",
+        "index": 17
+      },
+      {
+        "fullSentence": "남은 사람들의 인성이 태생적으로 나빠서가 아니다",
+        "index": 18
+      },
+      {
+        "fullSentence": "기품을 지키는 것이 오히려 손해가 되는 환경에서, 생존에 가장 최적화된 태도를 취한 이들만이 ‘자연 선택’된 결과일 뿐이다",
+        "index": 19
+      },
+      {
+        "fullSentence": "그래서 사무실에 배울 만한 선배가 없다고 느껴진다면, 그것은 당신의 인복(人福)이 없어서가 아니다",
+        "index": 20
+      },
+      {
+        "fullSentence": "그저 그곳이 기품이 생존하기 어려운 생태계라는 슬픈 증거일지도 모른다",
+        "index": 21
+      },
+      {
+        "fullSentence": "Assisted by Gemini",
+        "index": 22
+      }
+    ]
+  },
+  "1": {
+    "title": "우아함의 물리학: 지능과 체력에 관하여",
+    "link": "https://velog.io/@uiwwsw/%EC%9A%B0%EC%95%84%ED%95%A8%EC%9D%98-%EB%AC%BC%EB%A6%AC%ED%95%99-%EC%A7%80%EB%8A%A5%EA%B3%BC-%EC%B2%B4%EB%A0%A5%EC%97%90-%EA%B4%80%ED%95%98%EC%97%AC",
+    "sentences": [
+      {
+        "fullSentence": "내가 만나온 ‘기품 있는 사람들’에게는 한 가지 공통점이 있다",
+        "index": 0
+      },
+      {
+        "fullSentence": "그들은 단순히 착한 사람이 아니라, 높은 지능과 단단한 체력을 동시에 갖춘 사람들이었다",
+        "index": 1
+      },
+      {
+        "fullSentence": "우리가 흔히 말하는 인성, 친절, 포용력은 사실 감정의 영역이라기보다 지능의 영역에 가깝다",
+        "index": 2
+      },
+      {
+        "fullSentence": "상황의 맥락을 읽고, 적절한 말을 고르며, 타인의 입장을 시뮬레이션하는 능력은 모두 고도의 사고력을 필요로 하기 때문이다",
+        "index": 3
+      },
+      {
+        "fullSentence": "단순히 좋은 마음만으로는 결코 섬세한 배려가 나오지 않는다",
+        "index": 4
+      },
+      {
+        "fullSentence": "하지만 지능만으로는 부족하다",
+        "index": 5
+      },
+      {
+        "fullSentence": "타인을 이해하는 일은 뇌 에너지를 엄청나게 소모하는, 피곤한 노동이기 때문이다",
+        "index": 6
+      },
+      {
+        "fullSentence": "배려란 귀찮음을 이겨내고, 끓어오르는 감정을 누르며, 계속해서 뇌를 쓰겠다고 결심하는 일이다",
+        "index": 7
+      },
+      {
+        "fullSentence": "그래서 체력만 좋은 사람은 선하지만 눈치가 부족하기 쉽고, 지능만 높은 사람은 예리하지만 그 친절이 오래가지 못한다",
+        "index": 8
+      },
+      {
+        "fullSentence": "반면 지능과 체력이 균형을 이룰 때, 사람은 애쓰지 않고도 배려할 수 있고 무리하지 않으면서도 포용할 수 있다",
+        "index": 9
+      },
+      {
+        "fullSentence": "우리가 누군가에게서 설명하기 힘든 ‘품격’을 느꼈다면, 그것은 대개 치열한 지능으로 빚고 단단한 체력으로 지탱해낸, 가장 강한 형태의 여유일 가능성이 높다",
+        "index": 10
+      },
+      {
+        "fullSentence": "Assisted by Gemini",
+        "index": 11
+      }
+    ]
+  },
+  "2": {
+    "title": "똑똑한 개발자란 무엇인가 (feat. AI 시대의 생존법)",
+    "link": "https://velog.io/@uiwwsw/%EB%98%91%EB%98%91%ED%95%9C-%EA%B0%9C%EB%B0%9C%EC%9E%90%EB%9E%80-%EB%AC%B4%EC%97%87%EC%9D%B8%EA%B0%80-feat.-AI-%EC%8B%9C%EB%8C%80%EC%9D%98-%EC%83%9D%EC%A1%B4%EB%B2%95",
+    "sentences": [
+      {
+        "fullSentence": "그때는 연차가 곧 실력이었고, 묵묵히 주어진 일을 해내기만 해도 중간은 갔다",
+        "index": 0
+      },
+      {
+        "fullSentence": "그러나 판은 완전히 뒤집혔다",
+        "index": 1
+      },
+      {
+        "fullSentence": "AI가 등장하면서, 시키는 것을 구현하고 주어진 문제만 푸는 역할은 더 이상 경쟁력이 아니다",
+        "index": 2
+      },
+      {
+        "fullSentence": "이제 개발자의 핵심 역량은 기술 그 자체가 아니라 맥락(Context)이다",
+        "index": 3
+      },
+      {
+        "fullSentence": "무엇을 만드는지보다 왜 만드는지, 어떻게 구현할지보다 지금 이 선택이 맞는지를 읽어내는 능력",
+        "index": 4
+      },
+      {
+        "fullSentence": "기술은 점점 평준화되지만, 판단은 그렇지 않다",
+        "index": 5
+      },
+      {
+        "fullSentence": "회의 테이블에서 그 차이는 선명하게 드러난다",
+        "index": 6
+      },
+      {
+        "fullSentence": "한쪽에는 자신의 지식을 증명하려는 사람이 있고, 다른 한쪽에는 질문을 던져 모두의 시선을 같은 방향으로 모으는 사람이 있다",
+        "index": 7
+      },
+      {
+        "fullSentence": "후자는 결론을 독점하지 않는다",
+        "index": 8
+      },
+      {
+        "fullSentence": "대신 구조를 만든다",
+        "index": 9
+      },
+      {
+        "fullSentence": "사람들이 스스로 답에 도달했다고 느끼게 하는 흐름, 그 흐름이 회의를 앞으로 밀어낸다",
+        "index": 10
+      },
+      {
+        "fullSentence": "하지만 이 방식에는 전제 조건이 있다",
+        "index": 11
+      },
+      {
+        "fullSentence": "여러 조직을 거치며 분명해진 사실이 있다",
+        "index": 12
+      },
+      {
+        "fullSentence": "좋은 사람은 좋은 사람을 알아본다",
+        "index": 13
+      },
+      {
+        "fullSentence": "수준 높은 동료들이 모인 환경에서는 굳이 설명하지 않아도 전달된다",
+        "index": 14
+      },
+      {
+        "fullSentence": "질문의 의도, 회의를 정리하기 위해 배치한 장치들, 말로 드러나지 않은 배려까지도 자연스럽게 공유된다",
+        "index": 15
+      },
+      {
+        "fullSentence": "서로가 서로의 맥락을 읽어주기 때문에, 일은 빠르고 결과물은 단단하다",
+        "index": 16
+      },
+      {
+        "fullSentence": "반대로, 맥락이 공유되지 않는 환경에서는 이 구조가 작동하지 않는다",
+        "index": 17
+      },
+      {
+        "fullSentence": "방향을 잡기 위한 질문은 개인의 판단으로 오해되고, 조율을 위한 여백은 공백으로 소비된다",
+        "index": 18
+      },
+      {
+        "fullSentence": "결과는 나오지만, 에너지는 남지 않는다",
+        "index": 19
+      },
+      {
+        "fullSentence": "개인의 노력은 팀의 시너지로 증폭되지 못하고 그대로 소모된다",
+        "index": 20
+      },
+      {
+        "fullSentence": "기술의 문제가 아니라 구조의 문제다",
+        "index": 21
+      },
+      {
+        "fullSentence": "인간의 에너지가 축적되지 못하는 조직은, AI 시대에 가장 먼저 한계를 드러낸다",
+        "index": 22
+      },
+      {
+        "fullSentence": "AI는 주어진 맥락을 정확히 수행한다",
+        "index": 23
+      },
+      {
+        "fullSentence": "그러나 어떤 맥락이 필요한지 결정하고, 흐름을 만들고, 행간을 읽는 일은 여전히 인간의 영역이다",
+        "index": 24
+      },
+      {
+        "fullSentence": "그런데 인간마저 서로의 맥락을 읽지 못한다면, 우리는 무엇으로 AI와 구별될 수 있을까",
+        "index": 25
+      },
+      {
+        "fullSentence": "그래서 나는 고집스럽게 맥락이 통하는 환경을 선택한다",
+        "index": 26
+      },
+      {
+        "fullSentence": "인정을 받기 위해서가 아니다",
+        "index": 27
+      },
+      {
+        "fullSentence": "불필요한 설득 비용을 줄이고, 같은 목표를 가장 빠른 속도로 향하기 위해서다",
+        "index": 28
+      },
+      {
+        "fullSentence": "이해가 공유된 조직은 설명이 적고, 결정이 빠르며, 수정이 정확하다",
+        "index": 29
+      },
+      {
+        "fullSentence": "똑똑한 개발자란 코드를 잘 짜는 사람을 넘어선다",
+        "index": 30
+      },
+      {
+        "fullSentence": "그는 흐름을 만들고, 사람과 사람 사이의 공명을 설계한다",
+        "index": 31
+      },
+      {
+        "fullSentence": "혼자의 독주가 아니라 집단의 합주를 만들어내는 사람",
+        "index": 32
+      },
+      {
+        "fullSentence": "AI가 흉내 낼 수 없는 가치는 바로 그 지점에서 발생한다",
+        "index": 33
+      },
+      {
+        "fullSentence": "그리고 그것이, 내가 생각하는 이 시대 개발자의 경쟁력이다",
+        "index": 34
+      },
+      {
+        "fullSentence": "Assisted by Gemini",
+        "index": 35
+      }
+    ]
+  },
+  "3": {
+    "title": "코난과 숏박스",
+    "link": "https://velog.io/@uiwwsw/%EC%BD%94%EB%82%9C%EA%B3%BC-%EC%88%8F%EB%B0%95%EC%8A%A4",
+    "sentences": [
+      {
+        "fullSentence": "나는 <명탐정 코난>을 좋아한다",
+        "index": 0
+      },
+      {
+        "fullSentence": "살인과 범죄, ‘검은 조직’이라는 거악(巨惡)이 매화 등장하는 추리물임에도, 아이러니하게도 이 만화를 보며 눈살이 찌푸려지는 순간은 거의 없다",
+        "index": 1
+      },
+      {
+        "fullSentence": "우선 코난의 세계에는 한없이 투명한 주인공들이 있다",
+        "index": 2
+      },
+      {
+        "fullSentence": "주인공과 아이들은 지나칠 만큼 순수하고, 미란이는 사랑 앞에서 아이들보다 더 수줍어하며, 유명한은 술과 예쁜 여자 앞에서 여전히 철없이 무너진다",
+        "index": 3
+      },
+      {
+        "fullSentence": "이토록 맑은 인물들 틈에서 살인은 잔혹한 ‘현실’이라기보다 해결해야 할 ‘사건’으로 치환된다",
+        "index": 4
+      },
+      {
+        "fullSentence": "덕분에 아이들이 사건을 대하는 태도는 끝까지 순수함을 유지하고, 그 과도할 정도의 맑음이 이야기 전체에 기묘한 안정감을 만들어낸다",
+        "index": 5
+      },
+      {
+        "fullSentence": "하지만 코난의 세계가 단순히 선(善)하기만 한 것은 아니다",
+        "index": 6
+      },
+      {
+        "fullSentence": "절대악은 끊임없이 모습을 드러낸다",
+        "index": 7
+      },
+      {
+        "fullSentence": "그런데도 이상하게, 매화 등장하는 범인들에게서 분노보다 먼저 느껴지는 감정은 묘한 ‘인간적 허술함’이다",
+        "index": 8
+      },
+      {
+        "fullSentence": "우리가 이입하는 주인공들이 가공되지 않아 투명하게 빛나는 원석이라면, 범인들 역시 본질은 크게 다르지 않다",
+        "index": 9
+      },
+      {
+        "fullSentence": "그들 또한 원석이지만, 어딘가 삐뚤게 깎여 뾰족하게 튀어나온 모서리를 지녔을 뿐이다",
+        "index": 10
+      },
+      {
+        "fullSentence": "나는 매끄러운 주인공들보다, 찔릴 듯 날이 선 그 모서리에서 오히려 더 짙은 인간미를 느낀다",
+        "index": 11
+      },
+      {
+        "fullSentence": "최근 즐겨보는 유튜브 채널 <숏박스> 역시 비슷한 결의 편안함을 준다",
+        "index": 12
+      },
+      {
+        "fullSentence": "현실의 구질구질함은 덜어내고, 권태 대신 익숙한 편안함만이 남았다",
+        "index": 13
+      },
+      {
+        "fullSentence": "설렘은 줄었을지언정 서로를 해치지 않는 관계, 그 무해함이 주는 안정감은 분명하다",
+        "index": 14
+      },
+      {
+        "fullSentence": "특히 숏박스 속 소위 ‘일진’이나 악역을 자처하는 캐릭터들은 코난의 범인들과 겹쳐 보인다",
+        "index": 15
+      },
+      {
+        "fullSentence": "그들은 시끄럽고, 폭력적이며, 위협적인 척 시비를 건다",
+        "index": 16
+      },
+      {
+        "fullSentence": "겉모습은 분명 ‘악역의 문법’을 따르지만, 숏박스는 그들을 끝내 나쁜 사람으로 남겨두지 않는다",
+        "index": 17
+      },
+      {
+        "fullSentence": "거친 말투와 선을 넘는 훈수 이면에는 늘 묘한 ‘정(情)’이 깔려 있다",
+        "index": 18
+      },
+      {
+        "fullSentence": "서툰 표현과 과한 태도 때문에 삐걱거릴 뿐, 본심까지 악하다고 느껴지진 않는다",
+        "index": 19
+      },
+      {
+        "fullSentence": "시청자는 그들의 거친 행동보다 그 뒤에 숨은 의도를 먼저 보게 되고, 그래서 쉽게 미워할 수 없다",
+        "index": 20
+      },
+      {
+        "fullSentence": "이들은 악을 저지르는 인물이라기보다, 선의를 다루는 방식이 고장 난 사람들에 가깝다",
+        "index": 21
+      },
+      {
+        "fullSentence": "완성된 악마가 아니라, 아직 성질을 다듬지 못한 채 툭툭 튀어나온 모서리를 방치한 서툰 원석들인 것이다",
+        "index": 22
+      },
+      {
+        "fullSentence": "나는 성악설을 믿는 편이다",
+        "index": 23
+      },
+      {
+        "fullSentence": "인간은 본래 선하지 않으며, 상황과 이익 앞에서는 언제든 잔인해질 수 있다고 생각한다",
+        "index": 24
+      },
+      {
+        "fullSentence": "현실은 예고 없이 날카롭고, 타인의 악의는 종종 치명적이다",
+        "index": 25
+      },
+      {
+        "fullSentence": "그래서일지도 모른다",
+        "index": 26
+      },
+      {
+        "fullSentence": "코난과 숏박스처럼 악을 악으로만 밀어붙이지 않고, 그 뾰족한 모서리조차 사연으로 감싸 안는 이야기들이 유난히 오래 마음에 남는 것은",
+        "index": 27
+      },
+      {
+        "fullSentence": "서툰 선함마저 계산 없이 놓아두는 그 다정한 세계가, 냉정한 현실을 살아가는 나에게는 역설적인 위로가 된다",
+        "index": 28
+      },
+      {
+        "fullSentence": "Assisted by Gemini",
+        "index": 29
+      }
+    ]
+  },
+  "4": {
+    "title": "나무에 대한 평가",
+    "link": "https://velog.io/@uiwwsw/%EB%82%98%EB%AC%B4%EC%97%90-%EB%8C%80%ED%95%9C-%ED%8F%89%EA%B0%80",
+    "sentences": [
+      {
+        "fullSentence": "사람들은 숲을 바라보며 흔히 나무가 얼마나 높이 솟았는지를 이야기합니다",
+        "index": 0
+      },
+      {
+        "fullSentence": "특히 한국처럼 역동적인 사회에서 나무를 향한 시선은 유독 수직적입니다",
+        "index": 1
+      },
+      {
+        "fullSentence": "얼마나 곧게 뻗었는지, 끝이 어디까지 닿았는지",
+        "index": 2
+      },
+      {
+        "fullSentence": "물론 높은 나무를 우러러보는 감정 자체가 특별한 것은 아닙니다",
+        "index": 3
+      },
+      {
+        "fullSentence": "크고 웅장한 것에 감탄하는 마음은 누구에게나 자연스럽게 생기니까요",
+        "index": 4
+      },
+      {
+        "fullSentence": "다만 그 시선에 조금 다른 여백이 더해질 수는 있습니다",
+        "index": 5
+      },
+      {
+        "fullSentence": "나무가 비록 높지는 않아도 줄기가 얼마나 단단한지, 가지가 어떤 각도로 휘어져 그늘을 만드는지, 바닥에 떨어진 잎들이 어떤 색의 풍경을 이루는지",
+        "index": 6
+      },
+      {
+        "fullSentence": "그런 ‘다름’을 굳이 평가하지 않고, 하나의 풍경으로 받아들이는 태도 말입니다",
+        "index": 7
+      },
+      {
+        "fullSentence": "하지만 한국의 풍경 안에서는 그런 여유를 찾기 어렵습니다",
+        "index": 8
+      },
+      {
+        "fullSentence": "마치 모든 나무가 1등이 되기 위해 하늘로만 치솟아야 하는 경주에 내몰린 듯합니다",
+        "index": 9
+      },
+      {
+        "fullSentence": "줄기가 굵어도 높이가 낮으면 외면받고, 각도가 독특해도 곧지 않으면 교정의 대상이 됩니다",
+        "index": 10
+      },
+      {
+        "fullSentence": "아름다움이 스펙트럼이 아니라 서열이 되어버린 사회에서, 나무들은 얼마나 숨이 가쁠까요",
+        "index": 11
+      },
+      {
+        "fullSentence": "그럼에도 요즘 미디어를 통해 마주하는 10대들의 모습에서는 조심스러운 희망이 보입니다",
+        "index": 12
+      },
+      {
+        "fullSentence": "그들은 더 이상 어른들이 정해놓은 ‘높이’에만 매달리지 않습니다",
+        "index": 13
+      },
+      {
+        "fullSentence": "누구는 아주 낮은 자리에서 자신만의 색으로 꽃을 피우고, 누구는 남들이 가지 않는 비스듬한 방향으로 가지를 뻗으며 그것을 ‘나다운 멋’이라 말합니다",
+        "index": 14
+      },
+      {
+        "fullSentence": "숲이 아름다운 이유는 모든 나무의 높이가 같아서가 아니라, 서로 다른 각도로 어우러져 있기 때문이라는 사실을요",
+        "index": 15
+      },
+      {
+        "fullSentence": "이제 우리도 나무를 향해 들고 있던 자를 내려놓아야 하지 않을까요",
+        "index": 16
+      },
+      {
+        "fullSentence": "높이를 재는 일보다 더 중요한 것은, 그 나무가 가진 고유한 결을 가만히 바라보는 일일지도 모릅니다",
+        "index": 17
+      },
+      {
+        "fullSentence": "Assisted by Gemini",
+        "index": 18
+      }
+    ]
+  },
+  "5": {
+    "title": "어른이",
+    "link": "https://velog.io/@uiwwsw/%EC%96%B4%EB%A5%B8%EC%9D%B4",
+    "sentences": [
+      {
+        "fullSentence": "숨기는 법을 배우는 것, 그리고 어린아이의 얼굴 우리는 정말로 ‘성장’하고 있는 것일까",
+        "index": 0
+      },
+      {
+        "fullSentence": "나이를 먹을수록 키가 자라거나 지혜가 깊어지는 것이 아니라, 그저 ‘숨기는 기술’이 정교해지는 것은 아닐까 하는 의구심이 들 때가 있다",
+        "index": 1
+      },
+      {
+        "fullSentence": "어른이 된다는 것은 본능의 민낯을 가리는 법을 배우는 과정이다",
+        "index": 2
+      },
+      {
+        "fullSentence": "모르는 것을 아는 척하고, 아픈 것을 아닌 척하며, 탐나는 것을 무관심한 척 흘려보낸다",
+        "index": 3
+      },
+      {
+        "fullSentence": "본능이 이끄는 대로 소리치거나 울음을 터뜨리는 아이의 모습에서 멀어질수록 사회는 우리에게 ‘어른스럽다’는 칭호를 부여한다",
+        "index": 4
+      },
+      {
+        "fullSentence": "하지만 참는 것에는 반드시 대가가 따른다",
+        "index": 5
+      },
+      {
+        "fullSentence": "인간의 마음속에는 지독하리만큼 공평한 저울이 하나 놓여 있어서, 억누른 만큼의 보상을 요구하게 마련이다",
+        "index": 6
+      },
+      {
+        "fullSentence": "그것은 서류 가방을 든 중년의 신사나, 일터에서 완벽을 기하는 동료의 마음속에도 여전히 살아있는 ‘어린아이의 얼굴’이다",
+        "index": 7
+      },
+      {
+        "fullSentence": "인정받고 싶은 본능이라는 이름의 구원 세상에 칭찬 앞에 장사 있는 사람은 없다",
+        "index": 8
+      },
+      {
+        "fullSentence": "아무리 높은 자리에 오르고 대단한 업적을 이룬 사람일지라도, 그 기저에는 타인의 인정이라는 따뜻한 온기를 갈구하는 본능이 숨 쉬고 있다",
+        "index": 9
+      },
+      {
+        "fullSentence": "회의실에서 고함을 치는 상무님은, 어쩌면 자신의 논리가 빈약하다는 것을 누구보다 잘 알기에 공격성이라는 가면을 빌려서라도 자신의 존재감을 인정받고 싶은 것일지 모른다",
+        "index": 10
+      },
+      {
+        "fullSentence": "자랑을 늘어놓는 친구는, 사실 자신의 일상이 얼마나 위태로운지 들키고 싶지 않아 필사적으로 ‘괜찮은 사람’으로 보이고 싶어 하는 것일 뿐이다",
+        "index": 11
+      },
+      {
+        "fullSentence": "그들의 날 선 행동들은 결국 “나를 좀 봐줘, 나를 좀 가치 있게 여겨줘”라는 서툰 외침의 다른 표현들이다",
+        "index": 12
+      },
+      {
+        "fullSentence": "우리가 서로에게 줄 수 있는 가장 값비싼 선물 어른들의 세계에서 진정한 통찰력이란, 상대의 무장한 껍데기 아래 숨겨진 그 어린아이를 발견해내는 힘이다",
+        "index": 13
+      },
+      {
+        "fullSentence": "내가 타인에게 건네는 따뜻한 대화나 진심 어린 인정은 결코 값싼 동정이 아니다",
+        "index": 14
+      },
+      {
+        "fullSentence": "그것은 상대가 평생을 바쳐 ‘숨기느라 고생했던’ 그 본능의 갈증을 해소해 주는, 세상에서 가장 귀한 처방전이다",
+        "index": 15
+      },
+      {
+        "fullSentence": "결국 우리는 모두 숨바꼭질을 하는 아이들이다",
+        "index": 16
+      },
+      {
+        "fullSentence": "들키고 싶지 않아 꽁꽁 숨어있으면서도, 누군가 기어이 나를 찾아내어 “고생했어, 네가 여기 있는 걸 알아”라고 말해주길 기다리는 존재들",
+        "index": 17
+      },
+      {
+        "fullSentence": "오늘도 ‘어른’이라는 연극을 무사히 마친 당신에게, 그리고 내 곁의 사람들에게 슬쩍 건네고 싶다",
+        "index": 18
+      },
+      {
+        "fullSentence": "그동안 참느라 고생했다고",
+        "index": 19
+      },
+      {
+        "fullSentence": "당신은 충분히 애쓰고 있는 사람이라고",
+        "index": 20
+      },
+      {
+        "fullSentence": "Assisted by Gemini",
+        "index": 21
+      }
+    ]
+  },
+  "6": {
+    "title": "소개팅",
+    "link": "https://velog.io/@uiwwsw/%EC%86%8C%EA%B0%9C%ED%8C%85",
+    "sentences": [
+      {
+        "fullSentence": "공기 중에 부유하는 수만 가지의 감정들은 나와 당신 사이에서 간을 본다",
+        "index": 0
+      },
+      {
+        "fullSentence": "비슷한 감정들은 짝을 이루고 있다가 건네는 말에 갔다 대답에 왔다를 반복한다",
+        "index": 1
+      },
+      {
+        "fullSentence": "누군가는 흘려버릴 그 공기를 누군가는 받아들이고 감정을 담아 내뱉는다",
+        "index": 2
+      },
+      {
+        "fullSentence": "무취 무색이던 것은 무언가로 뒤덮여 제법 그럴싸해 보일 때쯤, 허락된 시간은 끝이 난다",
+        "index": 3
+      },
+      {
+        "fullSentence": "분명 아무것도 원하지 않았는데",
+        "index": 4
+      },
+      {
+        "fullSentence": "허무함은 기대만큼 크단 말이 무색했다",
+        "index": 5
+      }
+    ]
+  },
+  "7": {
+    "title": "관계의 증명",
+    "link": "https://velog.io/@uiwwsw/%EA%B4%80%EA%B3%84%EC%9D%98-%EC%A6%9D%EB%AA%85",
+    "sentences": [
+      {
+        "fullSentence": "사람 관계에선 언제나 문제가 생길 수 있다",
+        "index": 0
+      },
+      {
+        "fullSentence": "그런데 문제를 해결할 노력을 하지 않는다면 딱 그 정도의, 문제의 난이도만큼의 사이였음을 증명하는 꼴이 된다",
+        "index": 1
+      }
+    ]
+  },
+  "8": {
+    "title": "열 수 있는 자물쇠",
+    "link": "https://velog.io/@uiwwsw/%EC%9D%B4%EC%9C%A0",
+    "sentences": [
+      {
+        "fullSentence": "아무도 볼 수 없는 곳, 그러니까 자물쇠를 채운 책상 서랍",
+        "index": 0
+      }
+    ]
+  },
+  "9": {
+    "title": "기울어가는 것",
+    "link": "https://velog.io/@uiwwsw/%EA%B8%B0%EC%9A%B8%EC%96%B4%EA%B0%80%EB%8A%94-%EA%B2%83",
+    "sentences": [
+      {
+        "fullSentence": "기울어가는 것을 들여다보는 일은, 어쩐지 잘 짜인 연극 한 편을 보는 기분이 든다",
+        "index": 0
+      },
+      {
+        "fullSentence": "객석의 사람들은 이미 ‘몰락’이라는 결말을 예감하고 고개를 끄덕이는데, 무대 위 남겨진 몇몇만이 무너지는 기둥을 어깨로 받치며 안간힘을 쓴다",
+        "index": 1
+      },
+      {
+        "fullSentence": "누군가는 진즉 마음을 비웠고, 누군가는 끝까지 땀을 흘린다",
+        "index": 2
+      },
+      {
+        "fullSentence": "그런데 묘한 일이다",
+        "index": 3
+      },
+      {
+        "fullSentence": "차라리 바닥을 쳐야 다시 일어설 텐데, 쓰러지지도 꼿꼿이 서지도 못한 채 그저 위태롭게 버티고만 있으니까",
+        "index": 4
+      },
+      {
+        "fullSentence": "어쩌면 그 필사적인 지탱은 구원이 아니라, 가장 어중간한 상태를 유지하려는 미련일지도 모른다",
+        "index": 5
+      },
+      {
+        "fullSentence": "제3자의 입장에서 그 멈춰버린 시간을 지켜보자니 문득 의문이 든다",
+        "index": 6
+      },
+      {
+        "fullSentence": "무너지는 것을 억지로 붙잡아두는 것이, 정말 무언가를 지키는 일이긴 한 걸까",
+        "index": 7
+      },
+      {
+        "fullSentence": "한참을 바라보다 보면, 그제야 비로소 보이는 것들이 있다",
+        "index": 8
+      },
+      {
+        "fullSentence": "버티는 힘 때문에 외려 깊어지는 벽지의 균열이나, 기둥을 꽉 쥔 손끝의 위태로운 떨림 같은 것들",
+        "index": 9
+      },
+      {
+        "fullSentence": "비뚤어진 것은 저들일까, 아니면 애초에 기울어져 있던 이 세상일까",
+        "index": 10
+      }
+    ]
+  },
+  "10": {
+    "title": "사랑의 끝은 썩 아름답지 못하다.",
+    "link": "https://velog.io/@uiwwsw/%EC%82%AC%EB%9E%91%EC%9D%98-%EB%81%9D%EC%9D%80-%EC%8D%A9-%EC%95%84%EB%A6%84%EB%8B%B5%EC%A7%80-%EB%AA%BB%ED%95%98%EB%8B%A4",
+    "sentences": [
+      {
+        "fullSentence": "사랑의 끝은 썩 아름답지 못하다",
+        "index": 0
+      },
+      {
+        "fullSentence": "아마도 함께 준비할 수 없기 때문인 것 같다",
+        "index": 1
+      },
+      {
+        "fullSentence": "사랑이 끝날때가 다가오면 한쪽은 어렴풋이 알아차리고 준비를 시작하는데, 똑같은 타이밍을 나머지 한쪽에선 눈치채지 못한다",
+        "index": 2
+      },
+      {
+        "fullSentence": "아무런 준비도 할 수 없다",
+        "index": 3
+      },
+      {
+        "fullSentence": "주도하는 쪽은 그렇게 천천히 이별을 준비하며 딱 알맞을때 헤어짐을 수면위로 꺼내드는데, 반대편은 말 그대로 날벼락인 셈이다",
+        "index": 4
+      },
+      {
+        "fullSentence": "사랑은 아름답지 않다",
+        "index": 5
+      },
+      {
+        "fullSentence": "그런데 헤어짐은 더하다",
+        "index": 6
+      }
+    ]
+  },
+  "11": {
+    "title": "\"지도 앱 켰다가 뇌 터질 뻔해서 직접 만들었습니다\" (feat. UI만 5번 엎은 썰)",
+    "link": "https://velog.io/@uiwwsw/%EC%A7%80%EB%8F%84-%EC%95%B1-%EC%BC%B0%EB%8B%A4%EA%B0%80-%EB%87%8C-%ED%84%B0%EC%A7%88-%EB%BB%94%ED%95%B4%EC%84%9C-%EC%A7%81%EC%A0%91-%EB%A7%8C%EB%93%A4%EC%97%88%EC%8A%B5%EB%8B%88%EB%8B%A4-feat.-UI%EB%A7%8C-5%EB%B2%88-%EC%97%8E%EC%9D%80-%EC%8D%B0",
+    "sentences": [
+      {
+        "fullSentence": "부제: 다중 장소 검색 서비스 '머랭트립' 개발기 0",
+        "index": 0
+      },
+      {
+        "fullSentence": "들어가며: \"거기 근처에 뭐 있어",
+        "index": 1
+      },
+      {
+        "fullSentence": "맘에 드는 곳 위치를 눈대중으로 익힌다",
+        "index": 2
+      },
+      {
+        "fullSentence": "아까 그 햄버거 집이 어디였지",
+        "index": 3
+      },
+      {
+        "fullSentence": "머릿속으로 지도를 겹쳐본다",
+        "index": 4
+      },
+      {
+        "fullSentence": "중간에 약속 장소가 바뀌기라도 하면",
+        "index": 5
+      },
+      {
+        "fullSentence": "문제 해결: 인간의 기억력에 의존하지 말자 기존 지도 앱들은 'A에서 B로 가는 길'은 잘 알려주지만, 'A 주변의 B와 C를 동시에 탐색'하는 데에는 불친절했습니다",
+        "index": 6
+      },
+      {
+        "fullSentence": "제가 원한 건 명확했습니다",
+        "index": 7
+      },
+      {
+        "fullSentence": "중심점(Anchor)을 잡고, 내가 원하는 여러 카테고리(햄버거, 카페 등)를 한 화면에서 보고 싶다",
+        "index": 8
+      },
+      {
+        "fullSentence": "그래서 만들었습니다",
+        "index": 9
+      },
+      {
+        "fullSentence": "여러 곳을 한 번에 찾는 앱, 머랭트립입니다",
+        "index": 10
+      },
+      {
+        "fullSentence": "개발 과정: 쉬워 보이죠",
+        "index": 11
+      },
+      {
+        "fullSentence": "UI만 5번 바꿨습니다",
+        "index": 12
+      },
+      {
+        "fullSentence": "아이디어는 심플했지만, 그걸 구현하는 과정은 결코 심플하지 않았습니다",
+        "index": 13
+      },
+      {
+        "fullSentence": "사용자가 \"직관적\"으로 느끼게 하는 게 가장 어려운 기술이더군요",
+        "index": 14
+      },
+      {
+        "fullSentence": "하지만 테스트를 해보니 오히려 사용자가 원하는 자유도를 해치더군요",
+        "index": 15
+      },
+      {
+        "fullSentence": "과감히 덜어냈습니다",
+        "index": 16
+      },
+      {
+        "fullSentence": "기술적 화려함보다 사용자의 목적 달성이 우선이니까요",
+        "index": 17
+      },
+      {
+        "fullSentence": "하지만 API가 주는 날것의 데이터를 그대로 보여주니 사용성은 엉망이었습니다",
+        "index": 18
+      },
+      {
+        "fullSentence": "API를 우리 앱의 문맥에 맞게 재해석(Re-interpret)해야 했습니다",
+        "index": 19
+      },
+      {
+        "fullSentence": "데이터를 가공하고, 보여주는 방식을 다듬었습니다",
+        "index": 20
+      },
+      {
+        "fullSentence": "버튼 위치 1px, 검색창의 인터랙션 하나가 사용자의 \"아 편하다\"와 \"아 뭐지",
+        "index": 21
+      },
+      {
+        "fullSentence": "머랭트립 사용법: 딱 3단계 그 수많은 시행착오 끝에, 아주 심플한 플로우를 완성했습니다",
+        "index": 22
+      },
+      {
+        "fullSentence": "검색: 기준이 될 장소를 검색합니다",
+        "index": 23
+      },
+      {
+        "fullSentence": "키워드: 그 근처에서 찾고 싶은 키워드를 입력합니다",
+        "index": 24
+      },
+      {
+        "fullSentence": "이제 서울역을 중심으로 내가 원하는 햄버거집과 카페가 지도 위에 동시에 뜹니다",
+        "index": 25
+      },
+      {
+        "fullSentence": "마치며: 일단 한번 써보시라니까요 개발자로서 가장 뿌듯한 순간은 내가 만든 도구가 실제로 누군가의 불편함을 해소해 줄 때입니다",
+        "index": 26
+      },
+      {
+        "fullSentence": "약속 장소 정할 때마다 지도 앱 켰다 껐다 하며 스트레스받으셨던 분들, 이제 머랭트립으로 뇌 용량을 아끼세요",
+        "index": 27
+      },
+      {
+        "fullSentence": "여러분의 피드백은 언제나 환영입니다",
+        "index": 28
+      },
+      {
+        "fullSentence": "살살 부탁드려요 🥲) 5",
+        "index": 29
+      },
+      {
+        "fullSentence": "다운로드 링크 Android (구글 플레이스토어) 👉 머랭트립 다운로드 바로가기 iOS (애플 앱스토어) 👉 머랭트립 다운로드 바로가기 Assisted by chatgpt",
+        "index": 30
+      }
+    ]
+  },
+  "12": {
+    "title": "익선동의 경계, 종로3가역",
+    "link": "https://velog.io/@uiwwsw/%EC%9D%B5%EC%84%A0%EB%8F%99%EC%9D%98-%EA%B2%BD%EA%B3%84-%EC%A2%85%EB%A1%9C3%EA%B0%80%EC%97%AD",
+    "sentences": [
+      {
+        "fullSentence": "익선동은 독특하게도 종로3가역을 기점으로 그 풍경과 주 이용층이 극명하게 나뉜다",
+        "index": 0
+      },
+      {
+        "fullSentence": "역을 벗어나 힙하고 세련되게 변모한 익선동 한옥 거리 쪽은 발 디딜 틈 없이 젊은이들의 활기로 가득 차 있다",
+        "index": 1
+      },
+      {
+        "fullSentence": "화려한 외관과 트렌디한 감각으로 무장한 카페와 식당들이 그들을 유혹한다",
+        "index": 2
+      },
+      {
+        "fullSentence": "하지만 그 번잡함을 뒤로하고 불과 3분 정도만 걸어 나가면, 분위기는 완전히 달라진다",
+        "index": 3
+      },
+      {
+        "fullSentence": "이곳은 화려함 대신 삶의 실속을 갖춘 공간들로 채워져 있다",
+        "index": 4
+      },
+      {
+        "fullSentence": "소박하지만 알찬 가게들 사이로 어르신들의 느긋한 일상이 자리한다",
+        "index": 5
+      },
+      {
+        "fullSentence": "이들은 '예쁘다'고 할 수는 없지만, 긴 세월의 흔적과 실용적인 가치를 담고 있다",
+        "index": 6
+      },
+      {
+        "fullSentence": "나는 정확히 그 종로3가역 근처, 경계에 서 있는 기분이다",
+        "index": 7
+      },
+      {
+        "fullSentence": "트렌드를 좇는 젊음의 에너지와 삶의 깊이를 아는 연륜의 공간이 교차하는 지점",
+        "index": 8
+      },
+      {
+        "fullSentence": "어느 한쪽으로 휩쓸리지 않고, 이 두 세계를 모두 지켜볼 수 있는 그 미묘한 접점이 바로 나다",
+        "index": 9
+      }
+    ]
+  },
+  "13": {
+    "title": "보이지 않는 선",
+    "link": "https://velog.io/@uiwwsw/%EB%B3%B4%EC%9D%B4%EC%A7%80-%EC%95%8A%EB%8A%94-%EC%84%A0",
+    "sentences": [
+      {
+        "fullSentence": "어떤 사람에게는 타인을 인식하는 감각이 비어 있다",
+        "index": 0
+      },
+      {
+        "fullSentence": "예의의 문제가 아니라, 타인의 영역을 읽어내는 능력 자체가 자라지 않은 경우다",
+        "index": 1
+      },
+      {
+        "fullSentence": "이런 사람은 어느 사회에나 있지만, 최근 한국에서는 그 결핍이 유난히 뚜렷하게 드러나는 순간들이 많아졌다",
+        "index": 2
+      },
+      {
+        "fullSentence": "성과와 속도를 최우선 가치로 삼아온 사회에서 타인을 고려하는 감각은 가장 먼저 뒤로 밀려났기 때문일 것이다",
+        "index": 3
+      },
+      {
+        "fullSentence": "시민의식이 높은 나라에 가보면 풍경이 사뭇 다르다",
+        "index": 4
+      },
+      {
+        "fullSentence": "지하철에서, 카페에서, 길 위에서조차 사람들은 서로의 보이지 않는 원을 거의 정확하게 계산한다",
+        "index": 5
+      },
+      {
+        "fullSentence": "누가 먼저 지나가야 하는지, 어디에서 멈춰야 하는지, 그 미세한 눈치가 사회 전체의 바탕처럼 조용히 작동한다",
+        "index": 6
+      },
+      {
+        "fullSentence": "잠시 얼굴을 바라보며 입 모양으로 건네는 하이, 짧은 스미마셍, 눈으로 대신하는 작은 사과의 제스처",
+        "index": 7
+      },
+      {
+        "fullSentence": "그건 단순한 매너가 아니다",
+        "index": 8
+      },
+      {
+        "fullSentence": "필요해서 네 영역을 잠시 지나간다",
+        "index": 9
+      },
+      {
+        "fullSentence": "강아지에게 다가갔다가 으르렁 소리가 들리면 멈추듯, 타인의 영역을 인정하는 감각이 몸에 배어 있다는 증거이기도 하다",
+        "index": 10
+      },
+      {
+        "fullSentence": "그러나 한국의 많은 공간에서는 그 신호 자체가 생략된다",
+        "index": 11
+      },
+      {
+        "fullSentence": "누가 앞에 있든 없든 그저 들어오고, 끼어들고, 스쳐 지나간다",
+        "index": 12
+      },
+      {
+        "fullSentence": "침범이라는 감각도, 미안함을 표시하는 습관도 없다",
+        "index": 13
+      },
+      {
+        "fullSentence": "마치 주변이 투명한 배경처럼 존재할 뿐이다",
+        "index": 14
+      },
+      {
+        "fullSentence": "노키즈존이 어떤 사람들에게는 유난히 편안하게 느껴지는 이유도 여기에 가깝다",
+        "index": 15
+      },
+      {
+        "fullSentence": "아이 자체가 시끄러워서만은 아니다",
+        "index": 16
+      },
+      {
+        "fullSentence": "문제는 부모가 아이에게 “주변에 다른 사람이 있다”는 가장 기본적인 감각을 제대로 가르치지 않는 데 있다",
+        "index": 17
+      },
+      {
+        "fullSentence": "아이들이 가게로 들어오는 순간 공간이 크게 출렁거려도 부모는 그 변화를 거의 인식하지 못한다",
+        "index": 18
+      },
+      {
+        "fullSentence": "눈이 꺼지고, 오직 자기 가족의 기쁨만이 세계의 중심이 되는 순간",
+        "index": 19
+      },
+      {
+        "fullSentence": "그렇게 자란 아이는 결국 타인을 바라보는 감각 없이 성인이 된다",
+        "index": 20
+      },
+      {
+        "fullSentence": "타인의 영역을 본 적도, 그 영역을 넘을 때 신호를 보내야 한다는 사실을 배운 적도 없다",
+        "index": 21
+      },
+      {
+        "fullSentence": "어디까지가 상대의 거리인지, 언제 잠시 멈춰야 하는지조차 감지하지 못한 채, 세상을 자기 방처럼 대하게 된다",
+        "index": 22
+      },
+      {
+        "fullSentence": "문을 열고 나왔지만, 마음은 여전히 그 방 안에 머무르는 셈이다",
+        "index": 23
+      },
+      {
+        "fullSentence": "자라온 환경이 다르듯, 타인을 감각하는 정도도 사람마다 다르다",
+        "index": 24
+      },
+      {
+        "fullSentence": "다만 이 결핍은 대체로 타인을 보는 해상도가 낮아진 채 성장한 결과와 닮아 있다",
+        "index": 25
+      },
+      {
+        "fullSentence": "세계가 지나치게 자기 중심의 흐름으로만 보이는 시간이 길어질수록, 그 흐름이 어느 순간 하나의 성격이자 습관이 되어버린다",
+        "index": 26
+      },
+      {
+        "fullSentence": "사람이 타인을 인식하는 감각을 갖는다는 것은 규칙 몇 개를 외우는 일과는 다르다",
+        "index": 27
+      },
+      {
+        "fullSentence": "그건 말보다 앞서, 자신의 행동이 누군가에게 어떻게 닿는지를 작게라도 몸으로 체감하는 순간에 조금씩 자라난다",
+        "index": 28
+      },
+      {
+        "fullSentence": "그래서 주변을 읽지 못하고 자란 사람이라고 해서 영영 배우지 못하는 것도 아니다",
+        "index": 29
+      },
+      {
+        "fullSentence": "다만 그들에게 필요한 것은 절차나 매뉴얼이 아니라, 이 공간에 ‘나와 너’가 함께 존재한다는 사실을 처음부터 천천히 깨닫게 해주는 경험이다",
+        "index": 30
+      },
+      {
+        "fullSentence": "사람은 오래된 흐름 속에서 쉽게 굳어지는 법이니까",
+        "index": 31
+      },
+      {
+        "fullSentence": "그러나 단 한 번이라도 타인을 제대로 바라본 순간, 그때부터 보이지 않던 선이 조금씩 윤곽을 드러내기 시작한다",
+        "index": 32
+      },
+      {
+        "fullSentence": "늦었더라도, 그 선을 이제부터라도 배워야 하는 사람들이 있다",
+        "index": 33
+      }
+    ]
+  },
+  "14": {
+    "title": "봉사 토끼",
+    "link": "https://velog.io/@uiwwsw/%EB%B4%89%EC%82%AC-%ED%86%A0%EB%81%BC",
+    "sentences": [
+      {
+        "fullSentence": "시력을 잃은 어느 토끼는 무리와 잘 어울리지 못했다",
+        "index": 0
+      },
+      {
+        "fullSentence": "토끼에게 시력은 그리 결정적인 능력이 아니다",
+        "index": 1
+      },
+      {
+        "fullSentence": "맹수처럼 먹이를 사냥하는 것도 아니고, 실제로 토끼의 시력 자체도 뛰어난 편은 아니라고 한다",
+        "index": 2
+      },
+      {
+        "fullSentence": "그럼에도 그 토끼는 점점 무리에서 밀려났다",
+        "index": 3
+      },
+      {
+        "fullSentence": "함께 풀을 뜯어야 할 자리에서, 그 토끼는 보지 못한 채 녹색 풀들을 밟아버렸기 때문이다",
+        "index": 4
+      },
+      {
+        "fullSentence": "다른 토끼들은 알고 있었다",
+        "index": 5
+      },
+      {
+        "fullSentence": "무리 지어 산다는 것은 단순히 함께 있다는 뜻이 아니라, 서로의 생존 조건을 살핀다는 의미라는 것을",
+        "index": 6
+      },
+      {
+        "fullSentence": "결국 그 토끼는 서서히 외면받았고, 끝내 무리에서 사라졌다",
+        "index": 7
+      },
+      {
+        "fullSentence": "개인주의와 이기주의는 종종 같은 얼굴로 오해받는다",
+        "index": 8
+      },
+      {
+        "fullSentence": "그러나 이 둘을 가르는 결정적인 차이는 분명하다",
+        "index": 9
+      },
+      {
+        "fullSentence": "타인을 어떻게 대하느냐, 더 정확히 말하면 타인에게 가해질 수 있는 피해를 얼마나 의식하느냐에 있다",
+        "index": 10
+      },
+      {
+        "fullSentence": "요즘 흔히 이런 말을 듣는다",
+        "index": 11
+      },
+      {
+        "fullSentence": "그러니까 너도 나 신경 쓰지 마",
+        "index": 12
+      },
+      {
+        "fullSentence": "하지만 조금만 들여다보면, 관계를 회피하기 위한 방어에 가까운 경우가 많다",
+        "index": 13
+      },
+      {
+        "fullSentence": "무관심을 ‘무해함’으로 치환하고, 거리 두기를 개인주의라는 이름으로 정당화하는 방식이다",
+        "index": 14
+      },
+      {
+        "fullSentence": "타인과 섞이지 않겠다는 선택이 곧 책임에서 벗어나는 선언처럼 사용된다",
+        "index": 15
+      },
+      {
+        "fullSentence": "타인에게 피해를 주지 않는다는 것은, 눈을 감고 귀를 막는다고 저절로 이루어지는 상태가 아니기 때문이다",
+        "index": 16
+      },
+      {
+        "fullSentence": "누군가에게 피해를 주지 않으려면, 그 사람에게 일정한 집중과 주의를 기울여야 한다",
+        "index": 17
+      },
+      {
+        "fullSentence": "무엇을 불편해하는지, 어떤 선을 넘으면 침범이 되는지, 나의 무심함이 어디까지 영향을 미치는지를 알아야만 비로소 ‘건드리지 않음’이 가능해진다",
+        "index": 18
+      },
+      {
+        "fullSentence": "존중은 무관심의 결과가 아니라, 관찰의 결과다",
+        "index": 19
+      },
+      {
+        "fullSentence": "만원 지하철을 떠올려보자",
+        "index": 20
+      },
+      {
+        "fullSentence": "남의 발을 밟지 않으려면 내 발만 보고 있어서는 안 된다",
+        "index": 21
+      },
+      {
+        "fullSentence": "주변 사람들의 위치를 계속 살피고, 미세하게 몸을 조정해야 한다",
+        "index": 22
+      },
+      {
+        "fullSentence": "눈을 감은 채 서 있는 사람은 결국 누군가의 발을 밟게 된다",
+        "index": 23
+      },
+      {
+        "fullSentence": "그리고 이렇게 말한다",
+        "index": 24
+      },
+      {
+        "fullSentence": "관심이 제거된 관계에서는 배려가 성립할 수 없다",
+        "index": 25
+      },
+      {
+        "fullSentence": "상대가 무엇을 불쾌해하는지 모른다면, 멈출 수도 없다",
+        "index": 26
+      },
+      {
+        "fullSentence": "그래서 무관심을 태도로 삼을수록, 사람은 의도치 않게 무례해진다",
+        "index": 27
+      },
+      {
+        "fullSentence": "악의는 없었을지 몰라도, 무지는 언제나 상처를 남긴다",
+        "index": 28
+      },
+      {
+        "fullSentence": "그것은 개인주의라기보다, 타인을 이해하려는 최소한의 노력조차 유예한 상태에 가깝다",
+        "index": 29
+      },
+      {
+        "fullSentence": "진정한 개인주의는 타인을 밀어내는 태도가 아니다",
+        "index": 30
+      },
+      {
+        "fullSentence": "오히려 타인의 세계를 침범하지 않기 위해, 스스로의 경계를 끊임없이 점검하는 자세에 가깝다",
+        "index": 31
+      },
+      {
+        "fullSentence": "앞서의 토끼가 무리에서 밀려난 이유도 다르지 않다",
+        "index": 32
+      },
+      {
+        "fullSentence": "함께 살아간다는 것은, 서로의 발밑을 살피는 일이다",
+        "index": 33
+      },
+      {
+        "fullSentence": "미래의 풀을 밟지 않기 위해, 잠시 시선을 낮추는 일이다",
+        "index": 34
+      },
+      {
+        "fullSentence": "타인에게 피해를 주지 않기 위해 필요한 것은 외면이 아니라 섬세함이다",
+        "index": 35
+      },
+      {
+        "fullSentence": "제대로 보지 않는 사람은, 결국 제대로 존중할 수 없다",
+        "index": 36
+      }
+    ]
+  },
+  "15": {
+    "title": "0.0001도의 차이, 그 고독한 궤적에 대하여",
+    "link": "https://velog.io/@uiwwsw/%ED%98%95%EC%A7%88%EC%9D%98-%EA%B5%AC",
+    "sentences": [
+      {
+        "fullSentence": "사람들은 흔히 인간이 복잡한 존재라고 말하곤 한다",
+        "index": 0
+      },
+      {
+        "fullSentence": "하지만 내 생각은 조금 다르다",
+        "index": 1
+      },
+      {
+        "fullSentence": "그것은 일종의 착시가 아닐까",
+        "index": 2
+      },
+      {
+        "fullSentence": "삶의 그 복잡다단한 소동들은 사실, 아주 단순한 ‘초기값’ 하나에서 파생된 결과물일지도 모른다",
+        "index": 3
+      },
+      {
+        "fullSentence": "우리가 태어나는 그 찰나, DNA 깊숙한 곳에 이미 생 전체를 관통할 단 하나의 형질이 새겨지는 것이다",
+        "index": 4
+      },
+      {
+        "fullSentence": "나는 그것을 ‘영혼의 각도’라고 부르기로 했다",
+        "index": 5
+      },
+      {
+        "fullSentence": "거대한 구체(球體)를 떠올려 본다",
+        "index": 6
+      },
+      {
+        "fullSentence": "우리는 모두 그 구의 중심에서 바깥을 향해 뻗어 나가는 가느다란 직선, 즉 벡터(vector)다",
+        "index": 7
+      },
+      {
+        "fullSentence": "언뜻 보면 사람들은 무리를 지어 비슷한 방향을 향해 서 있는 것처럼 보인다",
+        "index": 8
+      },
+      {
+        "fullSentence": "혈액형이나 MBTI 같은 편리한 틀로 서로를 묶으며, “우리는 참 비슷하네요”라며 안도 섞인 동질감을 나누기도 한다",
+        "index": 9
+      },
+      {
+        "fullSentence": "하지만 그것은 우리가 서로를 너무 먼 곳에서 바라봤기에 발생하는 상냥한 오류일 뿐이다",
+        "index": 10
+      },
+      {
+        "fullSentence": "001도 단위로 미세하게 쪼개어 보자",
+        "index": 11
+      },
+      {
+        "fullSentence": "그러면 비로소 명확해진다",
+        "index": 12
+      },
+      {
+        "fullSentence": "0001도의 각도로, 또 누군가는 35",
+        "index": 13
+      },
+      {
+        "fullSentence": "0002도의 각도로 나아간다",
+        "index": 14
+      },
+      {
+        "fullSentence": "시작점에서는 그 차이가 머리카락 한 올보다 얇아, 우리는 서로가 ‘같다’고 믿으며 손을 잡는다",
+        "index": 15
+      },
+      {
+        "fullSentence": "그러나 삶이라는 시간이 흐르고 궤적이 길어질수록, 그 미세했던 틈은 결코 좁혀질 수 없는 거대한 간극을 만들어낸다",
+        "index": 16
+      },
+      {
+        "fullSentence": "결국 인생이란, 태어날 때 정해진 그 고유한 각도를 따라 묵묵히 날아가는 과정이 아닐까",
+        "index": 17
+      },
+      {
+        "fullSentence": "환경이나 노력이 궤적을 조금 흔들 수는 있겠지만, 이미 발사된 각도 자체를 바꿀 수는 없다",
+        "index": 18
+      },
+      {
+        "fullSentence": "우리는 서로 비슷해 보일지언정 결코 겹쳐질 수 없다",
+        "index": 19
+      },
+      {
+        "fullSentence": "저마다의 각도를 품은 채 영원히 평행선을 긋는, 고독하고도 고유한 직선들",
+        "index": 20
+      }
+    ]
+  },
+  "16": {
+    "title": "🚀 스토리북에 버전별 컴포넌트 모으기 — 한 곳에서 깔끔하게 비교하는 법",
+    "link": "https://velog.io/@uiwwsw/%EC%8A%A4%ED%86%A0%EB%A6%AC%EB%B6%81%EC%97%90-%EB%B2%84%EC%A0%84%EB%B3%84-%EC%BB%B4%ED%8F%AC%EB%84%8C%ED%8A%B8-%EB%B3%B4%EC%97%AC%EC%A3%BC%EA%B8%B0-%EB%82%AD%EB%B9%84-%EC%97%86%EC%9D%B4-%ED%95%9C-%EA%B3%B3%EC%97%90-%EB%AA%A8%EC%9C%BC%EB%8A%94-%EB%B2%95",
+    "sentences": [
+      {
+        "fullSentence": "이전 버전 컴포넌트를 Storybook에서 바로 비교하고 싶을 때, 가장 단순한 방법은 버전마다 Storybook을 따로 빌드·배포하는 겁니다",
+        "index": 0
+      },
+      {
+        "fullSentence": "즉, 버전 개수만큼 Storybook도 늘어나는 1:1 방식이죠",
+        "index": 1
+      },
+      {
+        "fullSentence": "하지만… 배포물과 링크가 기하급수로 늘어나는 낭비가 생깁니다",
+        "index": 2
+      },
+      {
+        "fullSentence": "그래서 우리는 한 개의 Storybook 안에 버전들을 섹션처럼 쌓아두는 방식을 썼습니다",
+        "index": 3
+      },
+      {
+        "fullSentence": "핵심은 스냅샷(snapshot) 스크립트 하나로 “귀찮은 3번 단계(마이그레이션)”를 자동화하는 겁니다",
+        "index": 4
+      },
+      {
+        "fullSentence": "접근 방식 버전 상관없이 stories/head에서 마음껏 개발한다",
+        "index": 5
+      },
+      {
+        "fullSentence": "0/**로 복제되고, 내부 import가 배포된 패키지(별칭) 를 바라보도록 치환됨",
+        "index": 6
+      },
+      {
+        "fullSentence": "이렇게 하면 한 개의 Storybook 안에서 head/, v0",
+        "index": 7
+      },
+      {
+        "fullSentence": "0/ … 을 동시에 살릴 수 있습니다",
+        "index": 8
+      },
+      {
+        "fullSentence": "문제는 3번이 너무 귀찮다는 것",
+        "index": 9
+      },
+      {
+        "fullSentence": "그래서 만든 게 바로 snapshot 스크립트입니다",
+        "index": 10
+      },
+      {
+        "fullSentence": "snapshot 스크립트가 하는 일 (요약) 버전 폴더 생성 & 복제 package",
+        "index": 11
+      },
+      {
+        "fullSentence": "json의 version(예: 0",
+        "index": 12
+      },
+      {
+        "fullSentence": "0)으로 stories/v0",
+        "index": 13
+      },
+      {
+        "fullSentence": "스토리 메타와 import에 버전 명시 title: \"Button\" → title: \"v0",
+        "index": 14
+      },
+      {
+        "fullSentence": "0/Button\" 으로 자동 접두",
+        "index": 15
+      },
+      {
+        "fullSentence": "import \"@hk/weave-ui/",
+        "index": 16
+      },
+      {
+        "fullSentence": "CSS도 동일: @import \"@hk/weave-ui/globals",
+        "index": 17
+      },
+      {
+        "fullSentence": "css\" → @import \"@hk/weave-ui_v0_2_0/globals",
+        "index": 18
+      },
+      {
+        "fullSentence": "배포된 패키지(alias) 설치 @hk/weave-ui_v0_2_0@npm:@hk/weave-ui@0",
+        "index": 19
+      },
+      {
+        "fullSentence": "이렇게 만들어진 stories/v0",
+        "index": 20
+      },
+      {
+        "fullSentence": "0은 “그때 그 버전”의 UI·토큰·스타일을 현실 그대로 재현합니다",
+        "index": 21
+      },
+      {
+        "fullSentence": "실제 스크립트 (요약 설명) 복제: stories/head → stories/v{version} 치환: JS/TS/MDX: @hk/weave-ui → @hk/weave-ui_vM_...",
+        "index": 22
+      },
+      {
+        "fullSentence": "Z/ 접두 설치: alias spec으로 해당 버전의 패키지를 설치 전제: 패키지에 exports[\"",
+        "index": 23
+      },
+      {
+        "fullSentence": "css\"]가 열려 있어야 CSS 서브패스 임포트가 동작하고, sideEffects에 CSS가 포함되어 있어야 트리셰이크에서 안 날아갑니다",
+        "index": 24
+      },
+      {
+        "fullSentence": "json (발췌) \"exports\": { \"",
+        "index": 25
+      },
+      {
+        "fullSentence": "js\", \"types\": \"",
+        "index": 26
+      },
+      {
+        "fullSentence": "css\" }, \"sideEffects\": [\"",
+        "index": 27
+      },
+      {
+        "fullSentence": "css\", \"**/*",
+        "index": 28
+      },
+      {
+        "fullSentence": "css\"] Storybook 설정 팁 (prod에선 버전 폴더만) 운영(배포) Storybook에서는 버전 스냅샷(v*)만 노출하고, 로컬 개발에선 head까지 모두 보이게 하면 ...",
+        "index": 29
+      },
+      {
+        "fullSentence": "storybook/main",
+        "index": 30
+      },
+      {
+        "fullSentence": "mjs const isProd = process",
+        "index": 31
+      },
+      {
+        "fullSentence": "SB_MODE === \"prod\" || process",
+        "index": 32
+      },
+      {
+        "fullSentence": "NODE_ENV === \"production\"; const EXT = \"{mdx,js,jsx,mjs,ts,tsx}\"; export default { stories: isProd",
+        "index": 33
+      },
+      {
+        "fullSentence": "버전 릴리스 & 퍼블리시 npm version minor git tag v0",
+        "index": 34
+      },
+      {
+        "fullSentence": "version을 비교하여 npm publish 수행",
+        "index": 35
+      },
+      {
+        "fullSentence": "스냅샷 생성 npm run snapshot head → v0",
+        "index": 36
+      },
+      {
+        "fullSentence": "main 병합 & Storybook 배포 git checkout main git merge feature/add-calendar-dialog git push origin main ...",
+        "index": 37
+      },
+      {
+        "fullSentence": "MR 파이프라인 낭비 방지(선택): merge_request_event는 막고, push/tag만 돌리면 비용이 줄어듭니다",
+        "index": 38
+      },
+      {
+        "fullSentence": "workflow: rules: - if: $CI_PIPELINE_SOURCE == \"merge_request_event\" when: never - when: always 왜 이 방...",
+        "index": 39
+      },
+      {
+        "fullSentence": "정확한 재현성 스냅샷은 그 버전의 배포 패키지를 참조 → CSS 변수/테마/동작 모두 동일",
+        "index": 40
+      },
+      {
+        "fullSentence": "운영비용 최소화 Storybook 호스팅은 1개",
+        "index": 41
+      },
+      {
+        "fullSentence": "버전 추가는 npm run snapshot 1회로 끝",
+        "index": 42
+      },
+      {
+        "fullSentence": "QA/디자인 커뮤니케이션 단순화 “그때 그 버전”을 말로 설명하지 않아도 됩니다",
+        "index": 43
+      },
+      {
+        "fullSentence": "자주 겪는 이슈 & 체크리스트 CSS가 적용 안 됨 exports[\"",
+        "index": 44
+      },
+      {
+        "fullSentence": "css\"] 공개되어 있는지 sideEffects에 CSS 포함되어 있는지 Storybook 프리뷰 iframe에 CSS가 실제로 로드되는지(필요 시",
+        "index": 45
+      },
+      {
+        "fullSentence": "storybook/preview-head",
+        "index": 46
+      },
+      {
+        "fullSentence": "html에 <link> 추가) prod에서 head가 보임/안 보임",
+        "index": 47
+      },
+      {
+        "fullSentence": "storybook/main",
+        "index": 48
+      },
+      {
+        "fullSentence": "mjs의 stories 패턴을 다시 확인(위 예시처럼 분기) 버전 폴더가 많아져 사이드바 길어짐 오래된 버전 폴더를 주기적으로 정리하거나, prod에선 최신 N개만 포함하는 글롭을...",
+        "index": 49
+      },
+      {
+        "fullSentence": "우리는 코드만 버전 관리하지 않습니다",
+        "index": 50
+      },
+      {
+        "fullSentence": "UI 자체를 버전 관리합니다",
+        "index": 51
+      },
+      {
+        "fullSentence": "그리고 snapshot 스크립트 덕분에 귀찮음은 0입니다",
+        "index": 52
+      },
+      {
+        "fullSentence": "mjs import fs from \"node:fs\"; import fsp from \"node:fs/promises\"; import path from \"node:path\"; impo...",
+        "index": 53
+      },
+      {
+        "fullSentence": "url); const __dirname = path",
+        "index": 54
+      },
+      {
+        "fullSentence": "dirname(__filename); const repoRoot = path",
+        "index": 55
+      },
+      {
+        "fullSentence": "resolve(__dirname, \"",
+        "index": 56
+      },
+      {
+        "fullSentence": "join(repoRoot, \"stories\"); const log = (m) => process",
+        "index": 57
+      },
+      {
+        "fullSentence": "write(`[snapshot] ${m}\\n`); async function readJson(p) { return JSON",
+        "index": 58
+      },
+      {
+        "fullSentence": "parse(await fsp",
+        "index": 59
+      },
+      {
+        "fullSentence": "readFile(p, \"utf8\")); } async function rimraf(p) { await fsp",
+        "index": 60
+      },
+      {
+        "fullSentence": "rm(p, { recursive: true, force: true }); } async function ensureDir(p) { await fsp",
+        "index": 61
+      },
+      {
+        "fullSentence": "mkdir(p, { recursive: true }); } async function copyDir(src, dst) { await ensureDir(dst); const ents...",
+        "index": 62
+      },
+      {
+        "fullSentence": "readdir(src, { withFileTypes: true }); await Promise",
+        "index": 63
+      },
+      {
+        "fullSentence": "map(async (e) => { const s = path",
+        "index": 64
+      },
+      {
+        "fullSentence": "join(src, e",
+        "index": 65
+      },
+      {
+        "fullSentence": "name); const d = path",
+        "index": 66
+      },
+      {
+        "fullSentence": "join(dst, e",
+        "index": 67
+      },
+      {
+        "fullSentence": "name); if (e",
+        "index": 68
+      },
+      {
+        "fullSentence": "isDirectory()) { await copyDir(s, d); } else if (e",
+        "index": 69
+      },
+      {
+        "fullSentence": "isFile()) { await ensureDir(path",
+        "index": 70
+      },
+      {
+        "fullSentence": "dirname(d)); await fsp",
+        "index": 71
+      },
+      {
+        "fullSentence": "copyFile(s, d); } }) ); } function toAliasName(version) { // 0",
+        "index": 72
+      },
+      {
+        "fullSentence": "css) 포함 const re = /(['\"])@hk\\/weave-ui(\\/[^\"'`]*)",
+        "index": 73
+      },
+      {
+        "fullSentence": "replace(re, (m, q, sub = \"\") => { return `${q}@hk/weave-ui_${aliasModule}${sub}${q}`; }); } /** CSS/...",
+        "index": 74
+      },
+      {
+        "fullSentence": "replace(re, (m, q, sub = \"\") => { return `@import ${q}@hk/weave-ui_${aliasModule}${sub}${q};`; }); }...",
+        "index": 75
+      },
+      {
+        "fullSentence": "Z/something\" * - 이미 vX",
+        "index": 76
+      },
+      {
+        "fullSentence": "Z/ 로 시작하거나 head/ 로 시작하면 스킵 * - 작은따옴표/큰따옴표/백틱 모두 처리 */ function prefixStoryTitle(code, folderName) { ...",
+        "index": 77
+      },
+      {
+        "fullSentence": "replace(re, (full, pre, quote, inner) => { const t = inner",
+        "index": 78
+      },
+      {
+        "fullSentence": "trim(); if (t",
+        "index": 79
+      },
+      {
+        "fullSentence": "startsWith(`${folderName}/`) || /^head\\//i",
+        "index": 80
+      },
+      {
+        "fullSentence": "test(t)) { return full; // 이미 접두가 있으면 그대로 } return `${pre}${quote}${folderName}/${t}${quote}`; }); }...",
+        "index": 81
+      },
+      {
+        "fullSentence": "readdir(folder, { withFileTypes: true }); for (const e of ents) { const p = path",
+        "index": 82
+      },
+      {
+        "fullSentence": "join(folder, e",
+        "index": 83
+      },
+      {
+        "fullSentence": "name); if (e",
+        "index": 84
+      },
+      {
+        "fullSentence": "isDirectory()) { await rewriteImportsRecursively(p, aliasModule, folderName); } else if (e",
+        "index": 85
+      },
+      {
+        "fullSentence": "isFile() && exts",
+        "index": 86
+      },
+      {
+        "fullSentence": "name)) { const raw = await fsp",
+        "index": 87
+      },
+      {
+        "fullSentence": "readFile(p, \"utf8\"); let next = raw; if (/\\",
+        "index": 88
+      },
+      {
+        "fullSentence": "name)) { // CSS/SCSS: @import 치환만 수행 next = replaceWeaveCssAtImport(next, aliasModule); } else { // ...",
+        "index": 89
+      },
+      {
+        "fullSentence": "writeFile(p, next, \"utf8\"); log(`rewrite: ${path",
+        "index": 90
+      },
+      {
+        "fullSentence": "relative(repoRoot, p)}`); } } } } function run(cmd, args, opts = {}) { return new Promise((resolve, ...",
+        "index": 91
+      },
+      {
+        "fullSentence": "join(\" \")}`); const cp = spawn(cmd, args, { stdio: \"inherit\", shell: process",
+        "index": 92
+      },
+      {
+        "fullSentence": "platform === \"win32\",",
+        "index": 93
+      },
+      {
+        "fullSentence": "opts, }); cp",
+        "index": 94
+      },
+      {
+        "fullSentence": "on(\"exit\", (code) => { if (code === 0) resolve(); else reject(new Error(`${cmd} exited with code ${c...",
+        "index": 95
+      },
+      {
+        "fullSentence": "join(repoRoot, \"package",
+        "index": 96
+      },
+      {
+        "fullSentence": "json\")); const version = pkg",
+        "index": 97
+      },
+      {
+        "fullSentence": "version; if (",
+        "index": 98
+      },
+      {
+        "fullSentence": "version) throw new Error(\"package",
+        "index": 99
+      },
+      {
+        "fullSentence": "json version not found\"); const folderName = `v${version}`; // e",
+        "index": 100
+      },
+      {
+        "fullSentence": "v0_2_0 const aliasPkg = `@hk/weave-ui_${aliasModule}`; // e",
+        "index": 101
+      },
+      {
+        "fullSentence": "join(storiesRoot, \"head\"); const dstVer = path",
+        "index": 102
+      },
+      {
+        "fullSentence": "join(storiesRoot, folderName); // 1) stories/head 복제 → stories/v{version} if (",
+        "index": 103
+      },
+      {
+        "fullSentence": "existsSync(srcHead)) { throw new Error(`Not found: ${path",
+        "index": 104
+      },
+      {
+        "fullSentence": "relative(repoRoot, srcHead)}`); } await rimraf(dstVer); await copyDir(srcHead, dstVer); log(`copied:...",
+        "index": 105
+      },
+      {
+        "fullSentence": "catch((err) => { console",
+        "index": 106
+      },
+      {
+        "fullSentence": "error(err); process",
+        "index": 107
+      },
+      {
+        "fullSentence": "exit(1); });",
+        "index": 108
+      }
+    ]
+  },
+  "17": {
+    "title": "링크드인",
+    "link": "https://velog.io/@uiwwsw/%EB%A7%81%ED%81%AC%EB%93%9C%EC%9D%B8",
+    "sentences": [
+      {
+        "fullSentence": "몇년이 지나도 문제인건 연락이다",
+        "index": 0
+      },
+      {
+        "fullSentence": "필요할때 연락하는건 바람직하지 않다는 생각이 든 20대 어느시점에, 그래 나는 필요할때 찾지 않겠다는 다짐을 한 그 다음시점 언젠가부터 줄곧 잘도 지켜왔다",
+        "index": 1
+      },
+      {
+        "fullSentence": "그래서 지금 내 모습이 그 결과다",
+        "index": 2
+      },
+      {
+        "fullSentence": "필요할때 찾지 않았더니 연락을 아예 안하게 된것",
+        "index": 3
+      },
+      {
+        "fullSentence": "가끔씩 생각나고 궁금할때면 ”아차차 지금 연락하는건 필요할때 찾는거야“ 하고는 궁금한거 외에 뭔가 다른 이유가 생길때까지 연락을 안했다",
+        "index": 4
+      },
+      {
+        "fullSentence": "명확한, 그리고 사실이면서도 가슴이 아리는 건 상대방은 내가 궁금하지 않다는 것",
+        "index": 5
+      },
+      {
+        "fullSentence": "조금 더 성숙하게 말하면 두 궁금함 중 내 궁금함이 조금 빨랐던 것",
+        "index": 6
+      },
+      {
+        "fullSentence": "이럴땐 자존심을 버려야한다",
+        "index": 7
+      },
+      {
+        "fullSentence": "부족한걸 인정하고 연락을 하며 내가 부족하다고 알려줘야하는데 나이가 들어선 그것도 안하고 싶은 것 같다",
+        "index": 8
+      },
+      {
+        "fullSentence": "나는 sns를 안한다",
+        "index": 9
+      },
+      {
+        "fullSentence": "그것도 사람을 안 좋아한다는 가설에 조금 더 힘을 실어준다",
+        "index": 10
+      },
+      {
+        "fullSentence": "최근엔 여자친구가 인스타그램 피드를 공유해주는데 내가 보기 어려워서 그냥 인스타는 다시 가입했다",
+        "index": 11
+      },
+      {
+        "fullSentence": "그리고 이직에 도움이 될까 싶어서 링크드인은 지우진 않은 정도였는데 거기서 문득 알람이 울렸다",
+        "index": 12
+      },
+      {
+        "fullSentence": "생각해보면은 잘 울리지도 않아서 있는지도 몰랐다",
+        "index": 13
+      },
+      {
+        "fullSentence": "거기서 발견한 오랜만에 보는 이름과 프로필사진, 그리고 낯설지만 잘 지내고 있는 듯 보이는 최근 경력에 보이는 다들 알만한 회사 이름",
+        "index": 14
+      }
+    ]
+  },
+  "19": {
+    "title": "양치기소년",
+    "link": "https://velog.io/@uiwwsw/%EC%96%91%EC%B9%98%EA%B8%B0%EC%86%8C%EB%85%84",
+    "sentences": [
+      {
+        "fullSentence": "그는 어쩌면, 거짓말에 대한 교훈을 전하고자 그렇게 외쳤는지도 모른다",
+        "index": 0
+      },
+      {
+        "fullSentence": "그렇게 완성된 이야기의 교훈은 하나다",
+        "index": 1
+      },
+      {
+        "fullSentence": "거짓말은 신뢰를 무너뜨리고, 결국 누구도 믿어주지 않게 된다는 것",
+        "index": 2
+      },
+      {
+        "fullSentence": "하지만 나는 이 이야기에 회의적이었다",
+        "index": 3
+      },
+      {
+        "fullSentence": "왜냐하면, 그 이야기 속에서는 거짓말의 본질이 감춰진 채 끝나버렸기 때문이다",
+        "index": 4
+      },
+      {
+        "fullSentence": "나는 그 결말을 바꾸고 싶었다",
+        "index": 5
+      },
+      {
+        "fullSentence": "사실은, 늑대는 나타나지 않았다",
+        "index": 6
+      },
+      {
+        "fullSentence": "아니, 정확히 말하자면 — 소년이 스스로 늑대가 되어버린 것이다",
+        "index": 7
+      },
+      {
+        "fullSentence": "반복된 거짓말은 결국 타인을 속일 뿐 아니라, 자기 자신까지 속이게 만든다",
+        "index": 8
+      },
+      {
+        "fullSentence": "그가 ‘늑대가 왔다’고 외친 것은, 어느 순간부터 진짜로 늑대를 믿었기 때문이었고 끝내는 자신이 누구인지조차 모르게 되었다",
+        "index": 9
+      },
+      {
+        "fullSentence": "거짓말은 그런 것이다",
+        "index": 10
+      },
+      {
+        "fullSentence": "남을 속이는 동시에, 나를 잃게 만드는 것",
+        "index": 11
+      },
+      {
+        "fullSentence": "그렇게 사람은, 스스로 괴물이 되어간다",
+        "index": 12
+      }
+    ]
+  }
+}
