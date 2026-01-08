@@ -37,10 +37,10 @@ jobs:
           # Check if there are changes
           if [[ -n $(git status -s src/data/velog-words.json) ]]; then
             git add src/data/velog-words.json
-            git commit -m "chore: update velog words data [skip ci]"
+            git commit -m "🛠 This README is automatically updated."
             # We do NOT use [skip ci] if we want the deploy workflow to run. 
             # Removing [skip ci] so deploy parses this push.
-            git commit --amend -m "chore: update velog words data"
+            git commit --amend -m "🛠 This README is automatically updated."
             git push
           else
             echo "No changes to commit"
