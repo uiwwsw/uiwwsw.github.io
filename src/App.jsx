@@ -38,6 +38,7 @@ export default function App() {
       for (let i = startIdx; i < endIdx; i++) {
         context.push({
           text: sentences[i].fullSentence,
+          type: sentences[i].type || 'text', // Fallback to text
           isSelected: i === currentIndex
         });
       }
@@ -189,7 +190,13 @@ export default function App() {
               key={index}
               className={`detail-sentence ${sentence.isSelected ? 'selected' : ''}`}
             >
-              {sentence.text}
+              {sentence.type === 'code' ? (
+                <pre className="detail-code">
+                  <code>{sentence.text}</code>
+                </pre>
+              ) : (
+                sentence.text
+              )}
             </div>
           ))}
         </div>

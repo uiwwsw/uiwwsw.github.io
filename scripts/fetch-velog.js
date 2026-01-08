@@ -1,5 +1,4 @@
-
-import Parser from 'rss-parser';
+import { fetch } from 'undici';
 import * as cheerio from 'cheerio';
 import fs from 'fs/promises';
 import path from 'path';
@@ -7,108 +6,306 @@ import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-const RSS_URL = 'https://v2.velog.io/rss/uiwwsw';
+const GQL_URL = 'https://v2cdn.velog.io/graphql';
+const USERNAME = 'uiwwsw';
 const OUTPUT_FILE = path.join(__dirname, '../src/data/velog-words.json');
+const CONTEXT_FILE = path.join(__dirname, '../src/data/velog-context.json');
 const MAX_SENTENCES = 800;
 
 // Filter for bad/weird words
-const BAD_WORDS = new Set([
-    '보지', '자지'
-]);
+const BAD_WORD_PATTERNS = [
+    new RegExp(`${String.fromCharCode(0xBCF4)}${String.fromCharCode(0xC9C0)}`, 'g'),
+    new RegExp(`${String.fromCharCode(0xC790)}${String.fromCharCode(0xC9C0)}`, 'g'),
+    // Assisted by AI
+    /Assisted\s+by\s+AI/gi,
+];
 
-// Extract sentences from text, preserving order
-function extractSentences(text) {
-    const rawSentences = text.split(/[.!?]+/).map(s => s.trim()).filter(s => s.length > 0);
+// Helper to remove markdown syntax
+function cleanMarkdown(text) {
+    return text
+        .replace(/^[\*\-]\s+/gm, '')     // Unordered lists
+        .replace(/^\d+\.\s+/gm, '')      // Ordered lists
+        .replace(/\*\*(.*?)\*\*/g, '$1') // Bold
+        .replace(/\*(.*?)\*/g, '$1')     // Italic
+        .replace(/\[(.*?)\]\(.*?\)/g, '$1') // Links
+        .replace(/`([^`]+)`/g, '$1')     // Inline code (keep text)
+        .replace(/^#+\s+/gm, '')         // Headers
+        .replace(/!\[.*?\]\(.*?\)/g, '') // Images
+        .replace(/>\s+/gm, '')           // Blockquotes
+        .replace(/^-{3,}/gm, '');        // Horizontal rules
+}
+
+// Helper to split text into sentences respecting quotes and brackets
+function splitSentences(text) {
+    const sentences = [];
+    let buffer = '';
+    let stack = [];
+
+    const inGroup = () => stack.length > 0;
+    const peek = () => stack[stack.length - 1];
+
+    for (let i = 0; i < text.length; i++) {
+        const char = text[i];
+        const prev = text[i - 1];
+        const next = text[i + 1];
+
+        // Handle Quotes
+        if (char === '"') {
+            if (peek() === '"') stack.pop();
+            else stack.push('"');
+        }
+        else if (char === '“') stack.push('“');
+        else if (char === '”') {
+            if (peek() === '“') stack.pop();
+        }
+        else if (char === '‘') stack.push('‘');
+        else if (char === '’') {
+            if (peek() === '‘') stack.pop();
+        }
+        else if (char === "'") {
+            // Apostrophe heuristic
+            const isApostrophe = /[a-zA-Z0-9]/.test(prev || '') && /[a-zA-Z0-9]/.test(next || '');
+            if (!isApostrophe) {
+                if (peek() === "'") stack.pop();
+                else stack.push("'");
+            }
+        }
+        // Parens and Brackets
+        else if (char === '(') stack.push('(');
+        else if (char === ')') {
+            if (peek() === '(') stack.pop();
+        }
+        else if (char === '[') stack.push('[');
+        else if (char === ']') {
+            if (peek() === '[') stack.pop();
+        }
+        else if (char === '{') stack.push('{');
+        else if (char === '}') {
+            if (peek() === '{') stack.pop();
+        }
+
+        buffer += char;
+
+        // Split Condition: Punctuation + Not in Group
+        if (/[.!?]/.test(char) && !inGroup()) {
+            sentences.push(buffer.trim());
+            buffer = '';
+        }
+    }
+
+    if (buffer.trim()) {
+        sentences.push(buffer.trim());
+    }
+
+    return sentences.filter(s => s.length > 0);
+}
+
+// Extract sentences from plain text
+function extractSentencesFromText(text) {
+    const cleanedMarkdown = cleanMarkdown(text);
+    const rawSentences = splitSentences(cleanedMarkdown);
 
     const sentences = [];
 
     for (const sentence of rawSentences) {
-        if (sentence.length < 10) continue;
+        if (sentence.length < 5) continue;
 
         const trimmed = sentence.length > 100 ? sentence.substring(0, 100) + '...' : sentence;
         const words = trimmed.split(/\s+/);
         if (words.length === 0) continue;
 
-        // Filter logic:
-        // 1. Length < 2 (already there)
-        // 2. Numbers only
-        // 3. Bad words
-        // 4. Starts with special char (non-hangul, non-alpha, non-digit)
-        // 5. Incomplete Hangul (Jamo)
+        let checkWord = words[0];
+        checkWord = checkWord.replace(/^[^가-힣a-zA-Z0-9]+/, '');
 
-        const checkWord = words[0];
+        if (checkWord.length < 1 && words.length === 1) continue;
+        if (/^\d+$/.test(checkWord)) continue;
 
-        if (checkWord.length < 2 || /^\d+$/.test(checkWord)) continue;
-        if (BAD_WORDS.has(checkWord)) continue;
+        // Bad word filter using Regex
+        let isBad = false;
+        for (const pattern of BAD_WORD_PATTERNS) {
+            pattern.lastIndex = 0;
+            if (pattern.test(checkWord)) {
+                isBad = true;
+                break;
+            }
+        }
+        if (isBad) continue;
 
-        // Regex: Check if starts with valid char (Hangul syllables, Alphabet, Number)
-        // Excludes Jamo (ㄱ-ㅎ, ㅏ-ㅣ) and Special Chars
-        if (!/^[가-힣a-zA-Z0-9]/.test(checkWord)) continue;
+        // Must contain at least one valid char
+        // Note: We do NOT filter emojis here from the SENTENCE itself.
+        // We want the sentence to appear intact in detail view.
+        // WordCloud will handle dropping emojis from the floating text.
+
+        if (!/[가-힣a-zA-Z0-9]/.test(checkWord)) continue;
 
         sentences.push({
-            fullSentence: trimmed
+            fullSentence: trimmed,
+            type: 'text'
         });
     }
 
     return sentences;
 }
 
-async function fetchAndProcess() {
-    console.log(`Fetching RSS feed from ${RSS_URL}...`);
-    const parser = new Parser();
-
+// Helper: Fetch Post Body using Markdown Scraping (from Apollo State)
+async function fetchMarkdown(url) {
     try {
-        const feed = await parser.parseURL(RSS_URL);
-        console.log(`Found ${feed.items.length} items.`);
+        const res = await fetch(url, {
+            headers: {
+                'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+            }
+        });
+        if (!res.ok) throw new Error(`Failed to fetch ${url}: ${res.status}`);
+        const html = await res.text();
+        const $ = cheerio.load(html);
+
+        let body = null;
+
+        $('script').each((i, el) => {
+            const content = $(el).html();
+            if (content && content.includes('window.__APOLLO_STATE__=')) {
+                const jsonStr = content.replace('window.__APOLLO_STATE__=', '').trim();
+                try {
+                    const json = jsonStr.endsWith(';')
+                        ? JSON.parse(jsonStr.slice(0, -1))
+                        : JSON.parse(jsonStr);
+
+                    const postKey = Object.keys(json).find(k => k.startsWith('Post:') && json[k].body);
+                    if (postKey) {
+                        body = json[postKey].body;
+                    }
+                } catch (e) { }
+            }
+        });
+        return body;
+    } catch (error) {
+        console.error(`Error fetching markdown for ${url}:`, error.message);
+        return null;
+    }
+}
+
+// Helper: Fetch Posts List via GraphQL
+async function fetchAllPosts(username) {
+    const allPosts = [];
+    let cursor = null;
+    let hasNext = true;
+
+    const query = `
+        query Posts($username: String, $cursor: ID) {
+            posts(username: $username, cursor: $cursor) {
+                id
+                title
+                url_slug
+            }
+        }
+    `;
+
+    console.log(`Fetching post list for ${username}...`);
+
+    while (hasNext) {
+        try {
+            const res = await fetch(GQL_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'User-Agent': 'Mozilla/5.0'
+                },
+                body: JSON.stringify({
+                    query,
+                    variables: { username, cursor }
+                })
+            });
+            const json = await res.json();
+
+            if (json.errors) {
+                console.error("GraphQL Errors:", json.errors);
+                break;
+            }
+
+            const posts = json.data.posts;
+            if (posts.length === 0) {
+                hasNext = false;
+            } else {
+                // Add to list
+                posts.forEach(p => {
+                    allPosts.push(p);
+                });
+
+                cursor = posts[posts.length - 1].id;
+                console.log(`  Fetched ${posts.length} posts. Total: ${allPosts.length}`);
+
+                // Safety break to prevent infinite loops if API changes
+                if (allPosts.length > 1000) hasNext = false;
+            }
+        } catch (e) {
+            console.error("Error fetching posts:", e);
+            break;
+        }
+    }
+
+    return allPosts;
+}
+
+async function fetchAndProcess() {
+    try {
+        // 1. Get All Posts
+        const posts = await fetchAllPosts(USERNAME);
+        console.log(`Found ${posts.length} items total.`);
 
         let allSentences = [];
         let articleId = 0;
 
-        for (const item of feed.items) {
-            const content = item['content:encoded'] || item.content || item.description || '';
-            const $ = cheerio.load(content);
-            const text = $.text();
+        for (const item of posts) {
+            console.log(`Processing [${articleId}]: ${item.title}`);
+            const link = `https://velog.io/@${USERNAME}/${item.url_slug}`;
+            const markdown = await fetchMarkdown(link);
 
-            const cleanedText = text.replace(/\s+/g, ' ').trim();
-            const sentences = extractSentences(cleanedText);
+            let itemSentences = [];
 
-            // Add metadata: articleId, sentenceIndex within article
-            sentences.forEach((sentence, index) => {
+            if (markdown) {
+                // Split by Code Blocks
+                const parts = markdown.split(/(```[\s\S]*?```)/g);
+
+                parts.forEach(part => {
+                    const trimmed = part.trim();
+                    if (!trimmed) return;
+
+                    if (trimmed.startsWith('```')) {
+                        const content = trimmed.replace(/^```.*\n?/, '').replace(/```$/, '');
+                        if (content.trim().length > 0) {
+                            itemSentences.push({
+                                fullSentence: content.trim(),
+                                type: 'code'
+                            });
+                        }
+                    } else {
+                        const extracted = extractSentencesFromText(part);
+                        itemSentences.push(...extracted);
+                    }
+                });
+            } else {
+                console.log(`  Failed to get markdown for ${item.title}`);
+            }
+
+            itemSentences.forEach((sentence, index) => {
                 allSentences.push({
                     ...sentence,
-                    link: item.link,
+                    link,
                     title: item.title,
                     articleId: articleId,
                     sentenceIndex: index,
-                    totalInArticle: sentences.length
+                    totalInArticle: itemSentences.length
                 });
             });
 
             articleId++;
+            // Be nice to the server
+            await new Promise(r => setTimeout(r, 100));
         }
 
         console.log(`Total sentences extracted: ${allSentences.length}`);
-        console.log(`From ${articleId} articles`);
 
-        // Random shuffle but keep metadata
-        const shuffled = [...allSentences].sort(() => 0.5 - Math.random());
-        const selected = shuffled.slice(0, MAX_SENTENCES);
-
-        // Save with full metadata
-        const outputDir = path.dirname(OUTPUT_FILE);
-        await fs.mkdir(outputDir, { recursive: true });
-        await fs.writeFile(OUTPUT_FILE, JSON.stringify(selected, null, 2));
-
-        console.log(`\nSaved ${selected.length} sentences to ${OUTPUT_FILE}`);
-        console.log(`Sample sentence with context:`);
-        const sample = selected[0];
-        console.log(`  Article: "${sample.title}"`);
-        console.log(`  Sentence ${sample.sentenceIndex + 1}/${sample.totalInArticle}: "${sample.fullSentence}"`);
-
-        // Also save the FULL ordered dataset for context lookup
-        const contextFile = path.join(__dirname, '../src/data/velog-context.json');
-
-        // Group by article for easy context lookup
+        // Save Context Data
         const byArticle = {};
         allSentences.forEach(s => {
             if (!byArticle[s.articleId]) {
@@ -120,15 +317,24 @@ async function fetchAndProcess() {
             }
             byArticle[s.articleId].sentences.push({
                 fullSentence: s.fullSentence,
-                index: s.sentenceIndex
+                index: s.sentenceIndex,
+                type: s.type
             });
         });
 
-        await fs.writeFile(contextFile, JSON.stringify(byArticle, null, 2));
-        console.log(`Saved context data to ${contextFile}`);
+        await fs.writeFile(CONTEXT_FILE, JSON.stringify(byArticle, null, 2));
+        console.log(`Saved context data to ${CONTEXT_FILE}`);
+
+        // Random shuffle for WordCloud
+        const shuffled = [...allSentences].sort(() => 0.5 - Math.random());
+        // Select logic: Ensure we don't just drop everything. 
+        const selected = shuffled.slice(0, MAX_SENTENCES);
+
+        await fs.writeFile(OUTPUT_FILE, JSON.stringify(selected, null, 2));
+        console.log(`Saved ${selected.length} sentences to ${OUTPUT_FILE}`);
 
     } catch (error) {
-        console.error('Error fetching RSS:', error);
+        console.error('Error in main process:', error);
     }
 }
 

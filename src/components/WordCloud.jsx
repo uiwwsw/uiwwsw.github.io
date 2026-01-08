@@ -260,12 +260,52 @@ const WordCloud = ({ onSelectSentence, selectedSentence, contextSentences }) => 
     }, [selectedSentence, camera]);
 
     const sentences = useMemo(() => {
+        const usedWords = new Set();
+
         return sentencesData.slice(0, 490).map((s, index) => {
-            // Random word selection
-            const words = s.fullSentence.split(' ').filter(w => w.length > 0);
-            const displayText = words.length > 0
-                ? words[Math.floor(Math.random() * words.length)]
-                : s.firstWord; // Fallback
+            // Regex to filter emojis
+            const emojiRegex = /[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{1F1E0}-\u{1F1FF}\u{2700}-\u{27BF}\u{FE00}-\u{FE0F}\u{1F900}-\u{1F9FF}]/u;
+
+            // Smart Tokenizer Regex: captures quotes, parens, brackets, or standard words
+            // Priority: Strings -> Brackets/Parens (including attached text) -> Non-whitespace
+            const tokenRegex = /("[^"]*"|'[^']*'|“[^”]*”|‘[^’]*’|\S*\[[^\]]*\]\S*|\S*\([^)]*\)\S*|\S+)/g;
+
+            const rawTokens = s.fullSentence.match(tokenRegex) || [];
+
+            // Filter: 
+            // 1. Must have length > 0
+            // 2. Must NOT contain emojis
+            // 3. If has '(', must have ')'
+            // 4. If has '[', must have ']'
+            const words = rawTokens.filter(w => {
+                if (!w) return false;
+                if (emojiRegex.test(w)) return false;
+                if (w.includes('(') && !w.includes(')')) return false;
+                if (w.includes('[') && !w.includes(']')) return false;
+                return true;
+            });
+
+            // Filter words that haven't been used yet
+            const uniqueWords = words.filter(w => !usedWords.has(w));
+
+            let displayText;
+
+            if (uniqueWords.length > 0) {
+                // Pick a unique word if available
+                displayText = uniqueWords[Math.floor(Math.random() * uniqueWords.length)];
+            } else if (words.length > 0) {
+                // Fallback to any word if all are taken
+                displayText = words[Math.floor(Math.random() * words.length)];
+            } else {
+                displayText = "???";
+            }
+
+            // For Code blocks, we might want a specific representation or just "CODE"
+            if (s.type === 'code') {
+                displayText = '</>'; // Or some other symbol
+            }
+
+            usedWords.add(displayText);
 
             const thetaRandom = Math.random() * Math.PI * 2;
             const phiRandom = Math.acos(2 * Math.random() - 1);
@@ -283,7 +323,7 @@ const WordCloud = ({ onSelectSentence, selectedSentence, contextSentences }) => 
 
             return {
                 ...s,
-                displayText, // Add random display text
+                displayText,
                 position: [x, y, z],
                 index
             };

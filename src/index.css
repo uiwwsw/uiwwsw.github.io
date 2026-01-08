@@ -109,7 +109,6 @@ body {
   color: var(--text-muted);
   font-weight: 300;
   margin: 0 0 4rem 0;
-  max-width: 500px;
 }
 
 /* Stats / Footer Area */
@@ -171,7 +170,7 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  /* justify-content: center; <-- CAUSES CUT OFF ON OVERFLOW */
   padding: 40px;
   overflow-y: auto;
   /* Allow scrolling */
@@ -183,6 +182,8 @@ body {
 }
 
 .detail-content {
+  margin: auto;
+  /* Safe centering (centers if space, top-aligns if overflow) */
   max-width: 600px;
   width: 100%;
   display: flex;
@@ -227,4 +228,27 @@ body {
   .detail-sentence.selected {
     font-size: 1.3rem;
   }
+}
+
+.detail-code {
+  font-family: 'Courier New', Courier, monospace;
+  text-align: left;
+  white-space: pre-wrap;
+  background: #1e293b;
+  padding: 1.5rem;
+  border-radius: 0.5rem;
+  overflow-x: auto;
+  color: #e2e8f0;
+  width: 100%;
+  max-width: 800px;
+  /* Limit width */
+  margin: 1rem auto;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  border: 1px solid #334155;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.detail-code code {
+  font-family: inherit;
 }
