@@ -6,6 +6,7 @@ export default defineConfig({
   plugins: [react()],
   // Use absolute path for User Pages (root domain)
   base: '/',
+  publicDir: '../public',
   build: {
     outDir: '../dist',
     emptyOutDir: true,
