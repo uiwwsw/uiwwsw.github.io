@@ -270,7 +270,7 @@ const WordCloud = ({ onSelectSentence, selectedSentence, contextSentences }) => 
 
             // Smart Tokenizer Regex: captures quotes, parens, brackets, or standard words
             // Priority: Strings -> Brackets/Parens (including attached text) -> Non-whitespace
-            const tokenRegex = /("[^"]*"|'[^']*'|“[^”]*”|‘[^’]*’|\S*\[[^\]]*\]\S*|\S*\([^)]*\)\S*|\S+)/g;
+            const tokenRegex = /("[^"]*"|'[^']*'|“[^”]*”|‘[^’]*’|「[^」]*」|『[^』]*』|\S*\[[^\]]*\]\S*|\S*\([^)]*\)\S*|\S+)/g;
 
             const rawTokens = s.fullSentence.match(tokenRegex) || [];
 
