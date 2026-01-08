@@ -271,11 +271,17 @@ async function fetchAndProcess() {
                     if (!trimmed) return;
 
                     if (trimmed.startsWith('```')) {
+                        // Extract language if present
+                        // Format: ```js\n code \n```
+                        const firstLineMatch = trimmed.match(/^```(\w+)?/);
+                        const language = firstLineMatch && firstLineMatch[1] ? firstLineMatch[1] : null;
+
                         const content = trimmed.replace(/^```.*\n?/, '').replace(/```$/, '');
                         if (content.trim().length > 0) {
                             itemSentences.push({
                                 fullSentence: content.trim(),
-                                type: 'code'
+                                type: 'code',
+                                language: language
                             });
                         }
                     } else {
@@ -318,7 +324,8 @@ async function fetchAndProcess() {
             byArticle[s.articleId].sentences.push({
                 fullSentence: s.fullSentence,
                 index: s.sentenceIndex,
-                type: s.type
+                type: s.type,
+                language: s.language
             });
         });
 
