@@ -186,6 +186,8 @@ const SentenceWrapper = ({ id, displayText, fullSentence, url, articleId, senten
                     }
                 }}
                 fillOpacity={0}
+                outlineWidth="5%"
+                outlineColor="#020202"
             >
                 {displayText}
             </Text>
