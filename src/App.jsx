@@ -17,11 +17,11 @@ export default function App() {
   const handleSelectSentence = (sentenceData) => {
     setSelectedSentence(sentenceData);
 
-    // Get context sentences (up to 4 total including selected)
+    // Get context sentences (exactly 5 total if possible)
     if (sentenceData && contextData[sentenceData.articleId]) {
       const article = contextData[sentenceData.articleId];
       const sentences = article.sentences;
-      const currentIndex = Number(sentenceData.sentenceIndex); // Ensure number
+      const currentIndex = Number(sentenceData.sentenceIndex);
 
       console.log('Selection:', {
         articleId: sentenceData.articleId,
@@ -30,15 +30,31 @@ export default function App() {
         text: sentenceData.fullSentence
       });
 
-      // Get surrounding sentences (2 before, 2 after)
-      const context = [];
-      const startIdx = Math.max(0, currentIndex - 2);
-      const endIdx = Math.min(sentences.length, currentIndex + 3);
+      // Strategy: Show 5 sentences total
+      // Prefer: 2 before + selected + 2 after
+      // If not enough before/after, adjust accordingly
+      const TARGET_COUNT = 5;
+      let startIdx = Math.max(0, currentIndex - 2);
+      let endIdx = Math.min(sentences.length, currentIndex + 3);
 
+      // Adjust if we don't have enough sentences
+      const currentCount = endIdx - startIdx;
+      if (currentCount < TARGET_COUNT) {
+        // Try to add more from the other side
+        if (startIdx === 0) {
+          // Add more after
+          endIdx = Math.min(sentences.length, startIdx + TARGET_COUNT);
+        } else if (endIdx === sentences.length) {
+          // Add more before
+          startIdx = Math.max(0, endIdx - TARGET_COUNT);
+        }
+      }
+
+      const context = [];
       for (let i = startIdx; i < endIdx; i++) {
         context.push({
           text: sentences[i].fullSentence,
-          type: sentences[i].type || 'text', // Fallback to text
+          type: sentences[i].type || 'text',
           isSelected: i === currentIndex
         });
       }
@@ -194,6 +210,8 @@ export default function App() {
                 <pre className="detail-code">
                   <code>{sentence.text}</code>
                 </pre>
+              ) : sentence.type === 'image' ? (
+                <div className="detail-image-label">[이미지]</div>
               ) : (
                 sentence.text
               )}

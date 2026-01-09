@@ -110,7 +110,7 @@ function extractSentencesFromText(text) {
     for (const sentence of rawSentences) {
         if (sentence.length < 5) continue;
 
-        const trimmed = sentence.length > 100 ? sentence.substring(0, 100) + '...' : sentence;
+        const trimmed = sentence.length > 200 ? sentence.substring(0, 200) + '...' : sentence;
         const words = trimmed.split(/\s+/);
         if (words.length === 0) continue;
 
@@ -132,15 +132,16 @@ function extractSentencesFromText(text) {
         if (isBad) continue;
 
         // Must contain at least one valid char
-        // Note: We do NOT filter emojis here from the SENTENCE itself.
-        // We want the sentence to appear intact in detail view.
-        // WordCloud will handle dropping emojis from the floating text.
-
         if (!/[가-힣a-zA-Z0-9]/.test(checkWord)) continue;
+
+        // Check if this is an image sentence (contains velcdn or image references)
+        const isImageSentence = /velcdn/i.test(trimmed) ||
+            /\.(jpg|jpeg|png|gif|webp|svg)/i.test(trimmed) ||
+            /!\[.*?\]\(.*?\)/i.test(trimmed);
 
         sentences.push({
             fullSentence: trimmed,
-            type: 'text'
+            type: isImageSentence ? 'image' : 'text'
         });
     }
 
@@ -332,9 +333,12 @@ async function fetchAndProcess() {
         await fs.writeFile(CONTEXT_FILE, JSON.stringify(byArticle, null, 2));
         console.log(`Saved context data to ${CONTEXT_FILE}`);
 
+        // Filter out image sentences for WordCloud (but keep them in context)
+        const textSentencesOnly = allSentences.filter(s => s.type !== 'image');
+        console.log(`Filtered ${allSentences.length - textSentencesOnly.length} image sentences from cloud`);
+
         // Random shuffle for WordCloud
-        const shuffled = [...allSentences].sort(() => 0.5 - Math.random());
-        // Select logic: Ensure we don't just drop everything. 
+        const shuffled = [...textSentencesOnly].sort(() => 0.5 - Math.random());
         const selected = shuffled.slice(0, MAX_SENTENCES);
 
         await fs.writeFile(OUTPUT_FILE, JSON.stringify(selected, null, 2));
