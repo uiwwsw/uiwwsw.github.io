@@ -411,10 +411,11 @@ const WordCloud = ({ onSelectSentence, selectedSentence, contextSentences }) => 
 
     useEffect(() => {
         const handleWheel = (e) => {
+            if (selectedSentence) return;
+
             // STOP ALL NATIVE ZOOM/SCROLL
             e.preventDefault();
 
-            if (selectedSentence) return;
             hasInteracted.current = true;
 
             // BREAK HOLD on Wheel Event

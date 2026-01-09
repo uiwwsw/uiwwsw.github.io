@@ -64,6 +64,13 @@ export default function App() {
     setContextSentences([]);
   };
 
+  // Disable context menu
+  React.useEffect(() => {
+    const handleContextMenu = (e) => e.preventDefault();
+    document.addEventListener('contextmenu', handleContextMenu);
+    return () => document.removeEventListener('contextmenu', handleContextMenu);
+  }, []);
+
   return (
     <>
       <div className={`canvas-container ${selectedSentence ? 'detail-active' : ''}`}>
@@ -114,76 +121,7 @@ export default function App() {
         </main>
       </div>
 
-      {/* Back Button (only visible during dimension travel) */}
-      {selectedSentence && (
-        <button
-          onClick={handleBack}
-          style={{
-            position: 'fixed',
-            top: '2rem',
-            left: '2rem',
-            padding: '0.75rem 1.5rem',
-            fontSize: '1rem',
-            backgroundColor: 'rgba(0, 0, 0, 0.7)',
-            color: '#ffffff',
-            border: '1px solid rgba(255, 255, 255, 0.2)',
-            borderRadius: '8px',
-            cursor: 'pointer',
-            fontFamily: 'Space Grotesk, system-ui, sans-serif',
-            fontWeight: '500',
-            zIndex: 1000,
-            backdropFilter: 'blur(10px)',
-            transition: 'all 0.2s ease'
-          }}
-          onMouseOver={(e) => {
-            e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
-            e.target.style.borderColor = 'rgba(255, 255, 255, 0.4)';
-          }}
-          onMouseOut={(e) => {
-            e.target.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
-            e.target.style.borderColor = 'rgba(255, 255, 255, 0.2)';
-          }}
-        >
-          ← 뒤로가기
-        </button>
-      )}
-
-      {/* Blog Link Button */}
-      {selectedSentence && (
-        <button
-          onClick={() => window.open(selectedSentence.link, '_blank')}
-          style={{
-            position: 'fixed',
-            bottom: '2rem',
-            right: '2rem',
-            padding: '1rem 2rem',
-            fontSize: '1.1rem',
-            backgroundColor: '#7c3aed',
-            color: '#ffffff',
-            border: 'none',
-            borderRadius: '12px',
-            cursor: 'pointer',
-            fontFamily: 'Space Grotesk, system-ui, sans-serif',
-            fontWeight: '600',
-            zIndex: 1000,
-            boxShadow: '0 4px 20px rgba(124, 58, 237, 0.4)',
-            transition: 'all 0.3s ease'
-          }}
-          onMouseOver={(e) => {
-            e.target.style.backgroundColor = '#a855f7';
-            e.target.style.transform = 'scale(1.05)';
-            e.target.style.boxShadow = '0 6px 30px rgba(168, 85, 247, 0.6)';
-          }}
-          onMouseOut={(e) => {
-            e.target.style.backgroundColor = '#7c3aed';
-            e.target.style.transform = 'scale(1)';
-            e.target.style.boxShadow = '0 4px 20px rgba(124, 58, 237, 0.4)';
-          }}
-        >
-          블로그 보러가기 →
-        </button>
-      )}
-
+      {/* DETAIL OVERLAY (HTML) */}
       {/* DETAIL OVERLAY (HTML) */}
       <div
         className="detail-overlay"
@@ -191,34 +129,71 @@ export default function App() {
           opacity: selectedSentence ? 1 : 0,
           pointerEvents: selectedSentence ? 'auto' : 'none',
           transition: 'opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1)',
-          transitionDelay: selectedSentence ? '0.3s' : '0s'
+          transitionDelay: selectedSentence ? '0.2s' : '0s'
         }}
       >
-        {/* Sticky Title Header */}
-        {selectedSentence && contextData[selectedSentence.articleId]?.title && (
-          <div className="detail-header">
-            {contextData[selectedSentence.articleId].title}
-          </div>
-        )}
+        {selectedSentence && (
+          <>
+            {/* 1. Navbar */}
+            <nav className="detail-navbar">
+              <button onClick={handleBack} className="btn-back" aria-label="Go Back">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M15 18l-6-6 6-6" />
+                </svg>
+              </button>
+              <div className="navbar-title">
+                {contextData[selectedSentence.articleId]?.title || 'Untitled'}
+              </div>
+              <div className="navbar-spacer" />
+            </nav>
 
-        <div className="detail-content">
-          {contextSentences.map((sentence, index) => (
-            <div
-              key={index}
-              className={`detail-sentence ${sentence.isSelected ? 'selected' : ''}`}
-            >
-              {sentence.type === 'code' ? (
-                <pre className="detail-code">
-                  <code>{sentence.text}</code>
-                </pre>
-              ) : sentence.type === 'image' ? (
-                <div className="detail-image-label">[이미지]</div>
-              ) : (
-                sentence.text
-              )}
-            </div>
-          ))}
-        </div>
+            {/* 2. Article Content */}
+            <article className="detail-article">
+              <div className="article-body">
+                {contextSentences.map((sentence, index) => (
+                  <div
+                    key={index}
+                    className={`article-block ${sentence.isSelected ? 'is-selected' : 'is-context'}`}
+                  >
+                    {sentence.type === 'code' ? (
+                      <div className="code-window">
+                        <div className="code-header">
+                          <span className="code-dot red"></span>
+                          <span className="code-dot yellow"></span>
+                          <span className="code-dot green"></span>
+                        </div>
+                        <pre><code>{sentence.text}</code></pre>
+                      </div>
+                    ) : sentence.type === 'image' ? (
+                      <div className="image-placeholder">
+                        <span className="icon">🖼️</span>
+                        <span className="label">Image Content</span>
+                      </div>
+                    ) : (
+                      <p className="text-paragraph">
+                        {sentence.text}
+                      </p>
+                    )}
+                  </div>
+                ))}
+              </div>
+
+              {/* 3. Footer / CTA */}
+              <div className="article-footer">
+                <button
+                  className="btn-primary-cta"
+                  onClick={() => window.open(selectedSentence.link, '_blank')}
+                >
+                  <span className="btn-text">전체 글 읽기</span>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                    <polyline points="12 5 19 12 12 19"></polyline>
+                  </svg>
+                </button>
+              </div>
+            </article>
+          </>
+        )}
       </div>
     </>
   );
