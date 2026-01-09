@@ -411,19 +411,36 @@ const WordCloud = ({ onSelectSentence, selectedSentence, contextSentences }) => 
 
     useEffect(() => {
         const handleWheel = (e) => {
+            // STOP ALL NATIVE ZOOM/SCROLL
+            e.preventDefault();
+
             if (selectedSentence) return;
             hasInteracted.current = true;
+
+            // BREAK HOLD on Wheel Event
+            if (isHolding.current || isDragging.current) {
+                isHolding.current = false;
+                isDragging.current = false;
+                // We do NOT stopMomentum() here because we want the scroll to immediately take over velocity.
+                // But we must ensure the "hold" visual/logic stops.
+            }
+
             const delta = e.deltaY;
 
             // Opposite direction brake: if moving and input is opposite, stop instead
-            if ((speedRef.current > 3 && delta < 0) || (speedRef.current < -3 && delta > 0)) {
+            // NOTE: We invert delta for logic check because we are about to invert the applied force
+            // Current Speed > 0 (Forward). 
+            // Standard: Scroll Up (Neg Delta) = Forward. 
+            // So if Speed > 0 and Delta > 0 (Scroll Down/Back), we brake.
+            if ((speedRef.current > 3 && delta > 0) || (speedRef.current < -3 && delta < 0)) {
                 stopMomentum();
                 isBraking.current = true;
                 return;
             }
             isBraking.current = false;
 
-            const accel = delta * 0.15; // Reduced for slower, more controlled movement
+            // INVERTED WHEEL: Scroll Up (Negative Delta) -> Positive Accel (Forward)
+            const accel = -delta * 0.15;
             speedRef.current += accel;
             capSpeed();
             lastWheelTime.current = Date.now();
@@ -441,6 +458,10 @@ const WordCloud = ({ onSelectSentence, selectedSentence, contextSentences }) => 
             isBraking.current = false;
 
             if (e.touches.length === 2) {
+                // PINCH ZOOM DETECTED -> Break Hold
+                isHolding.current = false;
+                isDragging.current = false;
+
                 const dx = e.touches[0].clientX - e.touches[1].clientX;
                 const dy = e.touches[0].clientY - e.touches[1].clientY;
                 touchDistRef.current = Math.sqrt(dx * dx + dy * dy);
@@ -453,6 +474,11 @@ const WordCloud = ({ onSelectSentence, selectedSentence, contextSentences }) => 
 
             if (e.touches.length === 2 && touchDistRef.current !== null) {
                 e.preventDefault();
+
+                // PINCH ZOOM -> Ensure Hold is Broken
+                isHolding.current = false;
+                isDragging.current = false;
+
                 const dx = e.touches[0].clientX - e.touches[1].clientX;
                 const dy = e.touches[0].clientY - e.touches[1].clientY;
                 const dist = Math.sqrt(dx * dx + dy * dy);
@@ -483,16 +509,47 @@ const WordCloud = ({ onSelectSentence, selectedSentence, contextSentences }) => 
             if (speedRef.current < -MAX_SPEED) speedRef.current = -MAX_SPEED;
         };
 
+        const handleGestureStart = (e) => {
+            e.preventDefault();
+        };
+
+        const handleGestureChange = (e) => {
+            e.preventDefault();
+            if (selectedSentence) return;
+            hasInteracted.current = true;
+
+            // Map gesture scale to speed
+            // scale > 1 (zoom in) -> Move Forward
+            // scale < 1 (zoom out) -> Move Backward
+            // Logic: Delta = (scale - 1) * Factor
+            const scaleDelta = (e.scale - 1);
+
+            // If scaleDelta is significant
+            if (Math.abs(scaleDelta) > 0.01) {
+                // Break Hold
+                isHolding.current = false;
+                isDragging.current = false;
+
+                const speedDelta = scaleDelta * 50; // Sensitivity factor
+                speedRef.current += speedDelta;
+                capSpeed();
+            }
+        };
+
         window.addEventListener('wheel', handleWheel, { passive: false });
         window.addEventListener('touchstart', handleTouchStart, { passive: false });
         window.addEventListener('touchmove', handleTouchMove, { passive: false });
         window.addEventListener('touchend', handleTouchEnd);
+        window.addEventListener('gesturestart', handleGestureStart, { passive: false });
+        window.addEventListener('gesturechange', handleGestureChange, { passive: false });
 
         return () => {
             window.removeEventListener('wheel', handleWheel);
             window.removeEventListener('touchstart', handleTouchStart);
             window.removeEventListener('touchmove', handleTouchMove);
             window.removeEventListener('touchend', handleTouchEnd);
+            window.removeEventListener('gesturestart', handleGestureStart);
+            window.removeEventListener('gesturechange', handleGestureChange);
         };
     }, [selectedSentence]);
 
@@ -531,29 +588,34 @@ const WordCloud = ({ onSelectSentence, selectedSentence, contextSentences }) => 
         };
 
         const onPointerUp = () => {
+            // Restore Momentum on Release ONLY if we were actually holding/dragging.
+            // If wheel event broke the hold, isHolding/isDragging will be false,
+            // so we skip this block and preserve the scroll speed!
+            if (isHolding.current || isDragging.current) {
+
+                // 1. Release Logic (Click/Drag release) - RESET TO MINIMUM SPEED
+                // User request: "When clicking/dragging and releasing, reset to min speed only."
+                const MIN_SPEED = 20;
+
+                // Determine direction: snapshot direction OR last known direction
+                // We use savedMomentum.current.speed to know what the direction WAS.
+                const direction = Math.sign(savedMomentum.current.speed) || lastDirectionRef.current || 1;
+
+                // Force reset to MIN_SPEED in that direction. 
+                // We DO NOT restore the previous high speed.
+                speedRef.current = direction * MIN_SPEED;
+
+                // 2. Rotation Logic
+                // If user did NOT drag (just held), restore old rotation.
+                // If user DID drag (fling), keep the new fling rotation (don't overwrite with old).
+                if (rotVel.current.x === 0 && rotVel.current.y === 0) {
+                    rotVel.current.x = savedMomentum.current.rotX;
+                    rotVel.current.y = savedMomentum.current.rotY;
+                }
+            }
+
             isDragging.current = false;
             isHolding.current = false; // Release hold
-
-            // Restore Momentum on Release
-            // 1. Release Logic (Click/Drag release) - RESET TO MINIMUM SPEED
-            // User request: "When clicking/dragging and releasing, reset to min speed only."
-            const MIN_SPEED = 20;
-
-            // Determine direction: snapshot direction OR last known direction
-            // We use savedMomentum.current.speed to know what the direction WAS.
-            const direction = Math.sign(savedMomentum.current.speed) || lastDirectionRef.current || 1;
-
-            // Force reset to MIN_SPEED in that direction. 
-            // We DO NOT restore the previous high speed.
-            speedRef.current = direction * MIN_SPEED;
-
-            // 2. Rotation Logic
-            // If user did NOT drag (just held), restore old rotation.
-            // If user DID drag (fling), keep the new fling rotation (don't overwrite with old).
-            if (rotVel.current.x === 0 && rotVel.current.y === 0) {
-                rotVel.current.x = savedMomentum.current.rotX;
-                rotVel.current.y = savedMomentum.current.rotY;
-            }
         };
 
         const onPointerCancel = () => {
@@ -616,8 +678,13 @@ const WordCloud = ({ onSelectSentence, selectedSentence, contextSentences }) => 
                 lastDirectionRef.current = Math.sign(speedRef.current);
             }
 
-            if (isHolding.current || hoverCount.current > 0) {
-                // If holding or hovering a word, stop completely
+            // HOVER/HOLD STOP LOGIC
+            // If user is recently scrolling (Wheel/Pinch), IGNORE the hover stop.
+            // This allows the user to scroll "off" a word they were hovering.
+            const isRecentWheel = Date.now() - lastWheelTime.current < 500;
+
+            if (isHolding.current || (hoverCount.current > 0 && !isRecentWheel)) {
+                // If holding OR hovering (and not scrolling), stop completely
                 speedRef.current = 0;
             } else {
                 // Friction / Auto-Cruise

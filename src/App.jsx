@@ -194,6 +194,13 @@ export default function App() {
           transitionDelay: selectedSentence ? '0.3s' : '0s'
         }}
       >
+        {/* Sticky Title Header */}
+        {selectedSentence && contextData[selectedSentence.articleId]?.title && (
+          <div className="detail-header">
+            {contextData[selectedSentence.articleId].title}
+          </div>
+        )}
+
         <div className="detail-content">
           {contextSentences.map((sentence, index) => (
             <div
