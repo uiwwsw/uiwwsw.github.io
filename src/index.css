@@ -252,3 +252,12 @@ body {
 .detail-code code {
   font-family: inherit;
 }
+
+.detail-image-label {
+  font-family: 'Noto Sans KR', sans-serif;
+  font-size: 1rem;
+  color: #999;
+  text-align: center;
+  font-style: italic;
+  padding: 1rem 0;
+}
