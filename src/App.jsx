@@ -10,6 +10,9 @@ import contextData from './data/velog-context.json';
 // Main Scenery
 // --------------------------------------------------------
 
+// Externalize config to prevent Canvas remounts
+const canvasConfig = { antialias: false, alpha: false, stencil: false, depth: true };
+
 export default function App() {
   const [selectedSentence, setSelectedSentence] = useState(null);
   const [contextSentences, setContextSentences] = useState([]);
@@ -22,13 +25,6 @@ export default function App() {
       const article = contextData[sentenceData.articleId];
       const sentences = article.sentences;
       const currentIndex = Number(sentenceData.sentenceIndex);
-
-      console.log('Selection:', {
-        articleId: sentenceData.articleId,
-        idx: currentIndex,
-        total: sentences.length,
-        text: sentenceData.fullSentence
-      });
 
       // Strategy: Show 5 sentences total
       // Prefer: 2 before + selected + 2 after
@@ -59,8 +55,6 @@ export default function App() {
         });
       }
 
-      console.log('Generated Context:', context);
-
       setContextSentences(context);
     }
   };
@@ -72,8 +66,8 @@ export default function App() {
 
   return (
     <>
-      <div className="canvas-container">
-        <Canvas gl={{ antialias: false, alpha: false, stencil: false, depth: true }}>
+      <div className={`canvas-container ${selectedSentence ? 'detail-active' : ''}`}>
+        <Canvas gl={canvasConfig}>
           <color attach="background" args={['#020202']} />
           <PerspectiveCamera makeDefault position={[0, 40, 0]} fov={50} />
 
@@ -196,8 +190,8 @@ export default function App() {
         style={{
           opacity: selectedSentence ? 1 : 0,
           pointerEvents: selectedSentence ? 'auto' : 'none',
-          // Delay fade-in slightly to wait for whiteout
-          transitionDelay: selectedSentence ? '0.5s' : '0s'
+          transition: 'opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1)',
+          transitionDelay: selectedSentence ? '0.3s' : '0s'
         }}
       >
         <div className="detail-content">
