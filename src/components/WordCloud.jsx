@@ -397,10 +397,22 @@ const WordCloud = ({ onSelectSentence, selectedSentence, contextSentences }) => 
             hasInteracted.current = true;
             stopMomentum(); // Stop moving when entering detail
         } else {
+            // RETURNING FROM DETAIL VIEW
+            // Force reset all interaction flags to prevent "frozen" state
+            isHolding.current = false;
+            isDragging.current = false;
+            isBraking.current = false;
+            // Note: hoverCount is managed by onHover events, but we might want to ensure momentum resumes
+
             // Check if we just returned?
-            // Actually, if we just toggle selectedSentence, we are fine.
             if (prevSelectionRef.current) {
-                stopMomentum(); // Ensure stopped on return
+                // Ensure we are stopped or resume gently?
+                // User said "cancel whatever hold", implying they want it "free".
+                // Stop momentum initially to prevent sudden jump, but flags are now clear so auto-cruise will pick up immediately.
+                stopMomentum();
+
+                // Optional: If we want to resume cruising immediately, we could set speedRef to MIN_SPEED
+                // speedRef.current = 20; 
             }
         }
         prevSelectionRef.current = selectedSentence;
