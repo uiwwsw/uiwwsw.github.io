@@ -97,12 +97,12 @@ export default function App() {
 
         <main className="content">
           <h1>
-            <span className="gradient-text">Words</span>
+            <span className="gradient-text">Thoughts</span>
             <br />
             & Code.
           </h1>
           <p className="subtitle">
-            이곳은 제 머릿속을 부유하는 수많은 단어들의 우주입니다.
+            이곳은 제 머릿속을 부유하는, 수많은 생각의 우주입니다.
           </p>
 
           {/* <div className="stats">
