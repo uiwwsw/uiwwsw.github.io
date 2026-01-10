@@ -12,10 +12,8 @@ let globalIsIntro = true;
 let globalUserPos = new THREE.Vector3(0, 0, 400); // For restoring position on remount if needed
 let globalUserQuat = new THREE.Quaternion();
 
-// --- GLOBAL SENTENCES GENERATION (Static World Layout) ---
-// Pre-calculate positions once to ensure the world never changes ("Reset")
-// Use true random 3D positioning with collision avoidance
-const fixedSentences = (() => {
+// --- GLOBAL SENTENCES GENERATION (Dynamic Helper) ---
+const generateLayout = () => {
     const positions = [];
     const MIN_DISTANCE = 20; // Minimum distance between words to prevent overlap
 
@@ -86,11 +84,12 @@ const fixedSentences = (() => {
             index: i
         };
     });
-})();
+};
 
 
 const SentenceWrapper = ({ id, displayText, fullSentence, url, articleId, sentenceIndex, position, mouseRef, activeWordRef, onSelect, onHoverChange, isDetailMode, isSelected, frozen }) => {
     const groupRef = useRef();
+    const innerRef = useRef(); // New: Handles visual offset (magnet) independent of world pos
     const { camera } = useThree();
     const [hovered, setHovered] = useState(false);
     const [isTooFar, setIsTooFar] = useState(false);
@@ -98,7 +97,6 @@ const SentenceWrapper = ({ id, displayText, fullSentence, url, articleId, senten
 
     // Virtual Anchor for Infinite Logic stability
     const anchorRef = useRef(new THREE.Vector3(0, 0, 400));
-    const isAnchorInit = useRef(false);
 
     const vec = new THREE.Vector3();
     const originalPos = useMemo(() => new THREE.Vector3(...position), [position]);
@@ -109,7 +107,7 @@ const SentenceWrapper = ({ id, displayText, fullSentence, url, articleId, senten
         const time = state.clock.elapsedTime;
         const camera = state.camera;
 
-        // Idle Animation
+        // Idle Animation (Applied to GROUP - The Anchor)
         const movementRadius = 0.3;
         const idleX = Math.sin(time * 0.5 + originalPos.x * 0.1) * movementRadius;
         const idleY = Math.sin(time * 0.2 + originalPos.x * 0.5) * 0.5;
@@ -144,18 +142,24 @@ const SentenceWrapper = ({ id, displayText, fullSentence, url, articleId, senten
             if (relPos.z > halfL) {
                 relPos.z -= tunnelL;
                 changed = true;
+                // Randomize X/Y on Z-wrap (Infinite Random Starfield)
+                relPos.x = (Math.random() - 0.5) * radius * 2;
+                relPos.y = (Math.random() - 0.5) * radius * 2;
             } else if (relPos.z < -halfL) {
                 relPos.z += tunnelL;
                 changed = true;
+                // Randomize X/Y on Z-wrap
+                relPos.x = (Math.random() - 0.5) * radius * 2;
+                relPos.y = (Math.random() - 0.5) * radius * 2;
             }
 
-            // Wrap X/Y (Side Walls - keep user inside the "cloud")
-            // This ensures that even if you fly sideways, you don't exit the word cloud.
-            // BUT: Do not randomize. Just wrap.
-            if (relPos.x > radius) { relPos.x -= radius * 2; changed = true; }
-            if (relPos.x < -radius) { relPos.x += radius * 2; changed = true; }
-            if (relPos.y > radius) { relPos.y -= radius * 2; changed = true; }
-            if (relPos.y < -radius) { relPos.y += radius * 2; changed = true; }
+            // Wrap X/Y only if NOT changed by Z-wrap (protect bounds for side movement)
+            if (!changed) {
+                if (relPos.x > radius) { relPos.x -= radius * 2; changed = true; }
+                if (relPos.x < -radius) { relPos.x += radius * 2; changed = true; }
+                if (relPos.y > radius) { relPos.y -= radius * 2; changed = true; }
+                if (relPos.y < -radius) { relPos.y += radius * 2; changed = true; }
+            }
 
             if (changed) {
                 // 3. Transform back to World Space
@@ -186,32 +190,43 @@ const SentenceWrapper = ({ id, displayText, fullSentence, url, articleId, senten
         if (tooFar !== isTooFar) setIsTooFar(tooFar);
 
         // Magnet Logic (Only if visible)
-        if (!tooFar) {
-            const mousePos = mouseRef.current;
-            const distToMouse = currentPos.distanceTo(mousePos);
+        // REFACTORED: Now operates on innerRef (Visual Offset) instead of World Position
+        if (innerRef.current) {
+            let targetLocalPos = new THREE.Vector3(0, 0, 0); // Default: Snap back to origin
 
-            const isMagnetic = distToMouse < 4.0;
-            const isLockedByMe = activeWordRef.current === id;
-            const isFree = activeWordRef.current === null;
+            if (!tooFar) {
+                const mousePos = mouseRef.current;
+                const distToMouse = currentPos.distanceTo(mousePos);
 
-            let shouldMagnet = false;
-            if (isMagnetic) {
-                if (isLockedByMe) {
-                    shouldMagnet = true;
-                } else if (isFree) {
-                    activeWordRef.current = id;
-                    shouldMagnet = true;
+                const isMagnetic = distToMouse < 4.0;
+                const isLockedByMe = activeWordRef.current === id;
+                const isFree = activeWordRef.current === null;
+
+                let shouldMagnet = false;
+                if (isMagnetic) {
+                    if (isLockedByMe) {
+                        shouldMagnet = true;
+                    } else if (isFree) {
+                        activeWordRef.current = id;
+                        shouldMagnet = true;
+                    }
+                } else {
+                    if (isLockedByMe) {
+                        activeWordRef.current = null;
+                    }
                 }
-            } else {
-                if (isLockedByMe) {
-                    activeWordRef.current = null;
+
+                if (shouldMagnet) {
+                    // Convert World Mouse Pos to Local Space for the Billboard
+                    // Billboard faces camera, so local X/Y aligns with screen plane mostly
+                    const localMouse = mousePos.clone();
+                    groupRef.current.worldToLocal(localMouse);
+                    targetLocalPos.copy(localMouse);
                 }
             }
 
-            if (shouldMagnet) {
-                const vec = new THREE.Vector3().copy(mousePos);
-                groupRef.current.position.lerp(vec, delta * 5);
-            }
+            // ELASTIC LERP: Moves to mouse OR snaps back to 0,0,0
+            innerRef.current.position.lerp(targetLocalPos, delta * 5);
         }
 
         if (textRef.current) {
@@ -245,79 +260,81 @@ const SentenceWrapper = ({ id, displayText, fullSentence, url, articleId, senten
             position={position}
             follow={true}
         >
-            {/* Hit Area (Invisible, slightly larger) */}
-            <mesh
-                visible={false}
-                onPointerOver={(e) => {
-                    e.stopPropagation(); // Block global raycast if needed?
+            <group ref={innerRef}>
+                {/* Hit Area (Invisible, slightly larger) */}
+                <mesh
+                    visible={false}
+                    onPointerOver={(e) => {
+                        e.stopPropagation(); // Block global raycast if needed?
 
-                    // DISTANCE CHECK: Only interactive if close enough
-                    const dist = camera.position.distanceTo(groupRef.current.position);
-                    const MAX_INTERACTION_DIST = 150;
-                    if (dist > MAX_INTERACTION_DIST) return;
+                        // DISTANCE CHECK: Only interactive if close enough
+                        const dist = camera.position.distanceTo(groupRef.current.position);
+                        const MAX_INTERACTION_DIST = 150;
+                        if (dist > MAX_INTERACTION_DIST) return;
 
-                    if (!isTooFar) {
-                        setHovered(true);
-                        document.body.style.cursor = 'pointer';
-                        if (onHoverChange) onHoverChange(true);
-                    }
-                }}
-                onPointerOut={(e) => {
-                    setHovered(false);
-                    document.body.style.cursor = 'auto';
-                    if (onHoverChange) onHoverChange(false);
-                }}
-                // Use simple onClick but with a larger area.
-                // If the user wants "robustness against different up event", 
-                // typically that means they dragged a bit or mouseUp happened on a different child?
-                // With a single large mesh, it's robust.
-                onClick={(e) => {
-                    e.stopPropagation();
+                        if (!isTooFar) {
+                            setHovered(true);
+                            document.body.style.cursor = 'pointer';
+                            if (onHoverChange) onHoverChange(true);
+                        }
+                    }}
+                    onPointerOut={(e) => {
+                        setHovered(false);
+                        document.body.style.cursor = 'auto';
+                        if (onHoverChange) onHoverChange(false);
+                    }}
+                    // Use simple onClick but with a larger area.
+                    // If the user wants "robustness against different up event", 
+                    // typically that means they dragged a bit or mouseUp happened on a different child?
+                    // With a single large mesh, it's robust.
+                    onClick={(e) => {
+                        e.stopPropagation();
 
-                    // DISTANCE CHECK
-                    const dist = camera.position.distanceTo(groupRef.current.position);
-                    const MAX_INTERACTION_DIST = 150;
-                    if (dist > MAX_INTERACTION_DIST) return;
+                        // DISTANCE CHECK
+                        const dist = camera.position.distanceTo(groupRef.current.position);
+                        const MAX_INTERACTION_DIST = 150;
+                        if (dist > MAX_INTERACTION_DIST) return;
 
-                    if (!isTooFar) {
-                        onSelect({
-                            id,
-                            displayText,
-                            fullSentence,
-                            link: url,
-                            articleId,
-                            sentenceIndex
-                        });
-                    }
-                }}
-            >
-                {/* 
-                   Approximate text size:
-                   FontSize 0.6. 
-                   Korean chars are roughly square. 
-                   Width ~= length * 0.6. 
-                   Add padding (10% + extra for comfort). 
-                */}
-                <planeGeometry args={[displayText.length * 0.6 + 1, 1.5]} />
-                <meshBasicMaterial transparent opacity={0.0} color="red" />
-            </mesh>
+                        if (!isTooFar) {
+                            onSelect({
+                                id,
+                                displayText,
+                                fullSentence,
+                                link: url,
+                                articleId,
+                                sentenceIndex
+                            });
+                        }
+                    }}
+                >
+                    {/* 
+                       Approximate text size:
+                       FontSize 0.6. 
+                       Korean chars are roughly square. 
+                       Width ~= length * 0.6. 
+                       Add padding (10% + extra for comfort). 
+                    */}
+                    <planeGeometry args={[displayText.length * 0.6 + 1, 1.5]} />
+                    <meshBasicMaterial transparent opacity={0.0} color="red" />
+                </mesh>
 
-            <Text
-                ref={textRef}
-                fontSize={0.6}
-                font={notoFontUrl}
-                color={hovered ? "#ffffff" : "#dddddd"}
-                anchorX="center"
-                anchorY="middle"
-                // Events moved to HitBox for better area control
-                fillOpacity={0}
-                outlineWidth="5%"
-                outlineColor="#020202"
-                whiteSpace="nowrap"
-                overflowWrap="normal"
-            >
-                {displayText}
-            </Text>
+                <Text
+                    ref={textRef}
+                    fontSize={0.6}
+                    font={notoFontUrl}
+                    color={hovered ? "#ffffff" : "#dddddd"}
+                    anchorX="center"
+                    anchorY="middle"
+                    // Events moved to HitBox for better area control
+                    fillOpacity={0}
+                    outlineWidth="5%"
+                    outlineColor="#020202"
+                    whiteSpace="nowrap"
+                    overflowWrap="normal"
+                >
+                    {displayText}
+                </Text>
+            </group>
         </Billboard>
     );
 };
@@ -418,8 +435,8 @@ const WordCloud = ({ onSelectSentence, selectedSentence, contextSentences }) => 
         prevSelectionRef.current = selectedSentence;
     }, [selectedSentence]);
 
-    // Use global fixed sentences (Static World)
-    const sentences = fixedSentences; // Run once to ensure stable world generation
+    // Use dynamic generation (Memoized to persist during interaction, but fresh on reload)
+    const sentences = useMemo(() => generateLayout(), []);
 
     useEffect(() => {
         const handleWheel = (e) => {
