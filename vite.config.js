@@ -43,5 +43,6 @@ export default defineConfig({
         return { relative: true };
       }
     }
-  }
+  },
+
 });

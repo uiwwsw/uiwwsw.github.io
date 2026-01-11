@@ -1,9 +1,8 @@
 const CACHE_NAME = 'uiwwsw-v1.0.1';
+// Use relative paths for GitHub Pages compatibility
 const urlsToCache = [
   '/',
   '/index.html',
-  '/static/js/bundle.js',
-  '/static/css/main.css',
   '/universe.png',
   '/favicon.ico'
 ];
@@ -14,7 +13,15 @@ self.addEventListener('install', (event) => {
     caches.open(CACHE_NAME)
       .then((cache) => {
         console.log('Opened cache');
-        return cache.addAll(urlsToCache);
+        // Cache individual resources with error handling
+        return Promise.all(
+          urlsToCache.map(url => {
+            return cache.add(url).catch(err => {
+              console.warn(`Failed to cache ${url}:`, err);
+              return Promise.resolve();
+            });
+          })
+        );
       })
   );
 });
