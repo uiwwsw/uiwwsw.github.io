@@ -345,6 +345,8 @@ const WordCloud = ({ onSelectSentence, selectedSentence, contextSentences }) => 
     const activeWordRef = useRef(null);
     const touchDistRef = useRef(null);
     const clickStartTime = useRef(0);
+    const wasPinchRef = useRef(false);
+    const isReturningRef = useRef(false); // [Safety] Block clicks right after returning
     const [sentencesData, setSentencesData] = React.useState(null);
 
     // Load data asynchronously (font is imported directly)
@@ -414,6 +416,17 @@ const WordCloud = ({ onSelectSentence, selectedSentence, contextSentences }) => 
             isDragging.current = false;
             isBraking.current = false;
             touchDistRef.current = null; // Clear pinch/tap state
+            wasPinchRef.current = false; // [Safety] Ensure pinch state is cleared
+            isReturningRef.current = true; // [Safety] Block unintentional clicks immediately after close
+            setTimeout(() => { isReturningRef.current = false; }, 500);
+
+            // [Safety] Stop any residual rotation
+            rotVel.current = { x: 0, y: 0 };
+
+            // [Safety] Resume gentle cruising if stopped, to avoid "dead canvas" feel
+            if (Math.abs(speedRef.current) < 5) {
+                speedRef.current = 20;
+            }
 
             // Note: hoverCount is managed by onHover events, but we might want to ensure momentum resumes
 
@@ -422,10 +435,9 @@ const WordCloud = ({ onSelectSentence, selectedSentence, contextSentences }) => 
                 // Ensure we are stopped or resume gently?
                 // User said "cancel whatever hold", implying they want it "free".
                 // Stop momentum initially to prevent sudden jump, but flags are now clear so auto-cruise will pick up immediately.
-                stopMomentum();
+                // stopMomentum(); // REMOVED: Let the speed reset above take effect for smoother return
 
-                // Optional: If we want to resume cruising immediately, we could set speedRef to MIN_SPEED
-                // speedRef.current = 20; 
+
             }
         }
         prevSelectionRef.current = selectedSentence;
@@ -488,6 +500,9 @@ const WordCloud = ({ onSelectSentence, selectedSentence, contextSentences }) => 
 
         const handleTouchStart = (e) => {
             if (selectedSentence) return;
+            // [Safety] Only canvas touches
+            if (e.target.nodeName !== 'CANVAS') return;
+
             hasInteracted.current = true;
             e.preventDefault(); // Prevent default scroll/zoom
 
@@ -503,6 +518,10 @@ const WordCloud = ({ onSelectSentence, selectedSentence, contextSentences }) => 
                 return;
             }
             isBraking.current = false;
+
+            if (e.touches.length > 1) {
+                wasPinchRef.current = true;
+            }
 
             if (e.touches.length === 2) {
                 // PINCH ZOOM DETECTED -> Break Hold
@@ -562,6 +581,17 @@ const WordCloud = ({ onSelectSentence, selectedSentence, contextSentences }) => 
             if (e.touches.length === 0) {
                 isDragging.current = false;
                 isHolding.current = false;
+
+                // [Safety] Delayed "Watchdog" reset
+                // If for any reason state gets stuck (e.g. pinch flag), clear it after a short delay
+                // preventing permanent blockage of clicks.
+                setTimeout(() => {
+                    if (!isHolding.current) { // Only if user isn't holding again
+                        wasPinchRef.current = false;
+                        isDragging.current = false;
+                        touchDistRef.current = null;
+                    }
+                }, 600);
             }
         };
 
@@ -619,8 +649,11 @@ const WordCloud = ({ onSelectSentence, selectedSentence, contextSentences }) => 
     useEffect(() => {
         const onPointerDown = (e) => {
             if (globalIsIntro) return; // Block rotation during intro animation
+            // [Safety] Only interact if touching the canvas (ignore UI buttons)
+            if (e.target.nodeName !== 'CANVAS') return;
 
             lastMouse.current = { x: e.clientX, y: e.clientY };
+            if (e.isPrimary) wasPinchRef.current = false;
             clickStartTime.current = Date.now();
             hasInteracted.current = true; // Mark interaction immediately!
             isHolding.current = true;     // User is holding
@@ -668,7 +701,7 @@ const WordCloud = ({ onSelectSentence, selectedSentence, contextSentences }) => 
                 // CLICK DETECTION
                 // If we didn't drag, and we are not in detail mode, it's a click.
                 const clickDuration = Date.now() - clickStartTime.current;
-                if (!isDragging.current && !selectedSentence && !globalIsIntro && clickDuration < 500) {
+                if (!isDragging.current && !selectedSentence && !globalIsIntro && !wasPinchRef.current && !isReturningRef.current && clickDuration < 500) {
                     // It was a CLICK (Tap) on the background.
                     // Run "Find Nearest" Logic (Screen Space)
 
