@@ -5,7 +5,8 @@ import * as THREE from 'three';
 
 // Lazy load font and data for better performance
 const loadSentencesData = () => import('../data/velog-words.json');
-const loadFont = () => import('@fontsource/noto-sans-kr/files/noto-sans-kr-korean-900-normal.woff');
+// Import font directly to avoid async issues
+import notoFontUrl from '@fontsource/noto-sans-kr/files/noto-sans-kr-korean-900-normal.woff';
 
 // --- MODULE LEVEL STATE (SINGLETON) ---
 // Prevents state reset on component remounts
@@ -320,24 +321,22 @@ const SentenceWrapper = ({ id, displayText, fullSentence, url, articleId, senten
                     <meshBasicMaterial transparent opacity={0.0} color="red" />
                 </mesh>
 
-                {fontUrl && (
-                    <Text
-                        ref={textRef}
-                        fontSize={0.6}
-                        font={fontUrl}
-                        color={hovered ? "#ffffff" : "#dddddd"}
-                        anchorX="center"
-                        anchorY="middle"
-                        // Events moved to HitBox for better area control
-                        fillOpacity={0}
-                        outlineWidth="5%"
-                        outlineColor="#020202"
-                        whiteSpace="nowrap"
-                        overflowWrap="normal"
-                    >
-                        {displayText}
-                    </Text>
-                )}
+                <Text
+                    ref={textRef}
+                    fontSize={0.6}
+                    font={notoFontUrl}
+                    color={hovered ? "#ffffff" : "#dddddd"}
+                    anchorX="center"
+                    anchorY="middle"
+                    // Events moved to HitBox for better area control
+                    fillOpacity={0}
+                    outlineWidth="5%"
+                    outlineColor="#020202"
+                    whiteSpace="nowrap"
+                    overflowWrap="normal"
+                >
+                    {displayText}
+                </Text>
             </group>
         </Billboard>
     );
@@ -360,13 +359,11 @@ const WordCloud = ({ onSelectSentence, selectedSentence, contextSentences }) => 
     const activeWordRef = useRef(null);
     const touchDistRef = useRef(null);
     const [sentencesData, setSentencesData] = React.useState(null);
-    const [fontUrl, setFontUrl] = React.useState(null);
 
-    // Load data and font asynchronously
+    // Load data asynchronously (font is imported directly)
     React.useEffect(() => {
-        Promise.all([loadSentencesData(), loadFont()]).then(([dataModule, fontModule]) => {
+        loadSentencesData().then((dataModule) => {
             setSentencesData(dataModule.default);
-            setFontUrl(fontModule.default);
         });
     }, []);
 
@@ -814,8 +811,8 @@ const WordCloud = ({ onSelectSentence, selectedSentence, contextSentences }) => 
         }
     };
 
-    // Don't render until data is loaded
-    if (!sentencesData || !fontUrl) {
+    // Don't render until data is loaded (font can load asynchronously)
+    if (!sentencesData) {
         return null;
     }
 
