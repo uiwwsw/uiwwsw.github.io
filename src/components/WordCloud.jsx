@@ -715,7 +715,7 @@ const WordCloud = ({ onSelectSentence, selectedSentence, contextSentences }) => 
 
                     let closest = null;
                     let minScreenDistSq = Infinity;
-                    const MAX_CLICK_DIST = 100; // Pixels radius tolerance (generous)
+                    const BASE_CLICK_RADIUS = 60; // Max radius for fully visible items
 
                     const width = window.innerWidth;
                     const height = window.innerHeight;
@@ -734,6 +734,29 @@ const WordCloud = ({ onSelectSentence, selectedSentence, contextSentences }) => 
                         const pLocal = pos.clone().applyMatrix4(camera.matrixWorldInverse);
                         if (pLocal.z > 0) return; // Behind camera
 
+                        // DISTANCE CHECK (Size Proxy)
+                        const distanceToCamera = camera.position.distanceTo(pos);
+                        const FAR_CUTOFF = 250; // Items further than this are ignored (too small)
+                        if (distanceToCamera > FAR_CUTOFF) return;
+
+                        // Distance -> Click Radius Mapping
+                        // Closer = Larger Radius (Easier)
+                        // Farther = Smaller Radius (Harder)
+                        const NEAR_CUTOFF = 100; // Anything closer than this gets MAX radius
+                        // Map distance [100, 250] -> radius [60, 10]
+                        const MAX_RADIUS = 60;
+                        const MIN_RADIUS = 10;
+
+                        let allowedRadius = MAX_RADIUS;
+                        if (distanceToCamera > NEAR_CUTOFF) {
+                            // Linear Falloff
+                            const range = FAR_CUTOFF - NEAR_CUTOFF;
+                            const progress = (distanceToCamera - NEAR_CUTOFF) / range;
+                            const p = Math.max(0, Math.min(1, progress));
+                            allowedRadius = MAX_RADIUS - (p * (MAX_RADIUS - MIN_RADIUS));
+                        }
+                        const allowedDistSq = allowedRadius * allowedRadius;
+
                         pos.project(camera);
 
                         const x = (pos.x * widthHalf) + widthHalf;
@@ -743,14 +766,18 @@ const WordCloud = ({ onSelectSentence, selectedSentence, contextSentences }) => 
                         const dy = y - screenY;
                         const distSq = dx * dx + dy * dy;
 
+                        // 1. Is it within its OWN valid radius?
+                        if (distSq > allowedDistSq) return;
+
+                        // 2. Is it the CLOSEST valid one found so far?
                         if (distSq < minScreenDistSq) {
                             minScreenDistSq = distSq;
                             closest = data; // Return the metadata
                         }
                     });
 
-                    // 3. Select if found within range
-                    if (closest && minScreenDistSq < MAX_CLICK_DIST * MAX_CLICK_DIST) {
+                    // 3. Select if found (Validity already checked inside loop)
+                    if (closest) {
                         handleSelectSentenceWrapper(closest);
                         isDragging.current = false;
                         isHolding.current = false;
