@@ -665,72 +665,6 @@
     ]
   },
   "5": {
-    "title": "비약이 심한 글",
-    "link": "https://velog.io/@uiwwsw/비약이-심한-글",
-    "sentences": [
-      {
-        "fullSentence": "눈치가 없으면 결국 온전한 인간이 되기 어렵다.",
-        "index": 0,
-        "type": "text"
-      },
-      {
-        "fullSentence": "여기서 말하는 눈치는 요령이 아니라 감각의 영역이다.",
-        "index": 1,
-        "type": "text"
-      },
-      {
-        "fullSentence": "눈치 없는 사람은 마치 감각 장비가 100까지 달려 있음에도\n항상 1로만 켜두고 사는 사람과 같다.",
-        "index": 2,
-        "type": "text"
-      },
-      {
-        "fullSentence": "주변 사람들은 예민하게 느끼는 자극을,\n그는 아예 “존재하지 않는다”고 인식한다.",
-        "index": 3,
-        "type": "text"
-      },
-      {
-        "fullSentence": "문제는 거기서 끝나지 않는다.",
-        "index": 4,
-        "type": "text"
-      },
-      {
-        "fullSentence": "자극을 느끼지 못하면 생각할 기회조차 사라진다.",
-        "index": 5,
-        "type": "text"
-      },
-      {
-        "fullSentence": "생각하지 않으면 판단하지 못하고,\n결국 스스로를 우매한 상태에 방치하게 된다.",
-        "index": 6,
-        "type": "text"
-      },
-      {
-        "fullSentence": "사람들이 흔히 말하는 ‘예민함’은\n실은 똑똑함의 가장 기초적인 조건이다.",
-        "index": 7,
-        "type": "text"
-      },
-      {
-        "fullSentence": "미세한 변화를 감지하고, 맥락을 읽고,\n말하지 않은 의도를 추측하는 능력 말이다.",
-        "index": 8,
-        "type": "text"
-      },
-      {
-        "fullSentence": "그래서 눈치 없는 사람,\n맥락을 감지하지 못하는 사람은\n결코 똑똑해질 수 없다.",
-        "index": 9,
-        "type": "text"
-      },
-      {
-        "fullSentence": "똑똑하지 않으면 배려할 수 없고,\n배려할 수 없다면\n끝내 좋은 사람이 될 수 없다.",
-        "index": 10,
-        "type": "text"
-      },
-      {
-        "fullSentence": "Assisted by AI",
-        "index": 11,
-        "type": "text"
-      }
-    ]
-  },
-  "6": {
     "title": "나무에 대한 평가",
     "link": "https://velog.io/@uiwwsw/나무에-대한-평가",
     "sentences": [
@@ -846,7 +780,7 @@
       }
     ]
   },
-  "7": {
+  "6": {
     "title": "\"키 큰 남자가 좋아요\"에 대해서",
     "link": "https://velog.io/@uiwwsw/키큰남자가좋아요",
     "sentences": [
@@ -942,7 +876,7 @@
       }
     ]
   },
-  "8": {
+  "7": {
     "title": "어른이",
     "link": "https://velog.io/@uiwwsw/어른이",
     "sentences": [
@@ -1068,7 +1002,7 @@
       }
     ]
   },
-  "9": {
+  "8": {
     "title": "소개팅",
     "link": "https://velog.io/@uiwwsw/소개팅",
     "sentences": [
@@ -1104,7 +1038,7 @@
       }
     ]
   },
-  "10": {
+  "9": {
     "title": "관계의 증명",
     "link": "https://velog.io/@uiwwsw/관계의-증명",
     "sentences": [
@@ -1120,7 +1054,7 @@
       }
     ]
   },
-  "11": {
+  "10": {
     "title": "열 수 있는 자물쇠",
     "link": "https://velog.io/@uiwwsw/이유",
     "sentences": [
@@ -1136,7 +1070,7 @@
       }
     ]
   },
-  "12": {
+  "11": {
     "title": "기울어가는 것",
     "link": "https://velog.io/@uiwwsw/기울어가는-것",
     "sentences": [
@@ -1202,7 +1136,7 @@
       }
     ]
   },
-  "13": {
+  "12": {
     "title": "사랑의 끝은 썩 아름답지 못하다.",
     "link": "https://velog.io/@uiwwsw/사랑의-끝은-썩-아름답지-못하다",
     "sentences": [
@@ -1243,7 +1177,7 @@
       }
     ]
   },
-  "14": {
+  "13": {
     "title": "\"지도 앱 켰다가 뇌 터질 뻔해서 직접 만들었습니다\" (feat. UI만 5번 엎은 썰)",
     "link": "https://velog.io/@uiwwsw/지도-앱-켰다가-뇌-터질-뻔해서-직접-만들었습니다-feat.-UI만-5번-엎은-썰",
     "sentences": [
@@ -1469,7 +1403,7 @@
       }
     ]
   },
-  "15": {
+  "14": {
     "title": "익선동의 경계, 종로3가역",
     "link": "https://velog.io/@uiwwsw/익선동의-경계-종로3가역",
     "sentences": [
@@ -1525,7 +1459,7 @@
       }
     ]
   },
-  "16": {
+  "15": {
     "title": "보이지 않는 선",
     "link": "https://velog.io/@uiwwsw/보이지-않는-선",
     "sentences": [
@@ -1721,7 +1655,7 @@
       }
     ]
   },
-  "17": {
+  "16": {
     "title": "봉사 토끼",
     "link": "https://velog.io/@uiwwsw/봉사-토끼",
     "sentences": [
@@ -1931,33 +1865,73 @@
         "type": "text"
       },
       {
-        "fullSentence": "앞서의 토끼가 무리에서 밀려난 이유도 다르지 않다.",
+        "fullSentence": "앞서의 토끼가 무리에서 밀려난 이유도 크게 다르지 않다.",
         "index": 41,
         "type": "text"
       },
       {
-        "fullSentence": "함께 살아간다는 것은, 서로의 발밑을 살피는 일이다.",
+        "fullSentence": "그 토끼는 보지 못했기 때문에, 결과적으로 다른 토끼들에게 피해를 만들었다.",
         "index": 42,
         "type": "text"
       },
       {
-        "fullSentence": "미래의 풀을 밟지 않기 위해, 잠시 시선을 낮추는 일이다.",
+        "fullSentence": "미래의 풀을 밟았고, 그 행위는 의도와 무관하게 무리의 생존 조건을 훼손했다.",
         "index": 43,
         "type": "text"
       },
       {
-        "fullSentence": "타인에게 피해를 주지 않기 위해 필요한 것은 외면이 아니라 섬세함이다.",
+        "fullSentence": "차이가 있다면 하나뿐이다.",
         "index": 44,
         "type": "text"
       },
       {
-        "fullSentence": "제대로 보지 않는 사람은, 결국 제대로 존중할 수 없다.",
+        "fullSentence": "그 토끼의 행위가 악의나 무관심이 아니라, 장애로 인해 피할 수 없는 것이었다는 점이다.",
         "index": 45,
+        "type": "text"
+      },
+      {
+        "fullSentence": "그리고 또 하나의 차이는, 그 사정을 끝내 정상 참작하지 못한 다른 토끼들의 태도다.",
+        "index": 46,
+        "type": "text"
+      },
+      {
+        "fullSentence": "그러나 무리는 결과 앞에서 그 둘을 구분하지 않았다.",
+        "index": 47,
+        "type": "text"
+      },
+      {
+        "fullSentence": "의도하지 않았다는 사실도, 어쩔 수 없었다는 사정도, 이미 훼손된 풀 앞에서는 의미를 갖지 못했다.",
+        "index": 48,
+        "type": "text"
+      },
+      {
+        "fullSentence": "피해는 피해였고, 그로 인해 생긴 균열은 그대로 남았다.",
+        "index": 49,
+        "type": "text"
+      },
+      {
+        "fullSentence": "결국 문제는 선의냐 악의냐가 아니라, 함께 살아가는 환경에서 어떤 결과가 발생했는가에 있었다.",
+        "index": 50,
+        "type": "text"
+      },
+      {
+        "fullSentence": "함께 산다는 것은 의도를 증명하는 일이 아니라, 결과를 관리하는 일에 가깝다.",
+        "index": 51,
+        "type": "text"
+      },
+      {
+        "fullSentence": "그래서 타인에게 피해를 주지 않기 위해 필요한 것은 변명이나 설명이 아니라, 가능한 한 덜 밟기 위해 시선을 낮추는 일이다.",
+        "index": 52,
+        "type": "text"
+      },
+      {
+        "fullSentence": "Assisted by AI",
+        "index": 53,
         "type": "text"
       }
     ]
   },
-  "18": {
+  "17": {
     "title": "0.0001도의 차이, 그 고독한 궤적에 대하여",
     "link": "https://velog.io/@uiwwsw/형질의-구",
     "sentences": [
@@ -2088,7 +2062,7 @@
       }
     ]
   },
-  "19": {
+  "18": {
     "title": "🚀 스토리북에 버전별 컴포넌트 모으기 — 한 곳에서 깔끔하게 비교하는 법",
     "link": "https://velog.io/@uiwwsw/스토리북에-버전별-컴포넌트-보여주기-낭비-없이-한-곳에-모으는-법",
     "sentences": [
@@ -2382,7 +2356,7 @@
       }
     ]
   },
-  "20": {
+  "19": {
     "title": "링크드인",
     "link": "https://velog.io/@uiwwsw/링크드인",
     "sentences": [
@@ -2418,7 +2392,7 @@
       }
     ]
   },
-  "22": {
+  "21": {
     "title": "양치기소년",
     "link": "https://velog.io/@uiwwsw/양치기소년",
     "sentences": [
@@ -2494,7 +2468,7 @@
       }
     ]
   },
-  "23": {
+  "22": {
     "title": "🔐 재미와 보안, 두 마리 토끼를 잡는 이스터에그 구현법",
     "link": "https://velog.io/@uiwwsw/재미와-보안-두-마리-토끼를-잡는-이스터에그-구현법",
     "sentences": [
@@ -2532,7 +2506,7 @@
       }
     ]
   },
-  "24": {
+  "23": {
     "title": "늦게 당도한 파도가 가장 깊은 곳을 적신다",
     "link": "https://velog.io/@uiwwsw/늦게-당도한-파도가-가장-깊은-곳을-적신다",
     "sentences": [
@@ -2673,7 +2647,7 @@
       }
     ]
   },
-  "25": {
+  "24": {
     "title": "💳 선불권을 디지털로 – 프리페이 실험기",
     "link": "https://velog.io/@uiwwsw/선불권을-디지털로-프리페이-실험기",
     "sentences": [
@@ -2789,7 +2763,7 @@
       }
     ]
   },
-  "26": {
+  "25": {
     "title": "🧪 커스텀 인풋과 키보드, 프로토타입에서 진짜 설계로 (2부)",
     "link": "https://velog.io/@uiwwsw/커스텀-인풋과-키보드-프로토타입에서-진짜-설계로-2부",
     "sentences": [
@@ -2904,7 +2878,7 @@
       }
     ]
   },
-  "27": {
+  "26": {
     "title": "🧠 한글 입력의 미스터리: 컴포지션 이슈의 정체 (1부)",
     "link": "https://velog.io/@uiwwsw/한글-입력의-미스터리-컴포지션-이슈의-정체-1부",
     "sentences": [
@@ -3015,7 +2989,7 @@
       }
     ]
   },
-  "28": {
+  "27": {
     "title": "리엑트쿼리 자동화 스크립트",
     "link": "https://velog.io/@uiwwsw/리엑트쿼리-자동화-스크립트",
     "sentences": [
@@ -3119,7 +3093,7 @@
       }
     ]
   },
-  "29": {
+  "28": {
     "title": "\"AI는 왜 항상 페더레이션을 추천할까?\" — 현실적인 시선으로 바라본 MFE 선택기준",
     "link": "https://velog.io/@uiwwsw/페더레이션-vs-아이프레임",
     "sentences": [
@@ -3270,7 +3244,7 @@
       }
     ]
   },
-  "31": {
+  "30": {
     "title": "Object.entries의 얕은 추론 한계를 해결하는 단 하나의 방법",
     "link": "https://velog.io/@uiwwsw/Object.entries의-얕은-추론-한계를-해결하는-단-하나의-방법",
     "sentences": [
@@ -3421,7 +3395,7 @@
       }
     ]
   },
-  "32": {
+  "31": {
     "title": "😱 왜 빈 팝업이 뜰까? `onLoadCapture`로 해결하는 깔끔한 팝업 UX",
     "link": "https://velog.io/@uiwwsw/왜-빈-팝업이-뜰까-onLoadCapture로-해결하는-깔끔한-팝업-UX",
     "sentences": [
@@ -3515,7 +3489,7 @@
       }
     ]
   },
-  "33": {
+  "32": {
     "title": "💡 하나의 UI, 다양한 상황에 맞게 쪼개 쓰기 — Step 컴포넌트 만들기",
     "link": "https://velog.io/@uiwwsw/하나의-UI-다양한-상황에-맞게-쪼개-쓰기-Step-컴포넌트-만들기",
     "sentences": [
@@ -3656,7 +3630,7 @@
       }
     ]
   },
-  "34": {
+  "33": {
     "title": "🎨 팀으로서 일을 한다는 것",
     "link": "https://velog.io/@uiwwsw/팀으로서-일을-한다는-것",
     "sentences": [
@@ -3708,7 +3682,7 @@
       }
     ]
   },
-  "35": {
+  "34": {
     "title": "🎯 React에서 더 유연하게 Slot 컴포넌트 만들기 — JSX를 직접 다루는 패턴",
     "link": "https://velog.io/@uiwwsw/리액트에서-asChild로-Slot-패턴-구현하기",
     "sentences": [
@@ -3833,7 +3807,7 @@
       }
     ]
   },
-  "36": {
+  "35": {
     "title": "🧠 useStorage — localStorage 동기화 유틸 훅 만들기 (React Custom Hook)",
     "link": "https://velog.io/@uiwwsw/useStorage-localStorage-동기화-유틸-훅-만들기-React-Custom-Hook",
     "sentences": [
@@ -3861,7 +3835,7 @@
       }
     ]
   },
-  "37": {
+  "36": {
     "title": "왜 또 “컨펌 모달”인가?",
     "link": "https://velog.io/@uiwwsw/confirm",
     "sentences": [
@@ -3977,7 +3951,7 @@
       }
     ]
   },
-  "38": {
+  "37": {
     "title": "🧠 onDoublePointerDown — 더블 클릭보다 더 유연한 더블 포인터 이벤트\n",
     "link": "https://velog.io/@uiwwsw/withDoublePointerDown",
     "sentences": [
@@ -4051,86 +4025,7 @@
       }
     ]
   },
-  "39": {
-    "title": "🪄 useNextTick — 다음 큐로 함수를 밀어내는 간단한 유틸 훅",
-    "link": "https://velog.io/@uiwwsw/useNextTick",
-    "sentences": [
-      {
-        "fullSentence": "예를 들어:\n\nDOM 업데이트 이후에 실행\n상태 변경 직후에 부수 효과 실행\nsetTimeout 0 같은 구조\n\nReact 환경에서도 이런 경우를 자주 마주치는데요, 이를 간단하게 처리할 수 있는 훅이 있습니다.",
-        "index": 0,
-        "type": "text"
-      },
-      {
-        "fullSentence": "import { usePreservedCallback } from 'react-simplikit';\n\nexport function useNextTick<J, T>(callback: (param?: J) => T) {\n  const nextTick = usePreservedCallback((param?: J): Promise<T> => {\n    return new Promise(resolve => {\n      setTimeout(() => {\n        resolve(callback(param));\n      }, 0); // 다음 이벤트 큐에 밀어넣기\n    });\n  });\n\n  return nextTick;\n}",
-        "index": 1,
-        "type": "code",
-        "language": "tsx"
-      },
-      {
-        "fullSentence": "setTimeout(..., 0)은 브라우저가 다음 이벤트 루프에 실행하도록 보장합니다.",
-        "index": 2,
-        "type": "text"
-      },
-      {
-        "fullSentence": "usePreservedCallback은 최신 콜백 참조를 보존하기 위한 커스텀 훅입니다.",
-        "index": 3,
-        "type": "text"
-      },
-      {
-        "fullSentence": "반환값은 Promise<T>이므로 await 가능!",
-        "index": 4,
-        "type": "text"
-      },
-      {
-        "fullSentence": "const handleStartShake = useNextTick(() => {\n  console.log(1);\n});\n\nconst test = () => {\n  handleStartShake();\n  console.log(2);\n};",
-        "index": 5,
-        "type": "code",
-        "language": "tsx"
-      },
-      {
-        "fullSentence": "2\n1",
-        "index": 6,
-        "type": "code",
-        "language": null
-      },
-      {
-        "fullSentence": "handleStartShake는 다음 큐에서 실행되기 때문에 console.",
-        "index": 7,
-        "type": "text"
-      },
-      {
-        "fullSentence": "log(2)가 먼저 출력됩니다.",
-        "index": 8,
-        "type": "text"
-      },
-      {
-        "fullSentence": "setState 이후 DOM이 완전히 반영된 다음 로직 실행\n리렌더 이후 스크롤/포커스/애니메이션 등 부수효과 적용\n이벤트 순서 컨트롤이 필요할 때\n\n\n\n🛠️ 번외: React에서 nextTick이 필요한 이유\n\nReact의 상태 업데이트는 비동기이고 배치 처리됩니다.",
-        "index": 9,
-        "type": "text"
-      },
-      {
-        "fullSentence": "즉, 다음 렌더링이 보장된 시점에 작업을 하고 싶다면 한 틱 뒤로 미루는 전략이 필요하죠.",
-        "index": 10,
-        "type": "text"
-      },
-      {
-        "fullSentence": "기존 JS의 queueMicrotask 또는 setTimeout 0과 유사한 역할\n\n\n\n🧼 마무리\n\nuseNextTick은 단순하지만 강력한 도구입니다.",
-        "index": 11,
-        "type": "text"
-      },
-      {
-        "fullSentence": "React 환경에서 \"렌더 이후\"를 제어할 때 아주 유용합니다.",
-        "index": 12,
-        "type": "text"
-      },
-      {
-        "fullSentence": "Promise 기반이므로 await과 함께 쓰면 더 깔끔!",
-        "index": 13,
-        "type": "text"
-      }
-    ]
-  },
-  "40": {
+  "38": {
     "title": "테이블 UI에서 \"자세히 보기\"를 구현하는 컴포넌트",
     "link": "https://velog.io/@uiwwsw/확대-ui-컴포넌트",
     "sentences": [

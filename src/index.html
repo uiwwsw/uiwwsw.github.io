@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover" />
   <title>uiwwsw | 생각의 우주</title>
   <meta name="description"
     content="프론트엔드 개발자 uiwwsw의 기술 블로그. 머릿속을 부유하는 문장들과 코드의 조각들을 모아놓은 3D 워드 클라우드 우주입니다. React, Three.js, 프론트엔드 개발 이야기." />
@@ -12,11 +12,37 @@
   <meta name="theme-color" content="#050505" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  
+  <!-- Preload critical resources -->
+  <link rel="preload" href="/universe.png" as="image" type="image/png" />
+  
+  <!-- Optimize favicon loading -->
   <link rel="icon" href="/favicon.ico" sizes="any" />
-  <link rel="icon" type="image/png" sizes="32x32" href="/universe.png?v=2" />
-  <link rel="icon" type="image/png" sizes="16x16" href="/universe.png?v=2" />
-  <link rel="apple-touch-icon" href="/universe.png?v=2" />
-  <link rel="shortcut icon" href="/universe.png?v=2" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/universe.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="/universe.png" />
+  <link rel="apple-touch-icon" href="/universe.png" />
+  <link rel="shortcut icon" href="/universe.png" />
+  
+  <!-- DNS prefetch and preconnect for external resources -->
+  <link rel="dns-prefetch" href="//fonts.googleapis.com">
+  <link rel="dns-prefetch" href="//fonts.gstatic.com">
+  <link rel="preconnect" href="//fonts.googleapis.com" crossorigin>
+  <link rel="preconnect" href="//fonts.gstatic.com" crossorigin>
+  
+  <!-- Resource hints for better performance -->
+  <link rel="preload" href="/universe.png" as="image" type="image/png" />
+  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600&display=swap" as="style" />
+  
+  <!-- Critical CSS inline -->
+  <style>
+    body{margin:0;font-family:'Space Grotesk',system-ui,-apple-system,sans-serif;background:#050505;color:#fff;overflow:hidden;width:100vw;height:100vh;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none;touch-action:manipulation;overscroll-behavior:none}.canvas-container{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;touch-action:none;transition:transform .6s cubic-bezier(.2,.8,.2,1);transform-origin:center center;will-change:transform;contain:layout paint}.overlay{position:relative;z-index:10;width:100%;height:100%;pointer-events:none;display:flex;flex-direction:column;justify-content:space-between;padding:40px}.header{display:flex;justify-content:space-between;align-items:center;pointer-events:none}.logo{font-weight:600;font-size:1.25rem;letter-spacing:-.02em}.content{pointer-events:none;max-width:800px}.content h1{font-size:5rem;line-height:.9;letter-spacing:-.04em;margin:0 0 2rem;font-weight:600}.gradient-text{background:linear-gradient(to right,#fff,#94a3b8);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}.subtitle{font-size:1.5rem;line-height:1.4;color:#94a3b8;font-weight:300;margin:0 0 4rem}@media(max-width:768px){.overlay{padding:24px}.content h1{font-size:3.5rem}.subtitle{font-size:1.1rem}}
+  </style>
+  
+  <!-- Mobile optimization -->
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="format-detection" content="telephone=no">
 
   <!-- Open Graph / Facebook -->
   <meta property="og:type" content="website" />
@@ -36,6 +62,21 @@
 <body>
   <div id="root"></div>
   <script type="module" src="./main.jsx"></script>
+  
+  <!-- Service Worker Registration -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+          .then((registration) => {
+            console.log('SW registered: ', registration);
+          })
+          .catch((registrationError) => {
+            console.log('SW registration failed: ', registrationError);
+          });
+      });
+    }
+  </script>
 </body>
 
 </html>

@@ -1,10 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, lazy, Suspense } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { PerspectiveCamera } from '@react-three/drei';
 import { EffectComposer, Bloom, Vignette } from '@react-three/postprocessing';
 import './index.css';
-import WordCloud from './components/WordCloud';
-import contextData from './data/velog-context.json';
+
+// Lazy load components for better performance
+const WordCloud = lazy(() => import('./components/WordCloud'));
+const loadContextData = () => import('./data/velog-context.json');
 
 // --------------------------------------------------------
 // Main Scenery
@@ -16,12 +18,20 @@ const canvasConfig = { antialias: false, alpha: false, stencil: false, depth: tr
 export default function App() {
   const [selectedSentence, setSelectedSentence] = useState(null);
   const [contextSentences, setContextSentences] = useState([]);
+  const [contextData, setContextData] = useState(null);
 
-  const handleSelectSentence = (sentenceData) => {
+  // Load context data on demand
+  React.useEffect(() => {
+    loadContextData().then(module => {
+      setContextData(module.default);
+    });
+  }, []);
+
+  const handleSelectSentence = async (sentenceData) => {
     setSelectedSentence(sentenceData);
 
     // Get context sentences (exactly 5 total if possible)
-    if (sentenceData && contextData[sentenceData.articleId]) {
+    if (sentenceData && contextData && contextData[sentenceData.articleId]) {
       const article = contextData[sentenceData.articleId];
       const sentences = article.sentences;
       const currentIndex = Number(sentenceData.sentenceIndex);
@@ -78,11 +88,13 @@ export default function App() {
           <color attach="background" args={['#020202']} />
           <PerspectiveCamera makeDefault position={[0, 40, 0]} fov={50} />
 
-          <WordCloud
-            onSelectSentence={handleSelectSentence}
-            selectedSentence={selectedSentence}
-            contextSentences={contextSentences}
-          />
+          <Suspense fallback={null}>
+            <WordCloud
+              onSelectSentence={handleSelectSentence}
+              selectedSentence={selectedSentence}
+              contextSentences={contextSentences}
+            />
+          </Suspense>
 
           <EffectComposer disableNormalPass>
             <Bloom luminanceThreshold={0.0} mipmapBlur intensity={0.8} radius={0.5} />
