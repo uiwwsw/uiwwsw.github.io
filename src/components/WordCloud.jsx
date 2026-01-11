@@ -344,6 +344,7 @@ const WordCloud = ({ onSelectSentence, selectedSentence, contextSentences }) => 
     const mouseRef = useRef(new THREE.Vector3(0, 0, 0));
     const activeWordRef = useRef(null);
     const touchDistRef = useRef(null);
+    const clickStartTime = useRef(0);
     const [sentencesData, setSentencesData] = React.useState(null);
 
     // Load data asynchronously (font is imported directly)
@@ -620,6 +621,7 @@ const WordCloud = ({ onSelectSentence, selectedSentence, contextSentences }) => 
             if (globalIsIntro) return; // Block rotation during intro animation
 
             lastMouse.current = { x: e.clientX, y: e.clientY };
+            clickStartTime.current = Date.now();
             hasInteracted.current = true; // Mark interaction immediately!
             isHolding.current = true;     // User is holding
 
@@ -665,7 +667,8 @@ const WordCloud = ({ onSelectSentence, selectedSentence, contextSentences }) => 
 
                 // CLICK DETECTION
                 // If we didn't drag, and we are not in detail mode, it's a click.
-                if (!isDragging.current && !selectedSentence && !globalIsIntro) {
+                const clickDuration = Date.now() - clickStartTime.current;
+                if (!isDragging.current && !selectedSentence && !globalIsIntro && clickDuration < 500) {
                     // It was a CLICK (Tap) on the background.
                     // Run "Find Nearest" Logic (Screen Space)
 
