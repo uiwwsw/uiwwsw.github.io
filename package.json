@@ -23,6 +23,7 @@
     "@vitejs/plugin-react": "^4.3.3",
     "cheerio": "^1.1.2",
     "rss-parser": "^3.13.0",
+    "terser": "^5.44.1",
     "vite": "^5.4.1"
   }
 }

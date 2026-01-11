@@ -10,5 +10,38 @@ export default defineConfig({
   build: {
     outDir: '../dist',
     emptyOutDir: true,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom'],
+          three: ['three', '@react-three/fiber', '@react-three/drei', '@react-three/postprocessing'],
+          fonts: ['@fontsource/noto-sans-kr']
+        }
+      }
+    },
+    minify: 'terser',
+    sourcemap: false,
+    chunkSizeWarningLimit: 1000,
+    cssCodeSplit: true,
+    modulePreload: {
+      polyfill: true
+    }
   },
+  optimizeDeps: {
+    include: ['react', 'react-dom', 'three']
+  },
+  server: {
+    headers: {
+      'Cache-Control': 'public, max-age=31536000'
+    }
+  },
+  experimental: {
+    renderBuiltUrl(filename, { hostType }) {
+      if (hostType === 'js') {
+        return { js: `/${filename}` };
+      } else {
+        return { relative: true };
+      }
+    }
+  }
 });

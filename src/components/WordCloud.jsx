@@ -1,9 +1,11 @@
-import React, { useMemo, useRef, useState, useEffect } from 'react';
+import React, { useMemo, useRef, useState, useEffect, lazy, Suspense } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
 import { Text, Billboard } from '@react-three/drei';
 import * as THREE from 'three';
-import sentencesData from '../data/velog-words.json';
-import notoFontUrl from '@fontsource/noto-sans-kr/files/noto-sans-kr-korean-900-normal.woff';
+
+// Lazy load font and data for better performance
+const loadSentencesData = () => import('../data/velog-words.json');
+const loadFont = () => import('@fontsource/noto-sans-kr/files/noto-sans-kr-korean-900-normal.woff');
 
 // --- MODULE LEVEL STATE (SINGLETON) ---
 // Prevents state reset on component remounts
@@ -13,7 +15,7 @@ let globalUserPos = new THREE.Vector3(0, 0, 400); // For restoring position on r
 let globalUserQuat = new THREE.Quaternion();
 
 // --- GLOBAL SENTENCES GENERATION (Dynamic Helper) ---
-const generateLayout = () => {
+const generateLayout = (data) => {
     const positions = [];
     const MIN_DISTANCE = 20; // Minimum distance between words to prevent overlap
 
@@ -28,7 +30,7 @@ const generateLayout = () => {
         });
     };
 
-    return sentencesData.map((s, i) => {
+    return data.map((s, i) => {
         // Generate Display Text
         let displayText;
         if (s.type === 'code') {
@@ -318,22 +320,24 @@ const SentenceWrapper = ({ id, displayText, fullSentence, url, articleId, senten
                     <meshBasicMaterial transparent opacity={0.0} color="red" />
                 </mesh>
 
-                <Text
-                    ref={textRef}
-                    fontSize={0.6}
-                    font={notoFontUrl}
-                    color={hovered ? "#ffffff" : "#dddddd"}
-                    anchorX="center"
-                    anchorY="middle"
-                    // Events moved to HitBox for better area control
-                    fillOpacity={0}
-                    outlineWidth="5%"
-                    outlineColor="#020202"
-                    whiteSpace="nowrap"
-                    overflowWrap="normal"
-                >
-                    {displayText}
-                </Text>
+                {fontUrl && (
+                    <Text
+                        ref={textRef}
+                        fontSize={0.6}
+                        font={fontUrl}
+                        color={hovered ? "#ffffff" : "#dddddd"}
+                        anchorX="center"
+                        anchorY="middle"
+                        // Events moved to HitBox for better area control
+                        fillOpacity={0}
+                        outlineWidth="5%"
+                        outlineColor="#020202"
+                        whiteSpace="nowrap"
+                        overflowWrap="normal"
+                    >
+                        {displayText}
+                    </Text>
+                )}
             </group>
         </Billboard>
     );
@@ -355,6 +359,16 @@ const WordCloud = ({ onSelectSentence, selectedSentence, contextSentences }) => 
     const mouseRef = useRef(new THREE.Vector3(0, 0, 0));
     const activeWordRef = useRef(null);
     const touchDistRef = useRef(null);
+    const [sentencesData, setSentencesData] = React.useState(null);
+    const [fontUrl, setFontUrl] = React.useState(null);
+
+    // Load data and font asynchronously
+    React.useEffect(() => {
+        Promise.all([loadSentencesData(), loadFont()]).then(([dataModule, fontModule]) => {
+            setSentencesData(dataModule.default);
+            setFontUrl(fontModule.default);
+        });
+    }, []);
 
     // Custom Rotation Controls
     const rotVel = useRef({ x: 0, y: 0 });
@@ -367,17 +381,12 @@ const WordCloud = ({ onSelectSentence, selectedSentence, contextSentences }) => 
         onSelectSentence(data);
     };
 
-    // Intro Animation State (Use Global to persist across remounts)
-
-    // Stop all momentum helper
-
     // Stop all momentum helper
     const stopMomentum = () => {
         speedRef.current = 0;
         rotVel.current = { x: 0, y: 0 };
     };
 
-    // const [isReturning, setIsReturning] = useState(false); Removed return animation
     const prevSelectionRef = useRef(null);
     const speedRef = useRef(0);
     const lastWheelTime = useRef(0);
@@ -436,7 +445,10 @@ const WordCloud = ({ onSelectSentence, selectedSentence, contextSentences }) => 
     }, [selectedSentence]);
 
     // Use dynamic generation (Memoized to persist during interaction, but fresh on reload)
-    const sentences = useMemo(() => generateLayout(), []);
+    const sentences = useMemo(() => {
+        if (!sentencesData) return [];
+        return generateLayout(sentencesData);
+    }, [sentencesData]);
 
     useEffect(() => {
         const handleWheel = (e) => {
@@ -478,6 +490,7 @@ const WordCloud = ({ onSelectSentence, selectedSentence, contextSentences }) => 
 
         const handleTouchStart = (e) => {
             hasInteracted.current = true;
+            e.preventDefault(); // Prevent default scroll/zoom
 
             // Brake Logic: If moving fast, just stop.
             if (Math.abs(speedRef.current) > 5) {
@@ -567,9 +580,9 @@ const WordCloud = ({ onSelectSentence, selectedSentence, contextSentences }) => 
         };
 
         window.addEventListener('wheel', handleWheel, { passive: false });
-        window.addEventListener('touchstart', handleTouchStart, { passive: false });
-        window.addEventListener('touchmove', handleTouchMove, { passive: false });
-        window.addEventListener('touchend', handleTouchEnd);
+        window.addEventListener('touchstart', handleTouchStart, { passive: false, capture: true });
+        window.addEventListener('touchmove', handleTouchMove, { passive: false, capture: true });
+        window.addEventListener('touchend', handleTouchEnd, { passive: true });
         window.addEventListener('gesturestart', handleGestureStart, { passive: false });
         window.addEventListener('gesturechange', handleGestureChange, { passive: false });
 
@@ -800,6 +813,11 @@ const WordCloud = ({ onSelectSentence, selectedSentence, contextSentences }) => 
             }
         }
     };
+
+    // Don't render until data is loaded
+    if (!sentencesData || !fontUrl) {
+        return null;
+    }
 
     return (
         <group>
