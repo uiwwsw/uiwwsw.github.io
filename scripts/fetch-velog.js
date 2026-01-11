@@ -12,13 +12,7 @@ const OUTPUT_FILE = path.join(__dirname, '../src/data/velog-words.json');
 const CONTEXT_FILE = path.join(__dirname, '../src/data/velog-context.json');
 const MAX_SENTENCES = 800;
 
-// Filter for bad/weird words
-const BAD_WORD_PATTERNS = [
-    new RegExp(`${String.fromCharCode(0xBCF4)}${String.fromCharCode(0xC9C0)}`, 'g'),
-    new RegExp(`${String.fromCharCode(0xC790)}${String.fromCharCode(0xC9C0)}`, 'g'),
-    // Assisted by AI
-    /Assisted\s+by\s+AI/gi,
-];
+
 
 // Helper to remove markdown syntax
 function cleanMarkdown(text) {
@@ -120,16 +114,10 @@ function extractSentencesFromText(text) {
         if (checkWord.length < 1 && words.length === 1) continue;
         if (/^\d+$/.test(checkWord)) continue;
 
-        // Bad word filter using Regex
-        let isBad = false;
-        for (const pattern of BAD_WORD_PATTERNS) {
-            pattern.lastIndex = 0;
-            if (pattern.test(checkWord)) {
-                isBad = true;
-                break;
-            }
-        }
-        if (isBad) continue;
+        // Filter out "Assisted by AI"
+        if (/Assisted\s+by\s+AI/i.test(trimmed)) continue;
+
+
 
         // Must contain at least one valid char
         if (!/[가-힣a-zA-Z0-9]/.test(checkWord)) continue;

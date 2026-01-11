@@ -117,11 +117,6 @@
         "fullSentence": "그저 그곳이 기품이 생존하기 어려운 생태계라는 슬픈 증거일지도 모른다.",
         "index": 22,
         "type": "text"
-      },
-      {
-        "fullSentence": "Assisted by AI",
-        "index": 23,
-        "type": "text"
       }
     ]
   },
@@ -187,11 +182,6 @@
       {
         "fullSentence": "우리가 누군가에게서 설명하기 힘든 ‘품격’을 느꼈다면, 그것은 대개 치열한 지능으로 빚고 단단한 체력으로 지탱해낸, 가장 강한 형태의 여유일 가능성이 높다.",
         "index": 11,
-        "type": "text"
-      },
-      {
-        "fullSentence": "Assisted by AI",
-        "index": 12,
         "type": "text"
       }
     ]
@@ -394,11 +384,6 @@
         "fullSentence": "그리고 그것이, 내가 생각하는 이 시대 개발자의 경쟁력이다.",
         "index": 38,
         "type": "text"
-      },
-      {
-        "fullSentence": "Assisted by AI",
-        "index": 39,
-        "type": "text"
       }
     ]
   },
@@ -560,11 +545,6 @@
         "fullSentence": "서툰 선함마저 계산 없이 놓아두는 그 다정한 세계가, 냉정한 현실을 살아가는 나에게는 역설적인 위로가 된다.",
         "index": 30,
         "type": "text"
-      },
-      {
-        "fullSentence": "Assisted by AI",
-        "index": 31,
-        "type": "text"
       }
     ]
   },
@@ -655,11 +635,6 @@
       {
         "fullSentence": "다만 나는 앞으로도, 누군가의 생각이 자랄 수 있는 여지를 남기는 사람으로 남고 싶다.",
         "index": 16,
-        "type": "text"
-      },
-      {
-        "fullSentence": "Assisted by AI",
-        "index": 17,
         "type": "text"
       }
     ]
@@ -772,11 +747,6 @@
         "fullSentence": "“너는 이 각도로 휘어서 참 근사하구나.”\n그런 말을 자연스럽게 건넬 수 있는 시선이, 우리 사회에도 조금 더 많아지기를 조용히 바라봅니다.",
         "index": 20,
         "type": "text"
-      },
-      {
-        "fullSentence": "Assisted by AI",
-        "index": 21,
-        "type": "text"
       }
     ]
   },
@@ -867,11 +837,6 @@
       {
         "fullSentence": "그 뿌리를 ‘본능’이라 정직하게 불러줄 때, 우리는 서로를 조금 더 투명하고 따뜻하게 이해할 수 있을 것입니다.",
         "index": 16,
-        "type": "text"
-      },
-      {
-        "fullSentence": "Assisted by AI",
-        "index": 17,
         "type": "text"
       }
     ]
@@ -993,11 +958,6 @@
       {
         "fullSentence": "당신은 충분히 애쓰고 있는 사람이라고.",
         "index": 22,
-        "type": "text"
-      },
-      {
-        "fullSentence": "Assisted by AI",
-        "index": 23,
         "type": "text"
       }
     ]
@@ -1715,218 +1675,223 @@
         "type": "text"
       },
       {
-        "fullSentence": "개인주의와 이기주의는 종종 같은 얼굴로 오해받는다.",
+        "fullSentence": "보지 못했기 때문이다.",
         "index": 11,
         "type": "text"
       },
       {
-        "fullSentence": "둘 다 ‘나’를 기준으로 세상을 바라본다는 점에서는 닮아 있기 때문이다.",
+        "fullSentence": "개인주의와 이기주의는 종종 같은 얼굴로 오해받는다.",
         "index": 12,
         "type": "text"
       },
       {
-        "fullSentence": "그러나 이 둘을 가르는 결정적인 차이는 분명하다.",
+        "fullSentence": "둘 다 ‘나’를 기준으로 세상을 바라본다는 점에서는 닮아 있기 때문이다.",
         "index": 13,
         "type": "text"
       },
       {
-        "fullSentence": "타인을 어떻게 대하느냐, 더 정확히 말하면 타인에게 가해질 수 있는 피해를 얼마나 의식하느냐에 있다.",
+        "fullSentence": "그러나 이 둘을 가르는 결정적인 차이는 분명하다.",
         "index": 14,
         "type": "text"
       },
       {
-        "fullSentence": "요즘 흔히 이런 말을 듣는다.",
+        "fullSentence": "타인을 어떻게 대하느냐, 더 정확히 말하면 타인에게 가해질 수 있는 피해를 얼마나 의식하느냐에 있다.",
         "index": 15,
         "type": "text"
       },
       {
-        "fullSentence": "“나는 개인주의자야. 남한테 관심 없어. 그러니까 너도 나 신경 쓰지 마.”\n\n이 말은 쿨하고 현대적인 태도처럼 들린다.",
+        "fullSentence": "요즘 흔히 이런 말을 듣는다.",
         "index": 16,
         "type": "text"
       },
       {
-        "fullSentence": "하지만 조금만 들여다보면, 관계를 회피하기 위한 방어에 가까운 경우가 많다.",
+        "fullSentence": "“나는 개인주의자야. 남한테 관심 없어. 그러니까 너도 나 신경 쓰지 마.”\n\n이 말은 쿨하고 현대적인 태도처럼 들린다.",
         "index": 17,
         "type": "text"
       },
       {
-        "fullSentence": "무관심을 ‘무해함’으로 치환하고, 거리 두기를 개인주의라는 이름으로 정당화하는 방식이다.",
+        "fullSentence": "하지만 조금만 들여다보면, 관계를 회피하기 위한 방어에 가까운 경우가 많다.",
         "index": 18,
         "type": "text"
       },
       {
-        "fullSentence": "타인과 섞이지 않겠다는 선택이 곧 책임에서 벗어나는 선언처럼 사용된다.",
+        "fullSentence": "무관심을 ‘무해함’으로 치환하고, 거리 두기를 개인주의라는 이름으로 정당화하는 방식이다.",
         "index": 19,
         "type": "text"
       },
       {
-        "fullSentence": "그 논리는 이렇게 요약된다.",
+        "fullSentence": "타인과 섞이지 않겠다는 선택이 곧 책임에서 벗어나는 선언처럼 사용된다.",
         "index": 20,
         "type": "text"
       },
       {
-        "fullSentence": "“내가 너를 외면하면, 너도 나로 인해 다치지 않을 것이다.”\n\n하지만 이 전제는 쉽게 무너진다.",
+        "fullSentence": "그 논리는 이렇게 요약된다.",
         "index": 21,
         "type": "text"
       },
       {
-        "fullSentence": "타인에게 피해를 주지 않는다는 것은, 눈을 감고 귀를 막는다고 저절로 이루어지는 상태가 아니기 때문이다.",
+        "fullSentence": "“내가 너를 외면하면, 너도 나로 인해 다치지 않을 것이다.”\n\n하지만 이 전제는 쉽게 무너진다.",
         "index": 22,
         "type": "text"
       },
       {
-        "fullSentence": "오히려 그 반대다.",
+        "fullSentence": "타인에게 피해를 주지 않는다는 것은, 눈을 감고 귀를 막는다고 저절로 이루어지는 상태가 아니기 때문이다.",
         "index": 23,
         "type": "text"
       },
       {
-        "fullSentence": "누군가에게 피해를 주지 않으려면, 그 사람에게 일정한 집중과 주의를 기울여야 한다.",
+        "fullSentence": "오히려 그 반대다.",
         "index": 24,
         "type": "text"
       },
       {
-        "fullSentence": "무엇을 불편해하는지, 어떤 선을 넘으면 침범이 되는지, 나의 무심함이 어디까지 영향을 미치는지를 알아야만 비로소 ‘건드리지 않음’이 가능해진다.",
+        "fullSentence": "누군가에게 피해를 주지 않으려면, 그 사람에게 일정한 집중과 주의를 기울여야 한다.",
         "index": 25,
         "type": "text"
       },
       {
-        "fullSentence": "존중은 무관심의 결과가 아니라, 관찰의 결과다.",
+        "fullSentence": "무엇을 불편해하는지, 어떤 선을 넘으면 침범이 되는지, 나의 무심함이 어디까지 영향을 미치는지를 알아야만 비로소 ‘건드리지 않음’이 가능해진다.",
         "index": 26,
         "type": "text"
       },
       {
-        "fullSentence": "만원 지하철을 떠올려보자.",
+        "fullSentence": "존중은 무관심의 결과가 아니라, 관찰의 결과다.",
         "index": 27,
         "type": "text"
       },
       {
-        "fullSentence": "남의 발을 밟지 않으려면 내 발만 보고 있어서는 안 된다.",
+        "fullSentence": "만원 지하철을 떠올려보자.",
         "index": 28,
         "type": "text"
       },
       {
-        "fullSentence": "주변 사람들의 위치를 계속 살피고, 미세하게 몸을 조정해야 한다.",
+        "fullSentence": "남의 발을 밟지 않으려면 내 발만 보고 있어서는 안 된다.",
         "index": 29,
         "type": "text"
       },
       {
-        "fullSentence": "눈을 감은 채 서 있는 사람은 결국 누군가의 발을 밟게 된다.",
+        "fullSentence": "주변 사람들의 위치를 계속 살피고, 미세하게 몸을 조정해야 한다.",
         "index": 30,
         "type": "text"
       },
       {
-        "fullSentence": "그리고 이렇게 말한다.",
+        "fullSentence": "눈을 감은 채 서 있는 사람은 결국 누군가의 발을 밟게 된다.",
         "index": 31,
         "type": "text"
       },
       {
-        "fullSentence": "“나는 가만히 있었는데, 네가 거기 있었잖아.”\n\n무관심이 만들어내는 전형적인 변명이다.",
+        "fullSentence": "그리고 이렇게 말한다.",
         "index": 32,
         "type": "text"
       },
       {
-        "fullSentence": "관심이 제거된 관계에서는 배려가 성립할 수 없다.",
+        "fullSentence": "“나는 가만히 있었는데, 네가 거기 있었잖아.”\n\n무관심이 만들어내는 전형적인 변명이다.",
         "index": 33,
         "type": "text"
       },
       {
-        "fullSentence": "상대가 무엇을 불쾌해하는지 모른다면, 멈출 수도 없다.",
+        "fullSentence": "관심이 제거된 관계에서는 배려가 성립할 수 없다.",
         "index": 34,
         "type": "text"
       },
       {
-        "fullSentence": "그래서 무관심을 태도로 삼을수록, 사람은 의도치 않게 무례해진다.",
+        "fullSentence": "상대가 무엇을 불쾌해하는지 모른다면, 멈출 수도 없다.",
         "index": 35,
         "type": "text"
       },
       {
-        "fullSentence": "악의는 없었을지 몰라도, 무지는 언제나 상처를 남긴다.",
+        "fullSentence": "그래서 무관심을 태도로 삼을수록, 사람은 의도치 않게 무례해진다.",
         "index": 36,
         "type": "text"
       },
       {
-        "fullSentence": "그것은 개인주의라기보다, 타인을 이해하려는 최소한의 노력조차 유예한 상태에 가깝다.",
+        "fullSentence": "악의는 없었을지 몰라도, 무지는 언제나 상처를 남긴다.",
         "index": 37,
         "type": "text"
       },
       {
-        "fullSentence": "진정한 개인주의는 타인을 밀어내는 태도가 아니다.",
+        "fullSentence": "그것은 개인주의라기보다, 타인을 이해하려는 최소한의 노력조차 유예한 상태에 가깝다.",
         "index": 38,
         "type": "text"
       },
       {
-        "fullSentence": "오히려 타인의 세계를 침범하지 않기 위해, 스스로의 경계를 끊임없이 점검하는 자세에 가깝다.",
+        "fullSentence": "진정한 개인주의는 타인을 밀어내는 태도가 아니다.",
         "index": 39,
         "type": "text"
       },
       {
-        "fullSentence": "“나는 여기까지다”를 말하기 위해서는, 먼저 “너는 어디까지인지”를 알아야 한다.",
+        "fullSentence": "오히려 타인의 세계를 침범하지 않기 위해, 스스로의 경계를 끊임없이 점검하는 자세에 가깝다.",
         "index": 40,
         "type": "text"
       },
       {
-        "fullSentence": "앞서의 토끼가 무리에서 밀려난 이유도 크게 다르지 않다.",
+        "fullSentence": "“나는 여기까지다”를 말하기 위해서는, 먼저 “너는 어디까지인지”를 알아야 한다.",
         "index": 41,
         "type": "text"
       },
       {
-        "fullSentence": "그 토끼는 보지 못했기 때문에, 결과적으로 다른 토끼들에게 피해를 만들었다.",
+        "fullSentence": "앞서의 토끼가 무리에서 밀려난 이유도 크게 다르지 않다.",
         "index": 42,
         "type": "text"
       },
       {
-        "fullSentence": "미래의 풀을 밟았고, 그 행위는 의도와 무관하게 무리의 생존 조건을 훼손했다.",
+        "fullSentence": "그 토끼는 보지 못했기 때문에, 결과적으로 다른 토끼들에게 피해를 만들었다.",
         "index": 43,
         "type": "text"
       },
       {
-        "fullSentence": "차이가 있다면 하나뿐이다.",
+        "fullSentence": "미래의 풀을 밟았고, 그 행위는 의도와 무관하게 무리의 생존 조건을 훼손했다.",
         "index": 44,
         "type": "text"
       },
       {
-        "fullSentence": "그 토끼의 행위가 악의나 무관심이 아니라, 장애로 인해 피할 수 없는 것이었다는 점이다.",
+        "fullSentence": "차이가 있다면 하나뿐이다.",
         "index": 45,
         "type": "text"
       },
       {
-        "fullSentence": "그리고 또 하나의 차이는, 그 사정을 끝내 정상 참작하지 못한 다른 토끼들의 태도다.",
+        "fullSentence": "그 토끼의 행위가 악의나 무관심이 아니라, 장애로 인해 피할 수 없는 것이었다는 점이다.",
         "index": 46,
         "type": "text"
       },
       {
-        "fullSentence": "그러나 무리는 결과 앞에서 그 둘을 구분하지 않았다.",
+        "fullSentence": "그리고 또 하나의 차이는, 그 사정을 끝내 정상 참작하지 못한 다른 토끼들의 태도다.",
         "index": 47,
         "type": "text"
       },
       {
-        "fullSentence": "의도하지 않았다는 사실도, 어쩔 수 없었다는 사정도, 이미 훼손된 풀 앞에서는 의미를 갖지 못했다.",
+        "fullSentence": "그러나 무리는 결과 앞에서 그 둘을 구분하지 않았다.",
         "index": 48,
         "type": "text"
       },
       {
-        "fullSentence": "피해는 피해였고, 그로 인해 생긴 균열은 그대로 남았다.",
+        "fullSentence": "의도하지 않았다는 사실도, 어쩔 수 없었다는 사정도, 이미 훼손된 풀 앞에서는 의미를 갖지 못했다.",
         "index": 49,
         "type": "text"
       },
       {
-        "fullSentence": "결국 문제는 선의냐 악의냐가 아니라, 함께 살아가는 환경에서 어떤 결과가 발생했는가에 있었다.",
+        "fullSentence": "피해는 피해였고, 그로 인해 생긴 균열은 그대로 남았다.",
         "index": 50,
         "type": "text"
       },
       {
-        "fullSentence": "함께 산다는 것은 의도를 증명하는 일이 아니라, 결과를 관리하는 일에 가깝다.",
+        "fullSentence": "결국 문제는 선의냐 악의냐가 아니라, 함께 살아가는 환경에서 어떤 결과가 발생했는가에 있었다.",
         "index": 51,
         "type": "text"
       },
       {
-        "fullSentence": "그래서 타인에게 피해를 주지 않기 위해 필요한 것은 변명이나 설명이 아니라, 가능한 한 덜 밟기 위해 시선을 낮추는 일이다.",
+        "fullSentence": "보지 못했든, 보지 않았든, 타인의 발밑을 훼손했다는 점에서 결과는 같았다.",
         "index": 52,
         "type": "text"
       },
       {
-        "fullSentence": "Assisted by AI",
+        "fullSentence": "함께 산다는 것은 의도를 증명하는 일이 아니라, 결과를 관리하는 일에 가깝다.",
         "index": 53,
+        "type": "text"
+      },
+      {
+        "fullSentence": "그래서 타인에게 피해를 주지 않기 위해 필요한 것은 변명이나 설명이 아니라, 가능한 한 덜 밟기 위해 시선을 낮추는 일이다.",
+        "index": 54,
         "type": "text"
       }
     ]
@@ -2638,11 +2603,6 @@
       {
         "fullSentence": "가장 늦게 도착한 파도가, 결국 가장 넓은 바다를 품는 법이다.",
         "index": 25,
-        "type": "text"
-      },
-      {
-        "fullSentence": "Assisted by AI",
-        "index": 26,
         "type": "text"
       }
     ]

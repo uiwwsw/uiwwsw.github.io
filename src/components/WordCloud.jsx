@@ -31,7 +31,15 @@ const generateLayout = (data) => {
         });
     };
 
-    return data.map((s, i) => {
+    // Filter out unwanted content
+    const filteredData = data.filter(s => {
+        if (!s.fullSentence) return false;
+        // Exclude "Assisted by AI"
+        if (/Assisted by AI/i.test(s.fullSentence)) return false;
+        return true;
+    });
+
+    return filteredData.map((s, i) => {
         // Generate Display Text
         let displayText;
         if (s.type === 'code') {
@@ -42,7 +50,7 @@ const generateLayout = (data) => {
             else if (lang === 'js' || lang === 'jsx' || lang === 'javascript') displayText = 'JS';
             else displayText = '</>';
         } else {
-            let cleanedText = s.fullSentence.replace(/Assisted by AI/gi, '').trim();
+            let cleanedText = s.fullSentence.trim();
             displayText = (cleanedText.length > 30
                 ? cleanedText.substring(0, 30) + '...'
                 : cleanedText).replace(/\n/g, ' ');
@@ -90,13 +98,26 @@ const generateLayout = (data) => {
 };
 
 
-const SentenceWrapper = ({ id, displayText, fullSentence, url, articleId, sentenceIndex, position, mouseRef, activeWordRef, onSelect, onHoverChange, isDetailMode, isSelected, frozen }) => {
+const SentenceWrapper = ({ id, data, onSelect, registerItem, unregisterItem, onHoverChange, isDetailMode, frozen, isBonus }) => {
+    // Destructure needed fields from data
+    const { displayText, position } = data;
+
     const groupRef = useRef();
     const innerRef = useRef(); // New: Handles visual offset (magnet) independent of world pos
     const { camera } = useThree();
     const [hovered, setHovered] = useState(false);
     const [isTooFar, setIsTooFar] = useState(false);
     const textRef = useRef();
+
+    // Register to Parent for Click Detection
+    useEffect(() => {
+        if (registerItem && groupRef.current) {
+            registerItem(id, groupRef, data);
+        }
+        return () => {
+            if (unregisterItem) unregisterItem(id);
+        };
+    }, [id, data, registerItem, unregisterItem]);
 
     // Virtual Anchor for Infinite Logic stability
     const anchorRef = useRef(new THREE.Vector3(0, 0, 400));
@@ -120,7 +141,7 @@ const SentenceWrapper = ({ id, displayText, fullSentence, url, articleId, senten
         groupRef.current.position.y += idleY * delta;
 
         // Skip infinite wrapping if frozen (detail view or returning)
-        if (!frozen) {
+        if (!frozen && !isBonus) {
 
             // Update Anchor if not frozen (browsing mode)
             anchorRef.current.copy(camera.position);
@@ -175,6 +196,8 @@ const SentenceWrapper = ({ id, displayText, fullSentence, url, articleId, senten
 
 
         const currentPos = groupRef.current.position;
+
+
         const distanceToCamera = camera.position.distanceTo(currentPos);
 
         let depthOpacity = 1.0;
@@ -192,44 +215,11 @@ const SentenceWrapper = ({ id, displayText, fullSentence, url, articleId, senten
         const tooFar = depthOpacity < 0.1;
         if (tooFar !== isTooFar) setIsTooFar(tooFar);
 
-        // Magnet Logic (Only if visible)
-        // REFACTORED: Now operates on innerRef (Visual Offset) instead of World Position
+        // Dynamic Scaling (Only if visible)
+        // Dynamic Scaling REMOVED - using static large font
         if (innerRef.current) {
-            let targetLocalPos = new THREE.Vector3(0, 0, 0); // Default: Snap back to origin
-
-            if (!tooFar) {
-                const mousePos = mouseRef.current;
-                const distToMouse = currentPos.distanceTo(mousePos);
-
-                const isMagnetic = distToMouse < 4.0;
-                const isLockedByMe = activeWordRef.current === id;
-                const isFree = activeWordRef.current === null;
-
-                let shouldMagnet = false;
-                if (isMagnetic) {
-                    if (isLockedByMe) {
-                        shouldMagnet = true;
-                    } else if (isFree) {
-                        activeWordRef.current = id;
-                        shouldMagnet = true;
-                    }
-                } else {
-                    if (isLockedByMe) {
-                        activeWordRef.current = null;
-                    }
-                }
-
-                if (shouldMagnet) {
-                    // Convert World Mouse Pos to Local Space for the Billboard
-                    // Billboard faces camera, so local X/Y aligns with screen plane mostly
-                    const localMouse = mousePos.clone();
-                    groupRef.current.worldToLocal(localMouse);
-                    targetLocalPos.copy(localMouse);
-                }
-            }
-
-            // ELASTIC LERP: Moves to mouse OR snaps back to 0,0,0
-            innerRef.current.position.lerp(targetLocalPos, delta * 5);
+            innerRef.current.position.set(0, 0, 0);
+            innerRef.current.scale.setScalar(1.0);
         }
 
         if (textRef.current) {
@@ -292,22 +282,7 @@ const SentenceWrapper = ({ id, displayText, fullSentence, url, articleId, senten
                     // With a single large mesh, it's robust.
                     onClick={(e) => {
                         e.stopPropagation();
-
-                        // DISTANCE CHECK
-                        const dist = camera.position.distanceTo(groupRef.current.position);
-                        const MAX_INTERACTION_DIST = 150;
-                        if (dist > MAX_INTERACTION_DIST) return;
-
-                        if (!isTooFar) {
-                            onSelect({
-                                id,
-                                displayText,
-                                fullSentence,
-                                link: url,
-                                articleId,
-                                sentenceIndex
-                            });
-                        }
+                        onSelect(data);
                     }}
                 >
                     {/* 
@@ -317,13 +292,13 @@ const SentenceWrapper = ({ id, displayText, fullSentence, url, articleId, senten
                        Width ~= length * 0.6. 
                        Add padding (10% + extra for comfort). 
                     */}
-                    <planeGeometry args={[displayText.length * 0.6 + 1, 1.5]} />
+                    <planeGeometry args={[displayText.length * 1.2 + 2, 2.0]} />
                     <meshBasicMaterial transparent opacity={0.0} color="red" />
                 </mesh>
 
                 <Text
                     ref={textRef}
-                    fontSize={0.6}
+                    fontSize={1.2}
                     font={notoFontUrl}
                     color={hovered ? "#ffffff" : "#dddddd"}
                     anchorX="center"
@@ -342,16 +317,27 @@ const SentenceWrapper = ({ id, displayText, fullSentence, url, articleId, senten
     );
 };
 
+
+
 const RaycastHandler = ({ mouseRef, sphereRadius }) => {
-    const sphere = useMemo(() => new THREE.Sphere(new THREE.Vector3(0, 0, 0), sphereRadius), [sphereRadius]);
-    useFrame((state) => {
-        const intersection = state.raycaster.ray.intersectSphere(sphere, new THREE.Vector3());
-        if (intersection) {
-            mouseRef.current.copy(intersection);
-        }
+    const { camera, pointer } = useThree();
+    useFrame(() => {
+        // Unproject mouse to world space at 'sphereRadius' distance from camera
+        const safeRadius = sphereRadius || 250;
+        const vec = new THREE.Vector3(pointer.x, pointer.y, 0.5);
+        vec.unproject(camera);
+        const dir = vec.sub(camera.position).normalize();
+
+        const targetPos = camera.position.clone().add(dir.multiplyScalar(safeRadius));
+        mouseRef.current.copy(targetPos);
     });
     return null;
 };
+
+// ... (Rest of existing code)
+
+// Inside WordCloud Render:
+// <BonusWords sentencesData={sentencesData} ... />
 
 const WordCloud = ({ onSelectSentence, selectedSentence, contextSentences }) => {
     const { camera, viewport } = useThree();
@@ -422,9 +408,12 @@ const WordCloud = ({ onSelectSentence, selectedSentence, contextSentences }) => 
         } else {
             // RETURNING FROM DETAIL VIEW
             // Force reset all interaction flags to prevent "frozen" state
+            // This is critical for mobile where touchend might be missed or state stuck
             isHolding.current = false;
             isDragging.current = false;
             isBraking.current = false;
+            touchDistRef.current = null; // Clear pinch/tap state
+
             // Note: hoverCount is managed by onHover events, but we might want to ensure momentum resumes
 
             // Check if we just returned?
@@ -446,6 +435,17 @@ const WordCloud = ({ onSelectSentence, selectedSentence, contextSentences }) => 
         if (!sentencesData) return [];
         return generateLayout(sentencesData);
     }, [sentencesData]);
+
+    // Live Registry for Real-Time Click Detection
+    const itemRefs = useRef(new Map());
+
+    const registerItem = (id, ref, data) => {
+        itemRefs.current.set(id, { ref, data });
+    };
+
+    const unregisterItem = (id) => {
+        itemRefs.current.delete(id);
+    };
 
     useEffect(() => {
         const handleWheel = (e) => {
@@ -486,8 +486,15 @@ const WordCloud = ({ onSelectSentence, selectedSentence, contextSentences }) => 
         };
 
         const handleTouchStart = (e) => {
+            console.log("TouchStart", { touches: e.touches.length });
+            if (selectedSentence) return;
             hasInteracted.current = true;
             e.preventDefault(); // Prevent default scroll/zoom
+
+            // Safety: Reset flags on new touch
+            isDragging.current = false;
+            // isHolding is managed by onPointerDown, but good to ensure
+            // touchDistRef is reset below
 
             // Brake Logic: If moving fast, just stop.
             if (Math.abs(speedRef.current) > 5) {
@@ -539,8 +546,24 @@ const WordCloud = ({ onSelectSentence, selectedSentence, contextSentences }) => 
             }
         };
 
-        const handleTouchEnd = () => {
+        const handleTouchEnd = (e) => {
+            console.log("TouchEnd", { remainingTouches: e.touches.length, isDragging: isDragging.current }); // LOG
+            // TAP DETECTION (Mobile)
+            // Safety cleanup
             touchDistRef.current = null;
+
+            // Allow a small delay for 'click' to process in onPointerUp?
+            // No, onPointerUp happens before? Or simultaneous.
+            // Just ensure we don't get stuck.
+            // If we assume onPointerUp has run, we can clear here.
+            // Use setTimeout to clear AFTER potential click events processed?
+            // Actually, if we just clear them, it might be fine.
+
+            // Force reset flags if no touches left
+            if (e.touches.length === 0) {
+                isDragging.current = false;
+                isHolding.current = false;
+            }
         };
 
         const capSpeed = () => {
@@ -585,8 +608,8 @@ const WordCloud = ({ onSelectSentence, selectedSentence, contextSentences }) => 
 
         return () => {
             window.removeEventListener('wheel', handleWheel);
-            window.removeEventListener('touchstart', handleTouchStart);
-            window.removeEventListener('touchmove', handleTouchMove);
+            window.removeEventListener('touchstart', handleTouchStart, true); // Fix: Match capture phase
+            window.removeEventListener('touchmove', handleTouchMove, true);   // Fix: Match capture phase
             window.removeEventListener('touchend', handleTouchEnd);
             window.removeEventListener('gesturestart', handleGestureStart);
             window.removeEventListener('gesturechange', handleGestureChange);
@@ -598,6 +621,8 @@ const WordCloud = ({ onSelectSentence, selectedSentence, contextSentences }) => 
         const onPointerDown = (e) => {
             if (globalIsIntro) return; // Block rotation during intro animation
 
+            lastMouse.current = { x: e.clientX, y: e.clientY };
+            console.log("PointerDown: Starting Hold", { x: e.clientX, y: e.clientY });
             hasInteracted.current = true; // Mark interaction immediately!
             isHolding.current = true;     // User is holding
 
@@ -607,47 +632,124 @@ const WordCloud = ({ onSelectSentence, selectedSentence, contextSentences }) => 
 
             if (selectedSentence) return; // Block rotation in detail mode
             if (e.isPrimary === false) return;
-            isDragging.current = true;
-            lastMouse.current = { x: e.clientX, y: e.clientY };
+            isDragging.current = false;
         };
 
         const onPointerMove = (e) => {
-            if (!isDragging.current) return;
             if (selectedSentence) return;
 
             const dx = e.clientX - lastMouse.current.x;
             const dy = e.clientY - lastMouse.current.y;
-            lastMouse.current = { x: e.clientX, y: e.clientY };
 
-            const sensitivity = 0.0003; // Decreased sensitivity (was 0.0005)
-            rotVel.current.x += dx * sensitivity;
-            rotVel.current.y += dy * sensitivity;
+            // Only consider it a drag if moved significantly
+            if (Math.abs(dx) > 2 || Math.abs(dy) > 2) {
+                if (!isDragging.current) console.log("PointerMove: Drag Threshold Exceeded");
+                isDragging.current = true;
+            }
 
-            // While dragging/rotating, maintain minimum speed (User request: "Moves slowly while rotating")
-            // REMOVED: speedRef.current = 20; -> We want it to stop now if holding.
+            if (!isDragging.current && !isHolding.current) return;
+
+            // If strictly holding but not dragging yet, we might skip? 
+            // But usually we want instant feedback. 
+            // The isDragging flag protects the "Click" logic. 
+            // The rotation logic should run if we are moving mouse while holding.
+
+            if (isHolding.current) {
+                lastMouse.current = { x: e.clientX, y: e.clientY }; // Always update last mouse
+
+                const sensitivity = 0.0001;
+                rotVel.current.x += dx * sensitivity;
+                rotVel.current.y += dy * sensitivity;
+            }
         };
 
-        const onPointerUp = () => {
+        const onPointerUp = (e) => {
+            console.log("PointerUp", { isDragging: isDragging.current, isHolding: isHolding.current, selectedSentence: !!selectedSentence });
             // Restore Momentum on Release ONLY if we were actually holding/dragging.
-            // If wheel event broke the hold, isHolding/isDragging will be false,
-            // so we skip this block and preserve the scroll speed!
             if (isHolding.current || isDragging.current) {
 
-                // 1. Release Logic (Click/Drag release) - RESET TO MINIMUM SPEED
-                // User request: "When clicking/dragging and releasing, reset to min speed only."
+                // CLICK DETECTION
+                // If we didn't drag, and we are not in detail mode, it's a click.
+                if (!isDragging.current && !selectedSentence && !globalIsIntro) {
+                    // It was a CLICK (Tap) on the background.
+                    // Run "Find Nearest" Logic (Screen Space)
+
+                    // 1. Get click coordinates (NDC for Project) & Screen for Distance
+                    const screenX = e.clientX;
+                    const screenY = e.clientY;
+                    console.log("Click Search At:", { screenX, screenY }); // LOG
+
+                    // 2. Collect ALL Candidates (Using LIVE POSITIONS)
+                    camera.updateMatrixWorld(); // Critical: Ensure camera state is fresh!
+                    const liveItems = Array.from(itemRefs.current.values());
+                    let passingCount = 0; // LOG
+
+                    let closest = null;
+                    let minScreenDistSq = Infinity;
+                    const MAX_CLICK_DIST = 100; // Pixels radius tolerance (generous)
+
+                    const width = window.innerWidth;
+                    const height = window.innerHeight;
+                    const widthHalf = width / 2;
+                    const heightHalf = height / 2;
+
+                    liveItems.forEach(item => {
+                        const { ref, data } = item;
+                        if (!ref.current) return;
+
+                        // LIVE World Position (updated by animation loop)
+                        const pos = new THREE.Vector3();
+                        ref.current.getWorldPosition(pos); // Get absolute world position
+
+                        // Check if in front roughly (Camera looks down -Z)
+                        const pLocal = pos.clone().applyMatrix4(camera.matrixWorldInverse);
+                        if (pLocal.z > 0) return; // Behind camera
+
+                        pos.project(camera);
+
+                        passingCount++;
+
+                        const x = (pos.x * widthHalf) + widthHalf;
+                        const y = -(pos.y * heightHalf) + heightHalf;
+
+                        const dx = x - screenX;
+                        const dy = y - screenY;
+                        const distSq = dx * dx + dy * dy;
+
+                        if (distSq < minScreenDistSq) {
+                            minScreenDistSq = distSq;
+                            closest = data; // Return the metadata
+                        }
+                    });
+
+                    // 3. Select if found within range
+                    console.log("Click Search Result:", {
+                        found: !!closest,
+                        dist: Math.sqrt(minScreenDistSq),
+                        max: MAX_CLICK_DIST,
+                        text: closest?.displayText,
+                        totalItems: liveItems.length,
+                        visibleItems: passingCount
+                    }); // LOG
+
+                    if (closest && minScreenDistSq < MAX_CLICK_DIST * MAX_CLICK_DIST) {
+                        handleSelectSentenceWrapper(closest);
+                        isDragging.current = false;
+                        isHolding.current = false;
+                        return; // Done
+                    }
+                }
+
+                // 1. Release Logic (Resume Speed)
                 const MIN_SPEED = 20;
 
                 // Determine direction: snapshot direction OR last known direction
-                // We use savedMomentum.current.speed to know what the direction WAS.
                 const direction = Math.sign(savedMomentum.current.speed) || lastDirectionRef.current || 1;
 
                 // Force reset to MIN_SPEED in that direction. 
-                // We DO NOT restore the previous high speed.
                 speedRef.current = direction * MIN_SPEED;
 
                 // 2. Rotation Logic
-                // If user did NOT drag (just held), restore old rotation.
-                // If user DID drag (fling), keep the new fling rotation (don't overwrite with old).
                 if (rotVel.current.x === 0 && rotVel.current.y === 0) {
                     rotVel.current.x = savedMomentum.current.rotX;
                     rotVel.current.y = savedMomentum.current.rotY;
@@ -676,7 +778,7 @@ const WordCloud = ({ onSelectSentence, selectedSentence, contextSentences }) => 
             window.removeEventListener('pointercancel', onPointerCancel);
             window.removeEventListener('pointerleave', onPointerCancel);
         };
-    }, [selectedSentence]);
+    }, [selectedSentence, sentences]);
 
     useFrame((state, delta) => {
         const scene = state.scene;
@@ -719,12 +821,11 @@ const WordCloud = ({ onSelectSentence, selectedSentence, contextSentences }) => 
             }
 
             // HOVER/HOLD STOP LOGIC
-            // If user is recently scrolling (Wheel/Pinch), IGNORE the hover stop.
-            // This allows the user to scroll "off" a word they were hovering.
-            const isRecentWheel = Date.now() - lastWheelTime.current < 500;
+            // Only stop if user is explicitly holding (clicking/touching) to interact.
+            // Hovering should NOT stop movement (User Request).
 
-            if (isHolding.current || (hoverCount.current > 0 && !isRecentWheel)) {
-                // If holding OR hovering (and not scrolling), stop completely
+            if (isHolding.current) {
+                // If holding, stop completely
                 speedRef.current = 0;
             } else {
                 // Friction / Auto-Cruise
@@ -819,25 +920,19 @@ const WordCloud = ({ onSelectSentence, selectedSentence, contextSentences }) => 
     return (
         <group>
             <RaycastHandler mouseRef={mouseRef} sphereRadius={raycastRadius} />
-            {sentences.map((s, i) => (
+            {sentences.map((data, i) => (
                 <SentenceWrapper
                     key={i}
                     id={i}
-                    displayText={s.displayText}
-                    fullSentence={s.fullSentence}
-                    url={s.link}
-                    articleId={s.articleId}
-                    sentenceIndex={s.sentenceIndex}
-                    position={s.position}
-                    mouseRef={mouseRef}
-                    activeWordRef={activeWordRef}
+                    data={data}
                     onSelect={handleSelectSentenceWrapper}
                     onHoverChange={handleHoverChange}
-                    isDetailMode={!!selectedSentence}
-                    isSelected={selectedSentence && selectedSentence.id === i}
+                    registerItem={registerItem}
+                    unregisterItem={unregisterItem}
                     frozen={!!selectedSentence}
                 />
             ))}
+
         </group>
     );
 };
