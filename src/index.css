@@ -53,14 +53,16 @@ body {
   z-index: 0;
   touch-action: none;
   /* Critical for mobile 3D drag */
-  transition: transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+  transition: transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.6s ease, filter 0.6s ease;
   transform-origin: center center;
-  will-change: transform;
+  will-change: transform, opacity, filter;
   contain: layout paint;
 }
 
 .canvas-container.detail-active {
-  transform: scale(0);
+  transform: scale(0.1);
+  opacity: 0;
+  filter: blur(8px);
 }
 
 /* Overlay Layer - UI */
@@ -198,7 +200,7 @@ body {
   .canvas-container {
     transition: none;
   }
-  
+
   .detail-article {
     animation: none;
   }

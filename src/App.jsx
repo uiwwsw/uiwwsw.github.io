@@ -83,7 +83,16 @@ export default function App() {
 
   return (
     <>
-      <div className={`canvas-container ${selectedSentence ? 'detail-active' : ''}`}>
+      <div
+        className={`canvas-container ${selectedSentence ? 'detail-active' : ''}`}
+        onTransitionEnd={(e) => {
+          // Trigger resize only when returning to full view (scale back to 1)
+          // and ensuring it's the transform transition finishing
+          if (!selectedSentence && e.propertyName === 'transform') {
+            window.dispatchEvent(new Event('resize'));
+          }
+        }}
+      >
         <Canvas gl={canvasConfig}>
           <color attach="background" args={['#020202']} />
           <PerspectiveCamera makeDefault position={[0, 40, 0]} fov={50} />
