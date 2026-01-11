@@ -486,7 +486,6 @@ const WordCloud = ({ onSelectSentence, selectedSentence, contextSentences }) => 
         };
 
         const handleTouchStart = (e) => {
-            console.log("TouchStart", { touches: e.touches.length });
             if (selectedSentence) return;
             hasInteracted.current = true;
             e.preventDefault(); // Prevent default scroll/zoom
@@ -547,7 +546,6 @@ const WordCloud = ({ onSelectSentence, selectedSentence, contextSentences }) => 
         };
 
         const handleTouchEnd = (e) => {
-            console.log("TouchEnd", { remainingTouches: e.touches.length, isDragging: isDragging.current }); // LOG
             // TAP DETECTION (Mobile)
             // Safety cleanup
             touchDistRef.current = null;
@@ -622,7 +620,6 @@ const WordCloud = ({ onSelectSentence, selectedSentence, contextSentences }) => 
             if (globalIsIntro) return; // Block rotation during intro animation
 
             lastMouse.current = { x: e.clientX, y: e.clientY };
-            console.log("PointerDown: Starting Hold", { x: e.clientX, y: e.clientY });
             hasInteracted.current = true; // Mark interaction immediately!
             isHolding.current = true;     // User is holding
 
@@ -643,7 +640,6 @@ const WordCloud = ({ onSelectSentence, selectedSentence, contextSentences }) => 
 
             // Only consider it a drag if moved significantly
             if (Math.abs(dx) > 2 || Math.abs(dy) > 2) {
-                if (!isDragging.current) console.log("PointerMove: Drag Threshold Exceeded");
                 isDragging.current = true;
             }
 
@@ -664,7 +660,6 @@ const WordCloud = ({ onSelectSentence, selectedSentence, contextSentences }) => 
         };
 
         const onPointerUp = (e) => {
-            console.log("PointerUp", { isDragging: isDragging.current, isHolding: isHolding.current, selectedSentence: !!selectedSentence });
             // Restore Momentum on Release ONLY if we were actually holding/dragging.
             if (isHolding.current || isDragging.current) {
 
@@ -677,12 +672,10 @@ const WordCloud = ({ onSelectSentence, selectedSentence, contextSentences }) => 
                     // 1. Get click coordinates (NDC for Project) & Screen for Distance
                     const screenX = e.clientX;
                     const screenY = e.clientY;
-                    console.log("Click Search At:", { screenX, screenY }); // LOG
 
                     // 2. Collect ALL Candidates (Using LIVE POSITIONS)
                     camera.updateMatrixWorld(); // Critical: Ensure camera state is fresh!
                     const liveItems = Array.from(itemRefs.current.values());
-                    let passingCount = 0; // LOG
 
                     let closest = null;
                     let minScreenDistSq = Infinity;
@@ -707,8 +700,6 @@ const WordCloud = ({ onSelectSentence, selectedSentence, contextSentences }) => 
 
                         pos.project(camera);
 
-                        passingCount++;
-
                         const x = (pos.x * widthHalf) + widthHalf;
                         const y = -(pos.y * heightHalf) + heightHalf;
 
@@ -723,15 +714,6 @@ const WordCloud = ({ onSelectSentence, selectedSentence, contextSentences }) => 
                     });
 
                     // 3. Select if found within range
-                    console.log("Click Search Result:", {
-                        found: !!closest,
-                        dist: Math.sqrt(minScreenDistSq),
-                        max: MAX_CLICK_DIST,
-                        text: closest?.displayText,
-                        totalItems: liveItems.length,
-                        visibleItems: passingCount
-                    }); // LOG
-
                     if (closest && minScreenDistSq < MAX_CLICK_DIST * MAX_CLICK_DIST) {
                         handleSelectSentenceWrapper(closest);
                         isDragging.current = false;
