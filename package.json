@@ -7,7 +7,8 @@
   "scripts": {
     "dev": "vite",
     "fetch-data": "node scripts/fetch-velog.js",
-    "build": "npm run fetch-data && vite build",
+    "build": "npm run update-cache && npm run fetch-data && vite build",
+    "update-cache": "node scripts/update-cache-version.js",
     "preview": "vite preview"
   },
   "dependencies": {
