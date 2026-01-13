@@ -8,6 +8,70 @@ const loadSentencesData = () => import('../data/velog-words.json');
 // Import font directly to avoid async issues
 import notoFontUrl from '@fontsource/noto-sans-kr/files/noto-sans-kr-korean-900-normal.woff';
 
+const suite3dFontCandidates = [
+    '/fonts/SUITE-Variable.woff',
+    '/fonts/SUITE-Variable.otf',
+    '/fonts/SUITE-Variable.ttf'
+];
+
+async function resolveFirstReachableUrl(urls) {
+    for (const url of urls) {
+        try {
+            const res = await fetch(url, {
+                headers: {
+                    Range: 'bytes=0-63'
+                }
+            });
+
+            if (!res.ok) continue;
+
+            const contentType = res.headers.get('content-type') || '';
+            if (contentType.includes('text/html')) continue;
+
+            const ab = await res.arrayBuffer();
+            if (ab.byteLength < 4) continue;
+
+            const bytes = new Uint8Array(ab, 0, 4);
+            const lowerUrl = url.toLowerCase();
+
+            if (lowerUrl.endsWith('.woff')) {
+                const isWoff1 = bytes[0] === 0x77 && bytes[1] === 0x4f && bytes[2] === 0x46 && bytes[3] === 0x46;
+                if (!isWoff1) continue;
+
+                if (ab.byteLength < 44) continue;
+
+                const dv = new DataView(ab);
+                const declaredLength = dv.getUint32(8, false);
+
+                const contentRange = res.headers.get('content-range') || '';
+                const slashIndex = contentRange.indexOf('/');
+                const totalLength = slashIndex !== -1 ? Number(contentRange.slice(slashIndex + 1)) : null;
+
+                if (declaredLength && Number.isFinite(totalLength) && totalLength && declaredLength !== totalLength) {
+                    continue;
+                }
+
+                return url;
+            }
+
+            if (lowerUrl.endsWith('.otf')) {
+                const isOtf = bytes[0] === 0x4f && bytes[1] === 0x54 && bytes[2] === 0x54 && bytes[3] === 0x4f;
+                if (isOtf) return url;
+            }
+
+            if (lowerUrl.endsWith('.ttf')) {
+                const isTtfV1 = bytes[0] === 0x00 && bytes[1] === 0x01 && bytes[2] === 0x00 && bytes[3] === 0x00;
+                const isTtfTrue = bytes[0] === 0x74 && bytes[1] === 0x72 && bytes[2] === 0x75 && bytes[3] === 0x65;
+                const isTtfTyp1 = bytes[0] === 0x74 && bytes[1] === 0x79 && bytes[2] === 0x70 && bytes[3] === 0x31;
+                if (isTtfV1 || isTtfTrue || isTtfTyp1) return url;
+            }
+        } catch {
+        }
+    }
+
+    return null;
+}
+
 // --- MODULE LEVEL STATE (SINGLETON) ---
 // Prevents state reset on component remounts
 let globalIsIntro = true;
@@ -98,7 +162,7 @@ const generateLayout = (data) => {
 };
 
 
-const SentenceWrapper = ({ id, data, onSelect, registerItem, unregisterItem, onHoverChange, isDetailMode, frozen, isBonus }) => {
+const SentenceWrapper = ({ id, data, onSelect, registerItem, unregisterItem, onHoverChange, fontUrl, isDetailMode, frozen, isBonus }) => {
     // Destructure needed fields from data
     const { displayText, position } = data;
 
@@ -299,7 +363,7 @@ const SentenceWrapper = ({ id, data, onSelect, registerItem, unregisterItem, onH
                 <Text
                     ref={textRef}
                     fontSize={1.2}
-                    font={notoFontUrl}
+                    font={fontUrl}
                     color={hovered ? "#ffffff" : "#dddddd"}
                     anchorX="center"
                     anchorY="middle"
@@ -348,12 +412,27 @@ const WordCloud = ({ onSelectSentence, selectedSentence, contextSentences }) => 
     const wasPinchRef = useRef(false);
     const isReturningRef = useRef(false); // [Safety] Block clicks right after returning
     const [sentencesData, setSentencesData] = React.useState(null);
+    const [textFontUrl, setTextFontUrl] = React.useState(notoFontUrl);
 
     // Load data asynchronously (font is imported directly)
     React.useEffect(() => {
         loadSentencesData().then((dataModule) => {
             setSentencesData(dataModule.default);
         });
+    }, []);
+
+    React.useEffect(() => {
+        let cancelled = false;
+
+        resolveFirstReachableUrl(suite3dFontCandidates).then((url) => {
+            if (!cancelled && url) {
+                setTextFontUrl(url);
+            }
+        });
+
+        return () => {
+            cancelled = true;
+        };
     }, []);
 
     // Custom Rotation Controls
@@ -972,6 +1051,7 @@ const WordCloud = ({ onSelectSentence, selectedSentence, contextSentences }) => 
                     data={data}
                     onSelect={handleSelectSentenceWrapper}
                     onHoverChange={handleHoverChange}
+                    fontUrl={textFontUrl}
                     registerItem={registerItem}
                     unregisterItem={unregisterItem}
                     frozen={!!selectedSentence}
