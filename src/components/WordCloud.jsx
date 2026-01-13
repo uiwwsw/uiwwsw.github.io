@@ -8,6 +8,9 @@ const loadSentencesData = () => import('../data/velog-words.json');
 // Import font directly to avoid async issues
 import notoFontUrl from '@fontsource/noto-sans-kr/files/noto-sans-kr-korean-900-normal.woff';
 
+const INTERACTION_CUTOFF = 150;
+const HOVER_CLICK_WINDOW_MS = 500;
+
 const suite3dFontCandidates = [
     '/fonts/SUITE-Variable.woff',
     '/fonts/SUITE-Variable.otf',
@@ -162,7 +165,7 @@ const generateLayout = (data) => {
 };
 
 
-const SentenceWrapper = ({ id, data, onSelect, registerItem, unregisterItem, onHoverChange, fontUrl, isDetailMode, frozen, isBonus }) => {
+const SentenceWrapper = ({ id, data, onSelect, registerItem, unregisterItem, onHoverChange, onHoverItem, fontUrl, onDirectPointerDown, onDirectPointerUp, isDetailMode, frozen, isBonus }) => {
     // Destructure needed fields from data
     const { displayText, position } = data;
 
@@ -172,6 +175,21 @@ const SentenceWrapper = ({ id, data, onSelect, registerItem, unregisterItem, onH
     const [hovered, setHovered] = useState(false);
     const [isTooFar, setIsTooFar] = useState(false);
     const textRef = useRef();
+    const tapStartRef = useRef(null);
+
+    const isTap = (e) => {
+        const start = tapStartRef.current;
+        if (!start) return false;
+
+        const dx = e.clientX - start.x;
+        const dy = e.clientY - start.y;
+        const distSq = dx * dx + dy * dy;
+        const duration = Date.now() - start.t;
+
+        tapStartRef.current = null;
+
+        return distSq <= 16 && duration < 500;
+    };
 
     // Register to Parent for Click Detection
     useEffect(() => {
@@ -320,33 +338,48 @@ const SentenceWrapper = ({ id, data, onSelect, registerItem, unregisterItem, onH
             <group ref={innerRef}>
                 {/* Hit Area (Invisible, slightly larger) */}
                 <mesh
-                    visible={false}
                     onPointerOver={(e) => {
-                        e.stopPropagation(); // Block global raycast if needed?
-
-                        // DISTANCE CHECK: Only interactive if close enough
                         const dist = camera.position.distanceTo(groupRef.current.position);
-                        const MAX_INTERACTION_DIST = 150;
-                        if (dist > MAX_INTERACTION_DIST) return;
+                        if (dist > INTERACTION_CUTOFF) return;
+
+                        e.stopPropagation();
 
                         if (!isTooFar) {
                             setHovered(true);
                             document.body.style.cursor = 'pointer';
                             if (onHoverChange) onHoverChange(true);
+                            if (onHoverItem) onHoverItem(data, groupRef);
                         }
                     }}
                     onPointerOut={(e) => {
+                        const dist = camera.position.distanceTo(groupRef.current.position);
+                        if (dist > INTERACTION_CUTOFF) return;
+
+                        e.stopPropagation();
+
                         setHovered(false);
                         document.body.style.cursor = 'auto';
                         if (onHoverChange) onHoverChange(false);
                     }}
-                    // Use simple onClick but with a larger area.
-                    // If the user wants "robustness against different up event", 
-                    // typically that means they dragged a bit or mouseUp happened on a different child?
-                    // With a single large mesh, it's robust.
-                    onClick={(e) => {
+                    onPointerDown={(e) => {
+                        const dist = camera.position.distanceTo(groupRef.current.position);
+                        if (dist > INTERACTION_CUTOFF) return;
+
+                        tapStartRef.current = { x: e.clientX, y: e.clientY, t: Date.now() };
+
                         e.stopPropagation();
-                        onSelect(data);
+                        if (onDirectPointerDown) onDirectPointerDown();
+                    }}
+                    onPointerUp={(e) => {
+                        const dist = camera.position.distanceTo(groupRef.current.position);
+                        if (dist > INTERACTION_CUTOFF) return;
+
+                        e.stopPropagation();
+                        if (onDirectPointerUp) onDirectPointerUp();
+
+                        if (isTap(e)) {
+                            onSelect(data);
+                        }
                     }}
                 >
                     {/* 
@@ -357,23 +390,51 @@ const SentenceWrapper = ({ id, data, onSelect, registerItem, unregisterItem, onH
                        Add padding (10% + extra for comfort). 
                     */}
                     <planeGeometry args={[displayText.length * 1.2 + 2, 2.0]} />
-                    <meshBasicMaterial transparent opacity={0.0} color="red" />
+                     <meshBasicMaterial transparent opacity={0.0} depthWrite={false} depthTest={false} color="red" />
                 </mesh>
 
-                <Text
-                    ref={textRef}
-                    fontSize={1.2}
-                    font={fontUrl}
-                    color={hovered ? "#ffffff" : "#dddddd"}
-                    anchorX="center"
-                    anchorY="middle"
-                    // Events moved to HitBox for better area control
-                    fillOpacity={0}
-                    outlineWidth="5%"
-                    outlineColor="#020202"
-                    whiteSpace="nowrap"
-                    overflowWrap="normal"
-                >
+                 <Text
+                     ref={textRef}
+                     fontSize={1.2}
+                     font={fontUrl}
+                     color={hovered ? "#ffffff" : "#dddddd"}
+                     anchorX="center"
+                     anchorY="middle"
+                     onPointerOver={(e) => {
+                         e.stopPropagation();
+                         if (!isTooFar) {
+                             setHovered(true);
+                             document.body.style.cursor = 'pointer';
+                             if (onHoverChange) onHoverChange(true);
+                             if (onHoverItem) onHoverItem(data, groupRef);
+                         }
+                     }}
+                     onPointerOut={(e) => {
+                         e.stopPropagation();
+                         setHovered(false);
+                         document.body.style.cursor = 'auto';
+                         if (onHoverChange) onHoverChange(false);
+                     }}
+                     onPointerDown={(e) => {
+                         tapStartRef.current = { x: e.clientX, y: e.clientY, t: Date.now() };
+
+                         e.stopPropagation();
+                         if (onDirectPointerDown) onDirectPointerDown();
+                     }}
+                     onPointerUp={(e) => {
+                         e.stopPropagation();
+                         if (onDirectPointerUp) onDirectPointerUp();
+
+                         if (isTap(e)) {
+                             onSelect(data);
+                         }
+                     }}
+                     fillOpacity={0}
+                     outlineWidth="5%"
+                     outlineColor="#020202"
+                     whiteSpace="nowrap"
+                     overflowWrap="normal"
+                 >
                     {displayText}
                 </Text>
             </group>
@@ -413,6 +474,17 @@ const WordCloud = ({ onSelectSentence, selectedSentence, contextSentences }) => 
     const isReturningRef = useRef(false); // [Safety] Block clicks right after returning
     const [sentencesData, setSentencesData] = React.useState(null);
     const [textFontUrl, setTextFontUrl] = React.useState(notoFontUrl);
+    const suppressNearestClickRef = useRef(false);
+
+    const markDirectPointerDown = () => {
+        suppressNearestClickRef.current = true;
+    };
+
+    const markDirectPointerUp = () => {
+        setTimeout(() => {
+            suppressNearestClickRef.current = false;
+        }, 0);
+    };
 
     // Load data asynchronously (font is imported directly)
     React.useEffect(() => {
@@ -439,10 +511,20 @@ const WordCloud = ({ onSelectSentence, selectedSentence, contextSentences }) => 
     const rotVel = useRef({ x: 0, y: 0 });
     const lastMouse = useRef({ x: 0, y: 0 });
     const isDragging = useRef(false);
+    const lastHoveredRef = useRef(null);
+
+    const recordHoverItem = (data, ref) => {
+        lastHoveredRef.current = {
+            data,
+            ref,
+            t: Date.now()
+        };
+    };
 
     // Wrap selection to prevent clicking during intro
     const handleSelectSentenceWrapper = (data) => {
         if (globalIsIntro) return;
+        lastHoveredRef.current = null;
         onSelectSentence(data);
     };
 
@@ -776,12 +858,16 @@ const WordCloud = ({ onSelectSentence, selectedSentence, contextSentences }) => 
         const onPointerUp = (e) => {
             // Restore Momentum on Release ONLY if we were actually holding/dragging.
             if (isHolding.current || isDragging.current) {
+                const skipNearestThisClick = suppressNearestClickRef.current;
+                suppressNearestClickRef.current = false;
 
                 // CLICK DETECTION
                 // If we didn't drag, and we are not in detail mode, it's a click.
                 const clickDuration = Date.now() - clickStartTime.current;
-                if (!isDragging.current && !selectedSentence && !globalIsIntro && !wasPinchRef.current && !isReturningRef.current && clickDuration < 500) {
+                if (!skipNearestThisClick && !isDragging.current && !selectedSentence && !globalIsIntro && !wasPinchRef.current && !isReturningRef.current && clickDuration < 500) {
                     // It was a CLICK (Tap) on the background.
+                    // Priority: nearest by camera distance/screen-space.
+
                     // Run "Find Nearest" Logic (Screen Space)
 
                     // 1. Get click coordinates (NDC for Project) & Screen for Distance
@@ -804,6 +890,7 @@ const WordCloud = ({ onSelectSentence, selectedSentence, contextSentences }) => 
                     liveItems.forEach(item => {
                         const { ref, data } = item;
                         if (!ref.current) return;
+                        if (ref.current.visible === false) return;
 
                         // LIVE World Position (updated by animation loop)
                         const pos = new THREE.Vector3();
@@ -815,25 +902,24 @@ const WordCloud = ({ onSelectSentence, selectedSentence, contextSentences }) => 
 
                         // DISTANCE CHECK (Size Proxy)
                         const distanceToCamera = camera.position.distanceTo(pos);
-                        const FAR_CUTOFF = 250; // Items further than this are ignored (too small)
+                        const FAR_CUTOFF = 250; // Ignore extremely small/far items
                         if (distanceToCamera > FAR_CUTOFF) return;
 
-                        // Distance -> Click Radius Mapping
-                        // Closer = Larger Radius (Easier)
-                        // Farther = Smaller Radius (Harder)
+                        // Click radius scales with distance (min 1px)
+                        // Map distance [NEAR_CUTOFF, FAR_CUTOFF] -> radius [MAX_RADIUS, MIN_RADIUS]
                         const NEAR_CUTOFF = 100; // Anything closer than this gets MAX radius
-                        // Map distance [100, 250] -> radius [60, 10]
                         const MAX_RADIUS = 60;
-                        const MIN_RADIUS = 10;
+                        const MIN_RADIUS = 1;
 
                         let allowedRadius = MAX_RADIUS;
                         if (distanceToCamera > NEAR_CUTOFF) {
-                            // Linear Falloff
                             const range = FAR_CUTOFF - NEAR_CUTOFF;
-                            const progress = (distanceToCamera - NEAR_CUTOFF) / range;
+                            const progress = range > 0 ? (distanceToCamera - NEAR_CUTOFF) / range : 1;
                             const p = Math.max(0, Math.min(1, progress));
                             allowedRadius = MAX_RADIUS - (p * (MAX_RADIUS - MIN_RADIUS));
                         }
+
+                        if (allowedRadius < MIN_RADIUS) allowedRadius = MIN_RADIUS;
                         const allowedDistSq = allowedRadius * allowedRadius;
 
                         pos.project(camera);
@@ -857,10 +943,24 @@ const WordCloud = ({ onSelectSentence, selectedSentence, contextSentences }) => 
 
                     // 3. Select if found (Validity already checked inside loop)
                     if (closest) {
+                        lastHoveredRef.current = null;
                         handleSelectSentenceWrapper(closest);
                         isDragging.current = false;
                         isHolding.current = false;
                         return; // Done
+                    }
+
+                    // Fallback: if a word was hovered recently, treat as its click.
+                    const recentHover = lastHoveredRef.current;
+                    if (recentHover && Date.now() - recentHover.t <= HOVER_CLICK_WINDOW_MS) {
+                        const recentRef = recentHover.ref;
+                        if (recentRef?.current && recentRef.current.visible !== false) {
+                            lastHoveredRef.current = null;
+                            handleSelectSentenceWrapper(recentHover.data);
+                            isDragging.current = false;
+                            isHolding.current = false;
+                            return;
+                        }
                     }
                 }
 
@@ -887,6 +987,7 @@ const WordCloud = ({ onSelectSentence, selectedSentence, contextSentences }) => 
         const onPointerCancel = () => {
             isDragging.current = false;
             isHolding.current = false;
+            suppressNearestClickRef.current = false;
         };
 
         window.addEventListener('pointerdown', onPointerDown);
@@ -1051,7 +1152,10 @@ const WordCloud = ({ onSelectSentence, selectedSentence, contextSentences }) => 
                     data={data}
                     onSelect={handleSelectSentenceWrapper}
                     onHoverChange={handleHoverChange}
+                    onHoverItem={recordHoverItem}
                     fontUrl={textFontUrl}
+                    onDirectPointerDown={markDirectPointerDown}
+                    onDirectPointerUp={markDirectPointerUp}
                     registerItem={registerItem}
                     unregisterItem={unregisterItem}
                     frozen={!!selectedSentence}
