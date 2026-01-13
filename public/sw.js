@@ -1,4 +1,4 @@
-const CACHE_NAME = 'uiwwsw-20260113-1768272645704';
+const CACHE_NAME = 'uiwwsw-20260113-1768277400948';
 // Use relative paths for GitHub Pages compatibility
 const urlsToCache = [
   '/',
@@ -12,19 +12,22 @@ const urlsToCache = [
 // Install event - cache resources
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then((cache) => {
-        console.log('Opened cache');
-        // Cache individual resources with error handling
-        return Promise.all(
-          urlsToCache.map(url => {
-            return cache.add(url).catch(err => {
-              console.warn(`Failed to cache ${url}:`, err);
-              return Promise.resolve();
-            });
-          })
-        );
-      })
+    Promise.all([
+      caches.open(CACHE_NAME)
+        .then((cache) => {
+          console.log('Opened cache');
+          // Cache individual resources with error handling
+          return Promise.all(
+            urlsToCache.map(url => {
+              return cache.add(url).catch(err => {
+                console.warn(`Failed to cache ${url}:`, err);
+                return Promise.resolve();
+              });
+            })
+          );
+        }),
+      self.skipWaiting()
+    ])
   );
 });
 
@@ -74,15 +77,18 @@ self.addEventListener('fetch', (event) => {
 // Activate event - clean up old caches
 self.addEventListener('activate', (event) => {
   event.waitUntil(
-    caches.keys().then((cacheNames) => {
-      return Promise.all(
-        cacheNames.map((cacheName) => {
-          if (cacheName !== CACHE_NAME) {
-            console.log('Deleting old cache:', cacheName);
-            return caches.delete(cacheName);
-          }
-        })
-      );
-    })
+    Promise.all([
+      caches.keys().then((cacheNames) => {
+        return Promise.all(
+          cacheNames.map((cacheName) => {
+            if (cacheName !== CACHE_NAME) {
+              console.log('Deleting old cache:', cacheName);
+              return caches.delete(cacheName);
+            }
+          })
+        );
+      }),
+      self.clients.claim()
+    ])
   );
 });

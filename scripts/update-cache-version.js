@@ -24,9 +24,23 @@ const updateServiceWorkerCache = (version) => {
     `const CACHE_NAME = '${version}';`
   );
   fs.writeFileSync(swPath, updatedContent);
-  console.log(`Updated cache version to: ${version}`);
+  console.log(`Updated SW cache version to: ${version}`);
+};
+
+const updateIndexHtmlSwRegistration = (version) => {
+  const htmlPath = path.join(__dirname, '../src/index.html');
+  const content = fs.readFileSync(htmlPath, 'utf8');
+
+  const updatedContent = content.replace(
+    /navigator\.serviceWorker\.register\(\s*['"]\/sw\.js(?:\?v=[^'"]+)?['"]/,
+    `navigator.serviceWorker.register('/sw.js?v=${version}'`
+  );
+
+  fs.writeFileSync(htmlPath, updatedContent);
+  console.log(`Updated SW registration version to: ${version}`);
 };
 
 // Main execution
 const newCacheVersion = generateCacheVersion();
 updateServiceWorkerCache(newCacheVersion);
+updateIndexHtmlSwRegistration(newCacheVersion);
