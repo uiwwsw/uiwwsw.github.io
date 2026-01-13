@@ -1,10 +1,12 @@
-const CACHE_NAME = 'uiwwsw-v1.0.2';
+const CACHE_NAME = 'uiwwsw-20260113-1768272645704';
 // Use relative paths for GitHub Pages compatibility
 const urlsToCache = [
   '/',
   '/index.html',
   '/universe.png',
-  '/favicon.ico'
+  '/favicon.ico',
+  '/fonts/SUITE-Variable.css',
+  '/fonts/SUITE-Variable.woff2'
 ];
 
 // Install event - cache resources

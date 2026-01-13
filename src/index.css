@@ -1,5 +1,4 @@
-/* Font loading with font-display: swap for better performance */
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600&display=swap');
+/* Fonts: SUITE Variable loaded via /fonts/SUITE-Variable.css */
 
 :root {
   --bg-color: #050505;
@@ -14,12 +13,7 @@
   contain: layout style paint;
 }
 
-/* Font face optimization for better loading */
-@font-face {
-  font-family: 'Space Grotesk';
-  font-display: swap;
-  src: local('Space Grotesk');
-}
+/* Font face is defined in /public/fonts/SUITE-Variable.css */
 
 * {
   box-sizing: border-box;
@@ -27,7 +21,7 @@
 
 body {
   margin: 0;
-  font-family: 'Space Grotesk', system-ui, -apple-system, sans-serif;
+  font-family: 'SUITE Variable', system-ui, -apple-system, sans-serif;
   background-color: var(--bg-color);
   color: var(--text-main);
   overflow: hidden;
@@ -268,7 +262,7 @@ body {
 }
 
 .navbar-title {
-  font-family: 'Noto Sans KR', sans-serif;
+  font-family: 'SUITE Variable', system-ui, -apple-system, sans-serif;
   font-weight: 600;
   font-size: 1rem;
   color: #0f172a;
@@ -345,7 +339,7 @@ img {
 
 /* Typography & Hierarchy */
 .text-paragraph {
-  font-family: 'Noto Sans KR', sans-serif;
+  font-family: 'SUITE Variable', system-ui, -apple-system, sans-serif;
   font-size: 1.05rem;
   line-height: 1.8;
   color: #64748b;
@@ -447,7 +441,7 @@ img {
   /* Pill shape */
   padding: 16px 48px;
 
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: 'SUITE Variable', system-ui, -apple-system, sans-serif;
   font-size: 1.1rem;
   font-weight: 600;
 
