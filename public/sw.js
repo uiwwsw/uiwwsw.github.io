@@ -1,4 +1,4 @@
-const CACHE_NAME = 'uiwwsw-20260113-1768277400948';
+const CACHE_NAME = 'uiwwsw-20260117-1768651753438';
 // Use relative paths for GitHub Pages compatibility
 const urlsToCache = [
   '/',
