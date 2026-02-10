@@ -61,7 +61,7 @@
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/sw.js?v=uiwwsw-20260117-1768651753438', { updateViaCache: 'none' })
+        navigator.serviceWorker.register('/sw.js?v=uiwwsw-20260210-1770703073020', { updateViaCache: 'none' })
           .then((registration) => {
             registration.update();
             console.log('SW registered: ', registration);

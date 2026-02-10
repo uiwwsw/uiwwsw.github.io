@@ -185,6 +185,7 @@ async function fetchAllPosts(username) {
                 id
                 title
                 url_slug
+                tags
             }
         }
     `;
@@ -287,6 +288,7 @@ async function fetchAndProcess() {
                     ...sentence,
                     link,
                     title: item.title,
+                    tags: item.tags || [],
                     articleId: articleId,
                     sentenceIndex: index,
                     totalInArticle: itemSentences.length
@@ -307,6 +309,7 @@ async function fetchAndProcess() {
                 byArticle[s.articleId] = {
                     title: s.title,
                     link: s.link,
+                    tags: s.tags || [],
                     sentences: []
                 };
             }

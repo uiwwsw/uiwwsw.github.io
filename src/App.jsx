@@ -4,8 +4,11 @@ import { PerspectiveCamera } from '@react-three/drei';
 import { EffectComposer, Bloom, Vignette } from '@react-three/postprocessing';
 import './index.css';
 
+import { UniverseScene } from './components/universe/Scene';
+import { HUD } from './components/universe/HUD';
+
 // Lazy load components for better performance
-const WordCloud = lazy(() => import('./components/WordCloud'));
+// const WordCloud = lazy(() => import('./components/WordCloud'));
 const loadContextData = () => import('./data/velog-context.json');
 
 // --------------------------------------------------------
@@ -19,6 +22,7 @@ export default function App() {
   const [selectedSentence, setSelectedSentence] = useState(null);
   const [contextSentences, setContextSentences] = useState([]);
   const [contextData, setContextData] = useState(null);
+  const [mode, setMode] = useState('EXPLORATION'); // EXPLORATION | IMMERSION
 
   // Load context data on demand
   React.useEffect(() => {
@@ -94,27 +98,25 @@ export default function App() {
         }}
       >
         <Canvas gl={canvasConfig}>
-          <color attach="background" args={['#020202']} />
-          <PerspectiveCamera makeDefault position={[0, 40, 0]} fov={50} />
+          <color attach="background" args={['#000000']} />
+          <PerspectiveCamera makeDefault position={[0, 0, 50]} fov={60} />
 
+          {/* New Universe Scene */}
           <Suspense fallback={null}>
-            <WordCloud
-              onSelectSentence={handleSelectSentence}
-              selectedSentence={selectedSentence}
-              contextSentences={contextSentences}
-            />
+            <UniverseScene onModeChange={setMode} />
           </Suspense>
 
           <EffectComposer disableNormalPass>
-            <Bloom luminanceThreshold={0.0} mipmapBlur intensity={0.8} radius={0.5} />
+            <Bloom luminanceThreshold={0.15} mipmapBlur intensity={1.5} radius={0.6} />
             {!selectedSentence && <Vignette eskil={false} offset={0.1} darkness={1.1} />}
           </EffectComposer>
-
-          <ambientLight intensity={0.5} />
         </Canvas>
+
+        {/* HUD Overlay */}
+        <HUD mode={mode} onExit={() => window.dispatchEvent(new Event('exit-immersion'))} />
       </div>
 
-      <div className={`overlay ${selectedSentence ? 'hidden' : ''}`} style={{ opacity: selectedSentence ? 0 : 1, transition: 'opacity 0.5s' }}>
+      <div className={`overlay ${selectedSentence ? 'hidden' : ''}`} style={{ opacity: selectedSentence ? 0 : 1, transition: 'opacity 0.5s', display: 'none' }}>
         <header className="header">
           <div className="logo">uiwwsw</div>
           {/* <nav>
