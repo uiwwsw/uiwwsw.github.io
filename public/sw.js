@@ -6,6 +6,7 @@ const urlsToCache = [
   '/universe.png',
   '/favicon.ico',
   '/fonts/SUITE-Variable.css',
+  '/fonts/SUITE-Variable.ttf',
   '/fonts/SUITE-Variable.woff2'
 ];
 
@@ -47,7 +48,7 @@ self.addEventListener('fetch', (event) => {
         return fetch(fetchRequest).then(
           (response) => {
             // Check if valid response
-            if(!response || response.status !== 200 || response.type !== 'basic') {
+            if (!response || response.status !== 200 || response.type !== 'basic') {
               return response;
             }
 
@@ -57,12 +58,12 @@ self.addEventListener('fetch', (event) => {
             caches.open(CACHE_NAME)
               .then((cache) => {
                 // Don't cache API calls or dynamic data
-                if (!event.request.url.includes('/data/') && 
-                    !event.request.url.includes('api.') &&
-                    event.request.destination === 'document' ||
-                    event.request.destination === 'script' ||
-                    event.request.destination === 'style' ||
-                    event.request.destination === 'image') {
+                if (!event.request.url.includes('/data/') &&
+                  !event.request.url.includes('api.') &&
+                  event.request.destination === 'document' ||
+                  event.request.destination === 'script' ||
+                  event.request.destination === 'style' ||
+                  event.request.destination === 'image') {
                   cache.put(event.request, responseToCache);
                 }
               });
@@ -71,7 +72,7 @@ self.addEventListener('fetch', (event) => {
           }
         );
       })
-    );
+  );
 });
 
 // Activate event - clean up old caches

@@ -14,8 +14,7 @@ export default defineConfig({
       output: {
         manualChunks: {
           vendor: ['react', 'react-dom'],
-          three: ['three', '@react-three/fiber', '@react-three/drei', '@react-three/postprocessing'],
-          fonts: ['@fontsource/noto-sans-kr']
+          three: ['three', '@react-three/fiber', '@react-three/drei', '@react-three/postprocessing']
         }
       }
     },

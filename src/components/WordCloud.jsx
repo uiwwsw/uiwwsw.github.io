@@ -1,10 +1,13 @@
 import React, { useMemo, useRef, useState, useEffect, lazy, Suspense } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
 import { Text, Billboard } from '@react-three/drei';
+import { preloadFont } from 'troika-three-text';
 import * as THREE from 'three';
 
 // Lazy load data for better performance
 const loadSentencesData = () => import('../data/velog-words.json');
+
+const fontUrl = '/fonts/SUITE-Variable.ttf';
 
 const INTERACTION_CUTOFF = 150;
 const HOVER_CLICK_WINDOW_MS = 500;
@@ -330,6 +333,7 @@ const SentenceWrapper = ({ id, data, onSelect, registerItem, unregisterItem, onH
                 <Text
                     ref={textRef}
                     fontSize={1.2}
+                    font={fontUrl}
                     color={hovered ? "#ffffff" : "#dddddd"}
                     anchorX="center"
                     anchorY="middle"
@@ -421,6 +425,16 @@ const WordCloud = ({ onSelectSentence, selectedSentence, contextSentences }) => 
     // Load data asynchronously
 
     React.useEffect(() => {
+        // Preload font and configure ttf decoder
+        preloadFont(
+            {
+                font: fontUrl,
+            },
+            () => {
+                // Font loaded
+            }
+        );
+
         loadSentencesData().then((dataModule) => {
             setSentencesData(dataModule.default);
         });
