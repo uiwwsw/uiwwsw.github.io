@@ -4,12 +4,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover" />
-  <title>uiwwsw | 생각의 우주</title>
+  <title>uiwwsw | 정신세계의 우주</title>
   <meta name="description"
-    content="프론트엔드 개발자 uiwwsw의 기술 블로그. 머릿속을 부유하는 문장들과 코드의 조각들을 모아놓은 3D 워드 클라우드 우주입니다. React, Three.js, 프론트엔드 개발 이야기." />
+    content="uiwwsw의 모든 Velog 글을 정신세계의 우주로 다시 엮은 인터랙티브 GitHub Pages 아카이브. 문장과 코드 조각 사이를 항해하며 글의 맥락으로 진입할 수 있습니다." />
   <meta name="keywords"
-    content="Frontend, React, JavaScript, Three.js, Tech Blog, uiwwsw, Word Cloud, 개발자, 회고, 프론트엔드, WebGL" />
-  <meta name="theme-color" content="#050505" />
+    content="uiwwsw, Velog, React, Three.js, GitHub Pages, Interactive Portfolio, Mental Universe, 개발자 블로그, 인터랙티브 웹, WebGL" />
+  <meta name="theme-color" content="#02040a" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   
@@ -29,7 +29,7 @@
   
   <!-- Critical CSS inline -->
   <style>
-    body{margin:0;font-family:'SUITE Variable',system-ui,-apple-system,sans-serif;background:#050505;color:#fff;overflow:hidden;width:100vw;height:100vh;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none;touch-action:manipulation;overscroll-behavior:none}.canvas-container{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;touch-action:none;transition:transform .6s cubic-bezier(.2,.8,.2,1);transform-origin:center center;will-change:transform;contain:layout paint}.overlay{position:relative;z-index:10;width:100%;height:100%;pointer-events:none;display:flex;flex-direction:column;justify-content:space-between;padding:40px}.header{display:flex;justify-content:space-between;align-items:center;pointer-events:none}.logo{font-weight:600;font-size:1.25rem;letter-spacing:-.02em}.content{pointer-events:none;max-width:800px}.content h1{font-size:5rem;line-height:.9;letter-spacing:-.04em;margin:0 0 2rem;font-weight:600}.gradient-text{background:linear-gradient(to right,#fff,#94a3b8);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}.subtitle{font-size:1.5rem;line-height:1.4;color:#94a3b8;font-weight:300;margin:0 0 4rem}@media(max-width:768px){.overlay{padding:24px}.content h1{font-size:3.5rem}.subtitle{font-size:1.1rem}}
+    html,body,#root{width:100%;height:100%}body{margin:0;font-family:'SUITE Variable',system-ui,-apple-system,sans-serif;background:radial-gradient(circle at top,rgba(54,95,128,.25),transparent 30%),radial-gradient(circle at 20% 20%,rgba(255,198,112,.14),transparent 24%),linear-gradient(180deg,#02040a 0%,#030711 52%,#02040a 100%);color:#f6f8fc;overflow:hidden;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none;overscroll-behavior:none}.canvas-container{position:fixed;inset:0;z-index:0}.overlay{position:relative;z-index:10;width:100%;height:100%;padding:28px;display:grid;align-content:space-between}.header{display:flex;justify-content:space-between;align-items:flex-start;gap:16px}.logo{font-weight:650;font-size:1.25rem;letter-spacing:-.03em}.hero{max-width:820px;align-self:end}.hero h1{margin:0;font-size:clamp(3.4rem,8vw,7rem);line-height:.88;letter-spacing:-.055em;max-width:10ch}.subtitle{margin:24px 0 0;max-width:42rem;color:#a0aec0;font-size:clamp(1.02rem,1.6vw,1.34rem);line-height:1.75}@media(max-width:768px){.overlay{padding:18px 16px 20px}.hero h1{font-size:clamp(2.6rem,13vw,4.4rem)}.subtitle{font-size:1rem;line-height:1.72}}
   </style>
   
   <!-- Mobile optimization -->
@@ -41,15 +41,15 @@
   <!-- Open Graph / Facebook -->
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://uiwwsw.github.io/" />
-  <meta property="og:title" content="uiwwsw | 생각의 우주" />
-  <meta property="og:description" content="프론트엔드 개발자 uiwwsw의 생각과 코드가 부유하는 3D 공간." />
+  <meta property="og:title" content="uiwwsw | 정신세계의 우주" />
+  <meta property="og:description" content="모든 Velog 글이 별자리와 성운이 되는 인터랙티브 GitHub Pages 아카이브." />
   <meta property="og:image" content="/og-image.png" />
 
   <!-- Twitter -->
   <meta property="twitter:card" content="summary_large_image" />
   <meta property="twitter:url" content="https://uiwwsw.github.io/" />
-  <meta property="twitter:title" content="uiwwsw | 생각의 우주" />
-  <meta property="twitter:description" content="프론트엔드 개발자 uiwwsw의 생각과 코드가 부유하는 3D 공간." />
+  <meta property="twitter:title" content="uiwwsw | 정신세계의 우주" />
+  <meta property="twitter:description" content="모든 Velog 글이 별자리와 성운이 되는 인터랙티브 GitHub Pages 아카이브." />
   <meta property="twitter:image" content="/og-image.png" />
 </head>
 
@@ -61,7 +61,7 @@
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/sw.js?v=uiwwsw-20260117-1768651753438', { updateViaCache: 'none' })
+        navigator.serviceWorker.register('/sw.js?v=uiwwsw-20260317-1773738598203', { updateViaCache: 'none' })
           .then((registration) => {
             registration.update();
             console.log('SW registered: ', registration);

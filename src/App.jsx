@@ -1,72 +1,98 @@
-import React, { useState, lazy, Suspense } from 'react';
+import React, { Suspense, lazy, useEffect, useMemo, useState } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { PerspectiveCamera } from '@react-three/drei';
-import { EffectComposer, Bloom, Vignette } from '@react-three/postprocessing';
+import { Bloom, EffectComposer, Vignette } from '@react-three/postprocessing';
 import './index.css';
+import { buildUniverseModel, getContextWindow } from './utils/universeModel';
 
-// Lazy load components for better performance
 const WordCloud = lazy(() => import('./components/WordCloud'));
 const loadContextData = () => import('./data/velog-context.json');
 
-// --------------------------------------------------------
-// Main Scenery
-// --------------------------------------------------------
+const canvasConfig = {
+  antialias: true,
+  alpha: false,
+  stencil: false,
+  depth: true,
+  powerPreference: 'high-performance'
+};
 
-// Externalize config to prevent Canvas remounts
-const canvasConfig = { antialias: false, alpha: false, stencil: false, depth: true };
+function getOverlayMetrics(width, height) {
+  const safeWidth = Math.max(width ?? (typeof window !== 'undefined' ? window.innerWidth : 1440), 320);
+  const safeHeight = Math.max(height ?? (typeof window !== 'undefined' ? window.innerHeight : 940), 320);
+  const isMobile = safeWidth <= 768;
+  const isTablet = safeWidth <= 1180;
+  const frameWidth = isMobile ? 430 : isTablet ? 1040 : 1440;
+  const frameHeight = isMobile ? 920 : isTablet ? 1060 : 940;
+  const scale = Math.min(1, safeWidth / frameWidth, safeHeight / frameHeight);
+
+  return {
+    frameWidth,
+    frameHeight,
+    scale: Number(scale.toFixed(3))
+  };
+}
 
 export default function App() {
+  const [contextData, setContextData] = useState(null);
   const [selectedSentence, setSelectedSentence] = useState(null);
   const [contextSentences, setContextSentences] = useState([]);
-  const [contextData, setContextData] = useState(null);
+  const [focusedArticle, setFocusedArticle] = useState(null);
+  const [overlayMetrics, setOverlayMetrics] = useState(() => getOverlayMetrics());
 
-  // Load context data on demand
-  React.useEffect(() => {
+  useEffect(() => {
+    let mounted = true;
+
     loadContextData().then(module => {
-      setContextData(module.default);
+      if (mounted) {
+        setContextData(module.default);
+      }
+    }).catch((error) => {
+      console.error('Failed to load mental universe data.', error);
     });
+
+    return () => {
+      mounted = false;
+    };
   }, []);
 
-  const handleSelectSentence = async (sentenceData) => {
+  useEffect(() => {
+    const handleContextMenu = (event) => event.preventDefault();
+    document.addEventListener('contextmenu', handleContextMenu);
+    return () => document.removeEventListener('contextmenu', handleContextMenu);
+  }, []);
+
+  useEffect(() => {
+    const updateOverlayMetrics = () => {
+      setOverlayMetrics(getOverlayMetrics(window.innerWidth, window.innerHeight));
+    };
+
+    updateOverlayMetrics();
+    window.addEventListener('resize', updateOverlayMetrics);
+    window.addEventListener('orientationchange', updateOverlayMetrics);
+
+    return () => {
+      window.removeEventListener('resize', updateOverlayMetrics);
+      window.removeEventListener('orientationchange', updateOverlayMetrics);
+    };
+  }, []);
+
+  const universe = useMemo(() => {
+    if (!contextData) return null;
+    return buildUniverseModel(contextData);
+  }, [contextData]);
+
+  const selectedArticle = selectedSentence && universe
+    ? universe.articleById[selectedSentence.articleId]
+    : null;
+  const activeArticle = selectedArticle || focusedArticle || universe?.articles[0] || null;
+
+  const handleSelectSentence = (sentenceData) => {
+    if (!universe) return;
+
+    const article = universe.articleById[sentenceData.articleId];
+
     setSelectedSentence(sentenceData);
-
-    // Get context sentences (exactly 5 total if possible)
-    if (sentenceData && contextData && contextData[sentenceData.articleId]) {
-      const article = contextData[sentenceData.articleId];
-      const sentences = article.sentences;
-      const currentIndex = Number(sentenceData.sentenceIndex);
-
-      // Strategy: Show 5 sentences total
-      // Prefer: 2 before + selected + 2 after
-      // If not enough before/after, adjust accordingly
-      const TARGET_COUNT = 5;
-      let startIdx = Math.max(0, currentIndex - 2);
-      let endIdx = Math.min(sentences.length, currentIndex + 3);
-
-      // Adjust if we don't have enough sentences
-      const currentCount = endIdx - startIdx;
-      if (currentCount < TARGET_COUNT) {
-        // Try to add more from the other side
-        if (startIdx === 0) {
-          // Add more after
-          endIdx = Math.min(sentences.length, startIdx + TARGET_COUNT);
-        } else if (endIdx === sentences.length) {
-          // Add more before
-          startIdx = Math.max(0, endIdx - TARGET_COUNT);
-        }
-      }
-
-      const context = [];
-      for (let i = startIdx; i < endIdx; i++) {
-        context.push({
-          text: sentences[i].fullSentence,
-          type: sentences[i].type || 'text',
-          isSelected: i === currentIndex
-        });
-      }
-
-      setContextSentences(context);
-    }
+    setContextSentences(getContextWindow(article, sentenceData.sentenceIndex, 7));
   };
 
   const handleBack = () => {
@@ -74,148 +100,202 @@ export default function App() {
     setContextSentences([]);
   };
 
-  // Disable context menu
-  React.useEffect(() => {
-    const handleContextMenu = (e) => e.preventDefault();
-    document.addEventListener('contextmenu', handleContextMenu);
-    return () => document.removeEventListener('contextmenu', handleContextMenu);
-  }, []);
+  const handleOpenArticle = (article) => {
+    if (!article) return;
+
+    const sentenceIndex = Math.max(
+      0,
+      article.sentences.findIndex(sentence => (sentence.type || 'text') === 'text')
+    );
+
+    setSelectedSentence({
+      articleId: article.articleId,
+      sentenceIndex
+    });
+    setContextSentences(getContextWindow(article, sentenceIndex, 7));
+  };
+
+  if (!universe) {
+    return <div className="app-shell" aria-hidden="true" />;
+  }
+
+  const overlayStyle = {
+    '--overlay-scale': overlayMetrics.scale,
+    '--overlay-frame-width': `${overlayMetrics.frameWidth}px`,
+    '--overlay-frame-height': `${overlayMetrics.frameHeight}px`
+  };
 
   return (
-    <>
-      <div
-        className={`canvas-container ${selectedSentence ? 'detail-active' : ''}`}
-        onTransitionEnd={(e) => {
-          // Trigger resize only when returning to full view (scale back to 1)
-          // and ensuring it's the transform transition finishing
-          if (!selectedSentence && e.propertyName === 'transform') {
-            window.dispatchEvent(new Event('resize'));
-          }
-        }}
-      >
-        <Canvas gl={canvasConfig}>
-          <color attach="background" args={['#020202']} />
-          <PerspectiveCamera makeDefault position={[0, 40, 0]} fov={50} />
+    <div className="app-shell">
+      <div className={`canvas-container ${selectedSentence ? 'detail-active' : ''}`}>
+        <Canvas
+          gl={canvasConfig}
+          dpr={[1, 1.6]}
+          onCreated={({ gl }) => {
+            gl.setClearColor('#02040a');
+            gl.setPixelRatio(Math.min(window.devicePixelRatio, 1.6));
+          }}
+        >
+          <color attach="background" args={['#02040a']} />
+          <PerspectiveCamera makeDefault position={[0, 12, 920]} fov={50} />
 
           <Suspense fallback={null}>
             <WordCloud
-              onSelectSentence={handleSelectSentence}
+              universe={universe}
               selectedSentence={selectedSentence}
-              contextSentences={contextSentences}
+              onSelectSentence={handleSelectSentence}
+              onFocusArticleChange={setFocusedArticle}
             />
           </Suspense>
 
           <EffectComposer disableNormalPass>
-            <Bloom luminanceThreshold={0.0} mipmapBlur intensity={0.8} radius={0.5} />
-            {!selectedSentence && <Vignette eskil={false} offset={0.1} darkness={1.1} />}
+            <Bloom luminanceThreshold={0} mipmapBlur intensity={0.72} radius={0.62} />
+            <Vignette eskil={false} offset={0.12} darkness={0.9} />
           </EffectComposer>
 
-          <ambientLight intensity={0.5} />
+          <ambientLight intensity={0.78} />
+          <directionalLight position={[140, 220, 180]} intensity={0.38} color="#9ad5ff" />
+          <pointLight position={[-180, 60, 240]} intensity={0.22} color="#ffc670" />
         </Canvas>
       </div>
 
-      <div className={`overlay ${selectedSentence ? 'hidden' : ''}`} style={{ opacity: selectedSentence ? 0 : 1, transition: 'opacity 0.5s' }}>
-        <header className="header">
-          <div className="logo">uiwwsw</div>
-          {/* <nav>
-            <a href="https://github.com/uiwwsw" target="_blank" rel="noopener noreferrer">GitHub</a>
-            <a href="mailto:uiwwsw@icloud.com">Email</a>
-          </nav> */}
-        </header>
+      <div
+        className={`overlay ${selectedSentence ? 'is-hidden' : ''}`}
+        style={overlayStyle}
+      >
+        <div className="overlay-inner">
+          <div className="overlay-atmosphere overlay-atmosphere-a" />
+          <div className="overlay-atmosphere overlay-atmosphere-b" />
 
-        <main className="content">
-          <h1>
-            <span className="gradient-text">Thoughts</span>
-            <br />
-            & Code.
-          </h1>
-          <p className="subtitle">
-            이곳은 제 머릿속을 부유하는, 수많은 생각의 우주입니다.
-          </p>
+          <section className="hero-shell">
+            <header className="header">
+              <div className="brand-block">
+                <span className="brand-kicker">GitHub Pages Mental Universe</span>
+                <div className="logo">uiwwsw</div>
+              </div>
+              <nav className="header-nav">
+                <a href="https://velog.io/@uiwwsw" target="_blank" rel="noreferrer">Velog</a>
+                <a href="https://github.com/uiwwsw" target="_blank" rel="noreferrer">GitHub</a>
+              </nav>
+            </header>
 
-          {/* <div className="stats">
-            <div className="stat-item">
-              <span className="value">System</span>
-              <span className="label">Online</span>
+            <div className="hero">
+              <p className="eyebrow">항해하는 생각의 우주</p>
+              <h1>
+                내 모든 글이
+                <br />
+                별자리와 성운이 되는 곳
+              </h1>
+              <p className="subtitle">
+                Velog에 쌓인 문장과 코드 조각을 정신세계의 우주로 다시 엮었습니다.
+                스크롤과 드래그로 항해하고, 문장을 눌러 그 글의 내면으로 들어가세요.
+              </p>
+
+              <div className="hero-hints">
+                <span className="desktop-only">드래그로 시선 이동 · 스크롤로 가속과 감속</span>
+                <span className="mobile-only">드래그로 시선 이동 · 핀치로 속도 조절</span>
+                <span>문장을 누르면 같은 글의 문맥이 열립니다</span>
+              </div>
             </div>
-          </div> */}
-        </main>
+          </section>
+
+          <section
+            className="focus-panel is-interactive"
+            style={{ '--focus-color': activeArticle?.color || '#83d8ff' }}
+            onClick={() => handleOpenArticle(activeArticle)}
+            onKeyDown={(event) => {
+              if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault();
+                handleOpenArticle(activeArticle);
+              }
+            }}
+            role="button"
+            tabIndex={selectedSentence ? -1 : 0}
+            aria-label={activeArticle ? `${activeArticle.title} 열기` : '현재 글 열기'}
+          >
+            <div className="focus-header">
+              <span className="focus-label">Current Constellation</span>
+              <span className="focus-sector">{activeArticle?.topicLabel}</span>
+            </div>
+            <h2>{activeArticle?.title}</h2>
+            <p>{activeArticle?.excerpt}</p>
+            <div className="focus-meta">
+              <span>{activeArticle?.sentenceCount} fragments</span>
+              <span>{activeArticle?.codeCount} code blocks</span>
+              <span>{`Archive #${(activeArticle?.articleId || 0) + 1}`}</span>
+            </div>
+          </section>
+        </div>
       </div>
 
-      {/* DETAIL OVERLAY (HTML) */}
-      {/* DETAIL OVERLAY (HTML) */}
-      <div
-        className="detail-overlay"
-        style={{
-          opacity: selectedSentence ? 1 : 0,
-          pointerEvents: selectedSentence ? 'auto' : 'none',
-          transition: 'opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1)',
-          transitionDelay: selectedSentence ? '0.2s' : '0s'
-        }}
-      >
-        {selectedSentence && (
-          <>
-            {/* 1. Navbar */}
+      <div className={`detail-overlay ${selectedSentence ? 'is-open' : ''}`}>
+        {selectedSentence && selectedArticle && (
+          <div className="detail-shell">
             <nav className="detail-navbar">
-              <button onClick={handleBack} className="btn-back" aria-label="Go Back">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <button onClick={handleBack} className="btn-back" aria-label="별자리로 돌아가기">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M15 18l-6-6 6-6" />
                 </svg>
               </button>
-              <div className="navbar-title">
-                {contextData[selectedSentence.articleId]?.title || 'Untitled'}
+
+              <div className="detail-nav-copy">
+                <span className="detail-nav-label">Constellation View</span>
+                <strong>{selectedArticle.constellationName}</strong>
               </div>
-              <div className="navbar-spacer" />
+
+              <a className="detail-link" href={selectedArticle.link} target="_blank" rel="noreferrer">
+                Velog 원문
+              </a>
             </nav>
 
-            {/* 2. Article Content */}
-            <article className="detail-article">
+            <article className="detail-panel" style={{ '--detail-accent': selectedArticle.color }}>
+              <div className="detail-header">
+                <span className="detail-sector">{selectedArticle.topicLabel}</span>
+                <h2>{selectedArticle.title}</h2>
+                <p className="detail-excerpt">{selectedArticle.excerpt}</p>
+
+                <div className="detail-meta">
+                  <span>{selectedArticle.sentenceCount} fragments</span>
+                  <span>{selectedArticle.codeCount} code blocks</span>
+                  <span>{`Archive #${selectedArticle.articleId + 1}`}</span>
+                </div>
+              </div>
+
               <div className="article-body">
                 {contextSentences.map((sentence, index) => (
                   <div
-                    key={index}
+                    key={`${selectedArticle.articleId}-${index}`}
                     className={`article-block ${sentence.isSelected ? 'is-selected' : 'is-context'}`}
                   >
                     {sentence.type === 'code' ? (
                       <div className="code-window">
                         <div className="code-header">
-                          <span className="code-dot red"></span>
-                          <span className="code-dot yellow"></span>
-                          <span className="code-dot green"></span>
+                          <span className="code-dot red" />
+                          <span className="code-dot yellow" />
+                          <span className="code-dot green" />
+                          <span className="code-language">{sentence.language || 'code'}</span>
                         </div>
                         <pre><code>{sentence.text}</code></pre>
                       </div>
-                    ) : sentence.type === 'image' ? (
-                      <div className="image-placeholder">
-                        <span className="icon">🖼️</span>
-                        <span className="label">Image Content</span>
-                      </div>
                     ) : (
-                      <p className="text-paragraph">
-                        {sentence.text}
-                      </p>
+                      <p className="text-paragraph">{sentence.text}</p>
                     )}
                   </div>
                 ))}
               </div>
 
-              {/* 3. Footer / CTA */}
-              <div className="article-footer">
-                <button
-                  className="btn-primary-cta"
-                  onClick={() => window.open(selectedSentence.link, '_blank')}
-                >
-                  <span className="btn-text">전체 글 읽기</span>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <line x1="5" y1="12" x2="19" y2="12"></line>
-                    <polyline points="12 5 19 12 12 19"></polyline>
-                  </svg>
+              <div className="detail-footer">
+                <button className="secondary-cta" onClick={handleBack}>
+                  우주로 돌아가기
                 </button>
+                <a className="primary-cta" href={selectedArticle.link} target="_blank" rel="noreferrer">
+                  전체 글 읽기
+                </a>
               </div>
             </article>
-          </>
+          </div>
         )}
       </div>
-    </>
+    </div>
   );
 }

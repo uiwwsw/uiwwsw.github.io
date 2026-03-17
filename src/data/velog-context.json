@@ -1,5 +1,1239 @@
 {
   "0": {
+    "title": "숏츠가 만들어낸 도파민의 서사",
+    "link": "https://velog.io/@uiwwsw/숏츠가-만들어낸-도파민의-서사",
+    "sentences": [
+      {
+        "fullSentence": "영화라는 건, 내게 늘 하나의 지도 같았다.",
+        "index": 0,
+        "type": "text"
+      },
+      {
+        "fullSentence": "어디론가 향해 가는 2차원의 루트.",
+        "index": 1,
+        "type": "text"
+      },
+      {
+        "fullSentence": "시작점이 있고 끝점이 있고, 그 사이에는 직선이든 곡선이든 반드시 지나가야 할 길들이 있다.",
+        "index": 2,
+        "type": "text"
+      },
+      {
+        "fullSentence": "좋은 영화는 그 길을 안다.",
+        "index": 3,
+        "type": "text"
+      },
+      {
+        "fullSentence": "어디서 머뭇거려야 하는지, 어디서 속도를 붙여야 하는지, 어디쯤에서 관객의 숨을 한번 붙잡아야 하는지 안다.",
+        "index": 4,
+        "type": "text"
+      },
+      {
+        "fullSentence": "그리고 끝내는, 처음부터 예정되어 있던 것처럼 마지막 지점에 도착한다.",
+        "index": 5,
+        "type": "text"
+      },
+      {
+        "fullSentence": "그런 의미에서 왕과 사는 남자는 분명 영리한 영화다.",
+        "index": 6,
+        "type": "text"
+      },
+      {
+        "fullSentence": "시작점과 끝점을 잘 만들었다.",
+        "index": 7,
+        "type": "text"
+      },
+      {
+        "fullSentence": "재미도 있다.",
+        "index": 8,
+        "type": "text"
+      },
+      {
+        "fullSentence": "내가 말한 그 루트들 역시 대체로 정확하게 짚고 넘어간다.",
+        "index": 9,
+        "type": "text"
+      },
+      {
+        "fullSentence": "그래서 재밌다.",
+        "index": 10,
+        "type": "text"
+      },
+      {
+        "fullSentence": "적어도 지루하진 않다.",
+        "index": 11,
+        "type": "text"
+      },
+      {
+        "fullSentence": "천만을 넘겼다는 결과도, 어쩌면 너무 당연하다.",
+        "index": 12,
+        "type": "text"
+      },
+      {
+        "fullSentence": "그런데 이상하게도 나는 자꾸 멈칫하게 된다.",
+        "index": 13,
+        "type": "text"
+      },
+      {
+        "fullSentence": "문제는 장면이다.",
+        "index": 14,
+        "type": "text"
+      },
+      {
+        "fullSentence": "더 정확히 말하면, 장면과 장면 사이에 흐르는 무드다.",
+        "index": 15,
+        "type": "text"
+      },
+      {
+        "fullSentence": "나는 잘 만든 영화라는 건 결국 조화라고 생각한다.",
+        "index": 16,
+        "type": "text"
+      },
+      {
+        "fullSentence": "수많은 장면이 하나의 줄에 꿰어진 사진처럼 걸려 있다면, 그 사진들은 적어도 같은 방향을 바라보고 있어야 한다.",
+        "index": 17,
+        "type": "text"
+      },
+      {
+        "fullSentence": "혹은 방향이 바뀌더라도, 관객이 그 변화를 느낄 수 있게 천천히, 순차적으로 이동해야 한다.",
+        "index": 18,
+        "type": "text"
+      },
+      {
+        "fullSentence": "그래야 사람은 끌려간다.",
+        "index": 19,
+        "type": "text"
+      },
+      {
+        "fullSentence": "억지로가 아니라, 자연스럽게.",
+        "index": 20,
+        "type": "text"
+      },
+      {
+        "fullSentence": "그런데 이 영화는, 아니 어쩌면 요즘 영화들은, 그 장면들이 너무 튄다.",
+        "index": 21,
+        "type": "text"
+      },
+      {
+        "fullSentence": "무드가 전부 다른 장면들의 묶음 같다.",
+        "index": 22,
+        "type": "text"
+      },
+      {
+        "fullSentence": "왜 여기서 저기로 튀지.",
+        "index": 23,
+        "type": "text"
+      },
+      {
+        "fullSentence": "이 장면은 좀 안 어울리는데.",
+        "index": 24,
+        "type": "text"
+      },
+      {
+        "fullSentence": "여기까지 온 감정이 갑자기 왜 저 높이까지 올라가지.",
+        "index": 25,
+        "type": "text"
+      },
+      {
+        "fullSentence": "방금 전까지 저 인물이 품고 있던 온도와 지금의 표정이 너무 다르다.",
+        "index": 26,
+        "type": "text"
+      },
+      {
+        "fullSentence": "그래서 가끔은 영화를 따라가는 게 아니라, 내가 스스로를 설득하게 된다.",
+        "index": 27,
+        "type": "text"
+      },
+      {
+        "fullSentence": "아, 그냥 그렇다고 가정하고 봐야 하나 보다, 하고.",
+        "index": 28,
+        "type": "text"
+      },
+      {
+        "fullSentence": "그 순간 나는 영화를 보는 사람이 아니라, 영화를 이해하려고 애쓰는 사람이 된다.",
+        "index": 29,
+        "type": "text"
+      },
+      {
+        "fullSentence": "그건 조금 슬픈 일이다.",
+        "index": 30,
+        "type": "text"
+      },
+      {
+        "fullSentence": "나는 이게 지금의 관객을 겨냥한 결과라고 생각한다.",
+        "index": 31,
+        "type": "text"
+      },
+      {
+        "fullSentence": "숏츠에 길들여진 감각.",
+        "index": 32,
+        "type": "text"
+      },
+      {
+        "fullSentence": "한 장면, 한 장면이 계속해서 자극적이어야만 한다는 강박.",
+        "index": 33,
+        "type": "text"
+      },
+      {
+        "fullSentence": "모든 순간이 클라이맥스처럼 번쩍여야 한다는 믿음.",
+        "index": 34,
+        "type": "text"
+      },
+      {
+        "fullSentence": "아마 이 영화는 그 감각을 정확히 이해하고, 또 아주 충실하게 반영했을 것이다.",
+        "index": 35,
+        "type": "text"
+      },
+      {
+        "fullSentence": "그렇다면 잘 만든 게 맞다.",
+        "index": 36,
+        "type": "text"
+      },
+      {
+        "fullSentence": "대중을 읽었고, 그 읽음에 성공했으니까.",
+        "index": 37,
+        "type": "text"
+      },
+      {
+        "fullSentence": "천만이라는 숫자는 변명이 아니라 증거다.",
+        "index": 38,
+        "type": "text"
+      },
+      {
+        "fullSentence": "그러니까 어쩌면 문제는 영화가 아니라 나일지도 모른다.",
+        "index": 39,
+        "type": "text"
+      },
+      {
+        "fullSentence": "그래서 나는 가끔, 내가 늙은 것 같다는 생각을 한다.",
+        "index": 40,
+        "type": "text"
+      },
+      {
+        "fullSentence": "내가 아니다 싶은 것들이 점점 더 많은 사람에게 사랑받는다.",
+        "index": 41,
+        "type": "text"
+      },
+      {
+        "fullSentence": "예전 같으면 확신할 수 있었던 감각이, 이제는 혼자만의 취향처럼 밀려난다.",
+        "index": 42,
+        "type": "text"
+      },
+      {
+        "fullSentence": "예전에는 완성도라고 믿었던 것들이 지금은 답답함이 되고, 예전에는 지나치다고 느꼈던 것들이 지금은 세련됨이 된다.",
+        "index": 43,
+        "type": "text"
+      },
+      {
+        "fullSentence": "세상은 계속 바뀌는데, 나는 어느 지점에서 조금 오래 서 있었던 것 같기도 하다.",
+        "index": 44,
+        "type": "text"
+      },
+      {
+        "fullSentence": "그 사실이 조금 안타깝다.",
+        "index": 45,
+        "type": "text"
+      },
+      {
+        "fullSentence": "내가 틀렸다는 뜻이 아니라, 내가 믿어온 방식이 더 이상 중심이 아니라는 뜻이니까.",
+        "index": 46,
+        "type": "text"
+      },
+      {
+        "fullSentence": "나는 원래 국영방송에 대해 꽤 부정적인 사람이었다.",
+        "index": 47,
+        "type": "text"
+      },
+      {
+        "fullSentence": "왜 내 돈을 걷어서 KBS를 운영하지, 싶었다.",
+        "index": 48,
+        "type": "text"
+      },
+      {
+        "fullSentence": "미디어를 쥐고 있다는 느낌도 싫었다.",
+        "index": 49,
+        "type": "text"
+      },
+      {
+        "fullSentence": "너무 크고, 너무 안전하고, 너무 정답 같은 얼굴이라서 반감이 있었다.",
+        "index": 50,
+        "type": "text"
+      },
+      {
+        "fullSentence": "그런데 이상하게도, 요즘 들어 KBS 드라마를 보면 묘한 마음이 든다.",
+        "index": 51,
+        "type": "text"
+      },
+      {
+        "fullSentence": "너무 정직한 것이다.",
+        "index": 52,
+        "type": "text"
+      },
+      {
+        "fullSentence": "장면의 무드가 서로 쉽게 부딪히지 않고, 감정이 감정답게 쌓인다.",
+        "index": 53,
+        "type": "text"
+      },
+      {
+        "fullSentence": "인물이 갑자기 다른 사람이 되지 않고, 장면이 자기 존재를 과장하지도 않는다.",
+        "index": 54,
+        "type": "text"
+      },
+      {
+        "fullSentence": "물론 그들도 시청률을 볼 것이다.",
+        "index": 55,
+        "type": "text"
+      },
+      {
+        "fullSentence": "하지만 그 와중에도 최소한 지켜야 할 질서 같은 것을 버리지 않는 느낌이 있다.",
+        "index": 56,
+        "type": "text"
+      },
+      {
+        "fullSentence": "예전 같았으면 그 정직함을 촌스럽다고 생각했을지도 모른다.",
+        "index": 57,
+        "type": "text"
+      },
+      {
+        "fullSentence": "그런데 지금은 오히려 그게 귀하게 보인다.",
+        "index": 58,
+        "type": "text"
+      },
+      {
+        "fullSentence": "모두가 더 세게, 더 빠르게, 더 즉각적으로 반응하는 쪽으로 달려갈 때, 누군가는 이야기의 기본을 붙들고 있어야 하지 않을까.",
+        "index": 59,
+        "type": "text"
+      },
+      {
+        "fullSentence": "누군가는 무드의 연결을 믿고, 감정의 시간을 믿고, 장면과 장면 사이에 보이지 않는 다리를 놓아야 하지 않을까.",
+        "index": 60,
+        "type": "text"
+      },
+      {
+        "fullSentence": "어쩌면 그런 일은, 지금 같은 시대일수록 더 공적인 곳이 해야 하는 일인지도 모른다.",
+        "index": 61,
+        "type": "text"
+      },
+      {
+        "fullSentence": "시장만으로는 끝내 남지 않을 것들을, 누군가는 남겨야 하니까.",
+        "index": 62,
+        "type": "text"
+      },
+      {
+        "fullSentence": "그래서 영화를 보고 나서, 이상하게도 내가 KBS에 내고 있던 돈이 전처럼 마냥 아깝게만 느껴지지는 않았다.",
+        "index": 63,
+        "type": "text"
+      },
+      {
+        "fullSentence": "내가 좋아하는 방향의 영화는 아니었지만, 적어도 내가 무엇을 잃어버린 시대를 지나고 있는지 다시 생각하게 만들었으니까.",
+        "index": 64,
+        "type": "text"
+      },
+      {
+        "fullSentence": "그리고 동시에, 아직 누군가는 다른 방식으로 버티고 있을지도 모른다는 생각도 하게 했으니까.",
+        "index": 65,
+        "type": "text"
+      },
+      {
+        "fullSentence": "재미는 있었다.",
+        "index": 66,
+        "type": "text"
+      },
+      {
+        "fullSentence": "하지만 나는 재미만으로 영화를 사랑하진 못하겠다.",
+        "index": 67,
+        "type": "text"
+      },
+      {
+        "fullSentence": "내가 아직 영화에서 보고 싶은 건, 장면의 자극이 아니라 장면들 사이를 흐르는 하나의 무드다.",
+        "index": 68,
+        "type": "text"
+      },
+      {
+        "fullSentence": "처음부터 끝까지, 보이지 않지만 분명히 이어져 있는 어떤 결.",
+        "index": 69,
+        "type": "text"
+      },
+      {
+        "fullSentence": "나는 아직도 그걸 영화의 품격이라고 부르고 싶다.",
+        "index": 70,
+        "type": "text"
+      }
+    ]
+  },
+  "1": {
+    "title": "고마움을 안다는 것",
+    "link": "https://velog.io/@uiwwsw/고마움을-안다는-것",
+    "sentences": [
+      {
+        "fullSentence": "내가 했던 이야기를, 며칠 뒤 다른 사람의 입에서 다시 들은 적이 있다.",
+        "index": 0,
+        "type": "text"
+      },
+      {
+        "fullSentence": "그럴 때 그 말은 이상할 만큼 자연스럽게 돌아온다.",
+        "index": 1,
+        "type": "text"
+      },
+      {
+        "fullSentence": "마치 그 사람 안에서 스스로 떠오른 생각처럼, 혹은 처음부터 누구의 것도 아니었던 말처럼 들릴 때가 있다.",
+        "index": 2,
+        "type": "text"
+      },
+      {
+        "fullSentence": "나는 그것이 꼭 악의 때문이라고 생각하지 않는다.",
+        "index": 3,
+        "type": "text"
+      },
+      {
+        "fullSentence": "오히려 반대에 가깝다.",
+        "index": 4,
+        "type": "text"
+      },
+      {
+        "fullSentence": "어떤 사람들에게는 말의 출처보다, 그 말이 자기 안에 남긴 감정과 변화가 더 중요하다.",
+        "index": 5,
+        "type": "text"
+      },
+      {
+        "fullSentence": "무엇이 자신을 움직였는가보다, 자신이 움직였다는 사실이 더 선명하게 남는 것이다.",
+        "index": 6,
+        "type": "text"
+      },
+      {
+        "fullSentence": "그래서 문장은 남아도, 그 문장이 지나온 시간은 쉽게 지워진다.",
+        "index": 7,
+        "type": "text"
+      },
+      {
+        "fullSentence": "아마 나는 그런 지점을 오래 바라보는 사람인지도 모른다.",
+        "index": 8,
+        "type": "text"
+      },
+      {
+        "fullSentence": "내가 자꾸 되짚게 되는 것은 늘 이야기의 시작점이다.",
+        "index": 9,
+        "type": "text"
+      },
+      {
+        "fullSentence": "지금의 나를 만든 태도와 문장들에는 언제나 어떤 출발이 있다.",
+        "index": 10,
+        "type": "text"
+      },
+      {
+        "fullSentence": "한 사람의 말일 수도 있고, 오래 붙들고 살아낸 시간일 수도 있다.",
+        "index": 11,
+        "type": "text"
+      },
+      {
+        "fullSentence": "겉으로는 짧고 단순해 보이는 말이라도, 그 안에는 보이지 않는 축적이 남아 있다고 나는 믿는다.",
+        "index": 12,
+        "type": "text"
+      },
+      {
+        "fullSentence": "그래서 내게 고마움은 단순한 예의가 아니다.",
+        "index": 13,
+        "type": "text"
+      },
+      {
+        "fullSentence": "인사말이 아니라, 내 앞에 놓인 것이 저절로 생겨난 것이 아니라는 사실을 알아보는 감각에 가깝다.",
+        "index": 14,
+        "type": "text"
+      },
+      {
+        "fullSentence": "내가 어디에서 영향을 받았는지, 무엇이 지금의 나를 만들었는지, 어떤 말과 마음이 내 안에 남아 지금의 생각이 되었는지를 잊지 않는 일.",
+        "index": 15,
+        "type": "text"
+      },
+      {
+        "fullSentence": "나는 그 감각이 사람을 조금 더 깊고 단단하게 만든다고 생각한다.",
+        "index": 16,
+        "type": "text"
+      },
+      {
+        "fullSentence": "사람마다 중요하게 여기는 지점은 다를 것이다.",
+        "index": 17,
+        "type": "text"
+      },
+      {
+        "fullSentence": "누군가는 눈앞에 드러난 결과를 보고, 누군가는 그 결과가 오기까지의 시간과 맥락을 함께 본다.",
+        "index": 18,
+        "type": "text"
+      },
+      {
+        "fullSentence": "나는 점점 후자에 가까운 사람에게 마음이 간다.",
+        "index": 19,
+        "type": "text"
+      },
+      {
+        "fullSentence": "보이지 않는 부분을 함부로 지나치지 않는 사람, 말의 표면보다 그 안에 담긴 시간을 함께 느끼려는 사람 말이다.",
+        "index": 20,
+        "type": "text"
+      },
+      {
+        "fullSentence": "결국 고마움을 안다는 것은, 모든 것에는 처음의 씨앗이 있었다는 사실을 잊지 않는 일인지도 모르겠다.",
+        "index": 21,
+        "type": "text"
+      },
+      {
+        "fullSentence": "그리고 나는 여전히 그 씨앗을 알아보는 마음이 사람을 조금 더 겸손하게, 그리고 조금 더 깊게 만든다고 믿는다.",
+        "index": 22,
+        "type": "text"
+      }
+    ]
+  },
+  "3": {
+    "title": "뭐든지 말이 되는 세상",
+    "link": "https://velog.io/@uiwwsw/틀린-말이라는-것",
+    "sentences": [
+      {
+        "fullSentence": "요즘 들어 자꾸 입안에서 맴도는 생각이 하나 있다.",
+        "index": 0,
+        "type": "text"
+      },
+      {
+        "fullSentence": "“정말로, 뭐든지 말이 되는 세상이구나.”\n\n뜬구름 잡는 소리처럼 들릴지 모르지만, 사실 그렇다.",
+        "index": 1,
+        "type": "text"
+      },
+      {
+        "fullSentence": "아무리 황당한 주장이라도 검색창에 몇 글자만 두드리면 그럴듯한 근거가 줄줄이 따라붙는다.",
+        "index": 2,
+        "type": "text"
+      },
+      {
+        "fullSentence": "콩으로 메주를 쑨다는 말조차, 누군가는 이미 영상으로 만들어 증명해 두었을 것이다.",
+        "index": 3,
+        "type": "text"
+      },
+      {
+        "fullSentence": "우리는 넘쳐나는 정보 덕분에 무엇이든 설명할 수 있고, 그만큼 무엇도 쉽게 부정당하지 않는다.",
+        "index": 4,
+        "type": "text"
+      },
+      {
+        "fullSentence": "사건을 바라보는 태도도 다르지 않다.",
+        "index": 5,
+        "type": "text"
+      },
+      {
+        "fullSentence": "“사고가 났어. 저 사람이 정말 나쁜 사람이야.”\n사람들은 고개를 끄덕인다.",
+        "index": 6,
+        "type": "text"
+      },
+      {
+        "fullSentence": "그런데 시간이 지나, 상대방이 전혀 다른 이야기를 들고 나와도 사람들은 또다시 고개를 끄덕인다.",
+        "index": 7,
+        "type": "text"
+      },
+      {
+        "fullSentence": "이상하게도 서로 모순되는 두 개의 이야기가 아무 문제 없이 공존한다.",
+        "index": 8,
+        "type": "text"
+      },
+      {
+        "fullSentence": "이제 누구의 말이 거짓인지 가려내는 일 자체가 무의미해 보인다.",
+        "index": 9,
+        "type": "text"
+      },
+      {
+        "fullSentence": "여기에 AI가 방점을 찍는다.",
+        "index": 10,
+        "type": "text"
+      },
+      {
+        "fullSentence": "우리는 쌍욕이 섞인 날것의 감정을 그대로 적어 놓고 AI에게 부탁한다.",
+        "index": 11,
+        "type": "text"
+      },
+      {
+        "fullSentence": "“이걸 정중하게 고쳐 줘.”\n\nAI는 놀라운 솜씨로 비문을 명문으로 바꾼다.",
+        "index": 12,
+        "type": "text"
+      },
+      {
+        "fullSentence": "결과물만 놓고 보면 그 말은 완벽하다.",
+        "index": 13,
+        "type": "text"
+      },
+      {
+        "fullSentence": "합리적이고, 차분하며, 흠잡을 데 없이 옳다.",
+        "index": 14,
+        "type": "text"
+      },
+      {
+        "fullSentence": "감정은 사라지고, 논리만 남는다.",
+        "index": 15,
+        "type": "text"
+      },
+      {
+        "fullSentence": "그렇다면 이 시대에 ‘틀린 말’이란 무엇일까.",
+        "index": 16,
+        "type": "text"
+      },
+      {
+        "fullSentence": "나는 이제 그런 건 없다고 생각한다.",
+        "index": 17,
+        "type": "text"
+      },
+      {
+        "fullSentence": "과거에는 정제되지 않은 생각이 곧 틀린 생각으로 취급됐다.",
+        "index": 18,
+        "type": "text"
+      },
+      {
+        "fullSentence": "말이 거칠면 생각도 조악하다고 여겼다.",
+        "index": 19,
+        "type": "text"
+      },
+      {
+        "fullSentence": "하지만 지금은 다르다.",
+        "index": 20,
+        "type": "text"
+      },
+      {
+        "fullSentence": "정제는 더 이상 내 몫이 아니다.",
+        "index": 21,
+        "type": "text"
+      },
+      {
+        "fullSentence": "생각은 날것으로 던져도 된다.",
+        "index": 22,
+        "type": "text"
+      },
+      {
+        "fullSentence": "다듬는 건, AI가 하면 되니까.",
+        "index": 23,
+        "type": "text"
+      }
+    ]
+  },
+  "4": {
+    "title": "untitled, for now",
+    "link": "https://velog.io/@uiwwsw/untitled-for-now",
+    "sentences": [
+      {
+        "fullSentence": "AI가 등장하기 전, 그리고 막 등장했을 무렵까지\n대부분의 사람들은 이렇게 생각했다.",
+        "index": 0,
+        "type": "text"
+      },
+      {
+        "fullSentence": "“더 발전하면 개발자도 대체되겠구나.”\n“결국 사람은 필요 없어지겠구나.”\n\n그런데 지금 벌어지고 있는 일은 조금 이상하다.",
+        "index": 1,
+        "type": "text"
+      },
+      {
+        "fullSentence": "AI는 분명 빠르게 발전하고 있는데,\n그 발전의 방향은 우리가 상상하던 미래와 다르다.",
+        "index": 2,
+        "type": "text"
+      },
+      {
+        "fullSentence": "모든 것을 대신해줄 것 같던 AI는\n정작 모든 것을 해주지 못한다.",
+        "index": 3,
+        "type": "text"
+      },
+      {
+        "fullSentence": "이유는 단순하다.",
+        "index": 4,
+        "type": "text"
+      },
+      {
+        "fullSentence": "AI의 목표는 ‘모든 일을 처리하는 기계’가 아니라\n‘사람처럼 작동하는 존재’이기 때문이다.",
+        "index": 5,
+        "type": "text"
+      },
+      {
+        "fullSentence": "그래서 역설적으로,\nAI가 아무리 발전해도\n사람 사이의 문제는 사라지지 않는다.",
+        "index": 6,
+        "type": "text"
+      },
+      {
+        "fullSentence": "아니, 오히려 더 또렷해진다.",
+        "index": 7,
+        "type": "text"
+      },
+      {
+        "fullSentence": "이 지점에서 질문이 생긴다.",
+        "index": 8,
+        "type": "text"
+      },
+      {
+        "fullSentence": "우리는 왜 늘 같은 문제를 반복해서 겪는가.",
+        "index": 9,
+        "type": "text"
+      },
+      {
+        "fullSentence": "AI 이전의 사회는\n이 문제에 나름의 해법을 가지고 있었다.",
+        "index": 10,
+        "type": "text"
+      },
+      {
+        "fullSentence": "고전 심리학과 오래된 인간관계의 지혜에는\n공통적으로 반복되는 조언이 있다.",
+        "index": 11,
+        "type": "text"
+      },
+      {
+        "fullSentence": "진실을 그대로 말하지 말 것.",
+        "index": 12,
+        "type": "text"
+      },
+      {
+        "fullSentence": "누군가를 직접적으로 비난하지 말 것.",
+        "index": 13,
+        "type": "text"
+      },
+      {
+        "fullSentence": "인간은 감정의 동물이기 때문에\n문제를 정확히 짚는 것보다\n덮고, 에둘러 말하고, 포용하는 쪽이\n현실적인 최적해가 되는 경우가 많았다.",
+        "index": 14,
+        "type": "text"
+      },
+      {
+        "fullSentence": "역사는 그것을 증명해왔다.",
+        "index": 15,
+        "type": "text"
+      },
+      {
+        "fullSentence": "말하지 않고, 눈을 감고,\n불편한 진실을 건너뛴 사람들이\n오히려 ‘좋은 사람’, ‘존경받는 사람’으로\n기억되는 장면은 셀 수 없이 많다.",
+        "index": 16,
+        "type": "text"
+      },
+      {
+        "fullSentence": "그런데 AI의 등장은\n이 오래된 불문율을 흔든다.",
+        "index": 17,
+        "type": "text"
+      },
+      {
+        "fullSentence": "감정이 없는 존재,\n사실과 맥락만으로 사고하는 존재가\n우리 곁에 나타난 것이다.",
+        "index": 18,
+        "type": "text"
+      },
+      {
+        "fullSentence": "사실을 말해라.",
+        "index": 19,
+        "type": "text"
+      },
+      {
+        "fullSentence": "문제를 정확히 정의해라.",
+        "index": 20,
+        "type": "text"
+      },
+      {
+        "fullSentence": "기분과 감정은 판단 기준이 아니다.",
+        "index": 21,
+        "type": "text"
+      },
+      {
+        "fullSentence": "맥락을 제시하라.",
+        "index": 22,
+        "type": "text"
+      },
+      {
+        "fullSentence": "AI는 이렇게 요구한다.",
+        "index": 23,
+        "type": "text"
+      },
+      {
+        "fullSentence": "그리고 아이러니하게도\n그 요구는 우리가 사람 사이에서\n가장 어려워해왔던 것들이다.",
+        "index": 24,
+        "type": "text"
+      },
+      {
+        "fullSentence": "AI와 대화하기 시작하면서\n우리는 하나의 불편한 사실을 깨닫는다.",
+        "index": 25,
+        "type": "text"
+      },
+      {
+        "fullSentence": "더 나은 인간이 된다는 것은\n더 따뜻해지는 일이 아니라,\n불필요한 감정을 덜어내는 일일지도 모른다는 것.",
+        "index": 26,
+        "type": "text"
+      },
+      {
+        "fullSentence": "명확한 의사소통이\n무례함으로 오해받지 않는 사회.",
+        "index": 27,
+        "type": "text"
+      },
+      {
+        "fullSentence": "문제를 문제라고 말할 수 있는 사람.",
+        "index": 28,
+        "type": "text"
+      },
+      {
+        "fullSentence": "AI와 대화할 수 있을 뿐 아니라\n사람과 사람 사이의 맥락을\n정확한 언어로 중개할 수 있는 사람.",
+        "index": 29,
+        "type": "text"
+      },
+      {
+        "fullSentence": "앞으로의 세상에서\n가장 큰 장점으로 인식될 능력은\n아마도 그것일 것이다.",
+        "index": 30,
+        "type": "text"
+      },
+      {
+        "fullSentence": "AI는 사람을 대체하지 않는다.",
+        "index": 31,
+        "type": "text"
+      },
+      {
+        "fullSentence": "다만 사람에게 묻고 있을 뿐이다.",
+        "index": 32,
+        "type": "text"
+      },
+      {
+        "fullSentence": "이제 어떤 사람이어야 하는가를.",
+        "index": 33,
+        "type": "text"
+      }
+    ]
+  },
+  "5": {
+    "title": "[Retrospective] 머랭트립 리팩토링: 기능 추가보다 '완성도'에 집착하기 (Flutter 전환기)",
+    "link": "https://velog.io/@uiwwsw/Retrospective-머랭트립-리팩토링-기능-추가보다-완성도에-집착하기-Flutter-전환기",
+    "sentences": [
+      {
+        "fullSentence": "\"기술적 개선은 기본이다. 중요한 건 사용자가 실제로 느끼는 제품의 '밀도'를 높이는 것이다.\"\n\n안녕하세요.",
+        "index": 0,
+        "type": "text"
+      },
+      {
+        "fullSentence": "1인 개발사 Brewstar를 운영하며, 사이드 프로젝트로 [머랭트립]을 개발하고 있습니다.",
+        "index": 1,
+        "type": "text"
+      },
+      {
+        "fullSentence": "머랭트립은 '도보 반경'을 기준으로 카페, 숙소, 술집 등 여러 장소를 한 번에 검색하여 최적의 동선을 찾아주는 앱입니다.",
+        "index": 2,
+        "type": "text"
+      },
+      {
+        "fullSentence": "최근 이 앱을 대대적으로 리뉴얼하면서, 기존의 기술 스택을 Flutter로 전환했습니다.",
+        "index": 3,
+        "type": "text"
+      },
+      {
+        "fullSentence": "하지만 이번 글에서는 단순히 \"Flutter로 바꾸니 빨라졌어요\"라는 뻔한 이야기를 하려는 것은 아닙니다.",
+        "index": 4,
+        "type": "text"
+      },
+      {
+        "fullSentence": "이번 개선의 핵심 목표였던 '기능의 나열이 아닌, 경험의 완성도'를 어떻게 기술적으로, 그리고 기획적으로 풀어냈는지 공유해 보고자 합니다.",
+        "index": 5,
+        "type": "text"
+      },
+      {
+        "fullSentence": "왜 다시 만들었나?",
+        "index": 6,
+        "type": "text"
+      },
+      {
+        "fullSentence": "(Flutter 전환 배경)\n\n기존 버전도 기능상으로는 문제가 없었습니다.",
+        "index": 7,
+        "type": "text"
+      },
+      {
+        "fullSentence": "하지만 개발자로서, 그리고 프로덕트 오너로서 항상 아쉬웠던 점은 '앱이 주는 손맛(Feel)'이었습니다.",
+        "index": 8,
+        "type": "text"
+      },
+      {
+        "fullSentence": "이번 리뉴얼에서 Flutter를 선택한 기술적인 이유는 명확했습니다.",
+        "index": 9,
+        "type": "text"
+      },
+      {
+        "fullSentence": "렌더링 퍼포먼스: Skia(혹은 Impeller) 엔진을 통한 일관된 60fps 보장\n크로스 플랫폼 대응: iOS/Android UI의 통일성 유지\n생산성: Hot Reload를 통한 빠른 UI 이터레이션\n\n하지만 사용자에게 \"이거 Flutter로 다시 짰어요\"라고 말하는 건 아무런 의미가 없습니다.",
+        "index": 10,
+        "type": "text"
+      },
+      {
+        "fullSentence": "사용자가 느껴야 할 것은 '기술'이 아니라 '쾌적함'이어야 합니다.",
+        "index": 11,
+        "type": "text"
+      },
+      {
+        "fullSentence": "그래서 이번 개선의 슬로건을 다음과 같이 정했습니다.",
+        "index": 12,
+        "type": "text"
+      },
+      {
+        "fullSentence": "기능을 더하지 말고, 경험을 다듬자.",
+        "index": 13,
+        "type": "text"
+      },
+      {
+        "fullSentence": "검색 경험의 개선: 키워드의 모호함을 넘어서\n\n🔴 기존의 문제점: \"나는 카페를 찾고 싶다고!\"\n\n기존 머랭트립의 검색 로직은 단순한 Keyword Matching 방식이었습니다.",
+        "index": 14,
+        "type": "text"
+      },
+      {
+        "fullSentence": "이는 개발 구현상으로는 매우 간단하지만, 치명적인 UX 결함을 가지고 있었습니다.",
+        "index": 15,
+        "type": "text"
+      },
+      {
+        "fullSentence": "예를 들어, 사용자가 분위기 좋은 카페를 찾기 위해 카페를 검색했다고 가정해 봅시다.",
+        "index": 16,
+        "type": "text"
+      },
+      {
+        "fullSentence": "기대 결과: 스타벅스, 블루보틀, 감성 카페 리스트\n실제 결과: 스타벅스, '카페'같은 치킨집, '카페'테리아가 있는 김밥천국\n\n장소 이름에 '카페'라는 단어만 들어가면 무조건 결과에 노출되는 노이즈(Noise)가 발생했습니다.",
+        "index": 17,
+        "type": "text"
+      },
+      {
+        "fullSentence": "이는 사용자의 검색 의도(Intent)를 무시하는 결과였습니다.",
+        "index": 18,
+        "type": "text"
+      },
+      {
+        "fullSentence": "카테고리 검색 (Category Filter): 명확한 목적(카페, 숙소 등)이 있을 때\n커스텀 키워드 검색 (Keyword Search): 특정 상호명이나 특수 키워드를 찾을 때\n\n코드 레벨에서는 아래와 같이 검색 타입에 따라 쿼리 전략을 다르게 가져가는 구조로 변경했습니다.",
+        "index": 19,
+        "type": "text"
+      },
+      {
+        "fullSentence": "// SearchType Enum 정의\nenum SearchType { category, keyword }\n\nFuture<List<Place>> searchPlaces(String input, SearchType type) async {\n  if (type == SearchType.category) {\n    // 1. 카테고리 검색: 정확한 분류 코드(Code) 기반 필터링\n    return await repository.fetchByCategory(categoryCode: input);\n  } else {\n    // 2. 키워드 검색: 기존의 텍스트 매칭 방식 유지 (특정 상호명 검색 니즈)\n    return await repository.fetchByKeyword(query: input);\n  }\n}",
+        "index": 20,
+        "type": "code",
+        "language": "dart"
+      },
+      {
+        "fullSentence": "기술적으로는 단순한 분기 처리일 수 있지만, 사용자가 느끼는 검색의 신뢰도는 비약적으로 상승했습니다.",
+        "index": 21,
+        "type": "text"
+      },
+      {
+        "fullSentence": "데이터 흐름의 확장: 저장은 끝이 아니라 시작이다\n\n🔴 기존의 문제점: 고립된 데이터\n\n이전 버전에서 '저장(Bookmark)' 기능은 단순히 Local Storage나 개인 DB에 박제되는 행위로 끝났습니다.",
+        "index": 22,
+        "type": "text"
+      },
+      {
+        "fullSentence": "\"나 여기 가고 싶어!\"라고 저장해 둬봤자, 친구에게 공유하려면 스크린샷을 찍거나 카톡으로 텍스트를 복사해야 하는 불편함이 있었죠.",
+        "index": 23,
+        "type": "text"
+      },
+      {
+        "fullSentence": "그래서 [검색 → 저장 → 공유 → 재저장]으로 이어지는 흐름을 설계했습니다.",
+        "index": 24,
+        "type": "text"
+      },
+      {
+        "fullSentence": "Shareable Object: 저장된 리스트를 고유 링크(Deep Link)나 공유 가능한 객체로 변환\nSocial interaction: 친구가 공유한 리스트를 보고 '좋아요'를 누르거나, 내 리스트로 '가져오기(Fork)' 기능 구현",
+        "index": 25,
+        "type": "text"
+      },
+      {
+        "fullSentence": "graph LR\nA[사용자 A] -->|장소 검색| B(저장 리스트 생성)\nB -->|공유| C{다른 사용자들}\nC -->|확인| D[참고 및 방문]\nC -->|Fork| E[내 리스트에 재저장]",
+        "index": 26,
+        "type": "code",
+        "language": "mermaid"
+      },
+      {
+        "fullSentence": "(개념적 흐름도)\n\n✨ 결과\n\n이제 머랭트립은 단순한 '검색 도구'가 아니라, '취향과 동선을 공유하는 플랫폼'으로 진화했습니다.",
+        "index": 27,
+        "type": "text"
+      },
+      {
+        "fullSentence": "1인 개발 앱이지만, 사용자들이 자발적으로 콘텐츠를 확산시킬 수 있는 구조를 마련한 것입니다.",
+        "index": 28,
+        "type": "text"
+      },
+      {
+        "fullSentence": "마무리: 결국 '디테일'이 전부다\n\n개발자로서 새로운 기술 스택(Flutter)을 도입하고, 아키텍처를 설계하는 것은 언제나 즐거운 일입니다.",
+        "index": 29,
+        "type": "text"
+      },
+      {
+        "fullSentence": "하지만 이번 리뉴얼 과정에서 가장 공들인 부분은 코드의 우아함보다 사용자가 마주할 화면의 완성도였습니다.",
+        "index": 30,
+        "type": "text"
+      },
+      {
+        "fullSentence": "로딩 시 스켈레톤 UI의 자연스러운 애니메이션\n검색 결과가 없을 때 보여주는 친절한 엠티 스테이트(Empty State)\n버튼을 눌렀을 때의 미세한 햅틱 피드백\n\n이런 사소한 디테일들이 모여 \"이 앱, 꽤 잘 만들었는데?\"라는 인상을 줍니다.",
+        "index": 31,
+        "type": "text"
+      },
+      {
+        "fullSentence": "앞으로도 머랭트립은 기능의 가짓수를 늘리기보다, 단 하나의 기능을 제공하더라도 사용자가 '대접받는 느낌'을 받을 수 있는 밀도 높은 소프트웨어를 지향하려 합니다.",
+        "index": 32,
+        "type": "text"
+      },
+      {
+        "fullSentence": "Flutter 전환기와 관련해 더 깊은 기술적 내용(상태 관리, 아키텍처 등)은 다음 포스팅에서 다루도록 하겠습니다.",
+        "index": 33,
+        "type": "text"
+      },
+      {
+        "fullSentence": "긴 글 읽어주셔서 감사합니다.",
+        "index": 34,
+        "type": "text"
+      }
+    ]
+  },
+  "6": {
+    "title": "운이 좋았습니다",
+    "link": "https://velog.io/@uiwwsw/운이-좋았습니다",
+    "sentences": [
+      {
+        "fullSentence": "각종 시상식으로 떠들썩한 연말이었다.",
+        "index": 0,
+        "type": "text"
+      },
+      {
+        "fullSentence": "어떤 상인지조차 모호한 트로피를 쥐고, 그는 한참 만에 입을 열었다.",
+        "index": 1,
+        "type": "text"
+      },
+      {
+        "fullSentence": "“저는, 운이 좋았습니다.”\n\n그뿐이었다.",
+        "index": 2,
+        "type": "text"
+      },
+      {
+        "fullSentence": "딱 한 문장.",
+        "index": 3,
+        "type": "text"
+      },
+      {
+        "fullSentence": "뜯어보자면 계산된 침묵이었을 수도, 과묵한 인상 덕분이었을 수도 있다.",
+        "index": 4,
+        "type": "text"
+      },
+      {
+        "fullSentence": "더 이어질 말이 없다는 사실 자체가 여운을 만들었을지도 모른다.",
+        "index": 5,
+        "type": "text"
+      },
+      {
+        "fullSentence": "하지만 그 순간 내게 전해진 건 단순한 겸손이 아니었다.",
+        "index": 6,
+        "type": "text"
+      },
+      {
+        "fullSentence": "'운'이라는 말로밖에 설명할 수 없는, 그 사람의 압도적인 기본기였다.",
+        "index": 7,
+        "type": "text"
+      }
+    ]
+  },
+  "7": {
+    "title": "무지의 무지",
+    "link": "https://velog.io/@uiwwsw/무지의-무지-0i223rlm",
+    "sentences": [
+      {
+        "fullSentence": "직접 겪어봐야만 직성이 풀린다.",
+        "index": 0,
+        "type": "text"
+      },
+      {
+        "fullSentence": "프리랜서는 이러할 것이고, 득달같이 달려드는 헤드헌터들은 저런 무리일 것이며, 하물며 그들을 채용하는 회사는 또 어떠할 것이라는 그 모든 예측들.",
+        "index": 1,
+        "type": "text"
+      },
+      {
+        "fullSentence": "그 가설들을 검증하겠다며 나는 9년 동안 이어온 정규직의 끈을 놓고, 프리랜서가 된 지 1년 남짓을 보냈다.",
+        "index": 2,
+        "type": "text"
+      },
+      {
+        "fullSentence": "돌이켜보면, 프리랜서가 되었다는 건 단순히 고용 형태를 바꾼 일이 아니었다.",
+        "index": 3,
+        "type": "text"
+      },
+      {
+        "fullSentence": "그건 나에게 작은 규모의 창업에 가까운 선택이었다.",
+        "index": 4,
+        "type": "text"
+      },
+      {
+        "fullSentence": "나 자신을 하나의 상품으로 놓고, 시장의 반응을 직접 마주하는 일.",
+        "index": 5,
+        "type": "text"
+      },
+      {
+        "fullSentence": "보호막 없이 평가받는 자리로 스스로를 밀어 넣는 일이었다.",
+        "index": 6,
+        "type": "text"
+      },
+      {
+        "fullSentence": "이쯤 되면 내게 남는 건 후회다.",
+        "index": 7,
+        "type": "text"
+      },
+      {
+        "fullSentence": "돌이켜보면 과거의 나는 늘 같았다.",
+        "index": 8,
+        "type": "text"
+      },
+      {
+        "fullSentence": "언제나 제로(0)로 되돌아가 “지금의 문제는 어디서 기인하는가”를 묻는 사람.",
+        "index": 9,
+        "type": "text"
+      },
+      {
+        "fullSentence": "결국은 선택의 문제였다.",
+        "index": 10,
+        "type": "text"
+      },
+      {
+        "fullSentence": "변명도 필요 없고, 거창한 자책도 하지 않는다.",
+        "index": 11,
+        "type": "text"
+      },
+      {
+        "fullSentence": "적어도 지금의 나는 그렇다.",
+        "index": 12,
+        "type": "text"
+      },
+      {
+        "fullSentence": "다만, 사실관계는 짚고 넘어가자.",
+        "index": 13,
+        "type": "text"
+      },
+      {
+        "fullSentence": "내 실수로 프리랜서로 1년을 보냈다.",
+        "index": 14,
+        "type": "text"
+      },
+      {
+        "fullSentence": "그렇다면, 몸으로 굴러 알게 된 것은 무엇인가.",
+        "index": 15,
+        "type": "text"
+      },
+      {
+        "fullSentence": "내가 원래 알고 있던 것 말고, 새로 얻은 인사이트는 무엇일까.",
+        "index": 16,
+        "type": "text"
+      },
+      {
+        "fullSentence": "하지만 그 말은, 아무것도 남지 않았다는 뜻은 아니다.",
+        "index": 17,
+        "type": "text"
+      },
+      {
+        "fullSentence": "알던 것은 여전히 맞았고, 틀린 것은 여전히 틀렸다.",
+        "index": 18,
+        "type": "text"
+      },
+      {
+        "fullSentence": "다만, 틀린 것들은 ‘조금 더 많이’ 틀렸다는 사실만 분명해졌을 뿐이다.",
+        "index": 19,
+        "type": "text"
+      },
+      {
+        "fullSentence": "나는 새로운 답을 얻지 못했지만, 내가 알고 있던 답들이 현실에서도 그대로 작동한다는 것만큼은 확인했다.",
+        "index": 20,
+        "type": "text"
+      },
+      {
+        "fullSentence": "그럴 때면 생각한다.",
+        "index": 21,
+        "type": "text"
+      },
+      {
+        "fullSentence": "아, 괜한 시간을 버렸나.",
+        "index": 22,
+        "type": "text"
+      },
+      {
+        "fullSentence": "이런 회의감은 나의 유별난 기질 탓이다.",
+        "index": 23,
+        "type": "text"
+      },
+      {
+        "fullSentence": "남들이 다 좋다고 말하는 것, 지금 달려들면 하나쯤은 건질 수 있다고 환호하는 풍경 앞에서, 나는 늘 걸음을 멈추고 의심부터 한다.",
+        "index": 24,
+        "type": "text"
+      },
+      {
+        "fullSentence": "‘무지하지 않다는 무지’를 저질러 보자면, 「무지」했던 그때의 난 내가 왜 그런지조차 몰랐다.",
+        "index": 25,
+        "type": "text"
+      },
+      {
+        "fullSentence": "지나가던 누군가가 “특이하다”, “예민하다” 말하면, 아 그런가 보다 하고 넘겼을 뿐이다.",
+        "index": 26,
+        "type": "text"
+      },
+      {
+        "fullSentence": "그런데 다행히도, 「무지하지 않은 지금」은 그 이유가 보이기 시작했다.",
+        "index": 27,
+        "type": "text"
+      },
+      {
+        "fullSentence": "‘좋다’는 말은 모두가 가질 수 있다는 뜻이 아니라는 것.",
+        "index": 28,
+        "type": "text"
+      },
+      {
+        "fullSentence": "눈앞에 다이아몬드가 굴러다니는데, 지금 들어가면 누구나 가질 수 있다고?",
+        "index": 29,
+        "type": "text"
+      },
+      {
+        "fullSentence": "그 말에는 필연적으로 숨은 의미가 있다.",
+        "index": 30,
+        "type": "text"
+      },
+      {
+        "fullSentence": "다이아몬드가 더 이상 희귀하지 않다는 뜻이거나, 그것이 가짜이거나, 아니면 그 뒤에 사기꾼이 있다는 뜻이다.",
+        "index": 31,
+        "type": "text"
+      },
+      {
+        "fullSentence": "절대 ‘모두가 가질 수 있는 좋음’이란 없다.",
+        "index": 32,
+        "type": "text"
+      },
+      {
+        "fullSentence": "그게 본질이다.",
+        "index": 33,
+        "type": "text"
+      },
+      {
+        "fullSentence": "모두가 가진 것이 좋은 대접을 받는다면, 그땐 개똥이 귀해서 개 똥구멍이나 바라보고 걸어다녀야 할 세상일 것이다.",
+        "index": 34,
+        "type": "text"
+      },
+      {
+        "fullSentence": "그래서 다시 원점으로 돌아와, “준비가 되었느냐”고 묻는 질문 앞에서\n나는 여전히 모르겠다고 말할 수밖에 없다.",
+        "index": 35,
+        "type": "text"
+      },
+      {
+        "fullSentence": "과거의 나는 속으로 이런 말을 자주 되뇌었다.",
+        "index": 36,
+        "type": "text"
+      },
+      {
+        "fullSentence": "‘지금 네가 생각하는 것보다는, 나 쫌 더 똑똑한데….’\n\n이제는 어렴풋이 안다.",
+        "index": 37,
+        "type": "text"
+      },
+      {
+        "fullSentence": "나는 ‘포장’이라는 걸 기만처럼 느꼈고, 그래서 극도로 혐오해 왔다는 걸.",
+        "index": 38,
+        "type": "text"
+      },
+      {
+        "fullSentence": "가치를 부풀리는 행위와, 가치를 설명하는 행위를 구분하지 못한 채\n나는 그 둘을 함께 밀어냈다.",
+        "index": 39,
+        "type": "text"
+      },
+      {
+        "fullSentence": "그래서 나는 오히려 나를 축소 포장했다.",
+        "index": 40,
+        "type": "text"
+      },
+      {
+        "fullSentence": "그건 과대포장만큼이나, 아니 어쩌면 그보다 더 틀린 선택이었다.",
+        "index": 41,
+        "type": "text"
+      },
+      {
+        "fullSentence": "상대는 나의 포장지를 열고 나면 오히려 화를 낼지도 모른다.",
+        "index": 42,
+        "type": "text"
+      }
+    ]
+  },
+  "8": {
     "title": "왜 기품 있는 어른은 회사에 남지 않는가",
     "link": "https://velog.io/@uiwwsw/왜-기품-있는-어른은-회사에-남지-않는가",
     "sentences": [
@@ -120,7 +1354,7 @@
       }
     ]
   },
-  "1": {
+  "9": {
     "title": "우아함의 물리학: 지능과 체력에 관하여",
     "link": "https://velog.io/@uiwwsw/우아함의-물리학-지능과-체력에-관하여",
     "sentences": [
@@ -186,7 +1420,7 @@
       }
     ]
   },
-  "2": {
+  "10": {
     "title": "똑똑한 개발자란 무엇인가 (feat. AI 시대의 생존법)",
     "link": "https://velog.io/@uiwwsw/똑똑한-개발자란-무엇인가-feat.-AI-시대의-생존법",
     "sentences": [
@@ -387,7 +1621,7 @@
       }
     ]
   },
-  "3": {
+  "11": {
     "title": "코난과 숏박스",
     "link": "https://velog.io/@uiwwsw/코난과-숏박스",
     "sentences": [
@@ -548,7 +1782,7 @@
       }
     ]
   },
-  "4": {
+  "12": {
     "title": "10년의 회고",
     "link": "https://velog.io/@uiwwsw/10년의-회고",
     "sentences": [
@@ -639,7 +1873,7 @@
       }
     ]
   },
-  "5": {
+  "13": {
     "title": "나무에 대한 평가",
     "link": "https://velog.io/@uiwwsw/나무에-대한-평가",
     "sentences": [
@@ -750,7 +1984,7 @@
       }
     ]
   },
-  "6": {
+  "14": {
     "title": "\"키 큰 남자가 좋아요\"에 대해서",
     "link": "https://velog.io/@uiwwsw/키큰남자가좋아요",
     "sentences": [
@@ -841,7 +2075,7 @@
       }
     ]
   },
-  "7": {
+  "15": {
     "title": "어른이",
     "link": "https://velog.io/@uiwwsw/어른이",
     "sentences": [
@@ -962,7 +2196,7 @@
       }
     ]
   },
-  "8": {
+  "16": {
     "title": "소개팅",
     "link": "https://velog.io/@uiwwsw/소개팅",
     "sentences": [
@@ -998,7 +2232,7 @@
       }
     ]
   },
-  "9": {
+  "17": {
     "title": "관계의 증명",
     "link": "https://velog.io/@uiwwsw/관계의-증명",
     "sentences": [
@@ -1014,7 +2248,7 @@
       }
     ]
   },
-  "10": {
+  "18": {
     "title": "열 수 있는 자물쇠",
     "link": "https://velog.io/@uiwwsw/이유",
     "sentences": [
@@ -1030,7 +2264,7 @@
       }
     ]
   },
-  "11": {
+  "19": {
     "title": "기울어가는 것",
     "link": "https://velog.io/@uiwwsw/기울어가는-것",
     "sentences": [
@@ -1096,7 +2330,7 @@
       }
     ]
   },
-  "12": {
+  "20": {
     "title": "사랑의 끝은 썩 아름답지 못하다.",
     "link": "https://velog.io/@uiwwsw/사랑의-끝은-썩-아름답지-못하다",
     "sentences": [
@@ -1137,7 +2371,7 @@
       }
     ]
   },
-  "13": {
+  "21": {
     "title": "다중 장소 검색 서비스 머랭트립 개발기",
     "link": "https://velog.io/@uiwwsw/지도-앱-켰다가-뇌-터질-뻔해서-직접-만들었습니다-feat.-UI만-5번-엎은-썰",
     "sentences": [
@@ -1393,7 +2627,7 @@
       }
     ]
   },
-  "14": {
+  "22": {
     "title": "익선동의 경계, 종로3가역",
     "link": "https://velog.io/@uiwwsw/익선동의-경계-종로3가역",
     "sentences": [
@@ -1449,7 +2683,7 @@
       }
     ]
   },
-  "15": {
+  "23": {
     "title": "보이지 않는 선",
     "link": "https://velog.io/@uiwwsw/보이지-않는-선",
     "sentences": [
@@ -1645,7 +2879,7 @@
       }
     ]
   },
-  "16": {
+  "24": {
     "title": "봉사 토끼",
     "link": "https://velog.io/@uiwwsw/봉사-토끼",
     "sentences": [
@@ -1926,7 +3160,7 @@
       }
     ]
   },
-  "17": {
+  "25": {
     "title": "0.0001도의 차이, 그 고독한 궤적에 대하여",
     "link": "https://velog.io/@uiwwsw/형질의-구",
     "sentences": [
@@ -2057,7 +3291,7 @@
       }
     ]
   },
-  "18": {
+  "26": {
     "title": "🚀 스토리북에 버전별 컴포넌트 모으기 — 한 곳에서 깔끔하게 비교하는 법",
     "link": "https://velog.io/@uiwwsw/스토리북에-버전별-컴포넌트-보여주기-낭비-없이-한-곳에-모으는-법",
     "sentences": [
@@ -2351,7 +3585,7 @@
       }
     ]
   },
-  "19": {
+  "27": {
     "title": "링크드인",
     "link": "https://velog.io/@uiwwsw/링크드인",
     "sentences": [
@@ -2387,7 +3621,7 @@
       }
     ]
   },
-  "21": {
+  "29": {
     "title": "양치기소년",
     "link": "https://velog.io/@uiwwsw/양치기소년",
     "sentences": [
@@ -2463,7 +3697,7 @@
       }
     ]
   },
-  "22": {
+  "30": {
     "title": "🔐 재미와 보안, 두 마리 토끼를 잡는 이스터에그 구현법",
     "link": "https://velog.io/@uiwwsw/재미와-보안-두-마리-토끼를-잡는-이스터에그-구현법",
     "sentences": [
@@ -2501,7 +3735,7 @@
       }
     ]
   },
-  "23": {
+  "31": {
     "title": "늦게 당도한 파도가 가장 깊은 곳을 적신다",
     "link": "https://velog.io/@uiwwsw/늦게-당도한-파도가-가장-깊은-곳을-적신다",
     "sentences": [
@@ -2637,7 +3871,7 @@
       }
     ]
   },
-  "24": {
+  "32": {
     "title": "💳 선불권을 디지털로 – 프리페이 실험기",
     "link": "https://velog.io/@uiwwsw/선불권을-디지털로-프리페이-실험기",
     "sentences": [
@@ -2753,7 +3987,7 @@
       }
     ]
   },
-  "25": {
+  "33": {
     "title": "🧪 커스텀 인풋과 키보드, 프로토타입에서 진짜 설계로 (2부)",
     "link": "https://velog.io/@uiwwsw/커스텀-인풋과-키보드-프로토타입에서-진짜-설계로-2부",
     "sentences": [
@@ -2868,7 +4102,7 @@
       }
     ]
   },
-  "26": {
+  "34": {
     "title": "🧠 한글 입력의 미스터리: 컴포지션 이슈의 정체 (1부)",
     "link": "https://velog.io/@uiwwsw/한글-입력의-미스터리-컴포지션-이슈의-정체-1부",
     "sentences": [
@@ -2979,7 +4213,7 @@
       }
     ]
   },
-  "27": {
+  "35": {
     "title": "리엑트쿼리 자동화 스크립트",
     "link": "https://velog.io/@uiwwsw/리엑트쿼리-자동화-스크립트",
     "sentences": [
@@ -3083,7 +4317,7 @@
       }
     ]
   },
-  "28": {
+  "36": {
     "title": "\"AI는 왜 항상 페더레이션을 추천할까?\" — 현실적인 시선으로 바라본 MFE 선택기준",
     "link": "https://velog.io/@uiwwsw/페더레이션-vs-아이프레임",
     "sentences": [
@@ -3234,7 +4468,7 @@
       }
     ]
   },
-  "30": {
+  "38": {
     "title": "Object.entries의 얕은 추론 한계를 해결하는 단 하나의 방법",
     "link": "https://velog.io/@uiwwsw/Object.entries의-얕은-추론-한계를-해결하는-단-하나의-방법",
     "sentences": [
@@ -3385,7 +4619,7 @@
       }
     ]
   },
-  "31": {
+  "39": {
     "title": "😱 왜 빈 팝업이 뜰까? `onLoadCapture`로 해결하는 깔끔한 팝업 UX",
     "link": "https://velog.io/@uiwwsw/왜-빈-팝업이-뜰까-onLoadCapture로-해결하는-깔끔한-팝업-UX",
     "sentences": [
@@ -3479,7 +4713,7 @@
       }
     ]
   },
-  "32": {
+  "40": {
     "title": "💡 하나의 UI, 다양한 상황에 맞게 쪼개 쓰기 — Step 컴포넌트 만들기",
     "link": "https://velog.io/@uiwwsw/하나의-UI-다양한-상황에-맞게-쪼개-쓰기-Step-컴포넌트-만들기",
     "sentences": [
@@ -3620,7 +4854,7 @@
       }
     ]
   },
-  "33": {
+  "41": {
     "title": "🎨 팀으로서 일을 한다는 것",
     "link": "https://velog.io/@uiwwsw/팀으로서-일을-한다는-것",
     "sentences": [
@@ -3672,7 +4906,7 @@
       }
     ]
   },
-  "34": {
+  "42": {
     "title": "🎯 React에서 더 유연하게 Slot 컴포넌트 만들기 — JSX를 직접 다루는 패턴",
     "link": "https://velog.io/@uiwwsw/리액트에서-asChild로-Slot-패턴-구현하기",
     "sentences": [
@@ -3797,7 +5031,7 @@
       }
     ]
   },
-  "35": {
+  "43": {
     "title": "🧠 useStorage — localStorage 동기화 유틸 훅 만들기 (React Custom Hook)",
     "link": "https://velog.io/@uiwwsw/useStorage-localStorage-동기화-유틸-훅-만들기-React-Custom-Hook",
     "sentences": [
@@ -3825,7 +5059,7 @@
       }
     ]
   },
-  "36": {
+  "44": {
     "title": "왜 또 “컨펌 모달”인가?",
     "link": "https://velog.io/@uiwwsw/confirm",
     "sentences": [
@@ -3941,7 +5175,7 @@
       }
     ]
   },
-  "37": {
+  "45": {
     "title": "🧠 onDoublePointerDown — 더블 클릭보다 더 유연한 더블 포인터 이벤트\n",
     "link": "https://velog.io/@uiwwsw/withDoublePointerDown",
     "sentences": [
@@ -4015,7 +5249,7 @@
       }
     ]
   },
-  "38": {
+  "46": {
     "title": "테이블 UI에서 \"자세히 보기\"를 구현하는 컴포넌트",
     "link": "https://velog.io/@uiwwsw/확대-ui-컴포넌트",
     "sentences": [
