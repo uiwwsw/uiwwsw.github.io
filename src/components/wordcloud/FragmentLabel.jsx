@@ -1,0 +1,154 @@
+import React, { useMemo, useRef, useState } from 'react';
+import { useFrame, useThree } from '@react-three/fiber';
+import { Billboard, Text } from '@react-three/drei';
+import * as THREE from 'three';
+import { clamp, fontUrl } from './shared';
+
+export default function FragmentLabel({
+  fragment,
+  selectedSentence,
+  focusArticleId,
+  onHoverArticle,
+  onSelectSentence,
+  onPointerGestureStart
+}) {
+  const { camera } = useThree();
+  const labelRef = useRef();
+  const textRef = useRef();
+  const tapStartRef = useRef(null);
+  const worldPositionRef = useRef(new THREE.Vector3());
+  const interactiveRef = useRef(false);
+  const baseLocalPosition = useMemo(() => new THREE.Vector3(...fragment.localPosition), [fragment.localPosition]);
+  const [hovered, setHovered] = useState(false);
+
+  const isSelectedFragment = !!selectedSentence
+    && selectedSentence.articleId === fragment.articleId
+    && Number(selectedSentence.sentenceIndex) === fragment.sentenceIndex;
+  const isSelectedArticle = !!selectedSentence && selectedSentence.articleId === fragment.articleId;
+
+  useFrame((state, delta) => {
+    if (!labelRef.current || !textRef.current) return;
+
+    const time = state.clock.elapsedTime;
+    const driftX = Math.sin(time * 0.28 + baseLocalPosition.x * 0.03) * 0.9;
+    const driftY = Math.cos(time * 0.34 + baseLocalPosition.z * 0.02) * 0.8;
+    const driftZ = Math.sin(time * 0.22 + baseLocalPosition.y * 0.03) * 0.7;
+
+    labelRef.current.position.set(
+      baseLocalPosition.x + driftX,
+      baseLocalPosition.y + driftY,
+      baseLocalPosition.z + driftZ
+    );
+
+    labelRef.current.getWorldPosition(worldPositionRef.current);
+
+    const distance = camera.position.distanceTo(worldPositionRef.current);
+    const nearFade = distance < 24 ? distance / 24 : 1;
+    const farFade = distance > 920 ? clamp(1 - (distance - 920) / 520, 0, 1) : 1;
+    const scale = clamp(1.18 - distance / 1350, 0.72, 1.15);
+    const focused = focusArticleId === fragment.articleId;
+    const focusLocked = focusArticleId != null && !selectedSentence;
+    let targetOpacity = nearFade * farFade * (fragment.type === 'code' ? 0.82 : 0.7);
+
+    if (focusLocked) {
+      targetOpacity *= focused ? 1.18 : 0.34;
+    }
+
+    if (focused) targetOpacity += focusLocked ? 0.24 : 0.16;
+    if (hovered) targetOpacity = 1;
+
+    if (selectedSentence) {
+      targetOpacity = isSelectedFragment ? 1 : isSelectedArticle ? 0.48 : 0.08;
+    }
+
+    interactiveRef.current = distance < 220 && targetOpacity > 0.18;
+
+    labelRef.current.scale.setScalar(scale * (focused ? 1.08 : focusLocked ? 0.96 : 1));
+    textRef.current.fillOpacity = THREE.MathUtils.lerp(
+      textRef.current.fillOpacity,
+      clamp(targetOpacity, 0, 1),
+      delta * 6
+    );
+    labelRef.current.visible = textRef.current.fillOpacity > 0.015 || hovered || isSelectedArticle || focused;
+  });
+
+  const handlePointerDown = (event) => {
+    if (!interactiveRef.current) return;
+
+    tapStartRef.current = {
+      x: event.clientX,
+      y: event.clientY,
+      time: Date.now()
+    };
+
+    onPointerGestureStart(event.clientX, event.clientY);
+    event.stopPropagation();
+  };
+
+  const handlePointerUp = (event) => {
+    const start = tapStartRef.current;
+    tapStartRef.current = null;
+
+    if (!interactiveRef.current) return;
+
+    event.stopPropagation();
+
+    if (!start) return;
+
+    const dx = event.clientX - start.x;
+    const dy = event.clientY - start.y;
+    const duration = Date.now() - start.time;
+
+    if ((dx * dx) + (dy * dy) <= 36 && duration <= 320) {
+      onSelectSentence(fragment);
+    }
+  };
+
+  const handlePointerOver = (event) => {
+    if (!interactiveRef.current) return;
+
+    event.stopPropagation();
+    setHovered(true);
+    onHoverArticle(fragment.articleId);
+    document.body.style.cursor = 'pointer';
+  };
+
+  const handlePointerOut = (event) => {
+    event.stopPropagation();
+    setHovered(false);
+    onHoverArticle(null);
+    document.body.style.cursor = 'auto';
+  };
+
+  return (
+    <Billboard ref={labelRef} position={fragment.localPosition} follow>
+      <mesh
+        onPointerOver={handlePointerOver}
+        onPointerOut={handlePointerOut}
+        onPointerDown={handlePointerDown}
+        onPointerUp={handlePointerUp}
+      >
+        <planeGeometry args={[Math.max(6.5, fragment.displayText.length * 1.05 + 1.6), 2.3]} />
+        <meshBasicMaterial transparent opacity={0} depthWrite={false} depthTest={false} />
+      </mesh>
+      <Text
+        ref={textRef}
+        font={fontUrl}
+        fontSize={1.18}
+        color={hovered ? '#ffffff' : fragment.type === 'code' ? '#f6fbff' : fragment.color}
+        fillOpacity={0}
+        outlineWidth="6%"
+        outlineColor="#02050c"
+        anchorX="center"
+        anchorY="middle"
+        whiteSpace="nowrap"
+        onPointerOver={handlePointerOver}
+        onPointerOut={handlePointerOut}
+        onPointerDown={handlePointerDown}
+        onPointerUp={handlePointerUp}
+      >
+        {fragment.displayText}
+      </Text>
+    </Billboard>
+  );
+}
