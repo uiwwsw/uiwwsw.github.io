@@ -1,4 +1,4 @@
-const CACHE_NAME = 'uiwwsw-__CACHE_VERSION__';
+const CACHE_NAME = '__CACHE_VERSION__';
 // Use relative paths for GitHub Pages compatibility
 const urlsToCache = [
   '/',
@@ -29,6 +29,53 @@ function shouldCacheRequest(request) {
   return CACHEABLE_DESTINATIONS.has(request.destination);
 }
 
+function isCacheableResponse(response) {
+  return !!response && response.status === 200 && response.type === 'basic';
+}
+
+async function putInCache(request, response) {
+  if (!shouldCacheRequest(request) || !isCacheableResponse(response)) {
+    return;
+  }
+
+  const cache = await caches.open(CACHE_NAME);
+  await cache.put(request, response.clone());
+}
+
+async function handleDocumentRequest(request) {
+  try {
+    const response = await fetch(request);
+    await putInCache(request, response);
+    return response;
+  } catch (error) {
+    const cachedResponse = await caches.match(request);
+
+    if (cachedResponse) {
+      return cachedResponse;
+    }
+
+    const appShell = await caches.match('/index.html');
+
+    if (appShell) {
+      return appShell;
+    }
+
+    throw error;
+  }
+}
+
+async function handleStaticRequest(request) {
+  const cachedResponse = await caches.match(request);
+
+  if (cachedResponse) {
+    return cachedResponse;
+  }
+
+  const response = await fetch(request);
+  await putInCache(request, response);
+  return response;
+}
+
 // Install event - cache resources
 self.addEventListener('install', (event) => {
   event.waitUntil(
@@ -53,39 +100,12 @@ self.addEventListener('install', (event) => {
 
 // Fetch event - serve from cache when offline
 self.addEventListener('fetch', (event) => {
-  event.respondWith(
-    caches.match(event.request)
-      .then((response) => {
-        // Cache hit - return response
-        if (response) {
-          return response;
-        }
+  if (event.request.mode === 'navigate' || event.request.destination === 'document') {
+    event.respondWith(handleDocumentRequest(event.request));
+    return;
+  }
 
-        // Clone the request
-        const fetchRequest = event.request.clone();
-
-        return fetch(fetchRequest).then(
-          (response) => {
-            // Check if valid response
-            if (!response || response.status !== 200 || response.type !== 'basic') {
-              return response;
-            }
-
-            // Clone the response
-            const responseToCache = response.clone();
-
-            caches.open(CACHE_NAME)
-              .then((cache) => {
-                if (shouldCacheRequest(event.request)) {
-                  cache.put(event.request, responseToCache);
-                }
-              });
-
-            return response;
-          }
-        );
-      })
-  );
+  event.respondWith(handleStaticRequest(event.request));
 });
 
 // Activate event - clean up old caches
