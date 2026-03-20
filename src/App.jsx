@@ -7,6 +7,7 @@ import { buildUniverseModel, getContextWindow } from './utils/universeModel';
 
 const WordCloud = lazy(() => import('./components/WordCloud'));
 const loadContextData = () => import('./data/velog-context.json');
+const UNIVERSE_SEED_STORAGE_KEY = 'uiwwsw.universe-seed.v1';
 
 const canvasConfig = {
   antialias: true,
@@ -32,12 +33,45 @@ function getOverlayMetrics(width, height) {
   };
 }
 
+function createUniverseSeed() {
+  if (typeof globalThis !== 'undefined' && globalThis.crypto?.getRandomValues) {
+    const values = new Uint32Array(1);
+    globalThis.crypto.getRandomValues(values);
+    return values[0];
+  }
+
+  return Math.floor(Math.random() * 4294967296);
+}
+
+function readUniverseSeed() {
+  if (typeof window === 'undefined') {
+    return 0;
+  }
+
+  try {
+    const storedSeed = window.localStorage.getItem(UNIVERSE_SEED_STORAGE_KEY);
+    const parsedSeed = Number(storedSeed);
+
+    if (storedSeed && Number.isFinite(parsedSeed)) {
+      return parsedSeed >>> 0;
+    }
+
+    const nextSeed = createUniverseSeed();
+    window.localStorage.setItem(UNIVERSE_SEED_STORAGE_KEY, String(nextSeed));
+    return nextSeed;
+  } catch (error) {
+    console.warn('Falling back to ephemeral universe seed.', error);
+    return createUniverseSeed();
+  }
+}
+
 export default function App() {
   const [contextData, setContextData] = useState(null);
   const [selectedSentence, setSelectedSentence] = useState(null);
   const [contextSentences, setContextSentences] = useState([]);
   const [focusedArticle, setFocusedArticle] = useState(null);
   const [overlayMetrics, setOverlayMetrics] = useState(() => getOverlayMetrics());
+  const [universeSeed] = useState(() => readUniverseSeed());
 
   useEffect(() => {
     let mounted = true;
@@ -78,13 +112,14 @@ export default function App() {
 
   const universe = useMemo(() => {
     if (!contextData) return null;
-    return buildUniverseModel(contextData);
-  }, [contextData]);
+    return buildUniverseModel(contextData, universeSeed);
+  }, [contextData, universeSeed]);
 
   const selectedArticle = selectedSentence && universe
     ? universe.articleById[selectedSentence.articleId]
     : null;
-  const activeArticle = selectedArticle || focusedArticle || universe?.articles[0] || null;
+  const activeArticle = selectedArticle || focusedArticle || null;
+  const hasActiveArticle = !!activeArticle;
 
   const handleSelectSentence = (sentenceData) => {
     if (!universe) return;
@@ -98,6 +133,7 @@ export default function App() {
   const handleBack = () => {
     setSelectedSentence(null);
     setContextSentences([]);
+    setFocusedArticle(null);
   };
 
   const handleOpenArticle = (article) => {
@@ -200,30 +236,37 @@ export default function App() {
           </section>
 
           <section
-            className="focus-panel is-interactive"
+            className={`focus-panel ${hasActiveArticle ? 'is-interactive' : 'is-empty'}`}
             style={{ '--focus-color': activeArticle?.color || '#83d8ff' }}
-            onClick={() => handleOpenArticle(activeArticle)}
+            onClick={hasActiveArticle ? () => handleOpenArticle(activeArticle) : undefined}
             onKeyDown={(event) => {
+              if (!hasActiveArticle) return;
+
               if (event.key === 'Enter' || event.key === ' ') {
                 event.preventDefault();
                 handleOpenArticle(activeArticle);
               }
             }}
-            role="button"
-            tabIndex={selectedSentence ? -1 : 0}
-            aria-label={activeArticle ? `${activeArticle.title} 열기` : '현재 글 열기'}
+            role={hasActiveArticle ? 'button' : undefined}
+            tabIndex={hasActiveArticle && !selectedSentence ? 0 : -1}
+            aria-hidden={!hasActiveArticle}
+            aria-label={hasActiveArticle ? `${activeArticle.title} 열기` : undefined}
           >
-            <div className="focus-header">
-              <span className="focus-label">Current Constellation</span>
-              <span className="focus-sector">{activeArticle?.topicLabel}</span>
-            </div>
-            <h2>{activeArticle?.title}</h2>
-            <p>{activeArticle?.excerpt}</p>
-            <div className="focus-meta">
-              <span>{activeArticle?.sentenceCount} fragments</span>
-              <span>{activeArticle?.codeCount} code blocks</span>
-              <span>{`Archive #${(activeArticle?.articleId || 0) + 1}`}</span>
-            </div>
+            {hasActiveArticle && (
+              <>
+                <div className="focus-header">
+                  <span className="focus-label">Current Constellation</span>
+                  <span className="focus-sector">{activeArticle.topicLabel}</span>
+                </div>
+                <h2>{activeArticle.title}</h2>
+                <p>{activeArticle.excerpt}</p>
+                <div className="focus-meta">
+                  <span>{activeArticle.sentenceCount} fragments</span>
+                  <span>{activeArticle.codeCount} code blocks</span>
+                  <span>{`Archive #${activeArticle.articleId + 1}`}</span>
+                </div>
+              </>
+            )}
           </section>
         </div>
       </div>

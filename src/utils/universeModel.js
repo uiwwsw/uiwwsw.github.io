@@ -76,10 +76,32 @@ function clamp(value, min, max) {
   return Math.max(min, Math.min(max, value));
 }
 
+function normalizeSeed(seed) {
+  const numericSeed = Number(seed);
+
+  if (!Number.isFinite(numericSeed)) {
+    return 0;
+  }
+
+  return numericSeed >>> 0;
+}
+
 function truncate(text, maxLength) {
   if (!text) return '';
   if (text.length <= maxLength) return text;
   return `${text.slice(0, maxLength - 1).trim()}...`;
+}
+
+function shuffleWithSeed(items, seed) {
+  const nextItems = [...items];
+  const rng = createRng(seed);
+
+  for (let index = nextItems.length - 1; index > 0; index -= 1) {
+    const swapIndex = Math.floor(rng() * (index + 1));
+    [nextItems[index], nextItems[swapIndex]] = [nextItems[swapIndex], nextItems[index]];
+  }
+
+  return nextItems;
 }
 
 function inferTopic(article) {
@@ -154,7 +176,8 @@ export function getContextWindow(article, sentenceIndex, targetCount = 7) {
   }));
 }
 
-export function buildUniverseModel(contextData) {
+export function buildUniverseModel(contextData, universeSeed = 0) {
+  const baseSeed = normalizeSeed(universeSeed);
   const sourceArticles = Object.entries(contextData || {}).map(([articleId, article]) => ({
     articleId: Number(articleId),
     ...article
@@ -174,13 +197,16 @@ export function buildUniverseModel(contextData) {
   const articles = [];
 
   TOPIC_ORDER.forEach((topic, topicIndex) => {
-    const topicArticles = groupedByTopic[topic];
+    const topicArticles = shuffleWithSeed(
+      groupedByTopic[topic],
+      hashString(`${baseSeed}:topic:${topic}`)
+    );
     const topicConfig = TOPIC_CONFIG[topic];
     const count = Math.max(topicArticles.length, 1);
     const laneOrigin = (topicIndex - (TOPIC_ORDER.length - 1) / 2) * TOPIC_LANE_GAP;
 
     topicArticles.forEach((article, articleIndex) => {
-      const seed = hashString(`${article.title}:${article.articleId}`);
+      const seed = hashString(`${baseSeed}:article:${article.title}:${article.articleId}`);
       const rng = createRng(seed);
       const orbitProgress = articleIndex / count;
       const laneWave = Math.sin(orbitProgress * Math.PI * 2 + topicIndex * 0.9) * 92;
@@ -216,7 +242,9 @@ export function buildUniverseModel(contextData) {
 
   articles.forEach(article => {
     article.sentences.forEach((sentence, sentenceIndex) => {
-      const seed = hashString(`${article.title}:${sentence.fullSentence}:${sentenceIndex}`);
+      const seed = hashString(
+        `${baseSeed}:fragment:${article.title}:${sentence.fullSentence}:${sentenceIndex}`
+      );
       const rng = createRng(seed);
       const ring = Math.floor(sentenceIndex / 6);
       const angle = rng() * Math.PI * 2 + sentenceIndex * 0.73;
@@ -271,11 +299,16 @@ export function buildUniverseModel(contextData) {
     };
   });
 
+  const entryArticle = articles.length > 0
+    ? articles[hashString(`${baseSeed}:entry-article`) % articles.length]
+    : null;
+
   return {
     articles,
     articleById,
     fragments,
     topicSummary,
+    entryArticleId: entryArticle?.articleId ?? null,
     stats: {
       articleCount: articles.length,
       fragmentCount: fragments.length,

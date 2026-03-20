@@ -1,5 +1,647 @@
 {
   "0": {
+    "title": "포장이라고 믿는 것들에 대하여",
+    "link": "https://velog.io/@uiwwsw/포장이라고-믿는-것들에-대하여",
+    "sentences": [
+      {
+        "fullSentence": "사람은 누구나 조금씩 자신을 포장하며 산다.",
+        "index": 0,
+        "type": "text"
+      },
+      {
+        "fullSentence": "첫인상을 만들 때도, 이력서를 쓸 때도, 처음 만난 사람 앞에서 말을 고를 때도 우리는 늘 자신을 조금 다듬는다.",
+        "index": 1,
+        "type": "text"
+      },
+      {
+        "fullSentence": "불필요한 부분은 접어두고, 더 나은 면은 앞에 둔다.",
+        "index": 2,
+        "type": "text"
+      },
+      {
+        "fullSentence": "그래서 포장 자체를 무조건 나쁘다고 말하기는 어렵다.",
+        "index": 3,
+        "type": "text"
+      },
+      {
+        "fullSentence": "어떤 포장은 예의이고, 어떤 포장은 아직 완성되지 않은 자신을 조금 먼저 보여주는 방식이기도 하다.",
+        "index": 4,
+        "type": "text"
+      },
+      {
+        "fullSentence": "문제는 포장과 거짓이 자주 같은 말처럼 쓰인다는 데 있다.",
+        "index": 5,
+        "type": "text"
+      },
+      {
+        "fullSentence": "둘은 비슷해 보이지만 사실 꽤 다르다.",
+        "index": 6,
+        "type": "text"
+      },
+      {
+        "fullSentence": "포장은 사실 위에 덧입히는 일이다.",
+        "index": 7,
+        "type": "text"
+      },
+      {
+        "fullSentence": "지금의 나를 조금 더 정리해서 보여주거나, 노력하면 닿을 수 있는 방향을 먼저 말하는 일에 가깝다.",
+        "index": 8,
+        "type": "text"
+      },
+      {
+        "fullSentence": "아직 완전하지 않더라도 그 말 뒤에 책임과 노력이 따라온다면, 그것은 어느 정도 이해할 수 있는 영역에 있다.",
+        "index": 9,
+        "type": "text"
+      },
+      {
+        "fullSentence": "반면 거짓은 사실을 바꾸는 일이다.",
+        "index": 10,
+        "type": "text"
+      },
+      {
+        "fullSentence": "스스로도 아닌 줄 아는 것을 아닌 채로 내놓고, 책임질 생각이 없는 말을 그럴듯한 표현으로 감싸는 일이다.",
+        "index": 11,
+        "type": "text"
+      },
+      {
+        "fullSentence": "겉모습은 비슷할지 몰라도, 둘의 성질은 전혀 다르다.",
+        "index": 12,
+        "type": "text"
+      },
+      {
+        "fullSentence": "이 둘이 자주 헷갈리는 이유는, 겉으로 보기에는 모두 자신을 더 나아 보이게 만드는 말처럼 들리기 때문이다.",
+        "index": 13,
+        "type": "text"
+      },
+      {
+        "fullSentence": "이기주의와 개인주의의 차이를 혼동하는 경우와도 조금 닮아 있다.",
+        "index": 14,
+        "type": "text"
+      },
+      {
+        "fullSentence": "비슷한 말로 묶이지만, 실제로는 작동 방식이 전혀 다르기 때문이다.",
+        "index": 15,
+        "type": "text"
+      },
+      {
+        "fullSentence": "포장과 거짓 역시 그렇다.",
+        "index": 16,
+        "type": "text"
+      },
+      {
+        "fullSentence": "둘 다 자신을 위한 표현처럼 보이지만, 하나는 사실을 정리하는 일이고 다른 하나는 사실을 바꾸는 일이다.",
+        "index": 17,
+        "type": "text"
+      },
+      {
+        "fullSentence": "그래서 경계는 의외로 단순하다.",
+        "index": 18,
+        "type": "text"
+      },
+      {
+        "fullSentence": "그 말이 사실을 조금 더 단정하게 정리하는가, 아니면 사실을 다른 모습으로 바꾸는가.",
+        "index": 19,
+        "type": "text"
+      },
+      {
+        "fullSentence": "전자라면 포장이라고 부를 수 있겠지만, 후자라면 이미 다른 종류의 말에 가깝다.",
+        "index": 20,
+        "type": "text"
+      },
+      {
+        "fullSentence": "특히 자기 이미지를 지키기 위해 타인의 맥락까지 줄이거나 사실의 무게를 바꾸는 순간, 그것은 자신을 다듬는 표현이라기보다 거짓을 그럴듯하게 만드는 방식이 된다.",
+        "index": 21,
+        "type": "text"
+      },
+      {
+        "fullSentence": "중요한 것은 포장을 없애는 일이 아니라, 이름을 정확히 붙이는 일인지도 모른다.",
+        "index": 22,
+        "type": "text"
+      },
+      {
+        "fullSentence": "누구나 어느 정도는 자신을 다듬고 살아간다.",
+        "index": 23,
+        "type": "text"
+      },
+      {
+        "fullSentence": "그것은 사회 속에서 살아가는 방식의 일부다.",
+        "index": 24,
+        "type": "text"
+      },
+      {
+        "fullSentence": "다만 그 말이 사실을 기반으로 하는지, 아니면 사실을 바꾸는지까지 흐려서는 안 된다.",
+        "index": 25,
+        "type": "text"
+      },
+      {
+        "fullSentence": "모든 것을 포장이라고 부를 수는 없다.",
+        "index": 26,
+        "type": "text"
+      },
+      {
+        "fullSentence": "어떤 것은 포장이고, 어떤 것은 그저 거짓이다.",
+        "index": 27,
+        "type": "text"
+      },
+      {
+        "fullSentence": "그리고 둘을 가르는 기준은 생각보다 멀리 있지 않다.",
+        "index": 28,
+        "type": "text"
+      },
+      {
+        "fullSentence": "그 말이 사실을 정리하는가, 아니면 사실을 바꾸는가.",
+        "index": 29,
+        "type": "text"
+      },
+      {
+        "fullSentence": "아마 경계는 바로 거기에 있다.",
+        "index": 30,
+        "type": "text"
+      }
+    ]
+  },
+  "1": {
+    "title": "GitHub를 전달 가능한 개발자 문서로 바꾸는 GitFolio를 만들었습니다",
+    "link": "https://velog.io/@uiwwsw/GitHub를-전달-가능한-개발자-문서로-바꾸는-GitFolio를-만들었습니다",
+    "sentences": [
+      {
+        "fullSentence": "GitHub는 개발자의 기록입니다.",
+        "index": 0,
+        "type": "text"
+      },
+      {
+        "fullSentence": "그런데 이상하게도, 소개서는 아닙니다.",
+        "index": 1,
+        "type": "text"
+      },
+      {
+        "fullSentence": "레포지토리 수는 많고, 커밋도 쌓여 있고, 스타도 있고, README도 있습니다.",
+        "index": 2,
+        "type": "text"
+      },
+      {
+        "fullSentence": "하지만 막상 누군가에게 나를 설명해야 하는 순간이 오면 생각보다 난감해집니다.",
+        "index": 3,
+        "type": "text"
+      },
+      {
+        "fullSentence": "이 사람은 무슨 개발자인가?",
+        "index": 4,
+        "type": "text"
+      },
+      {
+        "fullSentence": "뭘 자주 만드는가?",
+        "index": 5,
+        "type": "text"
+      },
+      {
+        "fullSentence": "어떤 방식으로 일하는가?",
+        "index": 6,
+        "type": "text"
+      },
+      {
+        "fullSentence": "어떤 역할에 어울리는가?",
+        "index": 7,
+        "type": "text"
+      },
+      {
+        "fullSentence": "GitHub에는 데이터가 많습니다.",
+        "index": 8,
+        "type": "text"
+      },
+      {
+        "fullSentence": "문제는 전달력입니다.",
+        "index": 9,
+        "type": "text"
+      },
+      {
+        "fullSentence": "그래서 이번에 만든 프로젝트가 GitFolio입니다.",
+        "index": 10,
+        "type": "text"
+      },
+      {
+        "fullSentence": "GitHub를 읽어서, 이 개발자가 어떤 사람인지  \n어떤 방식으로 일하는지 전달 가능한 문서로 바꿔주는 서비스\n\n직접 써볼 수 있습니다.",
+        "index": 11,
+        "type": "text"
+      },
+      {
+        "fullSentence": "https://gitfolio-seven.",
+        "index": 12,
+        "type": "text"
+      },
+      {
+        "fullSentence": "vercel.",
+        "index": 13,
+        "type": "text"
+      },
+      {
+        "fullSentence": "app/\n\n\n\n왜 이걸 만들었나\n\n개발자는 생각보다 자주 자신을 설명해야 합니다.",
+        "index": 14,
+        "type": "text"
+      },
+      {
+        "fullSentence": "채용 지원을 할 때도 그렇고,  \n사이드 프로젝트를 소개할 때도 그렇고,  \n협업자를 찾거나 프리랜서 소개를 할 때도 마찬가지입니다.",
+        "index": 15,
+        "type": "text"
+      },
+      {
+        "fullSentence": "그런데 GitHub 프로필은 원본 기록에 가깝습니다.",
+        "index": 16,
+        "type": "text"
+      },
+      {
+        "fullSentence": "좋은 재료이긴 하지만, 그대로는 읽기 쉽지 않습니다.",
+        "index": 17,
+        "type": "text"
+      },
+      {
+        "fullSentence": "누군가는 저장소를 하나씩 눌러봐야 하고,  \nREADME를 읽어봐야 하고,  \n언어와 프로젝트 흐름을 스스로 해석해야 합니다.",
+        "index": 18,
+        "type": "text"
+      },
+      {
+        "fullSentence": "저는 그 과정이 늘 아깝다고 느꼈습니다.",
+        "index": 19,
+        "type": "text"
+      },
+      {
+        "fullSentence": "우리가 정말 보고 싶은 건 커밋 숫자 자체가 아니라,  \n그 숫자 뒤에 있는 개발자의 결이기 때문입니다.",
+        "index": 20,
+        "type": "text"
+      },
+      {
+        "fullSentence": "이 사람은 제품 감각이 있는 사람인지,  \n작은 아이디어를 빠르게 형태로 만드는 사람인지,  \n도구와 자동화를 좋아하는 사람인지,  \n아니면 특정 분야를 깊게 파는 사람인지.",
+        "index": 21,
+        "type": "text"
+      },
+      {
+        "fullSentence": "결국 필요한 건 통계가 아니라  \n“이 개발자는 어떤 사람인가”를 읽기 쉬운 문장으로 정리한 결과물이었습니다.",
+        "index": 22,
+        "type": "text"
+      },
+      {
+        "fullSentence": "GitFolio는 무엇을 하는가\n\nGitFolio는 아주 단순합니다.",
+        "index": 23,
+        "type": "text"
+      },
+      {
+        "fullSentence": "사용자는 GitHub URL을 넣고,  \n원하는 문서 템플릿 하나를 고른 뒤,  \n결과를 확인하면 됩니다.",
+        "index": 24,
+        "type": "text"
+      },
+      {
+        "fullSentence": "핵심은 여기서 끝입니다.",
+        "index": 25,
+        "type": "text"
+      },
+      {
+        "fullSentence": "복잡한 대시보드도 없고,  \n설정 화면도 길지 않고,  \n단계를 여러 번 나누지도 않았습니다.",
+        "index": 26,
+        "type": "text"
+      },
+      {
+        "fullSentence": "처음부터 의도한 건 하나였습니다.",
+        "index": 27,
+        "type": "text"
+      },
+      {
+        "fullSentence": "“GitHub를 문서로 번역한다.”\n\n이 문서는 단순한 통계 요약이 아닙니다.",
+        "index": 28,
+        "type": "text"
+      },
+      {
+        "fullSentence": "대표 프로젝트를 고르고,  \n주요 기술을 정리하고,  \n공개된 GitHub 기준으로 드러나는 개발 성향을 읽기 쉬운 한국어 결과물로 압축합니다.",
+        "index": 29,
+        "type": "text"
+      },
+      {
+        "fullSentence": "그리고 그 결과는 웹에서 읽기 좋을 뿐 아니라,  \n그대로 A4 문서처럼 인쇄하거나 PDF로 저장해서 전달할 수 있게 만들었습니다.",
+        "index": 30,
+        "type": "text"
+      },
+      {
+        "fullSentence": "일부러 두 페이지만 남겼다\n\n이 프로젝트를 만들면서 가장 먼저 정한 원칙은  \n사용자에게 보이는 화면은 두 개만 남긴다는 것이었습니다.",
+        "index": 31,
+        "type": "text"
+      },
+      {
+        "fullSentence": "입력 페이지  \n결과 페이지\n\n끝입니다.",
+        "index": 32,
+        "type": "text"
+      },
+      {
+        "fullSentence": "입력 페이지에서는 GitHub URL을 받고,  \n결과 페이지에서는 그 URL을 해석한 문서를 보여줍니다.",
+        "index": 33,
+        "type": "text"
+      },
+      {
+        "fullSentence": "기능을 늘리는 건 쉽습니다.",
+        "index": 34,
+        "type": "text"
+      },
+      {
+        "fullSentence": "필터를 더 넣고,  \n옵션을 더 만들고,  \n분석 탭을 열 개로 쪼개면 그럴듯해 보일 수 있습니다.",
+        "index": 35,
+        "type": "text"
+      },
+      {
+        "fullSentence": "그런데 그런 순간 이 제품은 금방 “도구”가 됩니다.",
+        "index": 36,
+        "type": "text"
+      },
+      {
+        "fullSentence": "제가 만들고 싶었던 건 도구라기보다  \n전달력이 있는 결과물이었습니다.",
+        "index": 37,
+        "type": "text"
+      },
+      {
+        "fullSentence": "사용자가 오래 머무는 서비스보다,  \n짧게 들어와도 한 번에 목적을 달성하는 서비스에 더 가까웠습니다.",
+        "index": 38,
+        "type": "text"
+      },
+      {
+        "fullSentence": "그래서 구조를 최대한 얇게 만들었습니다.",
+        "index": 39,
+        "type": "text"
+      },
+      {
+        "fullSentence": "템플릿은 기능이 아니라 표현 방식이다\n\nGitFolio에는 세 가지 템플릿이 있습니다.",
+        "index": 40,
+        "type": "text"
+      },
+      {
+        "fullSentence": "Brief\nProfile\nInsight\n\n여기서 중요한 건  \n이 셋이 서로 다른 분석 기능이 아니라는 점입니다.",
+        "index": 41,
+        "type": "text"
+      },
+      {
+        "fullSentence": "분석 데이터는 하나이고, 보여주는 방식만 다릅니다.",
+        "index": 42,
+        "type": "text"
+      },
+      {
+        "fullSentence": "이게 꽤 중요했습니다.",
+        "index": 43,
+        "type": "text"
+      },
+      {
+        "fullSentence": "보통 비슷한 제품들은 화면이 많아질수록 기능도 흩어집니다.",
+        "index": 44,
+        "type": "text"
+      },
+      {
+        "fullSentence": "어떤 템플릿에서는 강점이 보이고,  \n어떤 템플릿에서는 프로젝트만 보이고,  \n어떤 템플릿에서는 전혀 다른 결과처럼 느껴지기도 합니다.",
+        "index": 45,
+        "type": "text"
+      },
+      {
+        "fullSentence": "저는 그 방식이 별로라고 생각했습니다.",
+        "index": 46,
+        "type": "text"
+      },
+      {
+        "fullSentence": "결과가 달라지는 게 아니라,  \n같은 사람을 어떤 문맥에서 보여줄 것인가만 달라져야 한다고 봤습니다.",
+        "index": 47,
+        "type": "text"
+      },
+      {
+        "fullSentence": "그래서 템플릿의 역할을 이렇게 나눴습니다.",
+        "index": 48,
+        "type": "text"
+      },
+      {
+        "fullSentence": "Brief\n짧고 선명하게 핵심만 전달하는 방식입니다.",
+        "index": 49,
+        "type": "text"
+      },
+      {
+        "fullSentence": "가장 압축된 문서에 가깝고,  \n빠르게 읽히는 요약형 결과에 집중합니다.",
+        "index": 50,
+        "type": "text"
+      },
+      {
+        "fullSentence": "Profile\n가장 균형 잡힌 기본형입니다.",
+        "index": 51,
+        "type": "text"
+      },
+      {
+        "fullSentence": "요약, 개발자 유형, 작업 방식, 근거가 고르게 보이도록 구성했습니다.",
+        "index": 52,
+        "type": "text"
+      },
+      {
+        "fullSentence": "Insight\n조금 더 해석에 무게를 둔 형태입니다.",
+        "index": 53,
+        "type": "text"
+      },
+      {
+        "fullSentence": "작업 패턴과 기술 선택 경향, 프로젝트 해석이 더 강조됩니다.",
+        "index": 54,
+        "type": "text"
+      },
+      {
+        "fullSentence": "중요한 건 셋 다 결국  \n같은 개발자를 다른 각도에서 읽게 해주는 문서라는 점입니다.",
+        "index": 55,
+        "type": "text"
+      },
+      {
+        "fullSentence": "만들면서 가장 신경 쓴 건 ‘해석의 톤’이었다\n\n이 프로젝트는 기술적으로도 중요했지만,  \n사실 더 어려웠던 건 문장의 톤이었습니다.",
+        "index": 56,
+        "type": "text"
+      },
+      {
+        "fullSentence": "GitHub만 보고 사람을 과장하면 바로 어색해집니다.",
+        "index": 57,
+        "type": "text"
+      },
+      {
+        "fullSentence": "예를 들어 공개 저장소만 보고  \n“리더십이 뛰어나다”  \n“대규모 서비스 경험이 있다”  \n“협업 능력이 우수하다”  \n이런 말을 하는 순간 결과물의 신뢰도가 무너집니다.",
+        "index": 58,
+        "type": "text"
+      },
+      {
+        "fullSentence": "그래서 GitFolio는 가능한 한  \n사실과 해석을 분리하는 방향으로 설계했습니다.",
+        "index": 59,
+        "type": "text"
+      },
+      {
+        "fullSentence": "말할 수 있는 것과 없는 것을 나누는 식입니다.",
+        "index": 60,
+        "type": "text"
+      },
+      {
+        "fullSentence": "말할 수 있는 것:\n어떤 기술 스택을 자주 쓰는지\n어떤 종류의 프로젝트를 자주 만드는지\nREADME나 프로젝트 설명이 얼마나 정리되어 있는지\n공개 저장소 기준으로 어떤 흐름이 보이는지\n\n쉽게 단정하면 안 되는 것:\n실제 회사 경력\n팀 내 역할\n리더십\n비즈니스 성과\n협업 능력 전체\n\n그래서 결과 문장도 최대한 이런 톤을 유지하려고 했습니다.",
+        "index": 61,
+        "type": "text"
+      },
+      {
+        "fullSentence": "“프론트엔드 개발자입니다” 대신  \n  “사용자 경험과 제품 구현에 무게가 실린 프론트엔드 성향의 개발자”\n\n“여러 프로젝트를 했습니다” 대신  \n  “작은 아이디어를 빠르게 형태로 만드는 프로토타이핑 지향이 보인다”\n\n“다양한 기술을 씁니다” 대신  \n  “특정 스택에만 머무르기보다 문제에 따라 기술을 선택하는 경향이 드러난다”\n\n이 차이가 생각보다 컸습...",
+        "index": 62,
+        "type": "text"
+      },
+      {
+        "fullSentence": "좋은 문서는 데이터를 많이 보여주는 문서가 아니라,  \n읽는 사람이 한 번에 이해할 수 있게 정리된 문서였기 때문입니다.",
+        "index": 63,
+        "type": "text"
+      },
+      {
+        "fullSentence": "PDF는 ‘내보내기 기능’이 아니라 결과물의 핵심이었다\n\n이 프로젝트를 만들기 전에도 늘 비슷한 생각을 했습니다.",
+        "index": 64,
+        "type": "text"
+      },
+      {
+        "fullSentence": "좋은 웹페이지를 만드는 것과  \n좋은 문서를 만드는 것은 조금 다르다는 것.",
+        "index": 65,
+        "type": "text"
+      },
+      {
+        "fullSentence": "웹에서는 보기 좋았는데,  \n막상 PDF로 저장하면 여백이 무너지거나,  \n버튼이 남아 있거나,  \n문단이 이상하게 끊기면 그 순간 결과물의 품질이 확 떨어집니다.",
+        "index": 66,
+        "type": "text"
+      },
+      {
+        "fullSentence": "GitFolio는 처음부터  \nA4 문서처럼 읽히는 결과를 목표로 잡았습니다.",
+        "index": 67,
+        "type": "text"
+      },
+      {
+        "fullSentence": "그래서 결과 페이지는 단순한 화면이 아니라  \n거의 문서에 가까운 밀도로 설계했습니다.",
+        "index": 68,
+        "type": "text"
+      },
+      {
+        "fullSentence": "불필요한 인터랙션은 줄이고,  \n타이포그래피와 여백을 더 중요하게 보고,  \n인쇄했을 때도 자연스럽게 이어지도록 신경 썼습니다.",
+        "index": 69,
+        "type": "text"
+      },
+      {
+        "fullSentence": "이 프로젝트에서 PDF는 부가 기능이 아니라  \n오히려 핵심에 가깝습니다.",
+        "index": 70,
+        "type": "text"
+      },
+      {
+        "fullSentence": "왜냐하면 결국 이 서비스의 가치는  \n“한 번 보고 끝”이 아니라  \n“누군가에게 전달할 수 있느냐”에 있기 때문입니다.",
+        "index": 71,
+        "type": "text"
+      },
+      {
+        "fullSentence": "구현에서는 복잡함보다 흐름을 우선했다\n\n이번 버전은 Next.",
+        "index": 72,
+        "type": "text"
+      },
+      {
+        "fullSentence": "js 기반으로 구성했고,  \n입력 → 분석 → 결과라는 흐름이 끊기지 않도록 만드는 데 집중했습니다.",
+        "index": 73,
+        "type": "text"
+      },
+      {
+        "fullSentence": "기술적으로 더 화려하게 갈 수도 있었습니다.",
+        "index": 74,
+        "type": "text"
+      },
+      {
+        "fullSentence": "별도 PDF 렌더러를 붙이거나,  \n복잡한 설정 패널을 만들거나,  \n계정을 붙이고 저장 기능을 넣는 식으로 확장할 수도 있었죠.",
+        "index": 75,
+        "type": "text"
+      },
+      {
+        "fullSentence": "하지만 MVP 단계에서는 오히려 그 반대가 더 중요하다고 생각했습니다.",
+        "index": 76,
+        "type": "text"
+      },
+      {
+        "fullSentence": "URL 하나를 넣으면\n결과가 바로 나오고\n그 결과가 문서처럼 읽히고\n그대로 저장해서 전달할 수 있어야 한다\n\n이 핵심만 제대로 되면  \n그다음 확장은 훨씬 건강하게 붙일 수 있다고 봤습니다.",
+        "index": 77,
+        "type": "text"
+      },
+      {
+        "fullSentence": "초기 제품은 기능 수보다  \n사용자가 설명할 수 있는 단순함이 더 중요하다고 생각합니다.",
+        "index": 78,
+        "type": "text"
+      },
+      {
+        "fullSentence": "GitFolio는 딱 이 정도 문장으로 설명되길 바랐습니다.",
+        "index": 79,
+        "type": "text"
+      },
+      {
+        "fullSentence": "“GitHub 주소 넣으면,  \n이 개발자가 어떤 사람인지 문서로 정리해서 보여주는 서비스야.”\n\n그 정도면 충분히 전달된 거라고 생각했습니다.",
+        "index": 80,
+        "type": "text"
+      },
+      {
+        "fullSentence": "앞으로 더 좋아지고 싶은 지점들\n\n지금 버전도 방향성은 분명하지만,  \n아직 더 다듬고 싶은 부분이 많습니다.",
+        "index": 81,
+        "type": "text"
+      },
+      {
+        "fullSentence": "예를 들어 이런 것들입니다.",
+        "index": 82,
+        "type": "text"
+      },
+      {
+        "fullSentence": "대표 프로젝트 선정 로직 고도화\n결과 문장의 더 정교한 톤 조절\n템플릿별 완성도 차이 줄이기\nPDF 결과물의 더 높은 인쇄 품질\n사용자가 일부 내용을 직접 수정할 수 있는 흐름\n\n특히 이 제품은  \n“무엇을 분석하느냐”보다  \n“어떻게 해석하고 어떻게 보여주느냐”가 훨씬 중요합니다.",
+        "index": 83,
+        "type": "text"
+      },
+      {
+        "fullSentence": "그래서 앞으로도 기능을 무작정 늘리기보다,  \n결과물의 전달력을 높이는 방향으로 개선하고 싶습니다.",
+        "index": 84,
+        "type": "text"
+      },
+      {
+        "fullSentence": "마치며\n\nGitHub는 개발자의 흔적을 가장 많이 담고 있는 공간입니다.",
+        "index": 85,
+        "type": "text"
+      },
+      {
+        "fullSentence": "하지만 그 흔적을 그대로 읽는 건 생각보다 어렵습니다.",
+        "index": 86,
+        "type": "text"
+      },
+      {
+        "fullSentence": "GitFolio는 그 간극을 줄이기 위해 만든 프로젝트입니다.",
+        "index": 87,
+        "type": "text"
+      },
+      {
+        "fullSentence": "코드를 사람말로 번역하고,  \n저장소를 문서로 정리하고,  \n개발자의 기록을 전달 가능한 형태로 바꾸는 것.",
+        "index": 88,
+        "type": "text"
+      },
+      {
+        "fullSentence": "저는 그 과정이 꽤 재미있다고 느꼈습니다.",
+        "index": 89,
+        "type": "text"
+      },
+      {
+        "fullSentence": "개발자는 결국 무언가를 만드는 사람인데,  \n그 “만든 흔적”이 가장 잘 보이는 곳이 GitHub라면  \n그 기록을 더 잘 설명할 수 있는 도구도 충분히 의미가 있다고 생각합니다.",
+        "index": 90,
+        "type": "text"
+      },
+      {
+        "fullSentence": "직접 사용해보고 싶다면 아래에서 볼 수 있습니다.",
+        "index": 91,
+        "type": "text"
+      },
+      {
+        "fullSentence": "https://gitfolio-seven.",
+        "index": 92,
+        "type": "text"
+      },
+      {
+        "fullSentence": "vercel.",
+        "index": 93,
+        "type": "text"
+      },
+      {
+        "fullSentence": "app/\n\n피드백은 언제나 환영입니다.",
+        "index": 94,
+        "type": "text"
+      }
+    ]
+  },
+  "2": {
     "title": "숏츠가 만들어낸 도파민의 서사",
     "link": "https://velog.io/@uiwwsw/숏츠가-만들어낸-도파민의-서사",
     "sentences": [
@@ -360,7 +1002,7 @@
       }
     ]
   },
-  "1": {
+  "3": {
     "title": "고마움을 안다는 것",
     "link": "https://velog.io/@uiwwsw/고마움을-안다는-것",
     "sentences": [
@@ -481,7 +1123,7 @@
       }
     ]
   },
-  "3": {
+  "5": {
     "title": "뭐든지 말이 되는 세상",
     "link": "https://velog.io/@uiwwsw/틀린-말이라는-것",
     "sentences": [
@@ -607,7 +1249,7 @@
       }
     ]
   },
-  "4": {
+  "6": {
     "title": "untitled, for now",
     "link": "https://velog.io/@uiwwsw/untitled-for-now",
     "sentences": [
@@ -783,7 +1425,7 @@
       }
     ]
   },
-  "5": {
+  "7": {
     "title": "[Retrospective] 머랭트립 리팩토링: 기능 추가보다 '완성도'에 집착하기 (Flutter 전환기)",
     "link": "https://velog.io/@uiwwsw/Retrospective-머랭트립-리팩토링-기능-추가보다-완성도에-집착하기-Flutter-전환기",
     "sentences": [
@@ -966,7 +1608,7 @@
       }
     ]
   },
-  "6": {
+  "8": {
     "title": "운이 좋았습니다",
     "link": "https://velog.io/@uiwwsw/운이-좋았습니다",
     "sentences": [
@@ -1012,7 +1654,7 @@
       }
     ]
   },
-  "7": {
+  "9": {
     "title": "무지의 무지",
     "link": "https://velog.io/@uiwwsw/무지의-무지-0i223rlm",
     "sentences": [
@@ -1233,7 +1875,7 @@
       }
     ]
   },
-  "8": {
+  "10": {
     "title": "왜 기품 있는 어른은 회사에 남지 않는가",
     "link": "https://velog.io/@uiwwsw/왜-기품-있는-어른은-회사에-남지-않는가",
     "sentences": [
@@ -1354,7 +1996,7 @@
       }
     ]
   },
-  "9": {
+  "11": {
     "title": "우아함의 물리학: 지능과 체력에 관하여",
     "link": "https://velog.io/@uiwwsw/우아함의-물리학-지능과-체력에-관하여",
     "sentences": [
@@ -1420,7 +2062,7 @@
       }
     ]
   },
-  "10": {
+  "12": {
     "title": "똑똑한 개발자란 무엇인가 (feat. AI 시대의 생존법)",
     "link": "https://velog.io/@uiwwsw/똑똑한-개발자란-무엇인가-feat.-AI-시대의-생존법",
     "sentences": [
@@ -1621,7 +2263,7 @@
       }
     ]
   },
-  "11": {
+  "13": {
     "title": "코난과 숏박스",
     "link": "https://velog.io/@uiwwsw/코난과-숏박스",
     "sentences": [
@@ -1782,7 +2424,7 @@
       }
     ]
   },
-  "12": {
+  "14": {
     "title": "10년의 회고",
     "link": "https://velog.io/@uiwwsw/10년의-회고",
     "sentences": [
@@ -1873,209 +2515,469 @@
       }
     ]
   },
-  "13": {
-    "title": "나무에 대한 평가",
+  "15": {
+    "title": "숲",
     "link": "https://velog.io/@uiwwsw/나무에-대한-평가",
     "sentences": [
       {
-        "fullSentence": "사람들은 숲을 바라보며 흔히 나무가 얼마나 높이 솟았는지를 이야기합니다.",
+        "fullSentence": "숲에 들어가면 사람들은 대개 먼저 위를 본다.",
         "index": 0,
         "type": "text"
       },
       {
-        "fullSentence": "특히 한국처럼 역동적인 사회에서 나무를 향한 시선은 유독 수직적입니다.",
+        "fullSentence": "어느 나무가 더 높이 자랐는지, 얼마나 곧게 뻗었는지.",
         "index": 1,
         "type": "text"
       },
       {
-        "fullSentence": "얼마나 곧게 뻗었는지, 끝이 어디까지 닿았는지.",
+        "fullSentence": "높이는 한눈에 읽힌다.",
         "index": 2,
         "type": "text"
       },
       {
-        "fullSentence": "그 ‘높이’라는 단 하나의 척도가 나무의 가치를 가늠하는 유일한 기준이 된 듯해, 문득 안타까운 마음이 들 때가 있습니다.",
+        "fullSentence": "비교도 쉽다.",
         "index": 3,
         "type": "text"
       },
       {
-        "fullSentence": "물론 높은 나무를 우러러보는 감정 자체가 특별한 것은 아닙니다.",
+        "fullSentence": "그래서 오래 사랑받는 기준이 된다.",
         "index": 4,
         "type": "text"
       },
       {
-        "fullSentence": "크고 웅장한 것에 감탄하는 마음은 누구에게나 자연스럽게 생기니까요.",
+        "fullSentence": "반면 다른 것들은 시간이 걸린다.",
         "index": 5,
         "type": "text"
       },
       {
-        "fullSentence": "다만 그 시선에 조금 다른 여백이 더해질 수는 있습니다.",
+        "fullSentence": "줄기가 얼마나 단단한지, 가지가 어디로 휘는지, 어떤 그늘을 만드는지.",
         "index": 6,
         "type": "text"
       },
       {
-        "fullSentence": "나무가 비록 높지는 않아도 줄기가 얼마나 단단한지, 가지가 어떤 각도로 휘어져 그늘을 만드는지, 바닥에 떨어진 잎들이 어떤 색의 풍경을 이루는지.",
+        "fullSentence": "그런 건 잠깐 봐서는 잘 모른다.",
         "index": 7,
         "type": "text"
       },
       {
-        "fullSentence": "그런 ‘다름’을 굳이 평가하지 않고, 하나의 풍경으로 받아들이는 태도 말입니다.",
+        "fullSentence": "그래서 자꾸 뒤로 밀린다.",
         "index": 8,
         "type": "text"
       },
       {
-        "fullSentence": "하지만 한국의 풍경 안에서는 그런 여유를 찾기 어렵습니다.",
+        "fullSentence": "그러는 사이 풍경은 금방 단순해진다.",
         "index": 9,
         "type": "text"
       },
       {
-        "fullSentence": "마치 모든 나무가 1등이 되기 위해 하늘로만 치솟아야 하는 경주에 내몰린 듯합니다.",
+        "fullSentence": "높은 나무는 좋은 나무가 되고, 곧은 나무는 바른 나무가 된다.",
         "index": 10,
         "type": "text"
       },
       {
-        "fullSentence": "줄기가 굵어도 높이가 낮으면 외면받고, 각도가 독특해도 곧지 않으면 교정의 대상이 됩니다.",
+        "fullSentence": "낮게 자란 나무, 옆으로 넓게 퍼진 나무, 조금 비스듬한 각도로 선 나무는 보기 전에 먼저 평가를 받는다.",
         "index": 11,
         "type": "text"
       },
       {
-        "fullSentence": "아름다움이 스펙트럼이 아니라 서열이 되어버린 사회에서, 나무들은 얼마나 숨이 가쁠까요.",
+        "fullSentence": "덜 자랐다.",
         "index": 12,
         "type": "text"
       },
       {
-        "fullSentence": "그럼에도 요즘 미디어를 통해 마주하는 10대들의 모습에서는 조심스러운 희망이 보입니다.",
+        "fullSentence": "애매하다.",
         "index": 13,
         "type": "text"
       },
       {
-        "fullSentence": "그들은 더 이상 어른들이 정해놓은 ‘높이’에만 매달리지 않습니다.",
+        "fullSentence": "고쳐야 한다.",
         "index": 14,
         "type": "text"
       },
       {
-        "fullSentence": "누구는 아주 낮은 자리에서 자신만의 색으로 꽃을 피우고, 누구는 남들이 가지 않는 비스듬한 방향으로 가지를 뻗으며 그것을 ‘나다운 멋’이라 말합니다.",
+        "fullSentence": "숲을 보러 왔는데, 어느새 선발전을 보고 있는 셈이다.",
         "index": 15,
         "type": "text"
       },
       {
-        "fullSentence": "줄 세우는 문화에 익숙한 세대에게는 낯선 풍경이지만, 그 아이들은 이미 알고 있는 듯합니다.",
+        "fullSentence": "이 버릇은 낯설지 않다.",
         "index": 16,
         "type": "text"
       },
       {
-        "fullSentence": "숲이 아름다운 이유는 모든 나무의 높이가 같아서가 아니라, 서로 다른 각도로 어우러져 있기 때문이라는 사실을요.",
+        "fullSentence": "우리는 너무 자주 높이를 가치로 착각한다.",
         "index": 17,
         "type": "text"
       },
       {
-        "fullSentence": "이제 우리도 나무를 향해 들고 있던 자를 내려놓아야 하지 않을까요.",
+        "fullSentence": "위로 가는 속도를 성장이라고 부르고, 반듯한 모양을 정답처럼 여긴다.",
         "index": 18,
         "type": "text"
       },
       {
-        "fullSentence": "높이를 재는 일보다 더 중요한 것은, 그 나무가 가진 고유한 결을 가만히 바라보는 일일지도 모릅니다.",
+        "fullSentence": "그러니 아름다움도 점점 가난해진다.",
         "index": 19,
         "type": "text"
       },
       {
-        "fullSentence": "“너는 이 각도로 휘어서 참 근사하구나.”\n그런 말을 자연스럽게 건넬 수 있는 시선이, 우리 사회에도 조금 더 많아지기를 조용히 바라봅니다.",
+        "fullSentence": "다름의 문제가 아니라 서열의 문제가 되어버리니까.",
         "index": 20,
+        "type": "text"
+      },
+      {
+        "fullSentence": "하지만 숲은 원래 그렇게 생기지 않았다.",
+        "index": 21,
+        "type": "text"
+      },
+      {
+        "fullSentence": "숲은 맞춰진 곳이 아니라 섞인 곳이다.",
+        "index": 22,
+        "type": "text"
+      },
+      {
+        "fullSentence": "낮지만 단단한 나무가 있고, 늦지만 깊게 퍼지는 가지가 있고, 곧지 않아 더 오래 보게 되는 모양이 있다.",
+        "index": 23,
+        "type": "text"
+      },
+      {
+        "fullSentence": "아름다움은 원래 거기서 나온다.",
+        "index": 24,
+        "type": "text"
+      },
+      {
+        "fullSentence": "같음이 아니라 차이에서.",
+        "index": 25,
+        "type": "text"
+      },
+      {
+        "fullSentence": "요즘 어린 세대를 보고 있으면 그 사실을 먼저 알아챈 쪽은 어쩌면 그들일지도 모른다는 생각이 든다.",
+        "index": 26,
+        "type": "text"
+      },
+      {
+        "fullSentence": "그들은 꼭 위로만 자라려 하지 않는다.",
+        "index": 27,
+        "type": "text"
+      },
+      {
+        "fullSentence": "조금 낮아도 자기 색이 분명하면 그걸 멋이라고 말하고,\n비스듬히 뻗은 방향도 굳이 펴지 않는다.",
+        "index": 28,
+        "type": "text"
+      },
+      {
+        "fullSentence": "예전 같으면 부족함으로 불렸을 것들이, 이제는 개성으로 남는다.",
+        "index": 29,
+        "type": "text"
+      },
+      {
+        "fullSentence": "그 변화가 반갑다.",
+        "index": 30,
+        "type": "text"
+      },
+      {
+        "fullSentence": "드디어 누군가가 높이 말고 모양을 보기 시작한 것 같아서.",
+        "index": 31,
+        "type": "text"
+      },
+      {
+        "fullSentence": "자를 들이대는 대신, 결을 보는 법을 조금씩 배우는 것 같아서.",
+        "index": 32,
+        "type": "text"
+      },
+      {
+        "fullSentence": "어쩌면 우리에게 필요한 것도 거창한 일은 아닐지 모른다.",
+        "index": 33,
+        "type": "text"
+      },
+      {
+        "fullSentence": "더 정확한 자를 만드는 일이 아니라, 자를 잠깐 내려놓는 일.",
+        "index": 34,
+        "type": "text"
+      },
+      {
+        "fullSentence": "높이를 묻기 전에 어떤 방식으로 자라고 있는지를 보는 일.",
+        "index": 35,
+        "type": "text"
+      },
+      {
+        "fullSentence": "곧은지보다 어떤 그늘을 만드는지를 보는 일.",
+        "index": 36,
+        "type": "text"
+      },
+      {
+        "fullSentence": "나무는 원래 순위를 위해 자라지 않는다.",
+        "index": 37,
+        "type": "text"
+      },
+      {
+        "fullSentence": "그런데 사람만 자꾸 거기서 순서를 읽어낸다.",
+        "index": 38,
+        "type": "text"
+      },
+      {
+        "fullSentence": "숲이 아름다운 이유는 가장 높은 나무 때문이 아니다.",
+        "index": 39,
+        "type": "text"
+      },
+      {
+        "fullSentence": "서로 다른 높이, 서로 다른 결, 서로 다른 각도가 한 장면 안에 함께 있기 때문이다.",
+        "index": 40,
+        "type": "text"
+      },
+      {
+        "fullSentence": "그걸 다시 볼 수 있게 되는 순간, 풍경은 평가에서 벗어나고,\n비로소 숲은 숲으로 돌아온다.",
+        "index": 41,
         "type": "text"
       }
     ]
   },
-  "14": {
+  "16": {
     "title": "\"키 큰 남자가 좋아요\"에 대해서",
     "link": "https://velog.io/@uiwwsw/키큰남자가좋아요",
     "sentences": [
       {
-        "fullSentence": "오후의 볕이 잘 드는 카페에 앉아 있으면, 계절보다 먼저 바뀌는 ‘이상형’의 담론을 종종 마주하게 됩니다.",
+        "fullSentence": "키 큰 남자를 좋아한다는 말은 요즘 거의 인테리어 취향처럼 말해진다.",
         "index": 0,
         "type": "text"
       },
       {
-        "fullSentence": "곁을 스쳐 지나가는 사람들의 대화 속에서, 특히 여성들이 조용히 나누는 “저는 키 큰 남자가 좋아요”라는 말은 그 이유가 참으로 다채로워 듣는 재미가 있습니다.",
+        "fullSentence": "조명은 너무 밝지 않은 게 좋고, 컵은 얇은 유리가 좋고, 남자는 키가 큰 쪽이 좋다는 식이다.",
         "index": 1,
         "type": "text"
       },
       {
-        "fullSentence": "“나란히 걸을 때 보폭이 자연스럽게 맞는 게 중요하거든요.”\n“코트를 입었을 때 실루엣이 참 예쁘잖아요.”\n“품에 안겼을 때, 아, 남자구나 하고 느껴지는 그 묵직함이 좋아요.”\n\n이 말들을 가만히 듣고 있으면, 그 이유 하나하나가 섬세하고 아름답다는 생각이 듭니다.",
+        "fullSentence": "문장은 매끈하고, 표정은 세련되어 있다.",
         "index": 2,
         "type": "text"
       },
       {
-        "fullSentence": "옷태와 보폭, 그리고 품 안의 온기.",
+        "fullSentence": "대개는 본인도 그렇게 믿는다.",
         "index": 3,
         "type": "text"
       },
       {
-        "fullSentence": "그녀들이 내놓는 설명은 결코 가볍지 않습니다.",
+        "fullSentence": "이건 감각의 문제라고.",
         "index": 4,
         "type": "text"
       },
       {
-        "fullSentence": "다만 나는 그 정성스러운 말들 뒤편에 조용히 숨겨진, 조금 더 오래되고 수줍은 진실을 떠올리게 됩니다.",
+        "fullSentence": "미감의 문제라고.",
         "index": 5,
         "type": "text"
       },
       {
-        "fullSentence": "어쩌면 그들이 말하는 ‘스타일’과 ‘어울림’이란, 우리 몸 깊숙이 새겨진 오래된 일기장을 현대의 언어로 곱게 옮겨 적은 것일지도 모릅니다.",
+        "fullSentence": "나는 그런 대목에서 늘 조금 웃음이 난다.",
         "index": 6,
         "type": "text"
       },
       {
-        "fullSentence": "나란히 걸을 때의 조화를 바라는 마음은, 나를 지켜줄 더 큰 존재를 향한 태고의 안도감일 것이고, 옷태가 살아나는 실루엣에 끌리는 감정은 건강한 골격이 뿜어내는 생명력에 대한 본능적인 반응일 테지요.",
+        "fullSentence": "사람은 가장 오래된 욕망을 말할 때, 이상하게도 가장 최신의 단어를 갖다 붙이기 때문이다.",
         "index": 7,
         "type": "text"
       },
       {
-        "fullSentence": "품에 안겼을 때 느껴지는 ‘남자의 느낌’ 역시, 나에게 없는 강인함을 확인하고 싶어 하는 생물학적 이끌림의 또 다른 얼굴일 뿐입니다.",
+        "fullSentence": "보폭이 맞아서 좋다.",
         "index": 8,
         "type": "text"
       },
       {
-        "fullSentence": "우리 사회는 종종 남성이 여성의 곡선에 시선을 두는 일을 다소 노골적인 것으로 취급합니다.",
+        "fullSentence": "옷태가 살아서 좋다.",
         "index": 9,
         "type": "text"
       },
       {
-        "fullSentence": "하지만 여성이 남성의 큰 키에 마음을 빼앗기는 일과, 그 본질이 과연 얼마나 다를까요.",
+        "fullSentence": "같이 서 있으면 그림이 예쁘다.",
         "index": 10,
         "type": "text"
       },
       {
-        "fullSentence": "둘 다 누군가를 대상화하려는 천박함이 아니라, 자신에게 없는 반대편의 성징에 자연스럽게 반응하는 생명체의 순리에 가깝습니다.",
+        "fullSentence": "말은 전부 맞다.",
         "index": 11,
         "type": "text"
       },
       {
-        "fullSentence": "자신의 선호가 본능에서 비롯되었음을 미처 의식하지 못한 채 ‘취향’이라는 말로 포장하는 모습은, 어쩌면 참으로 인간다운 귀여움일지도 모릅니다.",
+        "fullSentence": "틀린 말은 아니다.",
         "index": 12,
         "type": "text"
       },
       {
-        "fullSentence": "다만 그 설렘이 수만 년을 이어온 생존과 번식의 정직한 신호라는 사실을 어렴풋이라도 알아차린다면, 우리의 대화는 조금 달라질 수 있지 않을까요.",
+        "fullSentence": "다만 너무 맞아서 오히려 수상하다.",
         "index": 13,
         "type": "text"
       },
       {
-        "fullSentence": "굴곡진 몸에 마음이 끌리는 감정과, 압도적인 골격에 기대고 싶어지는 마음.",
+        "fullSentence": "설명이 정교해질수록, 그 밑에 깔린 단순한 것이 더 또렷해진다.",
         "index": 14,
         "type": "text"
       },
       {
-        "fullSentence": "이 두 감정은 사실 하나의 뿌리에서 피어난, 다른 색의 꽃일 뿐입니다.",
+        "fullSentence": "본능은 원래 촌스럽다.",
         "index": 15,
         "type": "text"
       },
       {
-        "fullSentence": "그 뿌리를 ‘본능’이라 정직하게 불러줄 때, 우리는 서로를 조금 더 투명하고 따뜻하게 이해할 수 있을 것입니다.",
+        "fullSentence": "크고, 단단하고, 나보다 위에 있는 것에 끌리는 일.",
         "index": 16,
+        "type": "text"
+      },
+      {
+        "fullSentence": "설명보다 먼저 몸이 아는 일.",
+        "index": 17,
+        "type": "text"
+      },
+      {
+        "fullSentence": "그런데 사람은 자기 안의 촌스러움을 잘 견디지 못한다.",
+        "index": 18,
+        "type": "text"
+      },
+      {
+        "fullSentence": "그래서 그것을 취향으로 번역한다.",
+        "index": 19,
+        "type": "text"
+      },
+      {
+        "fullSentence": "안정감이라고 부르고, 비율이라고 부르고, 분위기라고 부른다.",
+        "index": 20,
+        "type": "text"
+      },
+      {
+        "fullSentence": "짐승 같은 감각에 얇은 포장지를 한 겹 씌워놓고는, 그걸 미감이라고 믿는다.",
+        "index": 21,
+        "type": "text"
+      },
+      {
+        "fullSentence": "재미있는 건 바로 거기다.",
+        "index": 22,
+        "type": "text"
+      },
+      {
+        "fullSentence": "대부분의 여자들은 키 큰 남자를 좋아하는 자기 마음을 꽤 고상하게 이해하고 싶어 한다.",
+        "index": 23,
+        "type": "text"
+      },
+      {
+        "fullSentence": "내 취향은 수준이 있고, 나는 단지 멋을 볼 줄 아는 사람이라고.",
+        "index": 24,
+        "type": "text"
+      },
+      {
+        "fullSentence": "하지만 몸이 먼저 알아본 위계를, 마음이 뒤늦게 미적 판단으로 정리하는 장면은 생각보다 우아하지 않다.",
+        "index": 25,
+        "type": "text"
+      },
+      {
+        "fullSentence": "오히려 조금 우습다.",
+        "index": 26,
+        "type": "text"
+      },
+      {
+        "fullSentence": "본능이 먼저 문을 열었는데, 이성이 뒤에서 허둥지둥 명함을 만드는 꼴이니까.",
+        "index": 27,
+        "type": "text"
+      },
+      {
+        "fullSentence": "남자의 욕망은 대개 너무 노골적이라 쉽게 욕망으로 불린다.",
+        "index": 28,
+        "type": "text"
+      },
+      {
+        "fullSentence": "반대로 여자의 욕망은 설명이 길고 어휘가 부드럽다는 이유로 취향이 된다.",
+        "index": 29,
+        "type": "text"
+      },
+      {
+        "fullSentence": "이상한 일이다.",
+        "index": 30,
+        "type": "text"
+      },
+      {
+        "fullSentence": "문장이 점잖다고 해서 내용까지 점잖아지는 것은 아닌데.",
+        "index": 31,
+        "type": "text"
+      },
+      {
+        "fullSentence": "프레젠테이션이 좋아졌다고 본질이 바뀌는 것도 아닌데.",
+        "index": 32,
+        "type": "text"
+      },
+      {
+        "fullSentence": "키 큰 남자를 좋아하는 건 나쁜 일이 아니다.",
+        "index": 33,
+        "type": "text"
+      },
+      {
+        "fullSentence": "오히려 아주 솔직한 쪽에 가깝다.",
+        "index": 34,
+        "type": "text"
+      },
+      {
+        "fullSentence": "문제는 그 다음이다.",
+        "index": 35,
+        "type": "text"
+      },
+      {
+        "fullSentence": "그 솔직함을 끝내 인정하지 못하고, 끝까지 실루엣이니 케미니 하는 말로 닦아내는 버릇.",
+        "index": 36,
+        "type": "text"
+      },
+      {
+        "fullSentence": "마치 욕망은 저속한 사람들의 것이고, 나는 그보다 조금 더 세련된 방식으로 끌릴 뿐이라고 믿고 싶어 하는 버릇.",
+        "index": 37,
+        "type": "text"
+      },
+      {
+        "fullSentence": "하지만 대개 그런 세련됨은 내용이 아니라 포장에만 있다.",
+        "index": 38,
+        "type": "text"
+      },
+      {
+        "fullSentence": "본능은 사라지지 않는다.",
+        "index": 39,
+        "type": "text"
+      },
+      {
+        "fullSentence": "그저 말투만 배운다.",
+        "index": 40,
+        "type": "text"
+      },
+      {
+        "fullSentence": "그래서 나는 “키 큰 남자가 좋아요”라는 말을 들으면 취향 고백으로 잘 안 들린다.",
+        "index": 41,
+        "type": "text"
+      },
+      {
+        "fullSentence": "그보다는 본능이 겨우 교양 수업 하나 듣고 돌아와 말하는 것처럼 들린다.",
+        "index": 42,
+        "type": "text"
+      },
+      {
+        "fullSentence": "조금 점잖아졌을 뿐, 결국 같은 이야기다.",
+        "index": 43,
+        "type": "text"
+      },
+      {
+        "fullSentence": "취향이라는 말은 참 편리하다.",
+        "index": 44,
+        "type": "text"
+      },
+      {
+        "fullSentence": "사람을 무해해 보이게 만들고, 욕망을 깨끗해 보이게 만든다.",
+        "index": 45,
+        "type": "text"
+      },
+      {
+        "fullSentence": "하지만 어떤 취향은 취향이 아니다.",
+        "index": 46,
+        "type": "text"
+      },
+      {
+        "fullSentence": "그건 그냥, 잘 차려입은 본능이다.",
+        "index": 47,
         "type": "text"
       }
     ]
   },
-  "15": {
+  "17": {
     "title": "어른이",
     "link": "https://velog.io/@uiwwsw/어른이",
     "sentences": [
@@ -2196,7 +3098,7 @@
       }
     ]
   },
-  "16": {
+  "18": {
     "title": "소개팅",
     "link": "https://velog.io/@uiwwsw/소개팅",
     "sentences": [
@@ -2232,7 +3134,7 @@
       }
     ]
   },
-  "17": {
+  "19": {
     "title": "관계의 증명",
     "link": "https://velog.io/@uiwwsw/관계의-증명",
     "sentences": [
@@ -2248,7 +3150,7 @@
       }
     ]
   },
-  "18": {
+  "20": {
     "title": "열 수 있는 자물쇠",
     "link": "https://velog.io/@uiwwsw/이유",
     "sentences": [
@@ -2264,7 +3166,7 @@
       }
     ]
   },
-  "19": {
+  "21": {
     "title": "기울어가는 것",
     "link": "https://velog.io/@uiwwsw/기울어가는-것",
     "sentences": [
@@ -2330,7 +3232,7 @@
       }
     ]
   },
-  "20": {
+  "22": {
     "title": "사랑의 끝은 썩 아름답지 못하다.",
     "link": "https://velog.io/@uiwwsw/사랑의-끝은-썩-아름답지-못하다",
     "sentences": [
@@ -2371,7 +3273,7 @@
       }
     ]
   },
-  "21": {
+  "23": {
     "title": "다중 장소 검색 서비스 머랭트립 개발기",
     "link": "https://velog.io/@uiwwsw/지도-앱-켰다가-뇌-터질-뻔해서-직접-만들었습니다-feat.-UI만-5번-엎은-썰",
     "sentences": [
@@ -2627,7 +3529,7 @@
       }
     ]
   },
-  "22": {
+  "24": {
     "title": "익선동의 경계, 종로3가역",
     "link": "https://velog.io/@uiwwsw/익선동의-경계-종로3가역",
     "sentences": [
@@ -2683,7 +3585,7 @@
       }
     ]
   },
-  "23": {
+  "25": {
     "title": "보이지 않는 선",
     "link": "https://velog.io/@uiwwsw/보이지-않는-선",
     "sentences": [
@@ -2879,7 +3781,7 @@
       }
     ]
   },
-  "24": {
+  "26": {
     "title": "봉사 토끼",
     "link": "https://velog.io/@uiwwsw/봉사-토끼",
     "sentences": [
@@ -3160,7 +4062,7 @@
       }
     ]
   },
-  "25": {
+  "27": {
     "title": "0.0001도의 차이, 그 고독한 궤적에 대하여",
     "link": "https://velog.io/@uiwwsw/형질의-구",
     "sentences": [
@@ -3291,7 +4193,7 @@
       }
     ]
   },
-  "26": {
+  "28": {
     "title": "🚀 스토리북에 버전별 컴포넌트 모으기 — 한 곳에서 깔끔하게 비교하는 법",
     "link": "https://velog.io/@uiwwsw/스토리북에-버전별-컴포넌트-보여주기-낭비-없이-한-곳에-모으는-법",
     "sentences": [
@@ -3585,7 +4487,7 @@
       }
     ]
   },
-  "27": {
+  "29": {
     "title": "링크드인",
     "link": "https://velog.io/@uiwwsw/링크드인",
     "sentences": [
@@ -3621,7 +4523,7 @@
       }
     ]
   },
-  "29": {
+  "31": {
     "title": "양치기소년",
     "link": "https://velog.io/@uiwwsw/양치기소년",
     "sentences": [
@@ -3697,7 +4599,7 @@
       }
     ]
   },
-  "30": {
+  "32": {
     "title": "🔐 재미와 보안, 두 마리 토끼를 잡는 이스터에그 구현법",
     "link": "https://velog.io/@uiwwsw/재미와-보안-두-마리-토끼를-잡는-이스터에그-구현법",
     "sentences": [
@@ -3735,7 +4637,7 @@
       }
     ]
   },
-  "31": {
+  "33": {
     "title": "늦게 당도한 파도가 가장 깊은 곳을 적신다",
     "link": "https://velog.io/@uiwwsw/늦게-당도한-파도가-가장-깊은-곳을-적신다",
     "sentences": [
@@ -3871,7 +4773,7 @@
       }
     ]
   },
-  "32": {
+  "34": {
     "title": "💳 선불권을 디지털로 – 프리페이 실험기",
     "link": "https://velog.io/@uiwwsw/선불권을-디지털로-프리페이-실험기",
     "sentences": [
@@ -3987,7 +4889,7 @@
       }
     ]
   },
-  "33": {
+  "35": {
     "title": "🧪 커스텀 인풋과 키보드, 프로토타입에서 진짜 설계로 (2부)",
     "link": "https://velog.io/@uiwwsw/커스텀-인풋과-키보드-프로토타입에서-진짜-설계로-2부",
     "sentences": [
@@ -4102,7 +5004,7 @@
       }
     ]
   },
-  "34": {
+  "36": {
     "title": "🧠 한글 입력의 미스터리: 컴포지션 이슈의 정체 (1부)",
     "link": "https://velog.io/@uiwwsw/한글-입력의-미스터리-컴포지션-이슈의-정체-1부",
     "sentences": [
@@ -4213,7 +5115,7 @@
       }
     ]
   },
-  "35": {
+  "37": {
     "title": "리엑트쿼리 자동화 스크립트",
     "link": "https://velog.io/@uiwwsw/리엑트쿼리-자동화-스크립트",
     "sentences": [
@@ -4317,7 +5219,7 @@
       }
     ]
   },
-  "36": {
+  "38": {
     "title": "\"AI는 왜 항상 페더레이션을 추천할까?\" — 현실적인 시선으로 바라본 MFE 선택기준",
     "link": "https://velog.io/@uiwwsw/페더레이션-vs-아이프레임",
     "sentences": [
@@ -4468,7 +5370,7 @@
       }
     ]
   },
-  "38": {
+  "40": {
     "title": "Object.entries의 얕은 추론 한계를 해결하는 단 하나의 방법",
     "link": "https://velog.io/@uiwwsw/Object.entries의-얕은-추론-한계를-해결하는-단-하나의-방법",
     "sentences": [
@@ -4619,7 +5521,7 @@
       }
     ]
   },
-  "39": {
+  "41": {
     "title": "😱 왜 빈 팝업이 뜰까? `onLoadCapture`로 해결하는 깔끔한 팝업 UX",
     "link": "https://velog.io/@uiwwsw/왜-빈-팝업이-뜰까-onLoadCapture로-해결하는-깔끔한-팝업-UX",
     "sentences": [
@@ -4713,7 +5615,7 @@
       }
     ]
   },
-  "40": {
+  "42": {
     "title": "💡 하나의 UI, 다양한 상황에 맞게 쪼개 쓰기 — Step 컴포넌트 만들기",
     "link": "https://velog.io/@uiwwsw/하나의-UI-다양한-상황에-맞게-쪼개-쓰기-Step-컴포넌트-만들기",
     "sentences": [
@@ -4854,7 +5756,7 @@
       }
     ]
   },
-  "41": {
+  "43": {
     "title": "🎨 팀으로서 일을 한다는 것",
     "link": "https://velog.io/@uiwwsw/팀으로서-일을-한다는-것",
     "sentences": [
@@ -4906,7 +5808,7 @@
       }
     ]
   },
-  "42": {
+  "44": {
     "title": "🎯 React에서 더 유연하게 Slot 컴포넌트 만들기 — JSX를 직접 다루는 패턴",
     "link": "https://velog.io/@uiwwsw/리액트에서-asChild로-Slot-패턴-구현하기",
     "sentences": [
@@ -5031,7 +5933,7 @@
       }
     ]
   },
-  "43": {
+  "45": {
     "title": "🧠 useStorage — localStorage 동기화 유틸 훅 만들기 (React Custom Hook)",
     "link": "https://velog.io/@uiwwsw/useStorage-localStorage-동기화-유틸-훅-만들기-React-Custom-Hook",
     "sentences": [
@@ -5059,7 +5961,7 @@
       }
     ]
   },
-  "44": {
+  "46": {
     "title": "왜 또 “컨펌 모달”인가?",
     "link": "https://velog.io/@uiwwsw/confirm",
     "sentences": [
@@ -5175,7 +6077,7 @@
       }
     ]
   },
-  "45": {
+  "47": {
     "title": "🧠 onDoublePointerDown — 더블 클릭보다 더 유연한 더블 포인터 이벤트\n",
     "link": "https://velog.io/@uiwwsw/withDoublePointerDown",
     "sentences": [
@@ -5249,7 +6151,7 @@
       }
     ]
   },
-  "46": {
+  "48": {
     "title": "테이블 UI에서 \"자세히 보기\"를 구현하는 컴포넌트",
     "link": "https://velog.io/@uiwwsw/확대-ui-컴포넌트",
     "sentences": [

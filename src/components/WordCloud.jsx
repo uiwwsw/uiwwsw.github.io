@@ -52,6 +52,7 @@ function sampleTunnelCrossSection(articleId, wrapIndex) {
 function findFocusArticle(camera, clusterMap) {
   const cameraForward = new THREE.Vector3(0, 0, -1).applyQuaternion(camera.quaternion).normalize();
   const worldPosition = new THREE.Vector3();
+  const projectedPosition = new THREE.Vector3();
   let bestArticle = null;
   let bestScore = Number.POSITIVE_INFINITY;
 
@@ -68,6 +69,19 @@ function findFocusArticle(camera, clusterMap) {
     const forwardness = direction.normalize().dot(cameraForward);
 
     if (forwardness < -0.1) return;
+
+    projectedPosition.copy(worldPosition).project(camera);
+
+    if (
+      projectedPosition.z < -1
+      || projectedPosition.z > 1
+      || projectedPosition.x < -1
+      || projectedPosition.x > 1
+      || projectedPosition.y < -1
+      || projectedPosition.y > 1
+    ) {
+      return;
+    }
 
     const score = distance - forwardness * 200;
 
@@ -526,6 +540,12 @@ export default function WordCloud({
     camera.lookAt(0, 0, 0);
     targetQuaternionRef.current.copy(camera.quaternion).normalize();
   }, [camera]);
+
+  useEffect(() => {
+    if (selectedSentence) return;
+
+    setFocusedArticleId(null);
+  }, [selectedSentence]);
 
   useEffect(() => {
     if (!selectedSentence) return;
