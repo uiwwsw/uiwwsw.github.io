@@ -307,6 +307,12 @@ body::before {
   transition: transform 0.22s ease, border-color 0.22s ease, background 0.22s ease, box-shadow 0.22s ease;
 }
 
+.focus-panel.is-empty {
+  min-height: clamp(190px, 26vmin, 280px);
+  visibility: hidden;
+  pointer-events: none !important;
+}
+
 .focus-panel.is-interactive:hover {
   transform: translateY(-2px);
   border-color: color-mix(in srgb, var(--focus-color) 40%, rgba(255, 255, 255, 0.08));
