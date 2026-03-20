@@ -1,4 +1,4 @@
-const CACHE_NAME = 'uiwwsw-20260317-1773738598203';
+const CACHE_NAME = 'uiwwsw-__CACHE_VERSION__';
 // Use relative paths for GitHub Pages compatibility
 const urlsToCache = [
   '/',
@@ -9,6 +9,25 @@ const urlsToCache = [
   '/fonts/SUITE-Variable.ttf',
   '/fonts/SUITE-Variable.woff2'
 ];
+const CACHEABLE_DESTINATIONS = new Set(['document', 'script', 'style', 'image', 'font']);
+
+function shouldCacheRequest(request) {
+  if (request.method !== 'GET') {
+    return false;
+  }
+
+  const url = new URL(request.url);
+
+  if (url.origin !== self.location.origin) {
+    return false;
+  }
+
+  if (url.pathname.startsWith('/data/')) {
+    return false;
+  }
+
+  return CACHEABLE_DESTINATIONS.has(request.destination);
+}
 
 // Install event - cache resources
 self.addEventListener('install', (event) => {
@@ -57,13 +76,7 @@ self.addEventListener('fetch', (event) => {
 
             caches.open(CACHE_NAME)
               .then((cache) => {
-                // Don't cache API calls or dynamic data
-                if (!event.request.url.includes('/data/') &&
-                  !event.request.url.includes('api.') &&
-                  event.request.destination === 'document' ||
-                  event.request.destination === 'script' ||
-                  event.request.destination === 'style' ||
-                  event.request.destination === 'image') {
+                if (shouldCacheRequest(event.request)) {
                   cache.put(event.request, responseToCache);
                 }
               });

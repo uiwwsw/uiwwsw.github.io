@@ -27,21 +27,18 @@ jobs:
         run: npm ci
 
       - name: Run Scraper
-        run: node scripts/fetch-velog.js
+        run: npm run refresh-content
 
       - name: Commit and Push Changes
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          
-          # Check if there are changes
-          if [[ -n $(git status -s src/data/velog-words.json) ]]; then
-            git add src/data/velog-words.json
-            git commit -m "🛠 This README is automatically updated."
-            # We do NOT use [skip ci] if we want the deploy workflow to run. 
-            # Removing [skip ci] so deploy parses this push.
-            git commit --amend -m "🛠 This README is automatically updated."
-            git push
-          else
+
+          git add src/data/velog-words.json src/data/velog-context.json
+
+          if git diff --cached --quiet; then
             echo "No changes to commit"
+          else
+            git commit -m "chore: refresh Velog archive data"
+            git push
           fi

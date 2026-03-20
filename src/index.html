@@ -58,10 +58,12 @@
   <script type="module" src="./main.jsx"></script>
   
   <!-- Service Worker Registration -->
-  <script>
-    if ('serviceWorker' in navigator) {
+  <script type="module">
+    if (import.meta.env.PROD && 'serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/sw.js?v=uiwwsw-20260317-1773738598203', { updateViaCache: 'none' })
+        const swUrl = `${import.meta.env.BASE_URL}sw.js?v=__SW_VERSION__`;
+
+        navigator.serviceWorker.register(swUrl, { updateViaCache: 'none' })
           .then((registration) => {
             registration.update();
             console.log('SW registered: ', registration);

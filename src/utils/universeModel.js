@@ -217,9 +217,15 @@ export function buildUniverseModel(contextData, universeSeed = 0) {
       const codeCount = article.sentences.filter(sentence => sentence.type === 'code').length;
 
       articles.push({
+        id: article.slug || String(article.articleId),
         articleId: article.articleId,
         title: article.title,
         link: article.link,
+        slug: article.slug || null,
+        publishedAt: article.publishedAt || null,
+        tags: Array.isArray(article.tags) ? article.tags : [],
+        summary: article.summary || '',
+        readingTime: article.readingTime || null,
         topic,
         topicLabel: topicConfig.label,
         topicShortLabel: topicConfig.shortLabel,
@@ -227,7 +233,7 @@ export function buildUniverseModel(contextData, universeSeed = 0) {
         glow: topicConfig.glow,
         sentenceCount,
         codeCount,
-        excerpt: getExcerpt(article.sentences),
+        excerpt: article.summary || getExcerpt(article.sentences),
         center: [x, y, z],
         clusterSize: clamp(34 + sentenceCount * 1.2, 46, 102),
         constellationName: getConstellationName(article.title, topicConfig.shortLabel),

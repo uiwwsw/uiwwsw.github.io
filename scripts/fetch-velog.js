@@ -136,8 +136,52 @@ function extractSentencesFromText(text) {
     return sentences;
 }
 
-// Helper: Fetch Post Body using Markdown Scraping (from Apollo State)
-async function fetchMarkdown(url) {
+function buildSummary(sentences, fallbackSummary = '') {
+    const fallback = cleanMarkdown(fallbackSummary || '').replace(/\s+/g, ' ').trim();
+    const textSummary = sentences
+        .filter(sentence => sentence.type === 'text')
+        .map(sentence => sentence.fullSentence.trim())
+        .filter(Boolean)
+        .slice(0, 2)
+        .join(' ');
+
+    const summary = (fallback || textSummary).replace(/\s+/g, ' ').trim();
+
+    if (!summary) {
+        return '';
+    }
+
+    return summary.length > 180
+        ? `${summary.slice(0, 177).trim()}...`
+        : summary;
+}
+
+function estimateReadingTime(markdown = '') {
+    const withoutCodeBlocks = markdown.replace(/```[\s\S]*?```/g, ' ');
+    const normalized = cleanMarkdown(withoutCodeBlocks).replace(/\s+/g, ' ').trim();
+    const wordCount = normalized ? normalized.split(' ').length : 0;
+
+    return Math.max(1, Math.ceil(wordCount / 220));
+}
+
+function normalizeTags(rawTags) {
+    if (Array.isArray(rawTags)) {
+        return rawTags
+            .map(tag => typeof tag === 'string' ? tag : tag?.name)
+            .filter(Boolean);
+    }
+
+    if (rawTags && typeof rawTags === 'object' && Array.isArray(rawTags.json)) {
+        return rawTags.json
+            .map(tag => typeof tag === 'string' ? tag : tag?.name)
+            .filter(Boolean);
+    }
+
+    return [];
+}
+
+// Helper: Fetch post content and metadata using the page Apollo state
+async function fetchPostData(url) {
     try {
         const res = await fetch(url, {
             headers: {
@@ -148,7 +192,12 @@ async function fetchMarkdown(url) {
         const html = await res.text();
         const $ = cheerio.load(html);
 
-        let body = null;
+        const postData = {
+            body: null,
+            releasedAt: null,
+            tags: [],
+            summary: ''
+        };
 
         $('script').each((i, el) => {
             const content = $(el).html();
@@ -161,15 +210,24 @@ async function fetchMarkdown(url) {
 
                     const postKey = Object.keys(json).find(k => k.startsWith('Post:') && json[k].body);
                     if (postKey) {
-                        body = json[postKey].body;
+                        const post = json[postKey];
+                        postData.body = post.body || null;
+                        postData.releasedAt = post.released_at || post.releasedAt || null;
+                        postData.tags = normalizeTags(post.tags);
+                        postData.summary = post.short_description || post.shortDescription || '';
                     }
                 } catch (e) { }
             }
         });
-        return body;
+        return postData;
     } catch (error) {
-        console.error(`Error fetching markdown for ${url}:`, error.message);
-        return null;
+        console.error(`Error fetching post data for ${url}:`, error.message);
+        return {
+            body: null,
+            releasedAt: null,
+            tags: [],
+            summary: ''
+        };
     }
 }
 
@@ -207,8 +265,7 @@ async function fetchAllPosts(username) {
             const json = await res.json();
 
             if (json.errors) {
-                console.error("GraphQL Errors:", json.errors);
-                break;
+                throw new Error(`GraphQL Errors: ${JSON.stringify(json.errors)}`);
             }
 
             const posts = json.data.posts;
@@ -227,8 +284,7 @@ async function fetchAllPosts(username) {
                 if (allPosts.length > 1000) hasNext = false;
             }
         } catch (e) {
-            console.error("Error fetching posts:", e);
-            break;
+            throw e;
         }
     }
 
@@ -241,15 +297,21 @@ async function fetchAndProcess() {
         const posts = await fetchAllPosts(USERNAME);
         console.log(`Found ${posts.length} items total.`);
 
+        if (posts.length === 0) {
+            throw new Error('No posts fetched from Velog. Aborting refresh to avoid overwriting existing archive data.');
+        }
+
         let allSentences = [];
         let articleId = 0;
 
         for (const item of posts) {
             console.log(`Processing [${articleId}]: ${item.title}`);
             const link = `https://velog.io/@${USERNAME}/${item.url_slug}`;
-            const markdown = await fetchMarkdown(link);
+            const postData = await fetchPostData(link);
+            const markdown = postData.body;
 
             let itemSentences = [];
+            const readingTime = estimateReadingTime(markdown || '');
 
             if (markdown) {
                 // Split by Code Blocks
@@ -287,9 +349,14 @@ async function fetchAndProcess() {
                     ...sentence,
                     link,
                     title: item.title,
+                    slug: item.url_slug,
                     articleId: articleId,
                     sentenceIndex: index,
-                    totalInArticle: itemSentences.length
+                    totalInArticle: itemSentences.length,
+                    publishedAt: postData.releasedAt,
+                    tags: postData.tags,
+                    summary: buildSummary(itemSentences, postData.summary),
+                    readingTime
                 });
             });
 
@@ -307,6 +374,11 @@ async function fetchAndProcess() {
                 byArticle[s.articleId] = {
                     title: s.title,
                     link: s.link,
+                    slug: s.slug,
+                    publishedAt: s.publishedAt,
+                    tags: s.tags,
+                    summary: s.summary,
+                    readingTime: s.readingTime,
                     sentences: []
                 };
             }
@@ -334,6 +406,7 @@ async function fetchAndProcess() {
 
     } catch (error) {
         console.error('Error in main process:', error);
+        process.exitCode = 1;
     }
 }
 

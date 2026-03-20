@@ -7,7 +7,6 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Generate timestamp-based cache version
 const generateCacheVersion = () => {
   const now = new Date();
   const timestamp = now.getTime();
@@ -15,32 +14,61 @@ const generateCacheVersion = () => {
   return `uiwwsw-${dateStr}-${timestamp}`;
 };
 
-// Update service worker cache version
-const updateServiceWorkerCache = (version) => {
-  const swPath = path.join(__dirname, '../public/sw.js');
-  const content = fs.readFileSync(swPath, 'utf8');
-  const updatedContent = content.replace(
-    /const CACHE_NAME = ['"][^'"]+['"];?/,
-    `const CACHE_NAME = '${version}';`
-  );
-  fs.writeFileSync(swPath, updatedContent);
-  console.log(`Updated SW cache version to: ${version}`);
-};
+function replaceBuildPlaceholder(filePath, placeholder, value) {
+  const content = fs.readFileSync(filePath, 'utf8');
 
-const updateIndexHtmlSwRegistration = (version) => {
-  const htmlPath = path.join(__dirname, '../src/index.html');
-  const content = fs.readFileSync(htmlPath, 'utf8');
+  if (!content.includes(placeholder)) {
+    return false;
+  }
 
-  const updatedContent = content.replace(
-    /navigator\.serviceWorker\.register\(\s*['"]\/sw\.js(?:\?v=[^'"]+)?['"]/,
-    `navigator.serviceWorker.register('/sw.js?v=${version}'`
-  );
+  fs.writeFileSync(filePath, content.replaceAll(placeholder, value));
+  return true;
+}
 
-  fs.writeFileSync(htmlPath, updatedContent);
-  console.log(`Updated SW registration version to: ${version}`);
-};
+function getAllFiles(dirPath) {
+  return fs.readdirSync(dirPath, { withFileTypes: true }).flatMap((entry) => {
+    const entryPath = path.join(dirPath, entry.name);
+    return entry.isDirectory() ? getAllFiles(entryPath) : entryPath;
+  });
+}
 
-// Main execution
+function replacePlaceholderInDist(distPath, placeholder, value) {
+  const files = getAllFiles(distPath);
+  let replacements = 0;
+
+  files.forEach((filePath) => {
+    if (replaceBuildPlaceholder(filePath, placeholder, value)) {
+      replacements += 1;
+    }
+  });
+
+  if (replacements === 0) {
+    throw new Error(`Placeholder ${placeholder} not found in ${distPath}`);
+  }
+
+  return replacements;
+}
+
 const newCacheVersion = generateCacheVersion();
-updateServiceWorkerCache(newCacheVersion);
-updateIndexHtmlSwRegistration(newCacheVersion);
+const distDir = path.join(__dirname, '../dist');
+
+if (!fs.existsSync(distDir)) {
+  throw new Error('Build output not found. Run `vite build` before versioning dist assets.');
+}
+
+const cacheVersionReplacements = replacePlaceholderInDist(
+  distDir,
+  '__CACHE_VERSION__',
+  newCacheVersion
+);
+const swVersionReplacements = replacePlaceholderInDist(
+  distDir,
+  '__SW_VERSION__',
+  newCacheVersion
+);
+
+console.log(
+  `Versioned dist assets with cache version: ${newCacheVersion} `
+  + `(${cacheVersionReplacements} cache placeholder files, `
+  + `${swVersionReplacements} service worker placeholder files)`
+);
