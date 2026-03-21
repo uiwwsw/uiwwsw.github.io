@@ -669,6 +669,7 @@ export default function App() {
               universe={universe}
               selectedSentence={selectedSentence}
               onSelectSentence={handleSelectSentence}
+              onSelectArticle={handleOpenArticle}
               onFocusArticleChange={setFocusedArticle}
               highlightedArticleIds={highlightedArticleIds}
               flightTargetArticleId={flightTargetArticleId}

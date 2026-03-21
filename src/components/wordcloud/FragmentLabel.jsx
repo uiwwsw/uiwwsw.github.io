@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useMemo, useRef } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
 import { Billboard, Text } from '@react-three/drei';
 import * as THREE from 'three';
@@ -10,7 +10,6 @@ export default function FragmentLabel({
   focusArticleId,
   searchActive = false,
   isSearchMatch = true,
-  onHoverArticle,
   onSelectSentence,
   onPointerGestureStart
 }) {
@@ -21,13 +20,14 @@ export default function FragmentLabel({
   const worldPositionRef = useRef(new THREE.Vector3());
   const interactiveRef = useRef(false);
   const baseLocalPosition = useMemo(() => new THREE.Vector3(...fragment.localPosition), [fragment.localPosition]);
-  const [hovered, setHovered] = useState(false);
 
   const isSelectedFragment = !!selectedSentence
     && selectedSentence.articleId === fragment.articleId
     && Number(selectedSentence.sentenceIndex) === fragment.sentenceIndex;
   const isSelectedArticle = !!selectedSentence && selectedSentence.articleId === fragment.articleId;
   const isSearchDimmed = searchActive && !isSearchMatch && !isSelectedArticle;
+  const hitWidth = Math.max(9.5, fragment.displayText.length * 1.28 + 3.8);
+  const hitHeight = fragment.type === 'code' ? 4.6 : 4.1;
 
   useFrame((state, delta) => {
     if (!labelRef.current || !textRef.current) return;
@@ -58,7 +58,6 @@ export default function FragmentLabel({
     }
 
     if (focused) targetOpacity += focusLocked ? 0.24 : 0.16;
-    if (hovered) targetOpacity = 1;
 
     if (selectedSentence) {
       targetOpacity = isSelectedFragment ? 1 : isSelectedArticle ? 0.48 : 0.08;
@@ -66,7 +65,7 @@ export default function FragmentLabel({
       targetOpacity *= 0.18;
     }
 
-    interactiveRef.current = distance < 220 && (targetOpacity > 0.18 || (isSearchDimmed && distance < 150));
+    interactiveRef.current = distance < 340 && (targetOpacity > 0.06 || distance < 170 || isSelectedArticle || focused);
 
     labelRef.current.scale.setScalar(
       scale * (focused ? 1.08 : focusLocked ? 0.96 : isSearchDimmed ? 0.92 : 1)
@@ -76,7 +75,7 @@ export default function FragmentLabel({
       clamp(targetOpacity, 0, 1),
       delta * 6
     );
-    labelRef.current.visible = textRef.current.fillOpacity > 0.015 || hovered || isSelectedArticle || focused;
+    labelRef.current.visible = textRef.current.fillOpacity > 0.015 || isSelectedArticle || focused;
   });
 
   const handlePointerDown = (event) => {
@@ -106,51 +105,31 @@ export default function FragmentLabel({
     const dy = event.clientY - start.y;
     const duration = Date.now() - start.time;
 
-    if ((dx * dx) + (dy * dy) <= 36 && duration <= 320) {
+    if ((dx * dx) + (dy * dy) <= 144 && duration <= 420) {
       onSelectSentence(fragment);
     }
-  };
-
-  const handlePointerOver = (event) => {
-    if (!interactiveRef.current) return;
-
-    event.stopPropagation();
-    setHovered(true);
-    onHoverArticle(fragment.articleId);
-    document.body.style.cursor = 'pointer';
-  };
-
-  const handlePointerOut = (event) => {
-    event.stopPropagation();
-    setHovered(false);
-    onHoverArticle(null);
-    document.body.style.cursor = 'auto';
   };
 
   return (
     <Billboard ref={labelRef} position={fragment.localPosition} follow>
       <mesh
-        onPointerOver={handlePointerOver}
-        onPointerOut={handlePointerOut}
         onPointerDown={handlePointerDown}
         onPointerUp={handlePointerUp}
       >
-        <planeGeometry args={[Math.max(6.5, fragment.displayText.length * 1.05 + 1.6), 2.3]} />
+        <planeGeometry args={[hitWidth, hitHeight]} />
         <meshBasicMaterial transparent opacity={0} depthWrite={false} depthTest={false} />
       </mesh>
       <Text
         ref={textRef}
         font={fontUrl}
         fontSize={1.18}
-        color={hovered ? '#ffffff' : fragment.type === 'code' ? '#f6fbff' : fragment.color}
+        color={fragment.type === 'code' ? '#f6fbff' : fragment.color}
         fillOpacity={0}
         outlineWidth="6%"
         outlineColor="#02050c"
         anchorX="center"
         anchorY="middle"
         whiteSpace="nowrap"
-        onPointerOver={handlePointerOver}
-        onPointerOut={handlePointerOut}
         onPointerDown={handlePointerDown}
         onPointerUp={handlePointerUp}
       >
