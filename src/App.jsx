@@ -553,7 +553,7 @@ export default function App() {
     if (!selectedArticle || !selectedSentence) return [];
     return getJumpPoints(selectedArticle, selectedSentence.sentenceIndex);
   }, [selectedArticle, selectedSentence]);
-  const visibleArticleIds = useMemo(() => {
+  const highlightedArticleIds = useMemo(() => {
     if (!hasSearchFilters) {
       return null;
     }
@@ -586,7 +586,6 @@ export default function App() {
     : selectedTopic !== 'all'
       ? topicOptions.find(topic => topic.topic === selectedTopic)?.label || 'Filtered Orbit'
       : 'Free Flight';
-  const hudArticleTitle = activeArticle?.title || '자유 항해 중';
   const visibleArticleCount = hasSearchFilters ? filteredArticles.length : universe.stats.articleCount;
   const visibleFragmentCount = hasSearchFilters ? filteredFragmentCount : universe.stats.fragmentCount;
   const selectedArticlePublishedLabel = formatPublishedDate(selectedArticle?.publishedAt);
@@ -595,6 +594,7 @@ export default function App() {
     : `${universe.stats.articleCount}개 전체 별자리`;
   const isFlightActive = flightTargetArticleId != null;
   const canOpenActiveArticle = hasActiveArticle && !selectedSentence && !isFlightActive;
+  const statusModeLabel = isFlightActive ? 'approaching orbit' : hasSearchFilters ? 'filtered orbit' : 'full atlas';
 
   const handleToggleSearch = () => {
     handleDismissGuide();
@@ -670,7 +670,7 @@ export default function App() {
               selectedSentence={selectedSentence}
               onSelectSentence={handleSelectSentence}
               onFocusArticleChange={setFocusedArticle}
-              visibleArticleIds={visibleArticleIds}
+              highlightedArticleIds={highlightedArticleIds}
               flightTargetArticleId={flightTargetArticleId}
               onFlightComplete={handleFlightComplete}
             />
@@ -695,29 +695,20 @@ export default function App() {
           <div className="overlay-atmosphere overlay-atmosphere-a" />
           <div className="overlay-atmosphere overlay-atmosphere-b" />
 
-          <div className="atlas-hud atlas-hud-left" aria-hidden="true">
-            <span className="atlas-hud-label">Current Vector</span>
-            <strong>{truncateLabel(hudArticleTitle, 48)}</strong>
-            <p>{hudTopic}</p>
-          </div>
-
-          <div className="atlas-hud atlas-hud-right" aria-hidden="true">
-            <span>{visibleArticleCount} constellations</span>
-            <span>{visibleFragmentCount} fragments</span>
-            <span>{isFlightActive ? 'approaching orbit' : hasSearchFilters ? 'filtered orbit' : 'full atlas'}</span>
-          </div>
-
           <section className="hero-shell">
             <header className="header">
               <div className="brand-block">
                 <span className="brand-kicker">GitHub Pages Mental Universe</span>
                 <div className="logo">uiwwsw</div>
               </div>
-              <nav className="header-nav">
-                <a href="https://velog.io/@uiwwsw" target="_blank" rel="noreferrer">Velog</a>
-                <a href="https://github.com/uiwwsw" target="_blank" rel="noreferrer">GitHub</a>
-              </nav>
             </header>
+
+            <div className="atlas-statusbar" aria-hidden="true">
+              <span className="atlas-statuschip atlas-statuschip-mode">{statusModeLabel}</span>
+              <span className="atlas-statuschip">{hudTopic}</span>
+              <span className="atlas-statuschip">{visibleArticleCount} constellations</span>
+              <span className="atlas-statuschip">{visibleFragmentCount} fragments</span>
+            </div>
 
             <div className="hero">
               <p className="eyebrow">항해하는 생각의 우주</p>

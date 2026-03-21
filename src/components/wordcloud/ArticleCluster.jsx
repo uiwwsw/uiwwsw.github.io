@@ -1,21 +1,17 @@
-import React, { useEffect, useMemo, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { Billboard, Text } from '@react-three/drei';
 import * as THREE from 'three';
 import FragmentLabel from './FragmentLabel';
-import {
-  clamp,
-  fontUrl,
-  sampleTunnelCrossSection,
-  TUNNEL_LENGTH,
-  WRAP_HEIGHT,
-  WRAP_RADIUS
-} from './shared';
+import { clamp, fontUrl } from './shared';
 
 export default function ArticleCluster({
   article,
+  worldPosition,
   selectedSentence,
   focusedArticleId,
+  searchActive = false,
+  isSearchMatch = true,
   onHoverArticle,
   onSelectSentence,
   onPointerGestureStart,
@@ -23,10 +19,6 @@ export default function ArticleCluster({
   unregisterCluster
 }) {
   const clusterRef = useRef();
-  const baseCenter = useMemo(() => new THREE.Vector3(...article.center), [article.center]);
-  const relPosition = useRef(new THREE.Vector3());
-  const worldQuaternion = useRef(new THREE.Quaternion());
-  const wrapIndexRef = useRef(0);
   const beaconRef = useRef();
   const haloRef = useRef();
   const coronaRef = useRef();
@@ -40,7 +32,9 @@ export default function ArticleCluster({
   const wasFocusedRef = useRef(false);
   const isFocused = focusedArticleId === article.articleId;
   const isSelected = selectedSentence?.articleId === article.articleId;
-  const isDimmed = focusedArticleId != null && !isSelected && !isFocused && !selectedSentence;
+  const isFocusDimmed = focusedArticleId != null && !isSelected && !isFocused && !selectedSentence;
+  const isSearchDimmed = searchActive && !isSearchMatch && !isSelected && !isFocused;
+  const isDimmed = isFocusDimmed || isSearchDimmed;
   const labelVisible = isFocused || isSelected;
 
   useEffect(() => {
@@ -64,54 +58,6 @@ export default function ArticleCluster({
   useFrame((state, delta) => {
     if (!clusterRef.current) return;
 
-    if (clusterRef.current.position.lengthSq() === 0) {
-      clusterRef.current.position.copy(baseCenter);
-    }
-
-    if (!selectedSentence) {
-      relPosition.current.subVectors(clusterRef.current.position, state.camera.position);
-      worldQuaternion.current.copy(state.camera.quaternion).invert();
-      relPosition.current.applyQuaternion(worldQuaternion.current);
-
-      const halfLength = TUNNEL_LENGTH / 2;
-      let changed = false;
-
-      if (relPosition.current.z > halfLength) {
-        const respawn = sampleTunnelCrossSection(article.articleId, wrapIndexRef.current += 1);
-        relPosition.current.z -= TUNNEL_LENGTH;
-        relPosition.current.x = respawn.x;
-        relPosition.current.y = respawn.y;
-        changed = true;
-      } else if (relPosition.current.z < -halfLength) {
-        const respawn = sampleTunnelCrossSection(article.articleId, wrapIndexRef.current += 1);
-        relPosition.current.z += TUNNEL_LENGTH;
-        relPosition.current.x = respawn.x;
-        relPosition.current.y = respawn.y;
-        changed = true;
-      }
-
-      if (relPosition.current.x > WRAP_RADIUS) {
-        relPosition.current.x -= WRAP_RADIUS * 2;
-        changed = true;
-      } else if (relPosition.current.x < -WRAP_RADIUS) {
-        relPosition.current.x += WRAP_RADIUS * 2;
-        changed = true;
-      }
-
-      if (relPosition.current.y > WRAP_HEIGHT) {
-        relPosition.current.y -= WRAP_HEIGHT * 2;
-        changed = true;
-      } else if (relPosition.current.y < -WRAP_HEIGHT) {
-        relPosition.current.y += WRAP_HEIGHT * 2;
-        changed = true;
-      }
-
-      if (changed) {
-        relPosition.current.applyQuaternion(state.camera.quaternion);
-        clusterRef.current.position.copy(state.camera.position).add(relPosition.current);
-      }
-    }
-
     focusBlendRef.current = THREE.MathUtils.damp(
       focusBlendRef.current,
       isSelected || isFocused ? 1 : 0,
@@ -123,18 +69,27 @@ export default function ArticleCluster({
     const focusBlend = focusBlendRef.current;
     const focusFlash = focusFlashRef.current;
     const pulse = 1 + Math.sin(state.clock.elapsedTime * 1.4 + article.articleId) * (0.05 + focusBlend * 0.05);
-    const beaconScale = (isDimmed ? 0.94 : 1 + focusBlend * 0.34 + focusFlash * 0.26 + (isSelected ? 0.12 : 0)) * pulse;
-    const haloScale = (isDimmed ? 1.24 : 1.85 + focusBlend * 0.9 + focusFlash * 0.8 + (isSelected ? 0.28 : 0)) * pulse;
-    const coronaScale = (1.36 + focusBlend * 0.82 + focusFlash * 1.55) * pulse;
+    const searchBoost = searchActive && isSearchMatch ? 0.12 : 0;
+    const beaconScale = (
+      isDimmed
+        ? isSearchDimmed ? 0.82 : 0.94
+        : 1 + searchBoost * 0.7 + focusBlend * 0.34 + focusFlash * 0.26 + (isSelected ? 0.12 : 0)
+    ) * pulse;
+    const haloScale = (
+      isDimmed
+        ? isSearchDimmed ? 1.08 : 1.24
+        : 1.85 + searchBoost * 1.1 + focusBlend * 0.9 + focusFlash * 0.8 + (isSelected ? 0.28 : 0)
+    ) * pulse;
+    const coronaScale = (1.36 + searchBoost * 0.65 + focusBlend * 0.82 + focusFlash * 1.55) * pulse;
     const beaconOpacity = isDimmed
-      ? 0.18
-      : clamp(0.4 + focusBlend * 0.38 + focusFlash * 0.24 + (isSelected ? 0.12 : 0), 0.28, 1);
+      ? isSearchDimmed ? 0.08 : 0.18
+      : clamp(0.4 + searchBoost * 0.45 + focusBlend * 0.38 + focusFlash * 0.24 + (isSelected ? 0.12 : 0), 0.28, 1);
     const haloOpacity = isDimmed
-      ? 0.018
-      : clamp(0.04 + focusBlend * 0.11 + focusFlash * 0.18 + (isSelected ? 0.05 : 0), 0.03, 0.34);
+      ? isSearchDimmed ? 0.008 : 0.018
+      : clamp(0.04 + searchBoost * 0.06 + focusBlend * 0.11 + focusFlash * 0.18 + (isSelected ? 0.05 : 0), 0.03, 0.34);
     const coronaOpacity = isDimmed
       ? 0
-      : clamp(focusBlend * 0.08 + focusFlash * 0.2 + (isSelected ? 0.04 : 0), 0, 0.24);
+      : clamp(searchBoost * 0.05 + focusBlend * 0.08 + focusFlash * 0.2 + (isSelected ? 0.04 : 0), 0, 0.24);
     const ringScale = 1.4 + (1 - focusFlash) * 4.1 + focusBlend * 0.35;
     const ringOpacity = clamp(focusFlash * 0.32 + (isSelected ? 0.08 : 0), 0, 0.36);
 
@@ -173,7 +128,7 @@ export default function ArticleCluster({
   });
 
   return (
-    <group ref={clusterRef} position={article.center}>
+    <group ref={clusterRef} position={worldPosition || article.center}>
       <mesh ref={haloRef}>
         <sphereGeometry args={[3.8, 16, 16]} />
         <meshBasicMaterial
@@ -249,6 +204,8 @@ export default function ArticleCluster({
           fragment={fragment}
           selectedSentence={selectedSentence}
           focusArticleId={focusedArticleId}
+          searchActive={searchActive}
+          isSearchMatch={isSearchMatch}
           onHoverArticle={onHoverArticle}
           onSelectSentence={onSelectSentence}
           onPointerGestureStart={onPointerGestureStart}
