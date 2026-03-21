@@ -11,8 +11,35 @@ const USERNAME = 'uiwwsw';
 const OUTPUT_FILE = path.join(__dirname, '../src/data/velog-words.json');
 const CONTEXT_FILE = path.join(__dirname, '../src/data/velog-context.json');
 const MAX_SENTENCES = 800;
+const MAX_FAILED_POSTS = 0;
 
 
+function hashString(input) {
+    let hash = 2166136261;
+
+    for (let i = 0; i < input.length; i++) {
+        hash ^= input.charCodeAt(i);
+        hash = Math.imul(hash, 16777619);
+    }
+
+    return hash >>> 0;
+}
+
+function buildStableSentenceKey(sentence) {
+    return `${sentence.slug}:${sentence.sentenceIndex}:${sentence.fullSentence}`;
+}
+
+function selectStableSentences(sentences, limit) {
+    return [...sentences]
+        .sort((left, right) => {
+            const hashDiff = hashString(buildStableSentenceKey(left)) - hashString(buildStableSentenceKey(right));
+            if (hashDiff !== 0) return hashDiff;
+
+            if (left.articleId !== right.articleId) return left.articleId - right.articleId;
+            return left.sentenceIndex - right.sentenceIndex;
+        })
+        .slice(0, limit);
+}
 
 // Helper to remove markdown syntax
 function cleanMarkdown(text) {
@@ -154,6 +181,19 @@ function buildSummary(sentences, fallbackSummary = '') {
     return summary.length > 180
         ? `${summary.slice(0, 177).trim()}...`
         : summary;
+}
+
+function buildFallbackSentence(title, summary = '') {
+    const normalizedSummary = cleanMarkdown(summary || '').replace(/\s+/g, ' ').trim();
+    const candidate = normalizedSummary || (title || '').replace(/\s+/g, ' ').trim();
+
+    if (!candidate) {
+        return '';
+    }
+
+    return candidate.length > 200
+        ? `${candidate.slice(0, 197).trim()}...`
+        : candidate;
 }
 
 function estimateReadingTime(markdown = '') {
@@ -303,6 +343,7 @@ async function fetchAndProcess() {
 
         let allSentences = [];
         let articleId = 0;
+        const failedPosts = [];
 
         for (const item of posts) {
             console.log(`Processing [${articleId}]: ${item.title}`);
@@ -313,35 +354,63 @@ async function fetchAndProcess() {
             let itemSentences = [];
             const readingTime = estimateReadingTime(markdown || '');
 
-            if (markdown) {
-                // Split by Code Blocks
-                const parts = markdown.split(/(```[\s\S]*?```)/g);
-
-                parts.forEach(part => {
-                    const trimmed = part.trim();
-                    if (!trimmed) return;
-
-                    if (trimmed.startsWith('```')) {
-                        // Extract language if present
-                        // Format: ```js\n code \n```
-                        const firstLineMatch = trimmed.match(/^```(\w+)?/);
-                        const language = firstLineMatch && firstLineMatch[1] ? firstLineMatch[1] : null;
-
-                        const content = trimmed.replace(/^```.*\n?/, '').replace(/```$/, '');
-                        if (content.trim().length > 0) {
-                            itemSentences.push({
-                                fullSentence: content.trim(),
-                                type: 'code',
-                                language: language
-                            });
-                        }
-                    } else {
-                        const extracted = extractSentencesFromText(part);
-                        itemSentences.push(...extracted);
-                    }
+            if (!markdown) {
+                console.error(`  Failed to get markdown for ${item.title}`);
+                failedPosts.push({
+                    title: item.title,
+                    slug: item.url_slug,
+                    reason: 'missing markdown body'
                 });
-            } else {
-                console.log(`  Failed to get markdown for ${item.title}`);
+                articleId++;
+                continue;
+            }
+
+            // Split by Code Blocks
+            const parts = markdown.split(/(```[\s\S]*?```)/g);
+
+            parts.forEach(part => {
+                const trimmed = part.trim();
+                if (!trimmed) return;
+
+                if (trimmed.startsWith('```')) {
+                    // Extract language if present
+                    // Format: ```js\n code \n```
+                    const firstLineMatch = trimmed.match(/^```(\w+)?/);
+                    const language = firstLineMatch && firstLineMatch[1] ? firstLineMatch[1] : null;
+
+                    const content = trimmed.replace(/^```.*\n?/, '').replace(/```$/, '');
+                    if (content.trim().length > 0) {
+                        itemSentences.push({
+                            fullSentence: content.trim(),
+                            type: 'code',
+                            language: language
+                        });
+                    }
+                } else {
+                    const extracted = extractSentencesFromText(part);
+                    itemSentences.push(...extracted);
+                }
+            });
+
+            if (itemSentences.length === 0) {
+                const fallbackSentence = buildFallbackSentence(item.title, postData.summary);
+
+                if (!fallbackSentence) {
+                    console.error(`  No extractable sentences for ${item.title}`);
+                    failedPosts.push({
+                        title: item.title,
+                        slug: item.url_slug,
+                        reason: 'no extractable sentences'
+                    });
+                    articleId++;
+                    continue;
+                }
+
+                console.warn(`  Using fallback sentence for ${item.title}`);
+                itemSentences.push({
+                    fullSentence: fallbackSentence,
+                    type: 'text'
+                });
             }
 
             itemSentences.forEach((sentence, index) => {
@@ -363,6 +432,16 @@ async function fetchAndProcess() {
             articleId++;
             // Be nice to the server
             await new Promise(r => setTimeout(r, 100));
+        }
+
+        if (failedPosts.length > MAX_FAILED_POSTS) {
+            const failureSummary = failedPosts
+                .map(post => `${post.title} (${post.reason})`)
+                .join(', ');
+
+            throw new Error(
+                `Aborting refresh because ${failedPosts.length} posts failed to process: ${failureSummary}`
+            );
         }
 
         console.log(`Total sentences extracted: ${allSentences.length}`);
@@ -397,9 +476,11 @@ async function fetchAndProcess() {
         const textSentencesOnly = allSentences.filter(s => s.type !== 'image');
         console.log(`Filtered ${allSentences.length - textSentencesOnly.length} image sentences from cloud`);
 
-        // Random shuffle for WordCloud
-        const shuffled = [...textSentencesOnly].sort(() => 0.5 - Math.random());
-        const selected = shuffled.slice(0, MAX_SENTENCES);
+        if (textSentencesOnly.length === 0) {
+            throw new Error('No text or code sentences were extracted. Aborting refresh.');
+        }
+
+        const selected = selectStableSentences(textSentencesOnly, MAX_SENTENCES);
 
         await fs.writeFile(OUTPUT_FILE, JSON.stringify(selected, null, 2));
         console.log(`Saved ${selected.length} sentences to ${OUTPUT_FILE}`);
