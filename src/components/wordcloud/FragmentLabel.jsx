@@ -8,6 +8,8 @@ export default function FragmentLabel({
   fragment,
   selectedSentence,
   focusArticleId,
+  searchActive = false,
+  isSearchMatch = true,
   onHoverArticle,
   onSelectSentence,
   onPointerGestureStart
@@ -25,6 +27,7 @@ export default function FragmentLabel({
     && selectedSentence.articleId === fragment.articleId
     && Number(selectedSentence.sentenceIndex) === fragment.sentenceIndex;
   const isSelectedArticle = !!selectedSentence && selectedSentence.articleId === fragment.articleId;
+  const isSearchDimmed = searchActive && !isSearchMatch && !isSelectedArticle;
 
   useFrame((state, delta) => {
     if (!labelRef.current || !textRef.current) return;
@@ -59,11 +62,15 @@ export default function FragmentLabel({
 
     if (selectedSentence) {
       targetOpacity = isSelectedFragment ? 1 : isSelectedArticle ? 0.48 : 0.08;
+    } else if (isSearchDimmed && !focused) {
+      targetOpacity *= 0.18;
     }
 
-    interactiveRef.current = distance < 220 && targetOpacity > 0.18;
+    interactiveRef.current = distance < 220 && (targetOpacity > 0.18 || (isSearchDimmed && distance < 150));
 
-    labelRef.current.scale.setScalar(scale * (focused ? 1.08 : focusLocked ? 0.96 : 1));
+    labelRef.current.scale.setScalar(
+      scale * (focused ? 1.08 : focusLocked ? 0.96 : isSearchDimmed ? 0.92 : 1)
+    );
     textRef.current.fillOpacity = THREE.MathUtils.lerp(
       textRef.current.fillOpacity,
       clamp(targetOpacity, 0, 1),

@@ -9,22 +9,16 @@ export default function WordCloud({
   selectedSentence,
   onSelectSentence,
   onFocusArticleChange,
-  visibleArticleIds = null,
+  highlightedArticleIds = null,
   flightTargetArticleId = null,
   onFlightComplete = () => {}
 }) {
   const { camera, gl, scene } = useThree();
-  const visibleArticleIdSet = useMemo(() => {
-    return visibleArticleIds ? new Set(visibleArticleIds) : null;
-  }, [visibleArticleIds]);
-  const visibleArticles = useMemo(() => {
-    if (!visibleArticleIdSet) {
-      return universe.articles;
-    }
-
-    return universe.articles.filter(article => visibleArticleIdSet.has(article.articleId));
-  }, [universe.articles, visibleArticleIdSet]);
+  const highlightedArticleIdSet = useMemo(() => {
+    return highlightedArticleIds ? new Set(highlightedArticleIds) : null;
+  }, [highlightedArticleIds]);
   const {
+    renderedArticles,
     focusedArticleId,
     setFocusedArticleId,
     beginGesture,
@@ -37,7 +31,6 @@ export default function WordCloud({
     universe,
     selectedSentence,
     onFocusArticleChange,
-    visibleArticleIdSet,
     flightTargetArticleId,
     onFlightComplete
   });
@@ -46,12 +39,15 @@ export default function WordCloud({
     <group>
       <Starfield />
 
-      {visibleArticles.map(article => (
+      {renderedArticles.map(({ article, worldPosition }) => (
         <ArticleCluster
           key={`cluster-${article.articleId}`}
           article={article}
+          worldPosition={worldPosition}
           selectedSentence={selectedSentence}
           focusedArticleId={focusedArticleId}
+          searchActive={highlightedArticleIdSet != null}
+          isSearchMatch={highlightedArticleIdSet ? highlightedArticleIdSet.has(article.articleId) : true}
           onHoverArticle={(articleId) => {
             if (articleId == null) return;
 
