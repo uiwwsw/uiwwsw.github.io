@@ -8,6 +8,7 @@ export default function WordCloud({
   universe,
   selectedSentence,
   onSelectSentence,
+  onSelectArticle,
   onFocusArticleChange,
   highlightedArticleIds = null,
   flightTargetArticleId = null,
@@ -20,7 +21,6 @@ export default function WordCloud({
   const {
     renderedArticles,
     focusedArticleId,
-    setFocusedArticleId,
     beginGesture,
     registerCluster,
     unregisterCluster
@@ -48,17 +48,8 @@ export default function WordCloud({
           focusedArticleId={focusedArticleId}
           searchActive={highlightedArticleIdSet != null}
           isSearchMatch={highlightedArticleIdSet ? highlightedArticleIdSet.has(article.articleId) : true}
-          onHoverArticle={(articleId) => {
-            if (articleId == null) return;
-
-            const hoveredArticle = universe.articleById[articleId];
-
-            if (hoveredArticle) {
-              setFocusedArticleId(articleId);
-              onFocusArticleChange(hoveredArticle);
-            }
-          }}
           onSelectSentence={onSelectSentence}
+          onSelectArticle={onSelectArticle}
           onPointerGestureStart={beginGesture}
           registerCluster={registerCluster}
           unregisterCluster={unregisterCluster}

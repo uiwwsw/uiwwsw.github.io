@@ -12,13 +12,14 @@ export default function ArticleCluster({
   focusedArticleId,
   searchActive = false,
   isSearchMatch = true,
-  onHoverArticle,
   onSelectSentence,
+  onSelectArticle,
   onPointerGestureStart,
   registerCluster,
   unregisterCluster
 }) {
   const clusterRef = useRef();
+  const tapStartRef = useRef(null);
   const beaconRef = useRef();
   const haloRef = useRef();
   const coronaRef = useRef();
@@ -54,6 +55,38 @@ export default function ArticleCluster({
 
     wasFocusedRef.current = isFocused;
   }, [isFocused]);
+
+  const handleClusterPointerDown = (event) => {
+    if (selectedSentence) return;
+
+    tapStartRef.current = {
+      x: event.clientX,
+      y: event.clientY,
+      time: Date.now()
+    };
+
+    onPointerGestureStart(event.clientX, event.clientY);
+    event.stopPropagation();
+  };
+
+  const handleClusterPointerUp = (event) => {
+    const start = tapStartRef.current;
+    tapStartRef.current = null;
+
+    if (selectedSentence) return;
+
+    event.stopPropagation();
+
+    if (!start) return;
+
+    const dx = event.clientX - start.x;
+    const dy = event.clientY - start.y;
+    const duration = Date.now() - start.time;
+
+    if ((dx * dx) + (dy * dy) <= 36 && duration <= 320) {
+      onSelectArticle?.(article);
+    }
+  };
 
   useFrame((state, delta) => {
     if (!clusterRef.current) return;
@@ -129,6 +162,13 @@ export default function ArticleCluster({
 
   return (
     <group ref={clusterRef} position={worldPosition || article.center}>
+      <mesh
+        onPointerDown={handleClusterPointerDown}
+        onPointerUp={handleClusterPointerUp}
+      >
+        <sphereGeometry args={[7.6, 20, 20]} />
+        <meshBasicMaterial transparent opacity={0} depthWrite={false} depthTest={false} />
+      </mesh>
       <mesh ref={haloRef}>
         <sphereGeometry args={[3.8, 16, 16]} />
         <meshBasicMaterial
@@ -182,19 +222,30 @@ export default function ArticleCluster({
 
       {labelVisible && (
         <Billboard position={[0, 12, 0]} follow>
-          <Text
-            font={fontUrl}
-            fontSize={3.9}
-            color="#f7fbff"
-            fillOpacity={0.95}
-            outlineWidth="4%"
-            outlineColor="#030712"
-            anchorX="center"
-            anchorY="middle"
-            maxWidth={120}
-          >
-            {article.constellationName}
-          </Text>
+          <group>
+            <mesh
+              onPointerDown={handleClusterPointerDown}
+              onPointerUp={handleClusterPointerUp}
+            >
+              <planeGeometry args={[58, 10]} />
+              <meshBasicMaterial transparent opacity={0} depthWrite={false} depthTest={false} />
+            </mesh>
+            <Text
+              font={fontUrl}
+              fontSize={3.9}
+              color="#f7fbff"
+              fillOpacity={0.95}
+              outlineWidth="4%"
+              outlineColor="#030712"
+              anchorX="center"
+              anchorY="middle"
+              maxWidth={120}
+              onPointerDown={handleClusterPointerDown}
+              onPointerUp={handleClusterPointerUp}
+            >
+              {article.constellationName}
+            </Text>
+          </group>
         </Billboard>
       )}
 
@@ -206,7 +257,6 @@ export default function ArticleCluster({
           focusArticleId={focusedArticleId}
           searchActive={searchActive}
           isSearchMatch={isSearchMatch}
-          onHoverArticle={onHoverArticle}
           onSelectSentence={onSelectSentence}
           onPointerGestureStart={onPointerGestureStart}
         />
