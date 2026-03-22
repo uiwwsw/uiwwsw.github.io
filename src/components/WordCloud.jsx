@@ -12,7 +12,8 @@ export default function WordCloud({
   onFocusArticleChange,
   highlightedArticleIds = null,
   flightTargetArticleId = null,
-  onFlightComplete = () => {}
+  onFlightComplete = () => {},
+  performanceProfile
 }) {
   const { camera, gl, scene } = useThree();
   const highlightedArticleIdSet = useMemo(() => {
@@ -32,12 +33,13 @@ export default function WordCloud({
     selectedSentence,
     onFocusArticleChange,
     flightTargetArticleId,
-    onFlightComplete
+    onFlightComplete,
+    performanceProfile
   });
 
   return (
     <group>
-      <Starfield />
+      <Starfield performanceProfile={performanceProfile} />
 
       {renderedArticles.map(({ article, worldPosition }) => (
         <ArticleCluster
@@ -53,6 +55,7 @@ export default function WordCloud({
           onPointerGestureStart={beginGesture}
           registerCluster={registerCluster}
           unregisterCluster={unregisterCluster}
+          performanceProfile={performanceProfile}
         />
       ))}
     </group>
