@@ -52,10 +52,12 @@ function buildStars(count, seed) {
   return { positions, colors };
 }
 
-export default function Starfield() {
+export default function Starfield({ performanceProfile }) {
   const geometryRef = useRef();
   const { camera } = useThree();
-  const field = useMemo(() => buildStars(STAR_COUNT, 127), []);
+  const starCount = performanceProfile?.starCount ?? STAR_COUNT;
+  const starSize = performanceProfile?.starSize ?? 5.2;
+  const field = useMemo(() => buildStars(starCount, 127), [starCount]);
 
   useFrame((state) => {
     const geometry = geometryRef.current;
@@ -125,7 +127,7 @@ export default function Starfield() {
         />
       </bufferGeometry>
       <pointsMaterial
-        size={5.2}
+        size={starSize}
         sizeAttenuation
         transparent
         opacity={0.84}

@@ -36,11 +36,13 @@ function getOverlayMetrics(width, height) {
   const safeHeight = Math.max(height ?? (typeof window !== 'undefined' ? window.innerHeight : 940), 320);
   const isMobile = safeWidth <= 768;
   const isTablet = safeWidth <= 1180;
-  const frameWidth = isMobile ? 430 : isTablet ? 1040 : 1440;
-  const frameHeight = isMobile ? 920 : isTablet ? 1060 : 940;
-  const scale = Math.min(1, safeWidth / frameWidth, safeHeight / frameHeight);
+  const frameWidth = isMobile ? safeWidth : isTablet ? 1040 : 1440;
+  const frameHeight = isMobile ? safeHeight : isTablet ? 1060 : 940;
+  const scale = isMobile ? 1 : Math.min(1, safeWidth / frameWidth, safeHeight / frameHeight);
 
   return {
+    isMobile,
+    isTablet,
     frameWidth,
     frameHeight,
     scale: Number(scale.toFixed(3))
@@ -570,6 +572,24 @@ export default function App() {
 
     return [...nextIds];
   }, [filteredArticles, focusedArticle, hasSearchFilters, selectedArticle]);
+  const isMobileViewport = overlayMetrics.isMobile;
+  const sceneProfile = useMemo(() => {
+    return {
+      isMobile: isMobileViewport,
+      dpr: isMobileViewport ? [0.8, 1] : [1, 1.6],
+      pixelRatioMax: isMobileViewport ? 1 : 1.6,
+      enablePostProcessing: !isMobileViewport,
+      starCount: isMobileViewport ? 900 : 2400,
+      starSize: isMobileViewport ? 4.4 : 5.2
+    };
+  }, [isMobileViewport]);
+  const canvasOptions = useMemo(() => {
+    return {
+      ...canvasConfig,
+      antialias: !isMobileViewport,
+      powerPreference: isMobileViewport ? 'default' : 'high-performance'
+    };
+  }, [isMobileViewport]);
 
   if (!universe) {
     return <div className="app-shell" aria-hidden="true" />;
@@ -580,7 +600,6 @@ export default function App() {
     '--overlay-frame-width': `${overlayMetrics.frameWidth}px`,
     '--overlay-frame-height': `${overlayMetrics.frameHeight}px`
   };
-  const isMobileViewport = overlayMetrics.frameWidth === 430;
   const hudTopic = activeArticle
     ? activeArticle.topicLabel
     : selectedTopic !== 'all'
@@ -654,11 +673,11 @@ export default function App() {
     <div className="app-shell">
       <div className={`canvas-container ${selectedSentence ? 'detail-active' : ''}`}>
         <Canvas
-          gl={canvasConfig}
-          dpr={[1, 1.6]}
+          gl={canvasOptions}
+          dpr={sceneProfile.dpr}
           onCreated={({ gl }) => {
             gl.setClearColor('#02040a');
-            gl.setPixelRatio(Math.min(window.devicePixelRatio, 1.6));
+            gl.setPixelRatio(Math.min(window.devicePixelRatio, sceneProfile.pixelRatioMax));
           }}
         >
           <color attach="background" args={['#02040a']} />
@@ -674,13 +693,16 @@ export default function App() {
               highlightedArticleIds={highlightedArticleIds}
               flightTargetArticleId={flightTargetArticleId}
               onFlightComplete={handleFlightComplete}
+              performanceProfile={sceneProfile}
             />
           </Suspense>
 
-          <EffectComposer disableNormalPass>
-            <Bloom luminanceThreshold={0} mipmapBlur intensity={0.72} radius={0.62} />
-            <Vignette eskil={false} offset={0.12} darkness={0.9} />
-          </EffectComposer>
+          {sceneProfile.enablePostProcessing && (
+            <EffectComposer disableNormalPass>
+              <Bloom luminanceThreshold={0} mipmapBlur intensity={0.72} radius={0.62} />
+              <Vignette eskil={false} offset={0.12} darkness={0.9} />
+            </EffectComposer>
+          )}
 
           <ambientLight intensity={0.78} />
           <directionalLight position={[140, 220, 180]} intensity={0.38} color="#9ad5ff" />
@@ -689,55 +711,77 @@ export default function App() {
       </div>
 
       <div
-        className={`overlay ${selectedSentence ? 'is-hidden' : ''}`}
+        className={`overlay ${selectedSentence ? 'is-hidden' : ''} ${isMobileViewport ? 'is-mobile' : ''}`}
         style={overlayStyle}
       >
         <div className="overlay-inner">
           <div className="overlay-atmosphere overlay-atmosphere-a" />
           <div className="overlay-atmosphere overlay-atmosphere-b" />
 
-          <section className="hero-shell">
-            <header className="header">
-              <div className="brand-block">
-                <span className="brand-kicker">GitHub Pages Mental Universe</span>
-                <div className="logo">uiwwsw</div>
-              </div>
-            </header>
-
-            <div className="atlas-statusbar" aria-hidden="true">
-              <span className="atlas-statuschip atlas-statuschip-mode">{statusModeLabel}</span>
-              <span className="atlas-statuschip">{hudTopic}</span>
-              <span className="atlas-statuschip">{visibleArticleCount} constellations</span>
-              <span className="atlas-statuschip">{visibleFragmentCount} fragments</span>
-            </div>
-
-            <div className="hero">
-              <p className="eyebrow">항해하는 생각의 우주</p>
-              <h1>
-                내 모든 글이
-                <br />
-                별자리와 성운이 되는 곳
-              </h1>
-              <p className="subtitle">
-                Velog에 쌓인 문장과 코드 조각을 정신세계의 우주로 다시 엮었습니다.
-                검색으로 원하는 글의 궤도에 바로 진입하고, 열린 글 안에서 문맥을 따라 더 깊게 이동할 수 있습니다.
-              </p>
-
-              <div className="hero-hints">
-                <span>제목, 주제, 태그 검색으로 원하는 글부터 여세요</span>
-                <span>문장을 누르면 같은 글의 문맥이 열립니다</span>
-              </div>
-
-              <div className="hero-actions">
+          <section className={`hero-shell ${isMobileViewport ? 'is-mobile' : ''}`}>
+            {isMobileViewport ? (
+              <div className="mobile-command-bar">
+                <div className="mobile-command-copy">
+                  <span className="mobile-command-kicker">{statusModeLabel}</span>
+                  <p>
+                    {hasActiveArticle
+                      ? `${activeArticle.title}을(를) 아래 카드에서 바로 열 수 있습니다.`
+                      : `${visibleArticleCount}개 글에서 원하는 궤도로 바로 진입하세요.`}
+                  </p>
+                </div>
                 <button
                   type="button"
                   className={`hero-cta hero-cta-search ${isSearchOpen ? 'is-active' : ''}`}
                   onClick={handleToggleSearch}
                 >
-                  {isSearchOpen ? '검색 닫기' : '검색 열기'}
+                  {isSearchOpen ? '검색 닫기' : '글 찾기'}
                 </button>
               </div>
-            </div>
+            ) : (
+              <>
+                <header className="header">
+                  <div className="brand-block">
+                    <span className="brand-kicker">GitHub Pages Mental Universe</span>
+                    <div className="logo">uiwwsw</div>
+                  </div>
+                </header>
+
+                <div className="atlas-statusbar" aria-hidden="true">
+                  <span className="atlas-statuschip atlas-statuschip-mode">{statusModeLabel}</span>
+                  <span className="atlas-statuschip">{hudTopic}</span>
+                  <span className="atlas-statuschip">{visibleArticleCount} constellations</span>
+                  <span className="atlas-statuschip">{visibleFragmentCount} fragments</span>
+                </div>
+
+                <div className="hero">
+                  <p className="eyebrow">항해하는 생각의 우주</p>
+                  <h1>
+                    내 모든 글이
+                    <br />
+                    별자리와 성운이 되는 곳
+                  </h1>
+                  <p className="subtitle">
+                    Velog에 쌓인 문장과 코드 조각을 정신세계의 우주로 다시 엮었습니다.
+                    검색으로 원하는 글의 궤도에 바로 진입하고, 열린 글 안에서 문맥을 따라 더 깊게 이동할 수 있습니다.
+                  </p>
+
+                  <div className="hero-hints">
+                    <span>제목, 주제, 태그 검색으로 원하는 글부터 여세요</span>
+                    <span>문장을 누르면 같은 글의 문맥이 열립니다</span>
+                  </div>
+
+                  <div className="hero-actions">
+                    <button
+                      type="button"
+                      className={`hero-cta hero-cta-search ${isSearchOpen ? 'is-active' : ''}`}
+                      onClick={handleToggleSearch}
+                    >
+                      {isSearchOpen ? '검색 닫기' : '검색 열기'}
+                    </button>
+                  </div>
+                </div>
+              </>
+            )}
 
             {showGuide && !isMobileViewport && (
               <aside className="guide-card">

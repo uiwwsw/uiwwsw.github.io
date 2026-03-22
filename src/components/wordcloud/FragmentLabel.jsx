@@ -11,7 +11,8 @@ export default function FragmentLabel({
   searchActive = false,
   isSearchMatch = true,
   onSelectSentence,
-  onPointerGestureStart
+  onPointerGestureStart,
+  performanceProfile
 }) {
   const { camera } = useThree();
   const labelRef = useRef();
@@ -25,6 +26,7 @@ export default function FragmentLabel({
     && selectedSentence.articleId === fragment.articleId
     && Number(selectedSentence.sentenceIndex) === fragment.sentenceIndex;
   const isSelectedArticle = !!selectedSentence && selectedSentence.articleId === fragment.articleId;
+  const isMobile = performanceProfile?.isMobile === true;
   const isSearchDimmed = searchActive && !isSearchMatch && !isSelectedArticle;
   const hitWidth = Math.max(9.5, fragment.displayText.length * 1.28 + 3.8);
   const hitHeight = fragment.type === 'code' ? 4.6 : 4.1;
@@ -33,9 +35,10 @@ export default function FragmentLabel({
     if (!labelRef.current || !textRef.current) return;
 
     const time = state.clock.elapsedTime;
-    const driftX = Math.sin(time * 0.28 + baseLocalPosition.x * 0.03) * 0.9;
-    const driftY = Math.cos(time * 0.34 + baseLocalPosition.z * 0.02) * 0.8;
-    const driftZ = Math.sin(time * 0.22 + baseLocalPosition.y * 0.03) * 0.7;
+    const driftScale = isMobile ? 0.22 : 1;
+    const driftX = Math.sin(time * 0.28 + baseLocalPosition.x * 0.03) * 0.9 * driftScale;
+    const driftY = Math.cos(time * 0.34 + baseLocalPosition.z * 0.02) * 0.8 * driftScale;
+    const driftZ = Math.sin(time * 0.22 + baseLocalPosition.y * 0.03) * 0.7 * driftScale;
 
     labelRef.current.position.set(
       baseLocalPosition.x + driftX,
@@ -47,8 +50,10 @@ export default function FragmentLabel({
 
     const distance = camera.position.distanceTo(worldPositionRef.current);
     const nearFade = distance < 24 ? distance / 24 : 1;
-    const farFade = distance > 920 ? clamp(1 - (distance - 920) / 520, 0, 1) : 1;
-    const scale = clamp(1.18 - distance / 1350, 0.72, 1.15);
+    const farFadeStart = isMobile ? 760 : 920;
+    const farFadeRange = isMobile ? 320 : 520;
+    const farFade = distance > farFadeStart ? clamp(1 - (distance - farFadeStart) / farFadeRange, 0, 1) : 1;
+    const scale = clamp(1.18 - distance / (isMobile ? 1180 : 1350), 0.72, 1.15);
     const focused = focusArticleId === fragment.articleId;
     const focusLocked = focusArticleId != null && !selectedSentence;
     let targetOpacity = nearFade * farFade * (fragment.type === 'code' ? 0.82 : 0.7);
@@ -65,7 +70,8 @@ export default function FragmentLabel({
       targetOpacity *= 0.18;
     }
 
-    interactiveRef.current = distance < 340 && (targetOpacity > 0.06 || distance < 170 || isSelectedArticle || focused);
+    interactiveRef.current = distance < (isMobile ? 260 : 340)
+      && (targetOpacity > 0.06 || distance < (isMobile ? 140 : 170) || isSelectedArticle || focused);
 
     labelRef.current.scale.setScalar(
       scale * (focused ? 1.08 : focusLocked ? 0.96 : isSearchDimmed ? 0.92 : 1)

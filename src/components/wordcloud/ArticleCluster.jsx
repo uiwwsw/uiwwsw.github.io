@@ -16,7 +16,8 @@ export default function ArticleCluster({
   onSelectArticle,
   onPointerGestureStart,
   registerCluster,
-  unregisterCluster
+  unregisterCluster,
+  performanceProfile
 }) {
   const clusterRef = useRef();
   const tapStartRef = useRef(null);
@@ -33,10 +34,15 @@ export default function ArticleCluster({
   const wasFocusedRef = useRef(false);
   const isFocused = focusedArticleId === article.articleId;
   const isSelected = selectedSentence?.articleId === article.articleId;
+  const isMobile = performanceProfile?.isMobile === true;
   const isFocusDimmed = focusedArticleId != null && !isSelected && !isFocused && !selectedSentence;
   const isSearchDimmed = searchActive && !isSearchMatch && !isSelected && !isFocused;
   const isDimmed = isFocusDimmed || isSearchDimmed;
   const labelVisible = isFocused || isSelected;
+  const visibleFragments = isMobile && !labelVisible ? [] : article.fragments;
+  const hitSphereSegments = isMobile ? 12 : 20;
+  const shellSphereSegments = isMobile ? 10 : 16;
+  const ringSegments = isMobile ? 24 : 48;
 
   useEffect(() => {
     if (clusterRef.current) {
@@ -166,11 +172,11 @@ export default function ArticleCluster({
         onPointerDown={handleClusterPointerDown}
         onPointerUp={handleClusterPointerUp}
       >
-        <sphereGeometry args={[7.6, 20, 20]} />
+        <sphereGeometry args={[7.6, hitSphereSegments, hitSphereSegments]} />
         <meshBasicMaterial transparent opacity={0} depthWrite={false} depthTest={false} />
       </mesh>
       <mesh ref={haloRef}>
-        <sphereGeometry args={[3.8, 16, 16]} />
+        <sphereGeometry args={[3.8, shellSphereSegments, shellSphereSegments]} />
         <meshBasicMaterial
           ref={haloMaterialRef}
           color={article.glow}
@@ -181,7 +187,7 @@ export default function ArticleCluster({
         />
       </mesh>
       <mesh ref={coronaRef}>
-        <sphereGeometry args={[5.8, 20, 20]} />
+        <sphereGeometry args={[5.8, hitSphereSegments, hitSphereSegments]} />
         <meshBasicMaterial
           ref={coronaMaterialRef}
           color={article.glow}
@@ -193,7 +199,7 @@ export default function ArticleCluster({
         />
       </mesh>
       <mesh ref={beaconRef}>
-        <sphereGeometry args={[1.15, 16, 16]} />
+        <sphereGeometry args={[1.15, shellSphereSegments, shellSphereSegments]} />
         <meshBasicMaterial
           ref={beaconMaterialRef}
           color={article.color}
@@ -206,7 +212,7 @@ export default function ArticleCluster({
       </mesh>
       <Billboard follow>
         <mesh ref={ringRef} visible={false}>
-          <ringGeometry args={[5.5, 6.4, 48]} />
+          <ringGeometry args={[5.5, 6.4, ringSegments]} />
           <meshBasicMaterial
             ref={ringMaterialRef}
             color={article.glow}
@@ -249,7 +255,7 @@ export default function ArticleCluster({
         </Billboard>
       )}
 
-      {article.fragments.map(fragment => (
+      {visibleFragments.map(fragment => (
         <FragmentLabel
           key={fragment.id}
           fragment={fragment}
@@ -259,6 +265,7 @@ export default function ArticleCluster({
           isSearchMatch={isSearchMatch}
           onSelectSentence={onSelectSentence}
           onPointerGestureStart={onPointerGestureStart}
+          performanceProfile={performanceProfile}
         />
       ))}
     </group>

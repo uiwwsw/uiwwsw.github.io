@@ -35,8 +35,14 @@ export default function useWordCloudController({
   selectedSentence,
   onFocusArticleChange,
   flightTargetArticleId,
-  onFlightComplete
+  onFlightComplete,
+  performanceProfile
 }) {
+  const isMobile = performanceProfile?.isMobile === true;
+  const initialDiscoveryCount = isMobile ? 3 : INITIAL_DISCOVERY_COUNT;
+  const minLocalDiscoveryCount = isMobile ? 3 : MIN_LOCAL_DISCOVERY_COUNT;
+  const minForwardVisibleCount = isMobile ? 2 : MIN_FORWARD_VISIBLE_COUNT;
+  const localDiscoveryRadius = isMobile ? 920 : LOCAL_DISCOVERY_RADIUS;
   const [focusedArticleId, setFocusedArticleId] = useState(null);
   const [discoveryVersion, setDiscoveryVersion] = useState(0);
   const speedRef = useRef(CRUISE_SPEED);
@@ -247,7 +253,7 @@ export default function useWordCloudController({
     return added;
   }, [discoverArticle, pickUndiscoveredArticle]);
 
-  const countNearbyEligibleArticles = useCallback((radius = LOCAL_DISCOVERY_RADIUS) => {
+  const countNearbyEligibleArticles = useCallback((radius = localDiscoveryRadius) => {
     let nearbyCount = 0;
 
     discoveredOrderRef.current.forEach((articleId) => {
@@ -269,7 +275,7 @@ export default function useWordCloudController({
     });
 
     return nearbyCount;
-  }, [camera.position, eligibleArticleIdSet]);
+  }, [camera.position, eligibleArticleIdSet, localDiscoveryRadius]);
 
   const seedInitialNeighborhood = useCallback(() => {
     if (eligibleArticles.length === 0 || discoveredOrderRef.current.length > 0) {
@@ -285,7 +291,7 @@ export default function useWordCloudController({
       preferCenter: true
     });
 
-    const ringCount = Math.min(INITIAL_DISCOVERY_COUNT - 1, Math.max(0, eligibleArticles.length - 1));
+    const ringCount = Math.min(initialDiscoveryCount - 1, Math.max(0, eligibleArticles.length - 1));
 
     if (ringCount > 0) {
       populateFrontier(ringCount, new Set(), {
@@ -300,7 +306,7 @@ export default function useWordCloudController({
     lastDiscoveryAnchorRef.current.copy(camera.position);
     refreshCameraBasis();
     lastDiscoveryForwardRef.current.copy(cameraForwardRef.current);
-  }, [camera.position, eligibleArticles.length, populateFrontier, refreshCameraBasis]);
+  }, [camera.position, eligibleArticles.length, initialDiscoveryCount, populateFrontier, refreshCameraBasis]);
 
   const countForwardVisibleArticles = useCallback(() => {
     refreshCameraBasis();
@@ -691,7 +697,7 @@ export default function useWordCloudController({
             && cameraForwardRef.current.dot(lastDiscoveryForwardRef.current) < DISCOVERY_TURN_TRIGGER_DOT
           );
           const movedIntoSparseRegion = (
-            nearbyCount < Math.min(MIN_LOCAL_DISCOVERY_COUNT, eligibleArticles.length)
+            nearbyCount < Math.min(minLocalDiscoveryCount, eligibleArticles.length)
             && distanceSinceAnchor >= DISCOVERY_TRAVEL_TRIGGER_DISTANCE
           );
           let additionsNeeded = 0;
@@ -699,11 +705,11 @@ export default function useWordCloudController({
           if (movedIntoSparseRegion) {
             additionsNeeded = Math.max(
               additionsNeeded,
-              Math.min(2, Math.min(MIN_LOCAL_DISCOVERY_COUNT, eligibleArticles.length) - nearbyCount)
+              Math.min(2, Math.min(minLocalDiscoveryCount, eligibleArticles.length) - nearbyCount)
             );
           }
 
-          if (forwardVisibleCount < Math.min(MIN_FORWARD_VISIBLE_COUNT, eligibleArticles.length)) {
+          if (forwardVisibleCount < Math.min(minForwardVisibleCount, eligibleArticles.length)) {
             additionsNeeded = 1;
           }
 
