@@ -22,6 +22,15 @@ const INITIAL_DISTANCE_MAX = 900;
 const FRONTIER_DISTANCE_MIN = 520;
 const FRONTIER_DISTANCE_MAX = 1200;
 const ARTICLE_NEIGHBOR_COUNT = 2;
+const MEMORY_RETENTION_SECONDS = 10;
+const MEMORY_RADIUS_MIN = 820;
+const MEMORY_RADIUS_MAX = 1860;
+const FRUSTUM_HORIZONTAL_MARGIN = 0.9;
+const FRUSTUM_VERTICAL_MARGIN = 0.86;
+const HIDDEN_SPAWN_DISTANCE_RATIO = 0.8;
+const HIDDEN_SPAWN_LATERAL_RATIO = 0.52;
+const HIDDEN_SPAWN_VERTICAL_RATIO = 0.38;
+const FORWARD_BUFFER_VIEWPORT_MARGIN = 1.48;
 
 function getArticleClearance(article) {
   return Math.max(150, article.clusterSize * 2.35);
@@ -69,6 +78,7 @@ export default function useWordCloudController({
   const cameraRightRef = useRef(new THREE.Vector3());
   const cameraUpRef = useRef(new THREE.Vector3());
   const articlePositionMapRef = useRef(new Map());
+  const availableArticleIdsRef = useRef(new Set());
   const discoveredArticleIdsRef = useRef(new Set());
   const discoveredOrderRef = useRef([]);
   const positionSampleRef = useRef(new THREE.Vector3());
@@ -93,6 +103,15 @@ export default function useWordCloudController({
     cameraRightRef.current.set(1, 0, 0).applyQuaternion(camera.quaternion).normalize();
     cameraUpRef.current.set(0, 1, 0).applyQuaternion(camera.quaternion).normalize();
   }, [camera]);
+
+  const getMemoryRadius = useCallback(() => {
+    const effectiveSpeed = Math.max(Math.abs(speedRef.current), CRUISE_SPEED * 2.8);
+    return clamp(
+      effectiveSpeed * MEMORY_RETENTION_SECONDS,
+      MEMORY_RADIUS_MIN,
+      MEMORY_RADIUS_MAX
+    );
+  }, []);
 
   const applyRotationDelta = useCallback((deltaYaw, deltaPitch) => {
     const targetQuaternion = targetQuaternionRef.current;
@@ -122,13 +141,13 @@ export default function useWordCloudController({
     clusterRefs.current.delete(articleId);
   }, []);
 
-  const hasUndiscoveredEligibleArticles = useCallback(() => {
-    return eligibleArticles.some(article => !discoveredArticleIdsRef.current.has(article.articleId));
-  }, [eligibleArticles]);
+  const hasAvailableEligibleArticles = useCallback(() => {
+    return availableArticleIdsRef.current.size > 0 && eligibleArticles.length > 0;
+  }, [eligibleArticles.length]);
 
-  const pickUndiscoveredArticle = useCallback((excludedIds = new Set()) => {
+  const pickAvailableArticle = useCallback((excludedIds = new Set()) => {
     const candidates = eligibleArticles.filter(article => {
-      return !discoveredArticleIdsRef.current.has(article.articleId) && !excludedIds.has(article.articleId);
+      return availableArticleIdsRef.current.has(article.articleId) && !excludedIds.has(article.articleId);
     });
 
     if (candidates.length === 0) {
@@ -170,24 +189,47 @@ export default function useWordCloudController({
     lateralScale = 0.52,
     verticalScale = 0.24,
     attemptSalt = '',
-    preferCenter = false
+    preferCenter = false,
+    visibilityMode = 'visible'
   } = {}) => {
     const seedBase = hashString(`${article.articleId}:${attemptSalt}:${discoveredOrderRef.current.length}`);
+    const memoryRadius = getMemoryRadius();
+    const resolvedDistanceMax = Math.min(distanceMax, Math.max(distanceMin, memoryRadius * 0.9));
+    const hiddenDistanceMin = Math.min(
+      resolvedDistanceMax,
+      Math.max(distanceMin, memoryRadius * HIDDEN_SPAWN_DISTANCE_RATIO)
+    );
+    const resolvedDistanceMin = visibilityMode === 'hidden'
+      ? hiddenDistanceMin
+      : Math.min(distanceMin, resolvedDistanceMax);
+    const verticalFov = THREE.MathUtils.degToRad(camera.fov || 50);
+    const aspect = Math.max(camera.aspect || 1, 0.85);
     refreshCameraBasis();
 
     for (let attempt = 0; attempt < 28; attempt += 1) {
       const rng = createRng(seedBase + attempt * 17);
       const centeredAttempt = preferCenter && attempt === 0;
       const distance = centeredAttempt
-        ? THREE.MathUtils.lerp(distanceMin, distanceMax, 0.38)
-        : THREE.MathUtils.lerp(distanceMin, distanceMax, rng());
-      const lateralRange = centeredAttempt ? 0 : Math.min(460, distance * lateralScale);
-      const verticalRange = centeredAttempt ? 0 : Math.min(240, distance * verticalScale);
+        ? THREE.MathUtils.lerp(resolvedDistanceMin, resolvedDistanceMax, 0.38)
+        : THREE.MathUtils.lerp(resolvedDistanceMin, resolvedDistanceMax, rng());
+      const visibleHalfHeight = Math.tan(verticalFov / 2) * distance * FRUSTUM_VERTICAL_MARGIN;
+      const visibleHalfWidth = visibleHalfHeight * aspect * FRUSTUM_HORIZONTAL_MARGIN;
+      const lateralRange = centeredAttempt ? 0 : visibleHalfWidth * clamp(lateralScale, 0, 1);
+      const verticalRange = centeredAttempt ? 0 : visibleHalfHeight * clamp(verticalScale, 0, 1);
 
       positionSampleRef.current.copy(anchorPosition);
       positionSampleRef.current.addScaledVector(cameraForwardRef.current, distance);
 
-      if (!centeredAttempt) {
+      if (!centeredAttempt && visibilityMode === 'hidden') {
+        positionSampleRef.current.addScaledVector(
+          cameraRightRef.current,
+          (rng() - 0.5) * visibleHalfWidth * HIDDEN_SPAWN_LATERAL_RATIO * 2
+        );
+        positionSampleRef.current.addScaledVector(
+          cameraUpRef.current,
+          (rng() - 0.5) * visibleHalfHeight * HIDDEN_SPAWN_VERTICAL_RATIO * 2
+        );
+      } else if (!centeredAttempt) {
         positionSampleRef.current.addScaledVector(
           cameraRightRef.current,
           (rng() - 0.5) * lateralRange * 2
@@ -198,23 +240,41 @@ export default function useWordCloudController({
         );
       }
 
+      projectedPositionRef.current.copy(positionSampleRef.current).project(camera);
+
+      if (
+        projectedPositionRef.current.z < -1
+        || projectedPositionRef.current.z > 1
+        || projectedPositionRef.current.x < -1
+        || projectedPositionRef.current.x > 1
+        || projectedPositionRef.current.y < -1
+        || projectedPositionRef.current.y > 1
+      ) {
+        continue;
+      }
+
       if (isPositionClear(article, positionSampleRef.current)) {
         return positionSampleRef.current.clone();
       }
     }
 
     positionSampleRef.current.copy(anchorPosition);
-    positionSampleRef.current.addScaledVector(cameraForwardRef.current, distanceMax);
+    positionSampleRef.current.addScaledVector(cameraForwardRef.current, resolvedDistanceMax);
     return positionSampleRef.current.clone();
-  }, [camera.position, isPositionClear, refreshCameraBasis]);
+  }, [camera, camera.position, getMemoryRadius, isPositionClear, refreshCameraBasis]);
 
   const assignArticlePosition = useCallback((article, position) => {
-    if (!article || discoveredArticleIdsRef.current.has(article.articleId)) {
+    if (
+      !article
+      || discoveredArticleIdsRef.current.has(article.articleId)
+      || !availableArticleIdsRef.current.has(article.articleId)
+    ) {
       return false;
     }
 
     articlePositionMapRef.current.set(article.articleId, position.clone());
     discoveredArticleIdsRef.current.add(article.articleId);
+    availableArticleIdsRef.current.delete(article.articleId);
     discoveredOrderRef.current.push(article.articleId);
     setDiscoveryVersion(version => version + 1);
     return true;
@@ -225,7 +285,10 @@ export default function useWordCloudController({
       return false;
     }
 
-    if (discoveredArticleIdsRef.current.has(article.articleId)) {
+    if (
+      discoveredArticleIdsRef.current.has(article.articleId)
+      || !availableArticleIdsRef.current.has(article.articleId)
+    ) {
       return false;
     }
 
@@ -237,7 +300,7 @@ export default function useWordCloudController({
     let added = 0;
 
     while (added < count) {
-      const article = pickUndiscoveredArticle(excludedIds);
+      const article = pickAvailableArticle(excludedIds);
 
       if (!article) {
         break;
@@ -251,7 +314,41 @@ export default function useWordCloudController({
     }
 
     return added;
-  }, [discoverArticle, pickUndiscoveredArticle]);
+  }, [discoverArticle, pickAvailableArticle]);
+
+  const evictStaleArticles = useCallback((preservedArticleIds = new Set()) => {
+    const memoryRadius = getMemoryRadius();
+    const nextOrder = [];
+    let removedAny = false;
+
+    discoveredOrderRef.current.forEach((articleId) => {
+      const worldPosition = articlePositionMapRef.current.get(articleId);
+
+      if (!worldPosition) {
+        discoveredArticleIdsRef.current.delete(articleId);
+        availableArticleIdsRef.current.add(articleId);
+        clusterRefs.current.delete(articleId);
+        removedAny = true;
+        return;
+      }
+
+      if (preservedArticleIds.has(articleId) || worldPosition.distanceTo(camera.position) <= memoryRadius) {
+        nextOrder.push(articleId);
+        return;
+      }
+
+      articlePositionMapRef.current.delete(articleId);
+      discoveredArticleIdsRef.current.delete(articleId);
+      availableArticleIdsRef.current.add(articleId);
+      clusterRefs.current.delete(articleId);
+      removedAny = true;
+    });
+
+    if (removedAny) {
+      discoveredOrderRef.current = nextOrder;
+      setDiscoveryVersion(version => version + 1);
+    }
+  }, [camera.position, getMemoryRadius]);
 
   const countNearbyEligibleArticles = useCallback((radius = localDiscoveryRadius) => {
     let nearbyCount = 0;
@@ -308,7 +405,7 @@ export default function useWordCloudController({
     lastDiscoveryForwardRef.current.copy(cameraForwardRef.current);
   }, [camera.position, eligibleArticles.length, initialDiscoveryCount, populateFrontier, refreshCameraBasis]);
 
-  const countForwardVisibleArticles = useCallback(() => {
+  const countForwardBufferedArticles = useCallback(() => {
     refreshCameraBasis();
 
     let visibleCount = 0;
@@ -327,7 +424,7 @@ export default function useWordCloudController({
       positionDirectionRef.current.subVectors(worldPosition, camera.position);
       const distance = positionDirectionRef.current.length();
 
-      if (distance < 60 || distance > 1850) {
+      if (distance < 60 || distance > Math.min(1850, getMemoryRadius() * 1.08)) {
         return;
       }
 
@@ -342,10 +439,10 @@ export default function useWordCloudController({
       if (
         projectedPositionRef.current.z < -1
         || projectedPositionRef.current.z > 1
-        || projectedPositionRef.current.x < -1.15
-        || projectedPositionRef.current.x > 1.15
-        || projectedPositionRef.current.y < -1.15
-        || projectedPositionRef.current.y > 1.15
+        || projectedPositionRef.current.x < -FORWARD_BUFFER_VIEWPORT_MARGIN
+        || projectedPositionRef.current.x > FORWARD_BUFFER_VIEWPORT_MARGIN
+        || projectedPositionRef.current.y < -FORWARD_BUFFER_VIEWPORT_MARGIN
+        || projectedPositionRef.current.y > FORWARD_BUFFER_VIEWPORT_MARGIN
       ) {
         return;
       }
@@ -354,7 +451,7 @@ export default function useWordCloudController({
     });
 
     return visibleCount;
-  }, [camera, camera.position, eligibleArticleIdSet, refreshCameraBasis]);
+  }, [camera, camera.position, eligibleArticleIdSet, getMemoryRadius, refreshCameraBasis]);
 
   const ensureArticleDiscovered = useCallback((articleId, options = {}) => {
     const article = universe.articleById[articleId];
@@ -392,6 +489,7 @@ export default function useWordCloudController({
 
   useEffect(() => {
     articlePositionMapRef.current = new Map();
+    availableArticleIdsRef.current = new Set(eligibleArticles.map(article => article.articleId));
     discoveredArticleIdsRef.current = new Set();
     discoveredOrderRef.current = [];
     clusterRefs.current.clear();
@@ -404,7 +502,7 @@ export default function useWordCloudController({
     setFocusedArticleId(null);
     setDiscoveryVersion(version => version + 1);
     onFocusArticleChange(null);
-  }, [camera, onFocusArticleChange, refreshCameraBasis, universe]);
+  }, [camera, eligibleArticles, onFocusArticleChange, refreshCameraBasis, universe]);
 
   useEffect(() => {
     if (eligibleArticles.length === 0) {
@@ -445,14 +543,16 @@ export default function useWordCloudController({
       lateralScale: 0.16,
       verticalScale: 0.12,
       attemptSalt: `target:${flightTargetArticleId}`,
-      preferCenter: true
+      preferCenter: true,
+      visibilityMode: 'visible'
     });
     populateFrontier(ARTICLE_NEIGHBOR_COUNT, new Set([flightTargetArticleId]), {
       distanceMin: 520,
       distanceMax: 940,
       lateralScale: 0.24,
       verticalScale: 0.16,
-      attemptSalt: `neighbors:${flightTargetArticleId}`
+      attemptSalt: `neighbors:${flightTargetArticleId}`,
+      visibilityMode: 'hidden'
     });
 
     flightTargetRef.current = flightTargetArticleId;
@@ -686,14 +786,28 @@ export default function useWordCloudController({
 
       if (discoveryTickRef.current >= DISCOVERY_CHECK_INTERVAL) {
         discoveryTickRef.current = 0;
-        const nearbyCount = countNearbyEligibleArticles();
+        const memoryRadius = getMemoryRadius();
+        const pinnedArticleIds = new Set(
+          [
+            focusedArticleId,
+            flightTargetRef.current,
+            flightTargetArticleId,
+            selectedSentence?.articleId
+          ].filter(articleId => articleId != null)
+        );
+
+        evictStaleArticles(pinnedArticleIds);
+
+        const nearbyCount = countNearbyEligibleArticles(Math.min(localDiscoveryRadius, memoryRadius));
         const distanceSinceAnchor = camera.position.distanceTo(lastDiscoveryAnchorRef.current);
 
-        if (activeFlightTargetId == null && hasUndiscoveredEligibleArticles()) {
-          const forwardVisibleCount = countForwardVisibleArticles();
+        if (activeFlightTargetId == null && hasAvailableEligibleArticles()) {
+          const forwardBufferedCount = countForwardBufferedArticles();
+          const forwardBufferTarget = Math.min(minForwardVisibleCount, eligibleArticles.length);
+          const forwardVisibilityGap = Math.max(0, forwardBufferTarget - forwardBufferedCount);
           refreshCameraBasis();
           const turnedIntoEmptySpace = (
-            forwardVisibleCount === 0
+            forwardBufferedCount === 0
             && cameraForwardRef.current.dot(lastDiscoveryForwardRef.current) < DISCOVERY_TURN_TRIGGER_DOT
           );
           const movedIntoSparseRegion = (
@@ -709,8 +823,13 @@ export default function useWordCloudController({
             );
           }
 
-          if (forwardVisibleCount < Math.min(minForwardVisibleCount, eligibleArticles.length)) {
-            additionsNeeded = 1;
+          if (forwardVisibilityGap > 0) {
+            additionsNeeded = Math.max(
+              additionsNeeded,
+              turnedIntoEmptySpace
+                ? Math.min(2, forwardVisibilityGap)
+                : Math.min(1, forwardVisibilityGap)
+            );
           }
 
           if (additionsNeeded > 0) {
@@ -720,7 +839,8 @@ export default function useWordCloudController({
               lateralScale: turnedIntoEmptySpace ? 0.18 : movedIntoSparseRegion ? 0.24 : 0.42,
               verticalScale: turnedIntoEmptySpace ? 0.12 : movedIntoSparseRegion ? 0.16 : 0.22,
               attemptSalt: `frontier:${camera.position.x.toFixed(1)}:${camera.position.y.toFixed(1)}:${camera.position.z.toFixed(1)}`,
-              preferCenter: turnedIntoEmptySpace
+              preferCenter: false,
+              visibilityMode: 'hidden'
             });
             lastDiscoveryAnchorRef.current.copy(camera.position);
             lastDiscoveryForwardRef.current.copy(cameraForwardRef.current);

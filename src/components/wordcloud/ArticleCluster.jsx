@@ -1,9 +1,47 @@
-import React, { useEffect, useRef } from 'react';
-import { useFrame } from '@react-three/fiber';
+import React, { useEffect, useMemo, useRef } from 'react';
+import { useFrame, useThree } from '@react-three/fiber';
 import { Billboard, Text } from '@react-three/drei';
 import * as THREE from 'three';
 import FragmentLabel from './FragmentLabel';
 import { clamp, fontUrl } from './shared';
+
+const MOBILE_AMBIENT_FRAGMENT_LIMIT = 3;
+
+function sampleAmbientFragments(fragments, limit = MOBILE_AMBIENT_FRAGMENT_LIMIT) {
+  if (fragments.length <= limit) {
+    return fragments;
+  }
+
+  const sampledFragments = [];
+  const usedIndexes = new Set();
+  const lastIndex = fragments.length - 1;
+
+  for (let sampleIndex = 0; sampleIndex < limit; sampleIndex += 1) {
+    const fragmentIndex = Math.round(
+      (sampleIndex * lastIndex) / Math.max(limit - 1, 1)
+    );
+
+    if (usedIndexes.has(fragmentIndex)) {
+      continue;
+    }
+
+    usedIndexes.add(fragmentIndex);
+    sampledFragments.push(fragments[fragmentIndex]);
+  }
+
+  if (sampledFragments.length < limit) {
+    fragments.forEach((fragment, fragmentIndex) => {
+      if (sampledFragments.length >= limit || usedIndexes.has(fragmentIndex)) {
+        return;
+      }
+
+      usedIndexes.add(fragmentIndex);
+      sampledFragments.push(fragment);
+    });
+  }
+
+  return sampledFragments;
+}
 
 export default function ArticleCluster({
   article,
@@ -19,6 +57,7 @@ export default function ArticleCluster({
   unregisterCluster,
   performanceProfile
 }) {
+  const { camera } = useThree();
   const clusterRef = useRef();
   const tapStartRef = useRef(null);
   const beaconRef = useRef();
@@ -32,6 +71,7 @@ export default function ArticleCluster({
   const focusBlendRef = useRef(0);
   const focusFlashRef = useRef(0);
   const wasFocusedRef = useRef(false);
+  const worldPositionRef = useRef(new THREE.Vector3());
   const isFocused = focusedArticleId === article.articleId;
   const isSelected = selectedSentence?.articleId === article.articleId;
   const isMobile = performanceProfile?.isMobile === true;
@@ -39,7 +79,13 @@ export default function ArticleCluster({
   const isSearchDimmed = searchActive && !isSearchMatch && !isSelected && !isFocused;
   const isDimmed = isFocusDimmed || isSearchDimmed;
   const labelVisible = isFocused || isSelected;
-  const visibleFragments = isMobile && !labelVisible ? [] : article.fragments;
+  const visibleFragments = useMemo(() => {
+    if (!isMobile || labelVisible) {
+      return article.fragments;
+    }
+
+    return sampleAmbientFragments(article.fragments);
+  }, [article.fragments, isMobile, labelVisible]);
   const hitSphereSegments = isMobile ? 12 : 20;
   const shellSphereSegments = isMobile ? 10 : 16;
   const ringSegments = isMobile ? 24 : 48;
@@ -97,6 +143,8 @@ export default function ArticleCluster({
   useFrame((state, delta) => {
     if (!clusterRef.current) return;
 
+    clusterRef.current.getWorldPosition(worldPositionRef.current);
+
     focusBlendRef.current = THREE.MathUtils.damp(
       focusBlendRef.current,
       isSelected || isFocused ? 1 : 0,
@@ -107,6 +155,16 @@ export default function ArticleCluster({
 
     const focusBlend = focusBlendRef.current;
     const focusFlash = focusFlashRef.current;
+    const distance = camera.position.distanceTo(worldPositionRef.current);
+    const farFadeStart = isMobile ? 980 : 1180;
+    const farFadeRange = isMobile ? 280 : 420;
+    const distanceFade = (
+      isFocused || isSelected
+        ? 1
+        : distance > farFadeStart
+          ? clamp(1 - (distance - farFadeStart) / farFadeRange, 0, 1)
+          : 1
+    );
     const pulse = 1 + Math.sin(state.clock.elapsedTime * 1.4 + article.articleId) * (0.05 + focusBlend * 0.05);
     const searchBoost = searchActive && isSearchMatch ? 0.12 : 0;
     const beaconScale = (
@@ -150,15 +208,15 @@ export default function ArticleCluster({
     }
 
     if (beaconMaterialRef.current) {
-      beaconMaterialRef.current.opacity = beaconOpacity;
+      beaconMaterialRef.current.opacity = beaconOpacity * distanceFade;
     }
 
     if (haloMaterialRef.current) {
-      haloMaterialRef.current.opacity = haloOpacity;
+      haloMaterialRef.current.opacity = haloOpacity * distanceFade;
     }
 
     if (coronaMaterialRef.current) {
-      coronaMaterialRef.current.opacity = coronaOpacity;
+      coronaMaterialRef.current.opacity = coronaOpacity * distanceFade;
     }
 
     if (ringMaterialRef.current) {
