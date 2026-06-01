@@ -1,5 +1,2643 @@
 {
   "0": {
+    "title": "실 서비스 코드를 건드리지 않고 테스트하기: API 인터셉터 기반 목 데이터 설계",
+    "link": "https://velog.io/@uiwwsw/실-서비스-코드를-건드리지-않고-테스트하기-API-인터셉터-기반-목-데이터-설계",
+    "slug": "실-서비스-코드를-건드리지-않고-테스트하기-API-인터셉터-기반-목-데이터-설계",
+    "publishedAt": "2026-05-21T22:51:54.249Z",
+    "tags": [],
+    "summary": "테스트 코드를 만들 때 가장 경계해야 하는 지점은 의외로 “목 데이터를 얼마나 잘 만들었는가”가 아니다. 진짜 어려운 문제는 목 데이터가 실 서비스 코드의 흐름을 침범하지 않게 만드는 것이다.처음에는 화면 컴포넌트에서 조건을 하나 넣는 방식이 가장 쉬워 보인다.하지만",
+    "readingTime": 11,
+    "sentences": [
+      {
+        "fullSentence": "테스트 코드를 만들 때 가장 경계해야 하는 지점은 의외로 “목 데이터를 얼마나 잘 만들었는가”가 아니다.",
+        "index": 0,
+        "type": "text"
+      },
+      {
+        "fullSentence": "진짜 어려운 문제는 목 데이터가 실 서비스 코드의 흐름을 침범하지 않게 만드는 것이다.",
+        "index": 1,
+        "type": "text"
+      },
+      {
+        "fullSentence": "처음에는 화면 컴포넌트에서 조건을 하나 넣는 방식이 가장 쉬워 보인다.",
+        "index": 2,
+        "type": "text"
+      },
+      {
+        "fullSentence": "const data = isTest ? mockData : await fetchRealData();",
+        "index": 3,
+        "type": "code",
+        "language": "tsx"
+      },
+      {
+        "fullSentence": "하지만 이 패턴은 조금만 커져도 금방 무너진다.",
+        "index": 4,
+        "type": "text"
+      },
+      {
+        "fullSentence": "화면은 테스트 여부를 알게 되고, 도메인 훅은 목 데이터 분기를 떠안고, API 함수는 실 서버와 테스트 서버 사이에서 흔들린다.",
+        "index": 5,
+        "type": "text"
+      },
+      {
+        "fullSentence": "어느 순간부터 테스트를 위해 만든 코드가 실제 제품 코드의 책임을 흐리기 시작한다.",
+        "index": 6,
+        "type": "text"
+      },
+      {
+        "fullSentence": "이번에 만든 구조의 목표는 정반대였다.",
+        "index": 7,
+        "type": "text"
+      },
+      {
+        "fullSentence": "테스트 모드는 존재하되, 화면과 도메인 코드는 모르게 한다.",
+        "index": 8,
+        "type": "text"
+      },
+      {
+        "fullSentence": "목 데이터는 사용할 수 있되, 실 API 호출 코드를 바꾸지 않는다.",
+        "index": 9,
+        "type": "text"
+      },
+      {
+        "fullSentence": "테스트 시나리오는 쉽게 켜고 끌 수 있되, 운영 환경에는 노출되지 않는다.",
+        "index": 10,
+        "type": "text"
+      },
+      {
+        "fullSentence": "이를 위해 테스트 기능을 API 요청 경계에 몰아넣었다.",
+        "index": 11,
+        "type": "text"
+      },
+      {
+        "fullSentence": "구조를 한 문장으로 요약하면 이렇다.",
+        "index": 12,
+        "type": "text"
+      },
+      {
+        "fullSentence": "브라우저 콘솔에서 테스트할 endpoint를 켜면, API 클라이언트와 API 프록시가 해당 요청만 가로채 목 응답을 만들거나 실제 응답을 패치한다.",
+        "index": 13,
+        "type": "text"
+      },
+      {
+        "fullSentence": "이 글에서는 그 구조를 설계한 이유와 내부 구현을 하나씩 정리한다.",
+        "index": 14,
+        "type": "text"
+      },
+      {
+        "fullSentence": "문제: 목 데이터는 편해야 하지만 실 코드는 오염되면 안 된다\n \n프론트엔드에서 테스트 데이터를 다루는 방식은 보통 세 갈래로 나뉜다.",
+        "index": 15,
+        "type": "text"
+      },
+      {
+        "fullSentence": "화면 컴포넌트 안에서 목 데이터를 직접 import한다.",
+        "index": 16,
+        "type": "text"
+      },
+      {
+        "fullSentence": "API 함수 안에서 환경 변수나 플래그로 목 응답을 반환한다.",
+        "index": 17,
+        "type": "text"
+      },
+      {
+        "fullSentence": "네트워크 계층에서 요청을 가로채 응답을 바꾼다.",
+        "index": 18,
+        "type": "text"
+      },
+      {
+        "fullSentence": "첫 번째 방식은 가장 빠르지만 가장 위험하다.",
+        "index": 19,
+        "type": "text"
+      },
+      {
+        "fullSentence": "화면 코드가 테스트 모드를 알게 된다.",
+        "index": 20,
+        "type": "text"
+      },
+      {
+        "fullSentence": "실제 UI 상태와 테스트 상태가 섞이고, 나중에는 “이 조건이 운영에서도 필요한 조건인지, 테스트를 위한 조건인지”를 구분하기 어려워진다.",
+        "index": 21,
+        "type": "text"
+      },
+      {
+        "fullSentence": "두 번째 방식은 조금 낫지만 여전히 API 함수가 무거워진다.",
+        "index": 22,
+        "type": "text"
+      },
+      {
+        "fullSentence": "API 함수는 원래 endpoint와 요청, 응답 타입을 설명하는 곳이어야 한다.",
+        "index": 23,
+        "type": "text"
+      },
+      {
+        "fullSentence": "그런데 여기에 테스트 시나리오가 쌓이면 API 함수가 “실제 통신 코드”인지 “테스트 fixture 매니저”인지 모호해진다.",
+        "index": 24,
+        "type": "text"
+      },
+      {
+        "fullSentence": "세 번째 방식은 구현 비용이 조금 더 들지만 책임이 깔끔하다.",
+        "index": 25,
+        "type": "text"
+      },
+      {
+        "fullSentence": "화면은 실제 API를 호출한다.",
+        "index": 26,
+        "type": "text"
+      },
+      {
+        "fullSentence": "application hook도 실제 API를 호출한다.",
+        "index": 27,
+        "type": "text"
+      },
+      {
+        "fullSentence": "query option도 그대로 둔다.",
+        "index": 28,
+        "type": "text"
+      },
+      {
+        "fullSentence": "대신 요청이 지나가는 경계에서만 “이 요청은 목으로 처리할 것인가?”를 결정한다.",
+        "index": 29,
+        "type": "text"
+      },
+      {
+        "fullSentence": "이번 구현은 세 번째 방식을 택했다.",
+        "index": 30,
+        "type": "text"
+      },
+      {
+        "fullSentence": "전체 구조\n \n테스트 모드는 크게 네 층으로 나뉜다.",
+        "index": 31,
+        "type": "text"
+      },
+      {
+        "fullSentence": "브라우저 콘솔\n  └─ test.add(\"/orders/cart/createCart\")\n      └─ localStorage + cookie에 활성화된 mock path 저장\n          └─ TestModeProvider가 상태 동기화 + TEST MODE 워터마크 표시\n              └─ apiClient request interceptor / API proxy에서 요청 가로채기\n                  ├─ 전체 응답 mock\n                  └─ 실제 응답 patch",
+        "index": 32,
+        "type": "code",
+        "language": "txt"
+      },
+      {
+        "fullSentence": "핵심 파일은 다음과 같다.",
+        "index": 33,
+        "type": "text"
+      },
+      {
+        "fullSentence": "lib/test/mock-remote.ts\ncomponents/providers/test-mode-provider.tsx\nstore/test/use-test-store.ts\nstore/test/index.ts\nlib/api-client.ts\nlib/server/api/proxy.ts\napp/layout.tsx",
+        "index": 34,
+        "type": "code",
+        "language": "txt"
+      },
+      {
+        "fullSentence": "이 구조에서 화면 코드는 테스트 모드를 몰라도 된다.",
+        "index": 35,
+        "type": "text"
+      },
+      {
+        "fullSentence": "화면은 평소처럼 API를 호출한다.",
+        "index": 36,
+        "type": "text"
+      },
+      {
+        "fullSentence": "테스트 모드 여부는 API 요청이 출발하거나 프록시를 지나는 순간에만 판단된다.",
+        "index": 37,
+        "type": "text"
+      },
+      {
+        "fullSentence": "테스트 모드는 local/development에서만 열린다\n \n테스트 기능은 운영에 절대 노출되면 안 된다.",
+        "index": 38,
+        "type": "text"
+      },
+      {
+        "fullSentence": "그래서 가장 바깥에 환경 가드를 둔다.",
+        "index": 39,
+        "type": "text"
+      },
+      {
+        "fullSentence": "export const isTestModeAvailable = () =>\n  env.apiEnvironment === \"local\" || env.apiEnvironment === \"development\";",
+        "index": 40,
+        "type": "code",
+        "language": "ts"
+      },
+      {
+        "fullSentence": "이 함수는 lib/test/mock-remote.",
+        "index": 41,
+        "type": "text"
+      },
+      {
+        "fullSentence": "ts의 시작점이다.",
+        "index": 42,
+        "type": "text"
+      },
+      {
+        "fullSentence": "목 path를 읽고 쓰는 모든 함수는 이 조건을 먼저 확인한다.",
+        "index": 43,
+        "type": "text"
+      },
+      {
+        "fullSentence": "export const readMockRemotePaths = (cookieHeader?: string | null) => {\n  if (!isTestModeAvailable()) {\n    return [];\n  }\n \n  // cookie 또는 localStorage에서 활성화된 mock path를 읽는다.\n};",
+        "index": 44,
+        "type": "code",
+        "language": "ts"
+      },
+      {
+        "fullSentence": "즉, 운영 환경에서는 콘솔 API가 노출되지 않고, 저장된 값이 있더라도 API 요청을 가로채지 않는다.",
+        "index": 45,
+        "type": "text"
+      },
+      {
+        "fullSentence": "테스트 기능은 개발 생산성을 위한 장치이지, 제품 기능이 아니다.",
+        "index": 46,
+        "type": "text"
+      },
+      {
+        "fullSentence": "그래서 환경 경계가 가장 먼저 와야 한다.",
+        "index": 47,
+        "type": "text"
+      },
+      {
+        "fullSentence": "콘솔에서 테스트를 켜는 이유\n \n테스트 기능은 개발자와 QA가 빠르게 써야 한다.",
+        "index": 48,
+        "type": "text"
+      },
+      {
+        "fullSentence": "버튼이나 관리자 화면을 만들 수도 있지만, 그 자체가 또 하나의 제품 코드가 된다.",
+        "index": 49,
+        "type": "text"
+      },
+      {
+        "fullSentence": "이번 구현에서는 브라우저 콘솔을 테스트 모드의 조작 인터페이스로 사용했다.",
+        "index": 50,
+        "type": "text"
+      },
+      {
+        "fullSentence": "test.add(\"/orders/cart/createCart\");\ntest.remove(\"/orders/cart/createCart\");\ntest.toggle(\"/orders/cart/createCart\");\ntest.list();\ntest.clear();",
+        "index": 51,
+        "type": "code",
+        "language": "js"
+      },
+      {
+        "fullSentence": "PASS 본인인증 팝업처럼 path 기반 목이 아닌 기능도 같은 인터페이스로 켤 수 있다.",
+        "index": 52,
+        "type": "text"
+      },
+      {
+        "fullSentence": "test.add(\"본인인증\");\ntest.remove(\"본인인증\");",
+        "index": 53,
+        "type": "code",
+        "language": "js"
+      },
+      {
+        "fullSentence": "콘솔 API는 TestModeProvider에서 설치한다.",
+        "index": 54,
+        "type": "text"
+      },
+      {
+        "fullSentence": "Object.defineProperty(window, \"test\", {\n  configurable: true,\n  get: () => testConsoleApi,\n  set: (value) => {\n    if (typeof value === \"string\") {\n      setTestMocks(value);\n    }\n  },\n});",
+        "index": 55,
+        "type": "code",
+        "language": "tsx"
+      },
+      {
+        "fullSentence": "이렇게 해두면 함수 호출과 대입형 사용을 모두 지원할 수 있다.",
+        "index": 56,
+        "type": "text"
+      },
+      {
+        "fullSentence": "test(\"/orders/cart/createCart\");\ntest = \"/orders/cart/createCart\";",
+        "index": 57,
+        "type": "code",
+        "language": "js"
+      },
+      {
+        "fullSentence": "개발자 입장에서는 사용법이 짧고, QA 입장에서는 재현 절차에 그대로 적을 수 있다.",
+        "index": 58,
+        "type": "text"
+      },
+      {
+        "fullSentence": "1. 개발 환경 접속\n2. 콘솔에서 test.add(\"/orders/cart/createCart\") 실행\n3. 장바구니 담기 시나리오 진행",
+        "index": 59,
+        "type": "code",
+        "language": "txt"
+      },
+      {
+        "fullSentence": "테스트 진입 장벽을 낮추는 데는 이런 작은 사용성이 꽤 중요하다.",
+        "index": 60,
+        "type": "text"
+      },
+      {
+        "fullSentence": "활성화된 목 path는 localStorage와 cookie에 같이 저장한다\n \n목 인터셉터를 브라우저에서만 쓴다면 localStorage만으로 충분하다.",
+        "index": 61,
+        "type": "text"
+      },
+      {
+        "fullSentence": "하지만 Next.",
+        "index": 62,
+        "type": "text"
+      },
+      {
+        "fullSentence": "js 환경에서는 SSR 요청도 있다.",
+        "index": 63,
+        "type": "text"
+      },
+      {
+        "fullSentence": "서버에서 렌더링되는 API 요청은 브라우저 localStorage를 읽을 수 없다.",
+        "index": 64,
+        "type": "text"
+      },
+      {
+        "fullSentence": "그래서 활성화된 목 path를 두 곳에 저장한다.",
+        "index": 65,
+        "type": "text"
+      },
+      {
+        "fullSentence": "browserLocalStorage.setItem(\n  storageKeys.local.testMockRemotePaths,\n  JSON.stringify(normalizedPaths),\n);\nwriteMockRemoteCookie(normalizedPaths);",
+        "index": 66,
+        "type": "code",
+        "language": "ts"
+      },
+      {
+        "fullSentence": "localStorage는 클라이언트 상태 동기화에 유리하고, cookie는 서버 요청에서 읽을 수 있다.",
+        "index": 67,
+        "type": "text"
+      },
+      {
+        "fullSentence": "const writeMockRemoteCookie = (paths: string[]) => {\n  if (typeof document === \"undefined\") {\n    return;\n  }\n \n  document.cookie = [\n    `${storageKeys.local.testMockRemotePaths.key}=${encodeURIComponent(JSON.stringify(paths))}`,\n    \"path=/\",\n    `max-age=${MOCK_REMOTE_COOKIE_MAX_AGE_SECONDS}`,\n    \"samesite=lax\",\n  ].join(\"; \");\n};",
+        "index": 68,
+        "type": "code",
+        "language": "ts"
+      },
+      {
+        "fullSentence": "그리고 루트 레이아웃에서는 서버 요청의 cookie를 읽어 초기 테스트 상태를 주입한다.",
+        "index": 69,
+        "type": "text"
+      },
+      {
+        "fullSentence": "const getInitialActiveMockRemotePaths = async () => {\n  if (env.apiEnvironment !== \"local\" && env.apiEnvironment !== \"development\") {\n    return [];\n  }\n \n  const [{ headers }, { readMockRemotePaths }] = await Promise.all([\n    import(\"next/headers\"),\n    import(\"@/lib/test/mock-remote\"),\n  ]);\n  const requestHeaders = await headers();\n \n  return readMockRemotePaths(requestHeaders.get(\"cookie\"));\n};",
+        "index": 70,
+        "type": "code",
+        "language": "tsx"
+      },
+      {
+        "fullSentence": "그 값은 TestModeProvider로 전달된다.",
+        "index": 71,
+        "type": "text"
+      },
+      {
+        "fullSentence": "<TestModeProvider initialActiveMockRemotePaths={initialActiveMockRemotePaths} />",
+        "index": 72,
+        "type": "code",
+        "language": "tsx"
+      },
+      {
+        "fullSentence": "이 덕분에 클라이언트 렌더링 요청과 서버 렌더링 요청이 같은 테스트 상태를 공유한다.",
+        "index": 73,
+        "type": "text"
+      },
+      {
+        "fullSentence": "path 정규화: /api가 붙어도 같은 endpoint로 본다\n \n테스트 기능은 사용하기 쉬워야 한다.",
+        "index": 74,
+        "type": "text"
+      },
+      {
+        "fullSentence": "그런데 실제 요청 경로는 상황에 따라 조금씩 달라질 수 있다.",
+        "index": 75,
+        "type": "text"
+      },
+      {
+        "fullSentence": "예를 들어 같은 요청이 다음처럼 표현될 수 있다.",
+        "index": 76,
+        "type": "text"
+      },
+      {
+        "fullSentence": "/orders/cart/createCart\n/api/orders/cart/createCart\nhttps://front.dominos.co.kr/api/orders/cart/createCart",
+        "index": 77,
+        "type": "code",
+        "language": "txt"
+      },
+      {
+        "fullSentence": "사용자가 콘솔에 어떤 형태로 입력하든 같은 endpoint로 판단해야 한다.",
+        "index": 78,
+        "type": "text"
+      },
+      {
+        "fullSentence": "그래서 path를 정규화하고 후보군을 만든다.",
+        "index": 79,
+        "type": "text"
+      },
+      {
+        "fullSentence": "export const normalizeMockRemotePath = (path: string) => {\n  const trimmed = path.trim();\n \n  if (!trimmed) {\n    return \"\";\n  }\n \n  try {\n    const parsedUrl = URL.canParse(trimmed)\n      ? new URL(trimmed)\n      : new URL(\n          trimmed,\n          typeof window === \"undefined\"\n            ? \"https://front.dominos.co.kr\"\n            : window.location.origin,\n        );\n    return parsedUrl.pathname;\n  } catch {\n    return trimmed.startsWith(\"/\") ? trimmed : `/${trimmed}`;\n  }\n};",
+        "index": 80,
+        "type": "code",
+        "language": "ts"
+      },
+      {
+        "fullSentence": "그리고 /api prefix가 붙은 경우와 빠진 경우를 모두 후보로 둔다.",
+        "index": 81,
+        "type": "text"
+      },
+      {
+        "fullSentence": "const createPathCandidates = (path: string) => {\n  const normalizedPath = normalizeMockRemotePath(path);\n \n  if (!normalizedPath) {\n    return [];\n  }\n \n  const withoutApiPrefix = normalizedPath.replace(/^\\/api(?=\\/)/, \"\");\n  const withApiPrefix = `/api${withoutApiPrefix}`;\n \n  return Array.from(\n    new Set([normalizedPath, withoutApiPrefix, withApiPrefix].filter(Boolean)),\n  );\n};",
+        "index": 82,
+        "type": "code",
+        "language": "ts"
+      },
+      {
+        "fullSentence": "이 처리가 들어가면 사용자는 내부 프록시 경로를 정확히 몰라도 된다.",
+        "index": 83,
+        "type": "text"
+      },
+      {
+        "fullSentence": "test.add(\"/orders/cart/createCart\");\ntest.add(\"/api/orders/cart/createCart\");",
+        "index": 84,
+        "type": "code",
+        "language": "js"
+      },
+      {
+        "fullSentence": "둘 다 같은 목 핸들러를 켠다.",
+        "index": 85,
+        "type": "text"
+      },
+      {
+        "fullSentence": "목 핸들러 등록은 타입 안전하게 한다\n \n목 응답을 쉽게 추가하려면 등록 API가 단순해야 한다.",
+        "index": 86,
+        "type": "text"
+      },
+      {
+        "fullSentence": "하지만 단순함 때문에 타입을 포기하면 나중에 응답 구조가 실제 API와 어긋나기 쉽다.",
+        "index": 87,
+        "type": "text"
+      },
+      {
+        "fullSentence": "그래서 defineMockRemote를 만들었다.",
+        "index": 88,
+        "type": "text"
+      },
+      {
+        "fullSentence": "export const defineMockRemote = <TPath extends MockRemotePath>(\n  path: TPath,\n  handler: MockRemoteHandler<\n    MockRemoteRequest<TPath>,\n    MockRemoteResponse<TPath>\n  >,\n): MockRemoteDefinition => ({\n  handler: handler as MockRemoteHandler,\n  path: normalizeMockRemotePath(path),\n});",
+        "index": 89,
+        "type": "code",
+        "language": "ts"
+      },
+      {
+        "fullSentence": "이 함수는 path를 기준으로 request와 response 타입을 연결한다.",
+        "index": 90,
+        "type": "text"
+      },
+      {
+        "fullSentence": "실제 등록 코드는 이렇게 짧다.",
+        "index": 91,
+        "type": "text"
+      },
+      {
+        "fullSentence": "const mockRemoteDefinitions: readonly MockRemoteDefinition[] = [\n  defineMockRemote(ordersCartCreateCartPath, ({ request }) => ({\n    code: \"200\",\n    data: {\n      cartTpCd: request?.cartTpCd ?? \"ORD\",\n      cartVerNo: `mock-cart-${Date.now()}`,\n    },\n    message: \"OK\",\n    status: 200,\n    timestamp: new Date().toISOString(),\n  })),\n];",
+        "index": 92,
+        "type": "code",
+        "language": "ts"
+      },
+      {
+        "fullSentence": "여기서 중요한 점은 ordersCartCreateCartPath를 문자열로 직접 쓰지 않는다는 것이다.",
+        "index": 93,
+        "type": "text"
+      },
+      {
+        "fullSentence": "import { ordersCartCreateCartPath } from \"@/option/orders/indexPaths\";",
+        "index": 94,
+        "type": "code",
+        "language": "ts"
+      },
+      {
+        "fullSentence": "이미 생성된 endpoint path const를 사용한다.",
+        "index": 95,
+        "type": "text"
+      },
+      {
+        "fullSentence": "프로젝트 규칙상 브라우저 이동이나 팝업처럼 API fetch가 아닌 곳에서 endpoint path가 필요할 때도 remote를 직접 import하지 않고 option/<group>/indexPaths.",
+        "index": 96,
+        "type": "text"
+      },
+      {
+        "fullSentence": "ts의 generated path const를 사용한다.",
+        "index": 97,
+        "type": "text"
+      },
+      {
+        "fullSentence": "테스트 목 등록도 같은 원칙을 따른다.",
+        "index": 98,
+        "type": "text"
+      },
+      {
+        "fullSentence": "덕분에 endpoint 문자열이 바뀌면 타입과 import 경로를 통해 흔적이 드러난다.",
+        "index": 99,
+        "type": "text"
+      },
+      {
+        "fullSentence": "목 데이터가 실제 API 계약에서 조용히 멀어지는 일을 줄일 수 있다.",
+        "index": 100,
+        "type": "text"
+      },
+      {
+        "fullSentence": "전체 mock과 patch mock을 나눈 이유\n \n목 처리는 두 종류로 나뉜다.",
+        "index": 101,
+        "type": "text"
+      },
+      {
+        "fullSentence": "첫 번째는 전체 응답을 대체하는 mock이다.",
+        "index": 102,
+        "type": "text"
+      },
+      {
+        "fullSentence": "defineMockRemote(ordersCartCreateCartPath, ({ request }) => ({\n  code: \"200\",\n  data: {\n    cartTpCd: request?.cartTpCd ?? \"ORD\",\n    cartVerNo: `mock-cart-${Date.now()}`,\n  },\n  message: \"OK\",\n  status: 200,\n  timestamp: new Date().toISOString(),\n}));",
+        "index": 103,
+        "type": "code",
+        "language": "ts"
+      },
+      {
+        "fullSentence": "이 방식은 서버 호출 자체가 필요 없는 시나리오에 적합하다.",
+        "index": 104,
+        "type": "text"
+      },
+      {
+        "fullSentence": "예를 들어 장바구니 생성처럼 특정 성공 응답만 있으면 다음 화면으로 넘어갈 수 있는 경우다.",
+        "index": 105,
+        "type": "text"
+      },
+      {
+        "fullSentence": "두 번째는 실제 응답을 받은 뒤 일부만 바꾸는 patch다.",
+        "index": 106,
+        "type": "text"
+      },
+      {
+        "fullSentence": "const mockRemotePatchDefinitions: readonly MockRemotePatchDefinition[] = [\n  defineMockRemotePatch(menusDetailGetMenuDetailPath, (response) => ({\n    ...response,\n    data: response.data\n      ? {\n          ...response.data,\n          menuBasicInfo: response.data.menuBasicInfo\n            ? {\n                ...response.data.menuBasicInfo,\n                menuTpCd: \"HNH\",\n              }\n            : response.data.menuBasicInfo,\n        }\n      : response.data,\n  })),\n];",
+        "index": 107,
+        "type": "code",
+        "language": "ts"
+      },
+      {
+        "fullSentence": "이 방식은 실 서버 데이터의 대부분은 그대로 쓰고, 테스트하고 싶은 조건만 바꿀 때 좋다.",
+        "index": 108,
+        "type": "text"
+      },
+      {
+        "fullSentence": "예를 들어 메뉴 상세 응답에서 menuTpCd만 HNH로 바꾸면, 실제 서버 응답의 나머지 필드는 그대로 유지하면서 하프앤하프 메뉴 UI를 테스트할 수 있다.",
+        "index": 109,
+        "type": "text"
+      },
+      {
+        "fullSentence": "이 구분은 실무에서 중요하다.",
+        "index": 110,
+        "type": "text"
+      },
+      {
+        "fullSentence": "모든 것을 mock으로 대체하면 테스트는 쉬워지지만 실제 응답과 멀어진다.",
+        "index": 111,
+        "type": "text"
+      },
+      {
+        "fullSentence": "반대로 모든 것을 실 서버에 의존하면 테스트하기 어려운 edge case를 만들 수 없다.",
+        "index": 112,
+        "type": "text"
+      },
+      {
+        "fullSentence": "그래서 전체 mock과 patch mock을 모두 지원하게 했다.",
+        "index": 113,
+        "type": "text"
+      },
+      {
+        "fullSentence": "API 클라이언트에서 adapter로 요청을 가로챈다\n \n클라이언트 요청의 핵심은 Axios request interceptor다.",
+        "index": 114,
+        "type": "text"
+      },
+      {
+        "fullSentence": "apiClient.interceptors.request.use(async (config) => {\n  const requestConfig = config as InternalApiRequestConfig;\n  const serverCookieHeader =\n    typeof window === \"undefined\" ? await getServerCookieHeader() : undefined;\n \n  const mockRemoteAdapter = createMockRemoteAdapter(\n    requestConfig,\n    serverCookieHeader,\n  );\n \n  if (mockRemoteAdapter) {\n    requestConfig.adapter = mockRemoteAdapter;\n  }\n \n  return requestConfig;\n});",
+        "index": 115,
+        "type": "code",
+        "language": "ts"
+      },
+      {
+        "fullSentence": "여기서 실 코드 침범을 막는 핵심이 나온다.",
+        "index": 116,
+        "type": "text"
+      },
+      {
+        "fullSentence": "화면 코드나 application hook에서는 여전히 apiClient.",
+        "index": 117,
+        "type": "text"
+      },
+      {
+        "fullSentence": "get, apiClient.",
+        "index": 118,
+        "type": "text"
+      },
+      {
+        "fullSentence": "post를 호출한다.",
+        "index": 119,
+        "type": "text"
+      },
+      {
+        "fullSentence": "테스트 모드 여부를 알지 못한다.",
+        "index": 120,
+        "type": "text"
+      },
+      {
+        "fullSentence": "단지 요청이 나가기 직전에 interceptor가 “이 요청은 mock 대상인가?”를 판단한다.",
+        "index": 121,
+        "type": "text"
+      },
+      {
+        "fullSentence": "대상이라면 Axios adapter를 바꾼다.",
+        "index": 122,
+        "type": "text"
+      },
+      {
+        "fullSentence": "export const createMockRemoteAdapter = (\n  config: InternalAxiosRequestConfig,\n  cookieHeader?: string,\n): AxiosAdapter | null => {\n  if (!isTestModeAvailable()) {\n    return null;\n  }\n \n  const path = normalizeMockRemotePath(config.url ?? \"\");\n \n  if (\n    !path ||\n    isMockRemotePatchActive(path, cookieHeader) ||\n    !findMockRemoteHandler(path) ||\n    !isMockRemotePathActive(path, config.headers, cookieHeader)\n  ) {\n    return null;\n  }\n \n  return async () => {\n    const method = config.method?.toUpperCase() ?? \"GET\";\n    const result = await createMockRemoteResult({\n      body: parseBody(config.data),\n      cookieHeader,\n      headers: config.headers,\n      method,\n      params: config.params,\n      path,\n      url: config.url ?? path,\n    });\n \n    return {\n      config,\n      data: result.data,\n      headers: {},\n      status: result.status,\n      statusText: result.statusText,\n    };\n  };\n};",
+        "index": 123,
+        "type": "code",
+        "language": "ts"
+      },
+      {
+        "fullSentence": "Axios adapter는 실제 네트워크 호출을 수행하는 가장 아래쪽 실행 단위다.",
+        "index": 124,
+        "type": "text"
+      },
+      {
+        "fullSentence": "여기를 교체하면 API 함수나 화면 코드를 바꾸지 않고도 응답만 바꿀 수 있다.",
+        "index": 125,
+        "type": "text"
+      },
+      {
+        "fullSentence": "이게 “테스트 코드는 API 경계에서 처리한다”는 설계의 핵심이다.",
+        "index": 126,
+        "type": "text"
+      },
+      {
+        "fullSentence": "서버 프록시에서도 같은 목 로직을 사용한다\n \nNext.",
+        "index": 127,
+        "type": "text"
+      },
+      {
+        "fullSentence": "js 앱에서는 모든 요청이 브라우저에서만 나가지 않는다.",
+        "index": 128,
+        "type": "text"
+      },
+      {
+        "fullSentence": "인증이 필요한 API는 local API proxy를 거칠 수 있다.",
+        "index": 129,
+        "type": "text"
+      },
+      {
+        "fullSentence": "SSR 과정에서 발생하는 요청도 있다.",
+        "index": 130,
+        "type": "text"
+      },
+      {
+        "fullSentence": "그래서 서버 프록시에서도 같은 mock remote 로직을 사용한다.",
+        "index": 131,
+        "type": "text"
+      },
+      {
+        "fullSentence": "export const proxyApiRequest = async (request: Request, path: string[]) => {\n  const method = request.method.toUpperCase();\n  const params = readProxyParams(request);\n  const body = BODYLESS_METHODS.has(method)\n    ? undefined\n    : await request.arrayBuffer();\n  const normalizedPath = `/${path.join(\"/\")}`;\n  const cookieHeader = request.headers.get(\"cookie\") ?? \"\";\n \n  const shouldUsePatch = isMockRemotePatchActive(normalizedPath, cookieHeader);\n  const mockResult = shouldUsePatch\n    ? null\n    : await createMockRemoteResult({\n        body: parseProxyBody(body),\n        cookieHeader,\n        headers: createMockProxyHeaders(request),\n        method,\n        params,\n        path: normalizedPath,\n        url: request.url,\n      });\n \n  if (mockResult) {\n    return createMockProxyResponse(mockResult);\n  }\n \n  // mock 대상이 아니면 실제 upstream 호출\n};",
+        "index": 132,
+        "type": "code",
+        "language": "ts"
+      },
+      {
+        "fullSentence": "전체 mock 대상이면 upstream API를 호출하지 않고 바로 JSON 응답을 만든다.",
+        "index": 133,
+        "type": "text"
+      },
+      {
+        "fullSentence": "const createMockProxyResponse = (result: {\n  data: unknown;\n  status: number;\n  statusText: string;\n}) =>\n  NextResponse.json(result.data, {\n    headers: {\n      \"cache-control\": \"no-store\",\n    },\n    status: result.status,\n    statusText: result.statusText,\n  });",
+        "index": 134,
+        "type": "code",
+        "language": "ts"
+      },
+      {
+        "fullSentence": "patch mock 대상이면 실제 upstream 응답을 받은 뒤 payload만 바꾼다.",
+        "index": 135,
+        "type": "text"
+      },
+      {
+        "fullSentence": "const patchedPayload = await applyMockRemotePatch({\n  body: parseProxyBody(body),\n  cookieHeader: request.headers.get(\"cookie\") ?? \"\",\n  data: payload,\n  headers: createMockProxyHeaders(request),\n  method,\n  params,\n  path: `/${path.join(\"/\")}`,\n  url: request.url,\n});",
+        "index": 136,
+        "type": "code",
+        "language": "ts"
+      },
+      {
+        "fullSentence": "이 구조가 좋은 이유는 서버와 클라이언트가 같은 판단 기준을 공유한다는 점이다.",
+        "index": 137,
+        "type": "text"
+      },
+      {
+        "fullSentence": "목 path를 읽는 곳도 readMockRemotePaths, 목 응답을 만드는 곳도 createMockRemoteResult, patch를 적용하는 곳도 applyMockRemotePatch다.",
+        "index": 138,
+        "type": "text"
+      },
+      {
+        "fullSentence": "실행 위치만 다를 뿐 정책은 하나다.",
+        "index": 139,
+        "type": "text"
+      },
+      {
+        "fullSentence": "patch 요청은 프록시로 보낸다\n \npatch mock은 전체 mock보다 조금 더 섬세하다.",
+        "index": 140,
+        "type": "text"
+      },
+      {
+        "fullSentence": "실제 응답을 받아야 하므로 요청이 반드시 프록시를 지나야 한다.",
+        "index": 141,
+        "type": "text"
+      },
+      {
+        "fullSentence": "그래서 API 클라이언트의 request interceptor에서 patch 대상인지 먼저 확인한다.",
+        "index": 142,
+        "type": "text"
+      },
+      {
+        "fullSentence": "const shouldUseMockPatchProxy = isMockRemotePatchActive(\n  requestConfig.url,\n  serverCookieHeader,\n);\n \nconst shouldUseProxy =\n  shouldUseLocalApiProxy(requestConfig.url, authRequirement, transportMode) ||\n  shouldUseMockPatchProxy;\n \nif (shouldUseProxy) {\n  requestConfig.url = toLocalApiProxyPath(requestConfig.url);\n}",
+        "index": 143,
+        "type": "code",
+        "language": "ts"
+      },
+      {
+        "fullSentence": "일반적으로 인증이 필요 없는 direct 요청이라도 patch mock이 켜져 있으면 local API proxy로 보낸다.",
+        "index": 144,
+        "type": "text"
+      },
+      {
+        "fullSentence": "그래야 서버 프록시가 upstream 응답을 받고 patch를 적용할 수 있다.",
+        "index": 145,
+        "type": "text"
+      },
+      {
+        "fullSentence": "즉, patch mock은 “응답을 직접 만들지 않고, 실제 응답을 통과시킨 뒤 일부만 바꾸는 모드”다.",
+        "index": 146,
+        "type": "text"
+      },
+      {
+        "fullSentence": "요청 context를 넘겨서 handler를 유연하게 만든다\n \n목 핸들러는 단순히 response만 반환하지 않는다.",
+        "index": 147,
+        "type": "text"
+      },
+      {
+        "fullSentence": "요청 정보를 함께 받는다.",
+        "index": 148,
+        "type": "text"
+      },
+      {
+        "fullSentence": "export type MockRemoteContext<TRequest = unknown> = Readonly<{\n  body: TRequest | undefined;\n  headers: unknown;\n  method: string;\n  path: string;\n  params: unknown;\n  request: TRequest | undefined;\n  url: string;\n}>;",
+        "index": 149,
+        "type": "code",
+        "language": "ts"
+      },
+      {
+        "fullSentence": "이 context 덕분에 mock 응답을 요청에 따라 바꿀 수 있다.",
+        "index": 150,
+        "type": "text"
+      },
+      {
+        "fullSentence": "defineMockRemote(ordersCartCreateCartPath, ({ request }) => ({\n  code: \"200\",\n  data: {\n    cartTpCd: request?.cartTpCd ?? \"ORD\",\n    cartVerNo: `mock-cart-${Date.now()}`,\n  },\n  message: \"OK\",\n  status: 200,\n  timestamp: new Date().toISOString(),\n}));",
+        "index": 151,
+        "type": "code",
+        "language": "ts"
+      },
+      {
+        "fullSentence": "GET/DELETE는 query params를 request로 보고, POST/PUT/PATCH는 body를 request로 본다.",
+        "index": 152,
+        "type": "text"
+      },
+      {
+        "fullSentence": "const normalizedMethod = method.toUpperCase();\nconst request =\n  normalizedMethod === \"GET\" || normalizedMethod === \"DELETE\" ? params : body;",
+        "index": 153,
+        "type": "code",
+        "language": "ts"
+      },
+      {
+        "fullSentence": "이렇게 하면 handler 작성자가 HTTP method별 데이터 위치를 매번 신경 쓰지 않아도 된다.",
+        "index": 154,
+        "type": "text"
+      },
+      {
+        "fullSentence": "콘솔 조작과 UI 상태를 동기화한다\n \n테스트 기능이 콘솔에만 있으면 한 가지 문제가 생긴다.",
+        "index": 155,
+        "type": "text"
+      },
+      {
+        "fullSentence": "지금 테스트 모드가 켜져 있는지 화면에서 알기 어렵다.",
+        "index": 156,
+        "type": "text"
+      },
+      {
+        "fullSentence": "그래서 TestModeProvider는 활성화된 목 path 또는 PASS 인증 목이 있으면 화면 전체에 TEST MODE 워터마크를 표시한다.",
+        "index": 157,
+        "type": "text"
+      },
+      {
+        "fullSentence": "if (!isAvailable || !visibleIsTest) {\n  return null;\n}\n \nreturn (\n  <div\n    aria-hidden=\"true\"\n    className=\"pointer-events-none fixed inset-0 z-[2147483647] select-none\"\n  >\n    <div className=\"absolute inset-0 overflow-hidden opacity-[0.08]\">\n      <div className=\"absolute top-1/2 -left-16 flex w-[140vw] -translate-y-1/2 -rotate-24 flex-wrap justify-center gap-x-12 gap-y-8 text-red-600\">\n        {TEST_MODE_WATERMARK_ITEMS.map((item) => (\n          <span className=\"text-[28px] font-black tracking-normal\" key={item}>\n            TEST MODE\n          </span>\n        ))}\n      </div>\n    </div>\n  </div>\n);",
+        "index": 158,
+        "type": "code",
+        "language": "tsx"
+      },
+      {
+        "fullSentence": "여기서 pointer-events-none을 준 것도 중요하다.",
+        "index": 159,
+        "type": "text"
+      },
+      {
+        "fullSentence": "테스트 모드 표시가 화면 위에 떠 있어도 실제 UI 클릭을 막지 않는다.",
+        "index": 160,
+        "type": "text"
+      },
+      {
+        "fullSentence": "또한 html/body에 dataset을 심는다.",
+        "index": 161,
+        "type": "text"
+      },
+      {
+        "fullSentence": "if (visibleIsTest) {\n  document.documentElement.dataset.testMode = \"true\";\n  document.body.dataset.testMode = \"true\";\n  return;\n}",
+        "index": 162,
+        "type": "code",
+        "language": "ts"
+      },
+      {
+        "fullSentence": "필요하면 CSS나 디버깅 도구에서 현재 테스트 상태를 쉽게 확인할 수 있다.",
+        "index": 163,
+        "type": "text"
+      },
+      {
+        "fullSentence": "테스트 기능은 숨어 있으면 위험하다.",
+        "index": 164,
+        "type": "text"
+      },
+      {
+        "fullSentence": "특히 목 응답을 켜둔 채로 다른 시나리오를 테스트하면 헷갈릴 수 있다.",
+        "index": 165,
+        "type": "text"
+      },
+      {
+        "fullSentence": "그래서 화면에 아주 약하지만 분명한 신호를 남겼다.",
+        "index": 166,
+        "type": "text"
+      },
+      {
+        "fullSentence": "storage 이벤트와 custom event를 같이 쓴다\n \n테스트 path가 바뀌면 React 상태도 즉시 바뀌어야 한다.",
+        "index": 167,
+        "type": "text"
+      },
+      {
+        "fullSentence": "다른 탭에서 localStorage가 바뀌는 경우에는 storage 이벤트가 발생한다.",
+        "index": 168,
+        "type": "text"
+      },
+      {
+        "fullSentence": "하지만 같은 탭에서 localStorage를 바꾸면 storage 이벤트가 발생하지 않는다.",
+        "index": 169,
+        "type": "text"
+      },
+      {
+        "fullSentence": "그래서 직접 custom event를 함께 발행한다.",
+        "index": 170,
+        "type": "text"
+      },
+      {
+        "fullSentence": "window.dispatchEvent(\n  new CustomEvent<string[]>(MOCK_REMOTE_CHANGED_EVENT, {\n    detail: normalizedPaths,\n  }),\n);",
+        "index": 171,
+        "type": "code",
+        "language": "ts"
+      },
+      {
+        "fullSentence": "구독 함수는 둘 다 듣는다.",
+        "index": 172,
+        "type": "text"
+      },
+      {
+        "fullSentence": "export const subscribeMockRemotePathsChange = (\n  listener: (paths: string[]) => void,\n) => {\n  const handleStorage = (event: StorageEvent) => {\n    if (event.key !== storageKeys.local.testMockRemotePaths.key) {\n      return;\n    }\n \n    listener(readMockRemotePaths());\n  };\n \n  const handleCustomEvent = (event: Event) => {\n    listener((event as CustomEvent<string[]>).detail ?? readMockRemotePaths());\n  };\n \n  window.addEventListener(\"storage\", handleStorage);\n  window.addEventListener(MOCK_REMOTE_CHANGED_EVENT, handleCustomEvent);\n \n  return () => {\n    window.removeEventListener(\"storage\", handleStorage);\n    window.removeEventListener(MOCK_REMOTE_CHANGED_EVENT, handleCustomEvent);\n  };\n};",
+        "index": 173,
+        "type": "code",
+        "language": "ts"
+      },
+      {
+        "fullSentence": "이렇게 하면 같은 탭, 다른 탭 모두 상태가 자연스럽게 맞춰진다.",
+        "index": 174,
+        "type": "text"
+      },
+      {
+        "fullSentence": "Redux store는 UI 동기화만 맡는다\n \n테스트 상태는 Redux에도 들어간다.",
+        "index": 175,
+        "type": "text"
+      },
+      {
+        "fullSentence": "export type TestState = Readonly<{\n  activeMockRemotePaths: string[];\n  updatedAt: string | null;\n}>;",
+        "index": 176,
+        "type": "code",
+        "language": "ts"
+      },
+      {
+        "fullSentence": "하지만 Redux가 진짜 source of truth는 아니다.",
+        "index": 177,
+        "type": "text"
+      },
+      {
+        "fullSentence": "실제 API 인터셉터와 서버 프록시가 읽는 값은 localStorage/cookie다.",
+        "index": 178,
+        "type": "text"
+      },
+      {
+        "fullSentence": "Redux는 화면 표시와 React hook 사용성을 위한 계층이다.",
+        "index": 179,
+        "type": "text"
+      },
+      {
+        "fullSentence": "const testSlice = createSlice({\n  name: \"test\",\n  initialState,\n  reducers: {\n    replaceMockRemotePaths: (state, action: PayloadAction<string[]>) => {\n      state.activeMockRemotePaths = action.payload;\n      state.updatedAt = now();\n    },\n  },\n  selectors: {\n    selectActiveMockRemotePaths: (state) => state.activeMockRemotePaths,\n    selectIsTestMode: (state) => state.activeMockRemotePaths.length > 0,\n    selectTestUpdatedAt: (state) => state.updatedAt,\n  },\n});",
+        "index": 180,
+        "type": "code",
+        "language": "ts"
+      },
+      {
+        "fullSentence": "useTestStore는 localStorage/cookie를 쓰는 함수와 Redux dispatch를 함께 묶는다.",
+        "index": 181,
+        "type": "text"
+      },
+      {
+        "fullSentence": "const setMockRemotePaths = useCallback(\n  (paths: string | string[]) => {\n    const nextPaths = writeMockRemotePaths(parseMockRemotePathInput(paths));\n    dispatch(testActions.replaceMockRemotePaths(nextPaths));\n \n    return nextPaths;\n  },\n  [dispatch],\n);",
+        "index": 182,
+        "type": "code",
+        "language": "ts"
+      },
+      {
+        "fullSentence": "이 책임 분리가 중요하다.",
+        "index": 183,
+        "type": "text"
+      },
+      {
+        "fullSentence": "API 계층은 React store에 의존하지 않는다.",
+        "index": 184,
+        "type": "text"
+      },
+      {
+        "fullSentence": "서버 프록시는 Redux를 모른다.",
+        "index": 185,
+        "type": "text"
+      },
+      {
+        "fullSentence": "화면만 Redux를 통해 현재 테스트 상태를 보기 좋게 구독한다.",
+        "index": 186,
+        "type": "text"
+      },
+      {
+        "fullSentence": "PASS 본인인증 팝업도 같은 콘솔 API로 묶는다\n \n이번 테스트 모드에는 API 응답 mock만 있는 것이 아니다.",
+        "index": 187,
+        "type": "text"
+      },
+      {
+        "fullSentence": "PASS 본인인증 팝업도 테스트하기 쉽게 만들었다.",
+        "index": 188,
+        "type": "text"
+      },
+      {
+        "fullSentence": "본인인증은 일반 API 응답보다 테스트하기 까다롭다.",
+        "index": 189,
+        "type": "text"
+      },
+      {
+        "fullSentence": "외부 팝업이 열리고, 인증 결과가 postMessage로 돌아오는 흐름이기 때문이다.",
+        "index": 190,
+        "type": "text"
+      },
+      {
+        "fullSentence": "로컬/개발 환경에서는 다음처럼 켤 수 있다.",
+        "index": 191,
+        "type": "text"
+      },
+      {
+        "fullSentence": "test.add(\"본인인증\");",
+        "index": 192,
+        "type": "code",
+        "language": "js"
+      },
+      {
+        "fullSentence": "내부 구현은 window.",
+        "index": 193,
+        "type": "text"
+      },
+      {
+        "fullSentence": "open을 감싼다.",
+        "index": 194,
+        "type": "text"
+      },
+      {
+        "fullSentence": "const enablePassAuthPopupMock = () => {\n  if (typeof window === \"undefined\" || passAuthMockOriginalOpen) {\n    return;\n  }\n \n  passAuthMockOriginalOpen = window.open.bind(window);\n  window.open = (url, target, features) => {\n    if (!isKgAuthRequestUrl(url)) {\n      return passAuthMockOriginalOpen?.(url, target, features) ?? null;\n    }\n \n    const popup = createPassAuthMockPopup();\n \n    window.setTimeout(() => {\n      if (!popup.closed) {\n        postPassAuthMockMessage(url);\n      }\n    }, 0);\n \n    return popup;\n  };\n};",
+        "index": 195,
+        "type": "code",
+        "language": "ts"
+      },
+      {
+        "fullSentence": "중요한 점은 모든 팝업을 가로채지 않는다는 것이다.",
+        "index": 196,
+        "type": "text"
+      },
+      {
+        "fullSentence": "const isKgAuthRequestUrl = (url: string | URL | undefined) => {\n  try {\n    return (\n      new URL(String(url ?? \"\"), window.location.href).pathname ===\n      \"/kgauth/request\"\n    );\n  } catch {\n    return false;\n  }\n};",
+        "index": 197,
+        "type": "code",
+        "language": "ts"
+      },
+      {
+        "fullSentence": "/kgauth/request만 처리하고, 다른 window.",
+        "index": 198,
+        "type": "text"
+      },
+      {
+        "fullSentence": "open 호출은 원래 동작으로 넘긴다.",
+        "index": 199,
+        "type": "text"
+      },
+      {
+        "fullSentence": "인증 성공 메시지는 실제 팝업이 보내는 것처럼 부모 window에 message 이벤트로 전달한다.",
+        "index": 200,
+        "type": "text"
+      },
+      {
+        "fullSentence": "window.dispatchEvent(\n  new MessageEvent(\"message\", {\n    data: {\n      code: \"AU-000\",\n      data: { ...passAuthMockSession },\n      message: \"OK\",\n    },\n    origin,\n  }),\n);",
+        "index": 201,
+        "type": "code",
+        "language": "ts"
+      },
+      {
+        "fullSentence": "이 덕분에 화면 코드는 실제 PASS 인증 결과를 받는 것과 같은 방식으로 동작한다.",
+        "index": 202,
+        "type": "text"
+      },
+      {
+        "fullSentence": "테스트 모드가 화면 로직을 우회하지 않는다.",
+        "index": 203,
+        "type": "text"
+      },
+      {
+        "fullSentence": "필요하면 세션 값도 바꿀 수 있다.",
+        "index": 204,
+        "type": "text"
+      },
+      {
+        "fullSentence": "__dominosPassAuthMock.setSession({\n  birth: \"19950101\",\n  ci: \"TEST_CI_CUSTOM\",\n  gender: \"F\",\n  name: \"김테스트\",\n  phone: \"01098765432\",\n});",
+        "index": 205,
+        "type": "code",
+        "language": "js"
+      },
+      {
+        "fullSentence": "이 기능은 브라우저 수동 테스트뿐 아니라 Playwright 같은 E2E 테스트에서도 유용하다.",
+        "index": 206,
+        "type": "text"
+      },
+      {
+        "fullSentence": "import path from \"node:path\";\nimport { test } from \"@playwright/test\";\n \ntest.beforeEach(async ({ page }) => {\n  await page.addInitScript({\n    path: path.resolve(\"scripts/test/pass-auth-popup-stub.js\"),\n  });\n});",
+        "index": 207,
+        "type": "code",
+        "language": "ts"
+      },
+      {
+        "fullSentence": "scripts/test/pass-auth-popup-stub.",
+        "index": 208,
+        "type": "text"
+      },
+      {
+        "fullSentence": "js는 앱 코드에 의존하지 않고 같은 방식으로 window.",
+        "index": 209,
+        "type": "text"
+      },
+      {
+        "fullSentence": "open과 postMessage 흐름을 만든다.",
+        "index": 210,
+        "type": "text"
+      },
+      {
+        "fullSentence": "실제 테스트 시나리오\n \n예를 들어 장바구니 생성 API를 목으로 처리하고 싶다고 해보자.",
+        "index": 211,
+        "type": "text"
+      },
+      {
+        "fullSentence": "콘솔에서 다음을 실행한다.",
+        "index": 212,
+        "type": "text"
+      },
+      {
+        "fullSentence": "test.add(\"/orders/cart/createCart\");",
+        "index": 213,
+        "type": "code",
+        "language": "js"
+      },
+      {
+        "fullSentence": "이때 내부에서는 다음 일이 일어난다.",
+        "index": 214,
+        "type": "text"
+      },
+      {
+        "fullSentence": "path가 /orders/cart/createCart로 정규화된다.",
+        "index": 215,
+        "type": "text"
+      },
+      {
+        "fullSentence": "등록된 mock handler가 있는지 확인한다.",
+        "index": 216,
+        "type": "text"
+      },
+      {
+        "fullSentence": "localStorage와 cookie에 활성 path를 저장한다.",
+        "index": 217,
+        "type": "text"
+      },
+      {
+        "fullSentence": "dominos-test-mock-remote-paths-change 이벤트를 발행한다.",
+        "index": 218,
+        "type": "text"
+      },
+      {
+        "fullSentence": "TestModeProvider가 상태를 갱신하고 워터마크를 표시한다.",
+        "index": 219,
+        "type": "text"
+      },
+      {
+        "fullSentence": "이후 해당 API 요청이 발생하면 Axios adapter 또는 API proxy가 목 응답을 반환한다.",
+        "index": 220,
+        "type": "text"
+      },
+      {
+        "fullSentence": "이제 화면에서는 평소처럼 장바구니 담기 버튼을 누르면 된다.",
+        "index": 221,
+        "type": "text"
+      },
+      {
+        "fullSentence": "화면 컴포넌트는 아무것도 모른다.",
+        "index": 222,
+        "type": "text"
+      },
+      {
+        "fullSentence": "application hook도 아무것도 모른다.",
+        "index": 223,
+        "type": "text"
+      },
+      {
+        "fullSentence": "API 호출부도 특별한 테스트 분기를 갖지 않는다.",
+        "index": 224,
+        "type": "text"
+      },
+      {
+        "fullSentence": "테스트가 끝나면 끈다.",
+        "index": 225,
+        "type": "text"
+      },
+      {
+        "fullSentence": "test.remove(\"/orders/cart/createCart\");",
+        "index": 226,
+        "type": "code",
+        "language": "js"
+      },
+      {
+        "fullSentence": "또는 전체를 지운다.",
+        "index": 227,
+        "type": "text"
+      },
+      {
+        "fullSentence": "test.clear();",
+        "index": 228,
+        "type": "code",
+        "language": "js"
+      },
+      {
+        "fullSentence": "실제 응답 일부만 바꾸는 시나리오\n \n메뉴 상세 API는 전체 응답을 목으로 만들기 부담스러울 수 있다.",
+        "index": 229,
+        "type": "text"
+      },
+      {
+        "fullSentence": "필드가 많고, 실제 데이터와 함께 봐야 하는 UI가 있을 수 있기 때문이다.",
+        "index": 230,
+        "type": "text"
+      },
+      {
+        "fullSentence": "이럴 때 patch mock을 켠다.",
+        "index": 231,
+        "type": "text"
+      },
+      {
+        "fullSentence": "test.add(\"/menus/detail/getMenuDetail\");",
+        "index": 232,
+        "type": "code",
+        "language": "js"
+      },
+      {
+        "fullSentence": "요청은 프록시로 이동하고, 프록시는 실제 upstream API를 호출한다.",
+        "index": 233,
+        "type": "text"
+      },
+      {
+        "fullSentence": "그 다음 응답 payload에 patch handler를 적용한다.",
+        "index": 234,
+        "type": "text"
+      },
+      {
+        "fullSentence": "defineMockRemotePatch(menusDetailGetMenuDetailPath, (response) => ({\n  ...response,\n  data: response.data\n    ? {\n        ...response.data,\n        menuBasicInfo: response.data.menuBasicInfo\n          ? {\n              ...response.data.menuBasicInfo,\n              menuTpCd: \"HNH\",\n            }\n          : response.data.menuBasicInfo,\n      }\n    : response.data,\n}));",
+        "index": 235,
+        "type": "code",
+        "language": "ts"
+      },
+      {
+        "fullSentence": "이 방식의 장점은 “테스트하고 싶은 조건만” 바꿀 수 있다는 점이다.",
+        "index": 236,
+        "type": "text"
+      },
+      {
+        "fullSentence": "실제 메뉴명, 가격, 옵션, 이미지, 프로모션 정보는 서버 응답을 그대로 쓰고, 메뉴 타입만 하프앤하프로 바꾼다.",
+        "index": 237,
+        "type": "text"
+      },
+      {
+        "fullSentence": "따라서 UI는 훨씬 현실적인 데이터 위에서 edge case를 테스트할 수 있다.",
+        "index": 238,
+        "type": "text"
+      },
+      {
+        "fullSentence": "로그는 테스트 흐름을 추적하는 최소한의 장치다\n \n목 응답이 적용됐는지 확인하기 어렵다면 테스트 모드는 금방 불신받는다.",
+        "index": 239,
+        "type": "text"
+      },
+      {
+        "fullSentence": "그래서 mock 또는 patch가 적용될 때 logger를 남긴다.",
+        "index": 240,
+        "type": "text"
+      },
+      {
+        "fullSentence": "logger.info(\"Mock remote response\", {\n  method: normalizedMethod,\n  mode: \"mock\",\n  path: normalizedPath,\n  url: url ?? normalizedPath,\n});",
+        "index": 241,
+        "type": "code",
+        "language": "ts"
+      },
+      {
+        "fullSentence": "patch도 마찬가지다.",
+        "index": 242,
+        "type": "text"
+      },
+      {
+        "fullSentence": "logger.info(\"Mock remote patch\", {\n  method: normalizedMethod,\n  mode: \"patch\",\n  path: normalizedPath,\n  url: url ?? normalizedPath,\n});",
+        "index": 243,
+        "type": "code",
+        "language": "ts"
+      },
+      {
+        "fullSentence": "브라우저 콘솔에서 다음을 확인할 수 있다.",
+        "index": 244,
+        "type": "text"
+      },
+      {
+        "fullSentence": "Mock remote response { method: \"POST\", mode: \"mock\", path: \"/orders/cart/createCart\" }\nMock remote patch { method: \"GET\", mode: \"patch\", path: \"/menus/detail/getMenuDetail\" }",
+        "index": 245,
+        "type": "code",
+        "language": "txt"
+      },
+      {
+        "fullSentence": "테스트할 때는 “내가 지금 진짜 서버를 보고 있는지, 목 응답을 보고 있는지”가 명확해야 한다.",
+        "index": 246,
+        "type": "text"
+      },
+      {
+        "fullSentence": "워터마크가 화면의 신호라면, 로그는 요청 단위의 신호다.",
+        "index": 247,
+        "type": "text"
+      },
+      {
+        "fullSentence": "왜 MSW 대신 이 구조를 택했나\n \nMSW는 훌륭한 도구다.",
+        "index": 248,
+        "type": "text"
+      },
+      {
+        "fullSentence": "브라우저와 Node 테스트 환경에서 네트워크를 가로채는 표준적인 선택지다.",
+        "index": 249,
+        "type": "text"
+      },
+      {
+        "fullSentence": "하지만 이번 요구사항에서는 몇 가지 조건이 있었다.",
+        "index": 250,
+        "type": "text"
+      },
+      {
+        "fullSentence": "첫째, 이미 앱 안에 API proxy와 Axios client가 있고 인증 재발급, auth redirect, global error popup 같은 공통 처리가 들어 있다.",
+        "index": 251,
+        "type": "text"
+      },
+      {
+        "fullSentence": "둘째, SSR 요청과 클라이언트 요청이 같은 테스트 상태를 공유해야 했다.",
+        "index": 252,
+        "type": "text"
+      },
+      {
+        "fullSentence": "셋째, QA나 개발자가 브라우저 콘솔에서 특정 endpoint만 빠르게 켜고 끄는 사용성이 필요했다.",
+        "index": 253,
+        "type": "text"
+      },
+      {
+        "fullSentence": "넷째, 실제 API 응답을 받은 뒤 일부만 바꾸는 patch mode가 필요했다.",
+        "index": 254,
+        "type": "text"
+      },
+      {
+        "fullSentence": "이 조건에서는 앱의 API 경계에 직접 붙는 방식이 더 자연스러웠다.",
+        "index": 255,
+        "type": "text"
+      },
+      {
+        "fullSentence": "MSW는 “네트워크를 외부에서 가로채는 테스트 도구”에 가깝다.",
+        "index": 256,
+        "type": "text"
+      },
+      {
+        "fullSentence": "이번 구조는 “앱의 API 미들웨어에 테스트 모드를 얇게 얹는 방식”에 가깝다.",
+        "index": 257,
+        "type": "text"
+      },
+      {
+        "fullSentence": "둘 중 하나가 항상 더 좋은 것은 아니다.",
+        "index": 258,
+        "type": "text"
+      },
+      {
+        "fullSentence": "중요한 것은 팀이 실제로 어떤 테스트를 자주 하는지다.",
+        "index": 259,
+        "type": "text"
+      },
+      {
+        "fullSentence": "이번 경우에는 콘솔에서 켜고, 화면에서 바로 확인하고, SSR/CSR에서 동일하게 동작하고, 필요하면 실제 응답 일부만 patch하는 사용성이 더 중요했다.",
+        "index": 260,
+        "type": "text"
+      },
+      {
+        "fullSentence": "이 구조의 장점\n \n가장 큰 장점은 실 코드 침범이 적다는 것이다.",
+        "index": 261,
+        "type": "text"
+      },
+      {
+        "fullSentence": "화면 컴포넌트는 테스트 모드를 모른다.",
+        "index": 262,
+        "type": "text"
+      },
+      {
+        "fullSentence": "application hook도 테스트 모드를 모른다.",
+        "index": 263,
+        "type": "text"
+      },
+      {
+        "fullSentence": "domain layer도 테스트 모드를 모른다.",
+        "index": 264,
+        "type": "text"
+      },
+      {
+        "fullSentence": "목 처리는 API 요청 경계에서 끝난다.",
+        "index": 265,
+        "type": "text"
+      },
+      {
+        "fullSentence": "두 번째 장점은 테스트 시나리오를 켜고 끄기 쉽다는 것이다.",
+        "index": 266,
+        "type": "text"
+      },
+      {
+        "fullSentence": "test.add(\"/orders/cart/createCart\");\ntest.add(\"/menus/detail/getMenuDetail\");\ntest.add(\"본인인증\");\ntest.list();\ntest.clear();",
+        "index": 267,
+        "type": "code",
+        "language": "js"
+      },
+      {
+        "fullSentence": "복잡한 설정 파일을 수정하거나 개발 서버를 재시작할 필요가 없다.",
+        "index": 268,
+        "type": "text"
+      },
+      {
+        "fullSentence": "세 번째 장점은 SSR과 CSR을 함께 다룬다는 것이다.",
+        "index": 269,
+        "type": "text"
+      },
+      {
+        "fullSentence": "localStorage만 쓰면 서버 요청을 처리할 수 없다.",
+        "index": 270,
+        "type": "text"
+      },
+      {
+        "fullSentence": "cookie만 쓰면 클라이언트 상태 동기화가 불편하다.",
+        "index": 271,
+        "type": "text"
+      },
+      {
+        "fullSentence": "둘을 함께 쓰면 서버와 브라우저가 같은 테스트 모드를 공유할 수 있다.",
+        "index": 272,
+        "type": "text"
+      },
+      {
+        "fullSentence": "네 번째 장점은 전체 mock과 patch mock을 구분한다는 것이다.",
+        "index": 273,
+        "type": "text"
+      },
+      {
+        "fullSentence": "완전히 가짜 응답이 필요한 경우에는 mock을 쓰고, 실제 응답 기반 edge case가 필요하면 patch를 쓴다.",
+        "index": 274,
+        "type": "text"
+      },
+      {
+        "fullSentence": "다섯 번째 장점은 테스트 상태가 화면에 드러난다는 것이다.",
+        "index": 275,
+        "type": "text"
+      },
+      {
+        "fullSentence": "워터마크는 작지만 중요하다.",
+        "index": 276,
+        "type": "text"
+      },
+      {
+        "fullSentence": "테스트 모드를 켜둔 상태로 다른 화면을 보다가 혼동하는 일을 줄여준다.",
+        "index": 277,
+        "type": "text"
+      },
+      {
+        "fullSentence": "조심해야 할 점\n \n이 구조에도 주의할 점은 있다.",
+        "index": 278,
+        "type": "text"
+      },
+      {
+        "fullSentence": "첫째, mock handler는 계속 관리되어야 한다.",
+        "index": 279,
+        "type": "text"
+      },
+      {
+        "fullSentence": "endpoint가 바뀌거나 응답 타입이 바뀌면 목 응답도 같이 갱신해야 한다.",
+        "index": 280,
+        "type": "text"
+      },
+      {
+        "fullSentence": "이를 위해 path const와 MockRemoteRequest<TPath>, MockRemoteResponse<TPath>를 사용해 타입 연결을 걸었다.",
+        "index": 281,
+        "type": "text"
+      },
+      {
+        "fullSentence": "둘째, patch mock은 실제 서버에 의존한다.",
+        "index": 282,
+        "type": "text"
+      },
+      {
+        "fullSentence": "서버 데이터가 없거나 upstream API가 실패하면 patch도 의미가 없다.",
+        "index": 283,
+        "type": "text"
+      },
+      {
+        "fullSentence": "그래서 patch mock은 “실제 응답 대부분은 유지하고 특정 조건만 바꾸고 싶을 때” 사용해야 한다.",
+        "index": 284,
+        "type": "text"
+      },
+      {
+        "fullSentence": "서버 없이 독립적으로 테스트해야 하는 시나리오는 전체 mock이 낫다.",
+        "index": 285,
+        "type": "text"
+      },
+      {
+        "fullSentence": "셋째, 콘솔 API는 사용성이 좋지만 발견 가능성이 낮다.",
+        "index": 286,
+        "type": "text"
+      },
+      {
+        "fullSentence": "그래서 팀 문서나 QA 가이드에 다음 정도는 꼭 적어두는 것이 좋다.",
+        "index": 287,
+        "type": "text"
+      },
+      {
+        "fullSentence": "## 테스트 모드\n \n- 목 API 켜기: `test.add(\"/orders/cart/createCart\")`\n- 목 API 끄기: `test.remove(\"/orders/cart/createCart\")`\n- 전체 끄기: `test.clear()`\n- 현재 목록 보기: `test.list()`\n- PASS 본인인증 목 켜기: `test.add(\"본인인증\")`",
+        "index": 288,
+        "type": "code",
+        "language": "md"
+      },
+      {
+        "fullSentence": "넷째, 운영 환경 가드는 반드시 유지해야 한다.",
+        "index": 289,
+        "type": "text"
+      },
+      {
+        "fullSentence": "isTestModeAvailable() 같은 환경 가드는 테스트 편의 기능의 안전장치다.",
+        "index": 290,
+        "type": "text"
+      },
+      {
+        "fullSentence": "이 조건이 느슨해지면 테스트 기능이 제품 표면으로 새어 나올 수 있다.",
+        "index": 291,
+        "type": "text"
+      },
+      {
+        "fullSentence": "추가로 개선할 수 있는 부분\n \n현재 구조에서 더 확장한다면 다음 방향을 생각해볼 수 있다.",
+        "index": 292,
+        "type": "text"
+      },
+      {
+        "fullSentence": "첫째, 등록된 mock handler 목록을 콘솔에서 조회할 수 있게 만들 수 있다.",
+        "index": 293,
+        "type": "text"
+      },
+      {
+        "fullSentence": "test.handlers();",
+        "index": 294,
+        "type": "code",
+        "language": "js"
+      },
+      {
+        "fullSentence": "현재는 handler가 없는 path를 입력하면 저장되지 않는다.",
+        "index": 295,
+        "type": "text"
+      },
+      {
+        "fullSentence": "이 자체는 안전하지만, 사용자가 어떤 path를 켤 수 있는지 알기 어렵다.",
+        "index": 296,
+        "type": "text"
+      },
+      {
+        "fullSentence": "둘째, 시나리오 이름 기반 alias를 둘 수 있다.",
+        "index": 297,
+        "type": "text"
+      },
+      {
+        "fullSentence": "test.add(\"장바구니 생성 성공\");\ntest.add(\"하프앤하프 메뉴\");",
+        "index": 298,
+        "type": "code",
+        "language": "js"
+      },
+      {
+        "fullSentence": "path를 모르는 QA도 시나리오 단위로 테스트할 수 있다.",
+        "index": 299,
+        "type": "text"
+      },
+      {
+        "fullSentence": "셋째, mock response에 delay를 줄 수 있다.",
+        "index": 300,
+        "type": "text"
+      },
+      {
+        "fullSentence": "test.delay(\"/orders/cart/createCart\", 1500);",
+        "index": 301,
+        "type": "code",
+        "language": "js"
+      },
+      {
+        "fullSentence": "로딩 UI, 중복 클릭 방지, timeout 근처 UX를 테스트할 때 유용하다.",
+        "index": 302,
+        "type": "text"
+      },
+      {
+        "fullSentence": "넷째, error response mock을 더 쉽게 만들 수 있다.",
+        "index": 303,
+        "type": "text"
+      },
+      {
+        "fullSentence": "defineMockRemoteError(path, {\n  status: 500,\n  code: \"500\",\n  message: \"서버 오류가 발생했습니다.\",\n});",
+        "index": 304,
+        "type": "code",
+        "language": "ts"
+      },
+      {
+        "fullSentence": "현재 구조에서도 handler가 임의 응답을 반환할 수 있지만, 에러 시나리오를 자주 만든다면 별도 helper가 있으면 좋다.",
+        "index": 305,
+        "type": "text"
+      },
+      {
+        "fullSentence": "마무리\n \n테스트 코드는 제품 코드를 도와야지, 제품 코드의 책임을 흐리면 안 된다.",
+        "index": 306,
+        "type": "text"
+      },
+      {
+        "fullSentence": "이번 구현은 그 기준을 지키기 위해 테스트 기능을 API 경계에 모았다.",
+        "index": 307,
+        "type": "text"
+      },
+      {
+        "fullSentence": "화면은 실제 API를 호출한다.",
+        "index": 308,
+        "type": "text"
+      },
+      {
+        "fullSentence": "application과 domain layer도 테스트 모드를 모른다.",
+        "index": 309,
+        "type": "text"
+      },
+      {
+        "fullSentence": "목 응답과 patch는 Axios interceptor와 API proxy에서 결정된다.",
+        "index": 310,
+        "type": "text"
+      },
+      {
+        "fullSentence": "콘솔 API는 테스트 진입을 가볍게 만들고, localStorage와 cookie의 이중 저장은 CSR과 SSR을 동시에 다룬다.",
+        "index": 311,
+        "type": "text"
+      },
+      {
+        "fullSentence": "TEST MODE 워터마크와 logger는 지금 보고 있는 화면과 요청이 테스트 상태인지 명확하게 알려준다.",
+        "index": 312,
+        "type": "text"
+      },
+      {
+        "fullSentence": "PASS 본인인증처럼 외부 팝업이 필요한 흐름도 같은 테스트 모드 안에 묶어, 실제 사용자 흐름을 크게 우회하지 않고 테스트할 수 있게 했다.",
+        "index": 313,
+        "type": "text"
+      },
+      {
+        "fullSentence": "결국 좋은 테스트 도구는 눈에 띄지 않아야 할 곳에서는 조용하고, 필요할 때는 아주 쉽게 손에 잡혀야 한다.",
+        "index": 314,
+        "type": "text"
+      },
+      {
+        "fullSentence": "이번 구조는 그 균형을 목표로 했다.",
+        "index": 315,
+        "type": "text"
+      },
+      {
+        "fullSentence": "실 서비스 코드는 그대로 두고, API 경계에서만 살짝 방향을 바꾼다.",
+        "index": 316,
+        "type": "text"
+      },
+      {
+        "fullSentence": "그 작은 경계 덕분에 테스트는 쉬워지고, 제품 코드는 깨끗하게 남는다.",
+        "index": 317,
+        "type": "text"
+      }
+    ]
+  },
+  "1": {
+    "title": "인격이라는 소설에 대해",
+    "link": "https://velog.io/@uiwwsw/인격이라는-소설에-대해",
+    "slug": "인격이라는-소설에-대해",
+    "publishedAt": "2026-05-15T09:16:27.967Z",
+    "tags": [],
+    "summary": "사람을 볼 때, 나는 말보다 그 뒤에 남는 태도를 더 오래 기억하는 편이다.어떤 말을 했는지보다, 그 말을 한 뒤의 침묵. 불편한 순간에 잠깐 늦어지는 대답. 자기에게 유리하지 않은 일 앞에서 드러나는 작은 선택. 한 사람의 전부는 아니지만, 오늘까지의 윤곽 정도는 되",
+    "readingTime": 2,
+    "sentences": [
+      {
+        "fullSentence": "사람을 볼 때, 나는 말보다 그 뒤에 남는 태도를 더 오래 기억하는 편이다.",
+        "index": 0,
+        "type": "text"
+      },
+      {
+        "fullSentence": "어떤 말을 했는지보다, 그 말을 한 뒤의 침묵.",
+        "index": 1,
+        "type": "text"
+      },
+      {
+        "fullSentence": "불편한 순간에 잠깐 늦어지는 대답.",
+        "index": 2,
+        "type": "text"
+      },
+      {
+        "fullSentence": "자기에게 유리하지 않은 일 앞에서 드러나는 작은 선택.",
+        "index": 3,
+        "type": "text"
+      },
+      {
+        "fullSentence": "한 사람의 전부는 아니지만, 오늘까지의 윤곽 정도는 되어준다고 믿었다.",
+        "index": 4,
+        "type": "text"
+      },
+      {
+        "fullSentence": "그래서 나는 사람을 오래 끌고 가지 않는 편이었다.",
+        "index": 5,
+        "type": "text"
+      },
+      {
+        "fullSentence": "이 정도면 보았구나.",
+        "index": 6,
+        "type": "text"
+      },
+      {
+        "fullSentence": "여기까지구나.",
+        "index": 7,
+        "type": "text"
+      },
+      {
+        "fullSentence": "그렇게 생각되면 마음속에서 조용히 자리를 줄였다.",
+        "index": 8,
+        "type": "text"
+      },
+      {
+        "fullSentence": "미워서가 아니라, 더 확인한다고 크게 달라질 것 같지 않아서였다.",
+        "index": 9,
+        "type": "text"
+      },
+      {
+        "fullSentence": "그러나 이번에는 달랐다.",
+        "index": 10,
+        "type": "text"
+      },
+      {
+        "fullSentence": "너그러워진 것도 아니고, 사람을 다시 믿어보자고 마음먹은 것도 아니었다.",
+        "index": 11,
+        "type": "text"
+      },
+      {
+        "fullSentence": "상황이 그랬고, 타이밍이 그랬다.",
+        "index": 12,
+        "type": "text"
+      },
+      {
+        "fullSentence": "평소보다 조금 덜 빨리 마음을 접었을 뿐이다.",
+        "index": 13,
+        "type": "text"
+      },
+      {
+        "fullSentence": "돌이켜보면 그 사람이 어딘가 예전의 나와 닮아 있어서, 조금 더 두고 보게 됐던 것 같기도 하다.",
+        "index": 14,
+        "type": "text"
+      },
+      {
+        "fullSentence": "얼마쯤 지나, 그 사람에게서 같이 하자는 말을 들었다.",
+        "index": 15,
+        "type": "text"
+      },
+      {
+        "fullSentence": "거창하지도, 길게 준비된 말도 아니었다.",
+        "index": 16,
+        "type": "text"
+      },
+      {
+        "fullSentence": "그런데 이상하게 마음에 남았다.",
+        "index": 17,
+        "type": "text"
+      },
+      {
+        "fullSentence": "그 제안의 무게가 어떻든, 같이 하자고 말해준 것이 고마웠다.",
+        "index": 18,
+        "type": "text"
+      },
+      {
+        "fullSentence": "예전의 나라면 듣지 못했을 말이었다.",
+        "index": 19,
+        "type": "text"
+      },
+      {
+        "fullSentence": "판단은 이미 끝났을 것이고, 그 사람은 내 생활의 바깥으로 조용히 밀려났을 것이다.",
+        "index": 20,
+        "type": "text"
+      },
+      {
+        "fullSentence": "그러면 그 말은 오지 않았을 것이다.",
+        "index": 21,
+        "type": "text"
+      },
+      {
+        "fullSentence": "왔더라도 나는 듣지 못했을 것이다.",
+        "index": 22,
+        "type": "text"
+      },
+      {
+        "fullSentence": "그런데 사실, 나는 크게 달라지지 않았다.",
+        "index": 23,
+        "type": "text"
+      },
+      {
+        "fullSentence": "사람은 말보다 태도에서 더 많이 드러난다고 여전히 믿는다.",
+        "index": 24,
+        "type": "text"
+      },
+      {
+        "fullSentence": "그때 내가 본 모습도 아마 틀리지는 않았을 것이다.",
+        "index": 25,
+        "type": "text"
+      },
+      {
+        "fullSentence": "다만 이제는, 그 모습이 전부라고 너무 빨리 닫아버리지는 않게 됐다.",
+        "index": 26,
+        "type": "text"
+      },
+      {
+        "fullSentence": "사람은 단편이 아닐 뿐이다.",
+        "index": 27,
+        "type": "text"
+      },
+      {
+        "fullSentence": "어쩌면 백 년짜리 장편인데, 반전 하나 없으랴.",
+        "index": 28,
+        "type": "text"
+      },
+      {
+        "fullSentence": "나는 여전히 사람을 본다.",
+        "index": 29,
+        "type": "text"
+      },
+      {
+        "fullSentence": "쉽게 믿지도, 오래 기다리지도 않는다.",
+        "index": 30,
+        "type": "text"
+      },
+      {
+        "fullSentence": "그저 결론을 내리기 전에 한 줄쯤 비워둔다.",
+        "index": 31,
+        "type": "text"
+      },
+      {
+        "fullSentence": "판단이 틀릴까 봐가 아니라, 판단이 맞아도 다음 페이지는 아직 넘어가지 않았으니까.",
+        "index": 32,
+        "type": "text"
+      }
+    ]
+  },
+  "2": {
+    "title": "바이브코딩의 끝에는 누가 서 있어야 하는가",
+    "link": "https://velog.io/@uiwwsw/바이브코딩의-끝에는-누가-서-있어야-하는가",
+    "slug": "바이브코딩의-끝에는-누가-서-있어야-하는가",
+    "publishedAt": "2026-05-12T22:24:31.326Z",
+    "tags": [],
+    "summary": "요즘은 프론트엔드 팀을 리드하고 있다.우리 팀에서는 AI를 쓴다. 조금 더 정확히 말하면, 바이브코딩을 허용하고 있다. 두 달 정도 팀 단위로 운영해보니, 이건 생산성 도구를 도입하는 이야기가 아니었다. 책임의 구조를 다시 설계하는 이야기였다.면접 질문이 하나 떠오른다",
+    "readingTime": 5,
+    "sentences": [
+      {
+        "fullSentence": "요즘은 프론트엔드 팀을 리드하고 있다.",
+        "index": 0,
+        "type": "text"
+      },
+      {
+        "fullSentence": "우리 팀에서는 AI를 쓴다.",
+        "index": 1,
+        "type": "text"
+      },
+      {
+        "fullSentence": "조금 더 정확히 말하면, 바이브코딩을 허용하고 있다.",
+        "index": 2,
+        "type": "text"
+      },
+      {
+        "fullSentence": "두 달 정도 팀 단위로 운영해보니, 이건 생산성 도구를 도입하는 이야기가 아니었다.",
+        "index": 3,
+        "type": "text"
+      },
+      {
+        "fullSentence": "책임의 구조를 다시 설계하는 이야기였다.",
+        "index": 4,
+        "type": "text"
+      },
+      {
+        "fullSentence": "혼자 하는 것과 팀이 하는 것은 다르다\n\n면접 질문이 하나 떠오른다.",
+        "index": 5,
+        "type": "text"
+      },
+      {
+        "fullSentence": "“AI를 써서 만들어본 경험은 있으신가요?”\n\n이제 이 질문에는 많은 사람이 고개를 끄덕인다.",
+        "index": 6,
+        "type": "text"
+      },
+      {
+        "fullSentence": "화면을 만들고, API 호출 코드를 붙이고, 반복되는 타입을 생성하는 일은 AI의 도움으로 꽤 빠르게 된다.",
+        "index": 7,
+        "type": "text"
+      },
+      {
+        "fullSentence": "그런데 이어지는 질문은 다르다.",
+        "index": 8,
+        "type": "text"
+      },
+      {
+        "fullSentence": "“팀 단위로, AI가 만든 코드를 유지보수해본 경험은요?”\n\n여기서 이야기가 달라진다.",
+        "index": 9,
+        "type": "text"
+      },
+      {
+        "fullSentence": "혼자 만든 코드는 혼자 감당하면 된다.",
+        "index": 10,
+        "type": "text"
+      },
+      {
+        "fullSentence": "하지만 팀의 코드는 누군가 리뷰해야 하고, 누군가 이어서 고쳐야 하고, 누군가 장애 상황에서 들여다봐야 한다.",
+        "index": 11,
+        "type": "text"
+      },
+      {
+        "fullSentence": "팀 단위 바이브코딩에서 가장 먼저 필요한 건 생산성이 아니라 책임의 기준이다.",
+        "index": 12,
+        "type": "text"
+      },
+      {
+        "fullSentence": "설계 원칙: 자유를 주기 전에 구조를 먼저 만든다\n\n이 프로젝트는 모바일 커머스 웹서비스다.",
+        "index": 13,
+        "type": "text"
+      },
+      {
+        "fullSentence": "구조는 DDD를 바탕으로 설계했다.",
+        "index": 14,
+        "type": "text"
+      },
+      {
+        "fullSentence": "다만 팀원 모두가 DDD에 익숙한 건 아니었다.",
+        "index": 15,
+        "type": "text"
+      },
+      {
+        "fullSentence": "처음부터 모든 사람이 도메인 모델을 나누고, 책임을 분리하고, 비즈니스 규칙을 정확히 계층화하기를 기대하면 설계가 병목이 된다.",
+        "index": 16,
+        "type": "text"
+      },
+      {
+        "fullSentence": "그래서 구조를 현실적으로 잡았다.",
+        "index": 17,
+        "type": "text"
+      },
+      {
+        "fullSentence": "화면은 app/에 둔다.",
+        "index": 18,
+        "type": "text"
+      },
+      {
+        "fullSentence": "화면을 제외한 비즈니스 로직은 우선 Application 레벨에 둔다.",
+        "index": 19,
+        "type": "text"
+      },
+      {
+        "fullSentence": "Domain 레벨은 내가 직접 관리한다.",
+        "index": 20,
+        "type": "text"
+      },
+      {
+        "fullSentence": "공통 컴포넌트, Store는 미리 제공한다.",
+        "index": 21,
+        "type": "text"
+      },
+      {
+        "fullSentence": "반복되는 API 연결 작업은 자동화한다.",
+        "index": 22,
+        "type": "text"
+      },
+      {
+        "fullSentence": "Application 레벨은 일종의 완충지대다.",
+        "index": 23,
+        "type": "text"
+      },
+      {
+        "fullSentence": "도메인으로 바로 내려가기 애매한 것들, 아직 책임이 정리되지 않은 것들이 잠시 머무는 공간이다.",
+        "index": 24,
+        "type": "text"
+      },
+      {
+        "fullSentence": "잘 쓰면 버퍼고, 방치하면 잡동사니가 될 수도 있다.",
+        "index": 25,
+        "type": "text"
+      },
+      {
+        "fullSentence": "하지만 팀 단위로 바이브코딩을 허용하려면 오히려 이런 완충지대가 필요하다.",
+        "index": 26,
+        "type": "text"
+      },
+      {
+        "fullSentence": "AI는 기능을 구현할 수 있다.",
+        "index": 27,
+        "type": "text"
+      },
+      {
+        "fullSentence": "하지만 우리 팀의 구조와 책임 경계까지 항상 정확히 파악하지는 못한다.",
+        "index": 28,
+        "type": "text"
+      },
+      {
+        "fullSentence": "처음부터 Domain 레벨을 모두에게 열어두면 설계의 중심이 흔들린다.",
+        "index": 29,
+        "type": "text"
+      },
+      {
+        "fullSentence": "자동화: AI가 아무 경로로나 들어오면 안 된다\n\n팀 단위 바이브코딩에서 또 하나의 문제는 API 연결 코드다.",
+        "index": 30,
+        "type": "text"
+      },
+      {
+        "fullSentence": "사람마다 다른 프롬프트로 AI에게 맡기면, 같은 API를 다루는 방식이 제각각이 된다.",
+        "index": 31,
+        "type": "text"
+      },
+      {
+        "fullSentence": "그래서 백엔드 API 문서를 프론트엔드 내부 remote 구조로 변환하는 자동화 스크립트를 만들었다.",
+        "index": 32,
+        "type": "text"
+      },
+      {
+        "fullSentence": "흐름은 이렇다.",
+        "index": 33,
+        "type": "text"
+      },
+      {
+        "fullSentence": "백엔드 API 문서를 자동으로 읽는다.",
+        "index": 34,
+        "type": "text"
+      },
+      {
+        "fullSentence": "내부 remote 구조로 변환해 docs/remote에 저장한다.",
+        "index": 35,
+        "type": "text"
+      },
+      {
+        "fullSentence": "remote는 직접 접근하지 못하도록 lint 규칙으로 막는다.",
+        "index": 36,
+        "type": "text"
+      },
+      {
+        "fullSentence": "대신 내가 만든 라이브러리가 remote를 읽어 React Query option을 자동 생성한다.",
+        "index": 37,
+        "type": "text"
+      },
+      {
+        "fullSentence": "개발자는 생성된 option을 사용한다.",
+        "index": 38,
+        "type": "text"
+      },
+      {
+        "fullSentence": "이 구조 덕분에 개발자는 query key를 고민하거나, API option을 손으로 만들거나, 응답 타입을 반복해서 연결하지 않아도 된다.",
+        "index": 39,
+        "type": "text"
+      },
+      {
+        "fullSentence": "그리고 AI가 아무렇게나 API 호출 코드를 만들어내는 것도 막힌다.",
+        "index": 40,
+        "type": "text"
+      },
+      {
+        "fullSentence": "AI가 코드를 생성하더라도, 프로젝트 안에서는 정해진 방식으로 데이터를 가져와야 한다.",
+        "index": 41,
+        "type": "text"
+      },
+      {
+        "fullSentence": "자유를 주려면 먼저 가드레일이 있어야 한다.",
+        "index": 42,
+        "type": "text"
+      },
+      {
+        "fullSentence": "이 자동화들은 편의 기능이 아니라 팀 단위 바이브코딩을 가능하게 만드는 안전장치다.",
+        "index": 43,
+        "type": "text"
+      },
+      {
+        "fullSentence": "가장 위험한 형태가 팀 안에 들어왔다\n\n설계를 마치고 운영을 시작하자, 예상보다 선명한 문제가 보였다.",
+        "index": 44,
+        "type": "text"
+      },
+      {
+        "fullSentence": "코드 리뷰 중에 물어봤다.",
+        "index": 45,
+        "type": "text"
+      },
+      {
+        "fullSentence": "“이 코드는 뭐예요?”\n\n돌아온 답이 이랬다.",
+        "index": 46,
+        "type": "text"
+      },
+      {
+        "fullSentence": "“AI가 이렇게 하라고 해서요.”\n\n그 순간 알았다.",
+        "index": 47,
+        "type": "text"
+      },
+      {
+        "fullSentence": "이건 단순히 AI를 쓴 문제가 아니다.",
+        "index": 48,
+        "type": "text"
+      },
+      {
+        "fullSentence": "바이브코딩의 가장 위험한 형태가 팀 안에 들어온 것이다.",
+        "index": 49,
+        "type": "text"
+      },
+      {
+        "fullSentence": "AI를 도구로 쓰는 게 아니라, AI에게 일을 하청 주고 본인은 그 결과물을 전달하는 사람이 된 상태.",
+        "index": 50,
+        "type": "text"
+      },
+      {
+        "fullSentence": "나는 개발자와 대화하는 게 아니라 AI 출력물의 중간 전달자와 대화하고 있었다.",
+        "index": 51,
+        "type": "text"
+      },
+      {
+        "fullSentence": "AI 시대의 코드 리뷰는 달라야 한다\n\n코드 리뷰는 원래 “이 코드가 올바른가”를 확인하는 작업이었다.",
+        "index": 52,
+        "type": "text"
+      },
+      {
+        "fullSentence": "하지만 AI가 코드를 생성하는 환경에서는 질문이 달라진다.",
+        "index": 53,
+        "type": "text"
+      },
+      {
+        "fullSentence": "한 줄이 맞냐 틀리냐보다, 이 코드가 어디에 서 있는가를 봐야 한다.",
+        "index": 54,
+        "type": "text"
+      },
+      {
+        "fullSentence": "이 Hook은 데이터를 가져오는 책임인가, 상태를 조합하는 책임인가.",
+        "index": 55,
+        "type": "text"
+      },
+      {
+        "fullSentence": "이 로직은 지금 Application에 있는데, 나중에 Domain으로 내려가야 할 성격인가.",
+        "index": 56,
+        "type": "text"
+      },
+      {
+        "fullSentence": "이 Adapter는 외부 응답을 내부 형태로 바꾸는 역할인가.",
+        "index": 57,
+        "type": "text"
+      },
+      {
+        "fullSentence": "이 상태는 전역 Store에 들어갈 이유가 있는가, 단순 화면 상태인가.",
+        "index": 58,
+        "type": "text"
+      },
+      {
+        "fullSentence": "이 API 호출은 왜 직접 만들지 않고 자동 생성된 option을 쓰는가.",
+        "index": 59,
+        "type": "text"
+      },
+      {
+        "fullSentence": "AI가 코드를 잘 만들었느냐는 부차적인 문제다.",
+        "index": 60,
+        "type": "text"
+      },
+      {
+        "fullSentence": "개발자가 그 코드의 위치와 책임을 설명할 수 있느냐가 핵심이다.",
+        "index": 61,
+        "type": "text"
+      },
+      {
+        "fullSentence": "“AI가 이렇게 말했습니다”는 리뷰의 답이 될 수 없다.",
+        "index": 62,
+        "type": "text"
+      },
+      {
+        "fullSentence": "“제가 이렇게 이해했고, 그래서 이 위치에 이 형태로 두었습니다”가 되어야 한다.",
+        "index": 63,
+        "type": "text"
+      },
+      {
+        "fullSentence": "AI가 설명해준 맥락을 외우는 것과, 내가 코드를 보고 판단한 맥락을 갖는 것은 다르다.",
+        "index": 64,
+        "type": "text"
+      },
+      {
+        "fullSentence": "전자는 AI에게 종속된 상태고, 후자는 책임이 개발자에게 있는 상태다.",
+        "index": 65,
+        "type": "text"
+      },
+      {
+        "fullSentence": "개발자의 역할이 사라지는 게 아니라 바뀐다\n\nAI가 통역사를 대체하는 것처럼, 개발도 통역의 영역 아니었냐는 질문이 가끔 나온다.",
+        "index": 66,
+        "type": "text"
+      },
+      {
+        "fullSentence": "기획자의 요구사항을 코드로 번역하고, 비즈니스 규칙을 시스템 언어로 바꾸던 일.",
+        "index": 67,
+        "type": "text"
+      },
+      {
+        "fullSentence": "이제 AI가 그 직역을 넘어 의역까지 해준다면 사람이 내부 구현을 알아야 하냐는 질문이다.",
+        "index": 68,
+        "type": "text"
+      },
+      {
+        "fullSentence": "나는 이 질문이 틀렸다고 생각하지 않는다.",
+        "index": 69,
+        "type": "text"
+      },
+      {
+        "fullSentence": "AI가 서비스를 통째로 대신 만들고, 운영하고, 복구하고, 구조를 스스로 바꾸는 시대가 온다면 지금과 같은 의미의 개발자는 필요 없을 수 있다.",
+        "index": 70,
+        "type": "text"
+      },
+      {
+        "fullSentence": "그때는 개발자의 인건비도 달라질 것이다.",
+        "index": 71,
+        "type": "text"
+      },
+      {
+        "fullSentence": "기술이 어떤 일을 대체하면 그 일을 하던 사람의 시장 가격은 그대로 있지 않는다.",
+        "index": 72,
+        "type": "text"
+      },
+      {
+        "fullSentence": "하지만 그 미래가 한순간에 마법처럼 오지는 않는다.",
+        "index": 73,
+        "type": "text"
+      },
+      {
+        "fullSentence": "지금의 바이브코딩은 “서비스가 알아서 완성되는 시대”가 아니라, “개발자가 더 빠르게 만들 수 있는 시대”에 가깝다.",
+        "index": 74,
+        "type": "text"
+      },
+      {
+        "fullSentence": "그렇다면 개발자의 역할은 사라진 게 아니라 바뀐 것이다.",
+        "index": 75,
+        "type": "text"
+      },
+      {
+        "fullSentence": "직접 모든 코드를 치는 사람에서, AI가 만든 코드를 판단하고 구조 안에 배치하고 팀이 유지할 수 있는 형태로 책임지는 사람으로.",
+        "index": 76,
+        "type": "text"
+      },
+      {
+        "fullSentence": "자율주행과 비슷하다.",
+        "index": 77,
+        "type": "text"
+      },
+      {
+        "fullSentence": "언젠가 차가 모든 상황을 스스로 판단하는 날이 올 수 있다.",
+        "index": 78,
+        "type": "text"
+      },
+      {
+        "fullSentence": "하지만 그 미래가 가능하다는 이유로, 오늘 도로 위에서 운전자가 핸들을 놓아도 되는 건 아니다.",
+        "index": 79,
+        "type": "text"
+      },
+      {
+        "fullSentence": "AI가 만든 코드라도, 프로젝트에 넣는 순간 그 코드는 개발자의 코드다.",
+        "index": 80,
+        "type": "text"
+      },
+      {
+        "fullSentence": "팀 단위 바이브코딩은 구조 싸움이다\n\n구조가 없으면 AI가 만든 코드는 각자 다른 방향으로 퍼진다.",
+        "index": 81,
+        "type": "text"
+      },
+      {
+        "fullSentence": "사람마다 다른 프롬프트, 다른 스타일, 다른 판단 기준으로 코드가 쌓인다.",
+        "index": 82,
+        "type": "text"
+      },
+      {
+        "fullSentence": "처음에는 빨라 보인다.",
+        "index": 83,
+        "type": "text"
+      },
+      {
+        "fullSentence": "시간이 지나면 유지보수 비용으로 돌아온다.",
+        "index": 84,
+        "type": "text"
+      },
+      {
+        "fullSentence": "바이브코딩을 팀에서 허용하려면 오히려 더 강한 기준이 필요하다.",
+        "index": 85,
+        "type": "text"
+      },
+      {
+        "fullSentence": "레이어 기준이 있어야 한다.",
+        "index": 86,
+        "type": "text"
+      },
+      {
+        "fullSentence": "직접 접근하면 안 되는 영역이 있어야 한다.",
+        "index": 87,
+        "type": "text"
+      },
+      {
+        "fullSentence": "반복 코드는 자동화되어 있어야 한다.",
+        "index": 88,
+        "type": "text"
+      },
+      {
+        "fullSentence": "AI가 생성한 코드도 들어갈 수 있는 위치와 책임이 정해져 있어야 한다.",
+        "index": 89,
+        "type": "text"
+      },
+      {
+        "fullSentence": "“AI 써도 됩니다”라고 말하는 것만으로는 부족하다.",
+        "index": 90,
+        "type": "text"
+      },
+      {
+        "fullSentence": "AI가 만들어낸 코드가 들어올 수 있는 길을 정리하고, 들어오면 안 되는 길은 막아야 한다.",
+        "index": 91,
+        "type": "text"
+      },
+      {
+        "fullSentence": "바이브코딩은 “내가 코드를 안 짜도 된다”가 아니다.",
+        "index": 92,
+        "type": "text"
+      },
+      {
+        "fullSentence": "“내가 더 빠르게 시도할 수 있다”에 가깝다.",
+        "index": 93,
+        "type": "text"
+      },
+      {
+        "fullSentence": "그리고 더 빠르게 시도한 만큼 더 빠르게 판단해야 한다.",
+        "index": 94,
+        "type": "text"
+      },
+      {
+        "fullSentence": "이 코드가 맞는 위치에 있는지, 이 책임이 적절한지, 이 구조가 팀 안에서 유지될 수 있는지.",
+        "index": 95,
+        "type": "text"
+      },
+      {
+        "fullSentence": "처음에는 AI가 만든 코드를 설명하지 못하는 순간들이 있었다.",
+        "index": 96,
+        "type": "text"
+      },
+      {
+        "fullSentence": "지금은 적어도 그 코드가 어디에 속하고 어떤 책임을 갖는지 이야기하려고 한다.",
+        "index": 97,
+        "type": "text"
+      },
+      {
+        "fullSentence": "그 변화가 중요하다.",
+        "index": 98,
+        "type": "text"
+      },
+      {
+        "fullSentence": "팀 리드에게 필요한 것은 “AI를 잘 쓰라고 말하는 것”이 아니다.",
+        "index": 99,
+        "type": "text"
+      },
+      {
+        "fullSentence": "AI가 만든 코드도 팀의 구조 안으로 흘러가게 만드는 시스템을 준비하는 것이다.",
+        "index": 100,
+        "type": "text"
+      },
+      {
+        "fullSentence": "바이브코딩은 감으로 시작할 수 있다.",
+        "index": 101,
+        "type": "text"
+      },
+      {
+        "fullSentence": "하지만 팀에서 유지하려면 감으로 끝나면 안 된다.",
+        "index": 102,
+        "type": "text"
+      },
+      {
+        "fullSentence": "그 차이를 이해하는 팀만이, 바이브코딩을 진짜 생산성으로 가져갈 수 있다.",
+        "index": 103,
+        "type": "text"
+      }
+    ]
+  },
+  "3": {
+    "title": "칼날의 방향",
+    "link": "https://velog.io/@uiwwsw/칼날의-방향",
+    "slug": "칼날의-방향",
+    "publishedAt": "2026-05-03T22:37:10.577Z",
+    "tags": [],
+    "summary": "롤 프로 경기, 특히 LCK를 보다 보면 이상한 일이 가끔 생긴다. 꼴찌가 1등을 이긴다. 처음엔 운처럼 보인다. 상대가 방심했나 싶고, 밴픽이 꼬였나 싶고, 컨디션이 안 좋았나 싶다. 물론 그런 이유도 있을 것이다. 하지만 리그 오브 레전드가 팀게임이고, 그것도 프로 수준의 경기라면 이야기는 조금 달라진다. 프로의...",
+    "readingTime": 3,
+    "sentences": [
+      {
+        "fullSentence": "롤 프로 경기, 특히 LCK를 보다 보면 이상한 일이 가끔 생긴다.",
+        "index": 0,
+        "type": "text"
+      },
+      {
+        "fullSentence": "꼴찌가 1등을 이긴다.",
+        "index": 1,
+        "type": "text"
+      },
+      {
+        "fullSentence": "처음엔 운처럼 보인다.",
+        "index": 2,
+        "type": "text"
+      },
+      {
+        "fullSentence": "상대가 방심했나 싶고, 밴픽이 꼬였나 싶고, 컨디션이 안 좋았나 싶다.",
+        "index": 3,
+        "type": "text"
+      },
+      {
+        "fullSentence": "물론 그런 이유도 있을 것이다.",
+        "index": 4,
+        "type": "text"
+      },
+      {
+        "fullSentence": "하지만 리그 오브 레전드가 팀게임이고, 그것도 프로 수준의 경기라면 이야기는 조금 달라진다.",
+        "index": 5,
+        "type": "text"
+      },
+      {
+        "fullSentence": "프로의 경기력은 강하고 약한 정도로만 나뉘지 않는다.",
+        "index": 6,
+        "type": "text"
+      },
+      {
+        "fullSentence": "각 팀은 저마다의 방향을 가지고 있고, 그 방향은 긴 시간 동안 하나의 꼭지점으로 다듬어진다.",
+        "index": 7,
+        "type": "text"
+      },
+      {
+        "fullSentence": "일반 랭크 게임의 피지컬 싸움이나 즉흥적인 판단과는 다르게, 프로 경기에서는 작은 움직임 하나에도 의도가 붙는다.",
+        "index": 8,
+        "type": "text"
+      },
+      {
+        "fullSentence": "3분 몇 초에 정글이 어디를 지나갔는지.",
+        "index": 9,
+        "type": "text"
+      },
+      {
+        "fullSentence": "첫 라인 주도권을 누가 잡았는지.",
+        "index": 10,
+        "type": "text"
+      },
+      {
+        "fullSentence": "그 주도권으로 강가 시야를 먹었는지.",
+        "index": 11,
+        "type": "text"
+      },
+      {
+        "fullSentence": "그 시야 하나가 첫 용, 전령, 다이브, 합류 싸움으로 어떻게 이어지는지.",
+        "index": 12,
+        "type": "text"
+      },
+      {
+        "fullSentence": "LCK를 보다 보면 그런 느낌이 분명히 든다.",
+        "index": 13,
+        "type": "text"
+      },
+      {
+        "fullSentence": "이 리그는 다른 리그보다 조금 더 정교하고, 조금 더 세밀하게 조정된 기계처럼 보인다.",
+        "index": 14,
+        "type": "text"
+      },
+      {
+        "fullSentence": "한 팀의 경기력은 날카로운 칼날처럼 벼려지고, 그 칼날은 특정한 메타와 특정한 해석 안에서 가장 강하게 빛난다.",
+        "index": 15,
+        "type": "text"
+      },
+      {
+        "fullSentence": "그런데 바로 그래서, 꼴찌가 1등을 이기는 일이 생긴다.",
+        "index": 16,
+        "type": "text"
+      },
+      {
+        "fullSentence": "칼날은 강하지만, 방향이 있다.",
+        "index": 17,
+        "type": "text"
+      },
+      {
+        "fullSentence": "방향이 있으면 빈틈도 있다.",
+        "index": 18,
+        "type": "text"
+      },
+      {
+        "fullSentence": "최고의 팀도 모든 상황을 다 잘할 수는 없다.",
+        "index": 19,
+        "type": "text"
+      },
+      {
+        "fullSentence": "어떤 조합을 싫어할 수 있고, 어떤 초반 흐름에 약할 수 있고, 어떤 팀의 이상한 속도에 리듬이 깨질 수도 있다.",
+        "index": 20,
+        "type": "text"
+      },
+      {
+        "fullSentence": "1등 팀은 전체적으로 강하지만, 그날의 한 경기 안에서는 특정한 한 점을 찔릴 수 있다.",
+        "index": 21,
+        "type": "text"
+      },
+      {
+        "fullSentence": "꼴찌 팀이라고 해서 아무것도 없는 팀은 아니다.",
+        "index": 22,
+        "type": "text"
+      },
+      {
+        "fullSentence": "그들도 프로다.",
+        "index": 23,
+        "type": "text"
+      },
+      {
+        "fullSentence": "다만 시즌 전체를 놓고 봤을 때 완성도가 낮거나, 방향이 흔들리거나, 반복해서 무너지는 지점이 많았을 뿐이다.",
+        "index": 24,
+        "type": "text"
+      },
+      {
+        "fullSentence": "하지만 어느 하루, 어느 한 세트에서만큼은 자신들이 준비한 칼날이 정확히 들어갈 수 있다.",
+        "index": 25,
+        "type": "text"
+      },
+      {
+        "fullSentence": "그래서 LCK에서 꼴찌가 1등을 이기는 일은 단순한 이변이라기보다,\n프로 경기라는 세계가 얼마나 정교한지를 보여주는 장면에 가깝다.",
+        "index": 26,
+        "type": "text"
+      },
+      {
+        "fullSentence": "강한 팀이 항상 이기는 게임이 아니라,\n강한 팀조차 잘못 밟은 한 칸 때문에 무너질 수 있는 게임.",
+        "index": 27,
+        "type": "text"
+      },
+      {
+        "fullSentence": "그게 리그 오브 레전드의 재미이고, 팀게임의 무서움이다.",
+        "index": 28,
+        "type": "text"
+      },
+      {
+        "fullSentence": "그런 의미에서 티원의 경기는 조금 특별하다.",
+        "index": 29,
+        "type": "text"
+      },
+      {
+        "fullSentence": "압도적이다.",
+        "index": 30,
+        "type": "text"
+      },
+      {
+        "fullSentence": "정말 재미가 있다.",
+        "index": 31,
+        "type": "text"
+      },
+      {
+        "fullSentence": "그 재미는 단순히 완벽해서 오는 것만은 아닌 것 같다.",
+        "index": 32,
+        "type": "text"
+      },
+      {
+        "fullSentence": "LCK의 많은 팀들이 기계처럼 깎아둔 칼날처럼 보일 때, 티원은 조금 다른 결을 보여준다.",
+        "index": 33,
+        "type": "text"
+      },
+      {
+        "fullSentence": "분명 날카롭다.",
+        "index": 34,
+        "type": "text"
+      },
+      {
+        "fullSentence": "하지만 차갑지만은 않다.",
+        "index": 35,
+        "type": "text"
+      },
+      {
+        "fullSentence": "어떤 순간에는 조금 뭉툭해 보이기도 하고, 어떤 판단은 너무 과감해서 불안해 보이기도 한다.",
+        "index": 36,
+        "type": "text"
+      },
+      {
+        "fullSentence": "그런데도 그 칼날에는 감정이 있다.",
+        "index": 37,
+        "type": "text"
+      },
+      {
+        "fullSentence": "사람이 직접 오래 쥐고, 부딪히고, 고쳐 쓴 흔적이 남아 있는 것 같다.",
+        "index": 38,
+        "type": "text"
+      },
+      {
+        "fullSentence": "다른 팀의 칼날이 정교한 설계도대로 깎인 도구처럼 보인다면,\n티원의 칼날은 누군가의 손에 오래 익은 물건처럼 보인다.",
+        "index": 39,
+        "type": "text"
+      },
+      {
+        "fullSentence": "완성도만 보이는 것이 아니라, 그걸 쥐고 있는 사람이 보인다.",
+        "index": 40,
+        "type": "text"
+      },
+      {
+        "fullSentence": "그 사람이 어디를 보고 있는지, 무엇을 믿고 들어가는지, 왜 지금 이 싸움을 선택했는지가 어렴풋이 느껴진다.",
+        "index": 41,
+        "type": "text"
+      },
+      {
+        "fullSentence": "그래서 티원의 경기는 재미있다.",
+        "index": 42,
+        "type": "text"
+      },
+      {
+        "fullSentence": "잘해서만이 아니라, 살아 있는 것처럼 보여서.",
+        "index": 43,
+        "type": "text"
+      },
+      {
+        "fullSentence": "정답을 수행하는 팀이라기보다, 순간마다 자기 손으로 답을 만들어내는 팀처럼 보여서.",
+        "index": 44,
+        "type": "text"
+      },
+      {
+        "fullSentence": "그 중심에는 페이커가 있을 것이다.",
+        "index": 45,
+        "type": "text"
+      },
+      {
+        "fullSentence": "페이커가 있어서, 티원의 칼날은 단순히 날카로운 무기가 아니라 하나의 태도처럼 보인다.",
+        "index": 46,
+        "type": "text"
+      },
+      {
+        "fullSentence": "그래서 나는 가끔 이런 생각을 한다.",
+        "index": 47,
+        "type": "text"
+      },
+      {
+        "fullSentence": "언젠가 페이커가 직접 게임을 하지 않고도 티원과 함께하는 그림이 온다면,\n그때의 티원도 여전히 재미있을 수 있지 않을까.",
+        "index": 48,
+        "type": "text"
+      },
+      {
+        "fullSentence": "그가 경기 안에서 남겨온 것이 손끝의 플레이만은 아니었다면,\n그가 만들어온 방향감각과 태도는 팀 안에 어떤 식으로든 남을 수 있지 않을까.",
+        "index": 49,
+        "type": "text"
+      },
+      {
+        "fullSentence": "조금 안도하게 된다.",
+        "index": 50,
+        "type": "text"
+      },
+      {
+        "fullSentence": "지금 우리가 보는 이 압도적인 재미가,\n완전히 사라지는 것이 아니라\n언젠가 다른 모양으로 이어질 수도 있겠다는 생각이 들어서.",
+        "index": 51,
+        "type": "text"
+      }
+    ]
+  },
+  "4": {
     "title": "닫힌문을 향해서 뛰는 일",
     "link": "https://velog.io/@uiwwsw/닫힌문을-향해서-뛰는-일",
     "slug": "닫힌문을-향해서-뛰는-일",
@@ -105,7 +2743,7 @@
       }
     ]
   },
-  "1": {
+  "5": {
     "title": "역삼역의 워킹데드",
     "link": "https://velog.io/@uiwwsw/역삼역의-워킹데드",
     "slug": "역삼역의-워킹데드",
@@ -181,7 +2819,7 @@
       }
     ]
   },
-  "2": {
+  "6": {
     "title": "맛이 있다",
     "link": "https://velog.io/@uiwwsw/맛이-있다",
     "slug": "맛이-있다",
@@ -242,7 +2880,142 @@
       }
     ]
   },
-  "3": {
+  "7": {
+    "title": "LinkedIn 실험 일지 1 — 시작",
+    "link": "https://velog.io/@uiwwsw/LinkedIn-실험-일지-1-시작",
+    "slug": "LinkedIn-실험-일지-1-시작",
+    "publishedAt": "2026-04-03T15:22:03.385Z",
+    "tags": [
+      "링크드인",
+      "실험",
+      "자동"
+    ],
+    "summary": "sns가 어느 순간부터 이상해졌다고 느꼈다.아무 말이나 해도 되던 공간이었는데, 이제는 거기서도 나를 꾸며야 한다. 좋아요는 공감이 아니라 평판에 가까워졌고, 말은 점점 무난해지고, 그렇게 보이는 나를 관리하다 보니 실제의 나는 조금씩 비어가는 기분이 들었다.그래서 실",
+    "readingTime": 1,
+    "sentences": [
+      {
+        "fullSentence": "sns가 어느 순간부터 이상해졌다고 느꼈다.",
+        "index": 0,
+        "type": "text"
+      },
+      {
+        "fullSentence": "아무 말이나 해도 되던 공간이었는데, 이제는 거기서도 나를 꾸며야 한다.",
+        "index": 1,
+        "type": "text"
+      },
+      {
+        "fullSentence": "좋아요는 공감이 아니라 평판에 가까워졌고, 말은 점점 무난해지고, 그렇게 보이는 나를 관리하다 보니 실제의 나는 조금씩 비어가는 기분이 들었다.",
+        "index": 2,
+        "type": "text"
+      },
+      {
+        "fullSentence": "그래서 실험을 하나 시작했다.",
+        "index": 3,
+        "type": "text"
+      },
+      {
+        "fullSentence": "목적\n\nLinkedIn에 포장 없이 써보는 것.",
+        "index": 4,
+        "type": "text"
+      },
+      {
+        "fullSentence": "잘 보이려고 쓰는 게 아니라, 그냥 오늘 있었던 일, 든 생각, 불편했던 것.",
+        "index": 5,
+        "type": "text"
+      },
+      {
+        "fullSentence": "툭 던지는 글.",
+        "index": 6,
+        "type": "text"
+      },
+      {
+        "fullSentence": "기승전결 없이, 교훈 없이, 해시태그 없이.",
+        "index": 7,
+        "type": "text"
+      },
+      {
+        "fullSentence": "누군가를 속이거나 캐릭터를 만드는 게 아니다.",
+        "index": 8,
+        "type": "text"
+      },
+      {
+        "fullSentence": "그냥 평소라면 다듬고 덜어냈을 것들을 덜 숨기고 적어보는 것.",
+        "index": 9,
+        "type": "text"
+      },
+      {
+        "fullSentence": "6주 동안 해보고, 마지막에 밝힐 생각이다.",
+        "index": 10,
+        "type": "text"
+      },
+      {
+        "fullSentence": "규칙\n\n포장하지 않는다\n결론 내리지 않는다\n교훈, 성장, 배운 점 같은 단어 금지\n해시태그, 이모지 금지\n잘 마무리된 문장 금지\n3문장이어도 된다\n친근한 존댓말.",
+        "index": 11,
+        "type": "text"
+      },
+      {
+        "fullSentence": "딱딱하지 않게.",
+        "index": 12,
+        "type": "text"
+      },
+      {
+        "fullSentence": "날것이지만 읽는 사람 불편하지 않게\n\n\n\n기술적인 부분\n\n자동화를 붙였다.",
+        "index": 13,
+        "type": "text"
+      },
+      {
+        "fullSentence": "하루 종일 AI한테 말을 걸면, 걔가 알아서 글로 만들어서 LinkedIn에 올려준다.",
+        "index": 14,
+        "type": "text"
+      },
+      {
+        "fullSentence": "로그인 자동화 부분은 플랫폼이 타이트하게 잡으려는 것 같아서 방법을 여러 가지로 고민 중이다.",
+        "index": 15,
+        "type": "text"
+      },
+      {
+        "fullSentence": "어떻게 되든 결국 글은 내가 한 말에서 나온다.",
+        "index": 16,
+        "type": "text"
+      },
+      {
+        "fullSentence": "AI가 쓴 글이 내 글이냐고 물으면, 나는 그렇다고 생각한다.",
+        "index": 17,
+        "type": "text"
+      },
+      {
+        "fullSentence": "포장한 것도 나고, AI가 쓴 것도 나다.",
+        "index": 18,
+        "type": "text"
+      },
+      {
+        "fullSentence": "첫 번째 글\n\n오늘 올라간 첫 글은 이거다.",
+        "index": 19,
+        "type": "text"
+      },
+      {
+        "fullSentence": "장사 잘되니 싸가지 없어졌다는 순대국밥집 리뷰를 봤습니다.",
+        "index": 20,
+        "type": "text"
+      },
+      {
+        "fullSentence": "웃기게도 남 얘기 같지가 않았어요.",
+        "index": 21,
+        "type": "text"
+      },
+      {
+        "fullSentence": "나도 어딘가에서 저런 결로 굴었겠다 싶었습니다.",
+        "index": 22,
+        "type": "text"
+      },
+      {
+        "fullSentence": "6주 뒤에 어떻게 됐는지 쓸 수 있으면 좋겠다.",
+        "index": 23,
+        "type": "text"
+      }
+    ]
+  },
+  "8": {
     "title": "좋아요라는 명함",
     "link": "https://velog.io/@uiwwsw/하늘색",
     "slug": "하늘색",
@@ -358,7 +3131,7 @@
       }
     ]
   },
-  "4": {
+  "9": {
     "title": "포장이라고 믿는 것들에 대하여",
     "link": "https://velog.io/@uiwwsw/포장이라고-믿는-것들에-대하여",
     "slug": "포장이라고-믿는-것들에-대하여",
@@ -524,7 +3297,7 @@
       }
     ]
   },
-  "5": {
+  "10": {
     "title": "전달 가능한 개발자 문서(깃허브 프린트)",
     "link": "https://velog.io/@uiwwsw/GitHub를-전달-가능한-개발자-문서로-바꾸는-GitFolio를-만들었습니다",
     "slug": "GitHub를-전달-가능한-개발자-문서로-바꾸는-GitFolio를-만들었습니다",
@@ -932,7 +3705,7 @@
       }
     ]
   },
-  "6": {
+  "11": {
     "title": "숏츠가 만들어낸 도파민의 서사",
     "link": "https://velog.io/@uiwwsw/숏츠가-만들어낸-도파민의-서사",
     "slug": "숏츠가-만들어낸-도파민의-서사",
@@ -1319,7 +4092,7 @@
       }
     ]
   },
-  "7": {
+  "12": {
     "title": "고마움을 안다는 것",
     "link": "https://velog.io/@uiwwsw/고마움을-안다는-것",
     "slug": "고마움을-안다는-것",
@@ -1459,7 +4232,7 @@
       }
     ]
   },
-  "8": {
+  "13": {
     "title": "서울역",
     "link": "https://velog.io/@uiwwsw/서울역",
     "slug": "서울역",
@@ -1475,7 +4248,7 @@
       }
     ]
   },
-  "9": {
+  "14": {
     "title": "뭐든지 말이 되는 세상",
     "link": "https://velog.io/@uiwwsw/틀린-말이라는-것",
     "slug": "틀린-말이라는-것",
@@ -1606,7 +4379,7 @@
       }
     ]
   },
-  "10": {
+  "15": {
     "title": "untitled, for now",
     "link": "https://velog.io/@uiwwsw/untitled-for-now",
     "slug": "untitled-for-now",
@@ -1793,7 +4566,7 @@
       }
     ]
   },
-  "11": {
+  "16": {
     "title": "[Retrospective] 머랭트립 리팩토링: 기능 추가보다 '완성도'에 집착하기 (Flutter 전환기)",
     "link": "https://velog.io/@uiwwsw/Retrospective-머랭트립-리팩토링-기능-추가보다-완성도에-집착하기-Flutter-전환기",
     "slug": "Retrospective-머랭트립-리팩토링-기능-추가보다-완성도에-집착하기-Flutter-전환기",
@@ -1991,7 +4764,7 @@
       }
     ]
   },
-  "12": {
+  "17": {
     "title": "운이 좋았습니다",
     "link": "https://velog.io/@uiwwsw/운이-좋았습니다",
     "slug": "운이-좋았습니다",
@@ -2053,7 +4826,7 @@
       }
     ]
   },
-  "13": {
+  "18": {
     "title": "무지의 무지",
     "link": "https://velog.io/@uiwwsw/무지의-무지-0i223rlm",
     "slug": "무지의-무지-0i223rlm",
@@ -2289,7 +5062,7 @@
       }
     ]
   },
-  "14": {
+  "19": {
     "title": "왜 기품 있는 어른은 회사에 남지 않는가",
     "link": "https://velog.io/@uiwwsw/왜-기품-있는-어른은-회사에-남지-않는가",
     "slug": "왜-기품-있는-어른은-회사에-남지-않는가",
@@ -2426,7 +5199,7 @@
       }
     ]
   },
-  "15": {
+  "20": {
     "title": "우아함의 물리학: 지능과 체력에 관하여",
     "link": "https://velog.io/@uiwwsw/우아함의-물리학-지능과-체력에-관하여",
     "slug": "우아함의-물리학-지능과-체력에-관하여",
@@ -2509,7 +5282,7 @@
       }
     ]
   },
-  "16": {
+  "21": {
     "title": "똑똑한 개발자란 무엇인가 (feat. AI 시대의 생존법)",
     "link": "https://velog.io/@uiwwsw/똑똑한-개발자란-무엇인가-feat.-AI-시대의-생존법",
     "slug": "똑똑한-개발자란-무엇인가-feat.-AI-시대의-생존법",
@@ -2728,7 +5501,7 @@
       }
     ]
   },
-  "17": {
+  "22": {
     "title": "코난과 숏박스",
     "link": "https://velog.io/@uiwwsw/코난과-숏박스",
     "slug": "코난과-숏박스",
@@ -2902,7 +5675,7 @@
       }
     ]
   },
-  "18": {
+  "23": {
     "title": "10년의 회고",
     "link": "https://velog.io/@uiwwsw/10년의-회고",
     "slug": "10년의-회고",
@@ -2998,7 +5771,7 @@
       }
     ]
   },
-  "19": {
+  "24": {
     "title": "숲",
     "link": "https://velog.io/@uiwwsw/나무에-대한-평가",
     "slug": "나무에-대한-평가",
@@ -3219,7 +5992,7 @@
       }
     ]
   },
-  "20": {
+  "25": {
     "title": "\"키 큰 남자가 좋아요\"에 대해서",
     "link": "https://velog.io/@uiwwsw/키큰남자가좋아요",
     "slug": "키큰남자가좋아요",
@@ -3460,7 +6233,7 @@
       }
     ]
   },
-  "21": {
+  "26": {
     "title": "어른이",
     "link": "https://velog.io/@uiwwsw/어른이",
     "slug": "어른이",
@@ -3586,7 +6359,7 @@
       }
     ]
   },
-  "22": {
+  "27": {
     "title": "소개팅",
     "link": "https://velog.io/@uiwwsw/소개팅",
     "slug": "소개팅",
@@ -3627,7 +6400,7 @@
       }
     ]
   },
-  "23": {
+  "28": {
     "title": "관계의 증명",
     "link": "https://velog.io/@uiwwsw/관계의-증명",
     "slug": "관계의-증명",
@@ -3648,7 +6421,7 @@
       }
     ]
   },
-  "24": {
+  "29": {
     "title": "열 수 있는 자물쇠",
     "link": "https://velog.io/@uiwwsw/이유",
     "slug": "이유",
@@ -3669,7 +6442,7 @@
       }
     ]
   },
-  "25": {
+  "30": {
     "title": "기울어가는 것",
     "link": "https://velog.io/@uiwwsw/기울어가는-것",
     "slug": "기울어가는-것",
@@ -3740,7 +6513,7 @@
       }
     ]
   },
-  "26": {
+  "31": {
     "title": "사랑의 끝은 썩 아름답지 못하다.",
     "link": "https://velog.io/@uiwwsw/사랑의-끝은-썩-아름답지-못하다",
     "slug": "사랑의-끝은-썩-아름답지-못하다",
@@ -3797,7 +6570,7 @@
       }
     ]
   },
-  "27": {
+  "32": {
     "title": "다중 장소 검색 서비스 머랭트립 개발기",
     "link": "https://velog.io/@uiwwsw/지도-앱-켰다가-뇌-터질-뻔해서-직접-만들었습니다-feat.-UI만-5번-엎은-썰",
     "slug": "지도-앱-켰다가-뇌-터질-뻔해서-직접-만들었습니다-feat.-UI만-5번-엎은-썰",
@@ -4069,7 +6842,7 @@
       }
     ]
   },
-  "28": {
+  "33": {
     "title": "익선동의 경계, 종로3가역",
     "link": "https://velog.io/@uiwwsw/익선동의-경계-종로3가역",
     "slug": "익선동의-경계-종로3가역",
@@ -4141,7 +6914,7 @@
       }
     ]
   },
-  "29": {
+  "34": {
     "title": "보이지 않는 선",
     "link": "https://velog.io/@uiwwsw/보이지-않는-선",
     "slug": "보이지-않는-선",
@@ -4353,7 +7126,7 @@
       }
     ]
   },
-  "30": {
+  "35": {
     "title": "봉사 토끼",
     "link": "https://velog.io/@uiwwsw/봉사-토끼",
     "slug": "봉사-토끼",
@@ -4650,7 +7423,7 @@
       }
     ]
   },
-  "31": {
+  "36": {
     "title": "0.0001도의 차이, 그 고독한 궤적에 대하여",
     "link": "https://velog.io/@uiwwsw/형질의-구",
     "slug": "형질의-구",
@@ -4786,7 +7559,7 @@
       }
     ]
   },
-  "32": {
+  "37": {
     "title": "🚀 스토리북에 버전별 컴포넌트 모으기 — 한 곳에서 깔끔하게 비교하는 법",
     "link": "https://velog.io/@uiwwsw/스토리북에-버전별-컴포넌트-보여주기-낭비-없이-한-곳에-모으는-법",
     "slug": "스토리북에-버전별-컴포넌트-보여주기-낭비-없이-한-곳에-모으는-법",
@@ -5099,7 +7872,7 @@
       }
     ]
   },
-  "33": {
+  "38": {
     "title": "링크드인",
     "link": "https://velog.io/@uiwwsw/링크드인",
     "slug": "링크드인",
@@ -5140,7 +7913,7 @@
       }
     ]
   },
-  "34": {
+  "39": {
     "title": "양평 어느 카페",
     "link": "https://velog.io/@uiwwsw/양평-어느-카페",
     "slug": "양평-어느-카페",
@@ -5156,7 +7929,7 @@
       }
     ]
   },
-  "35": {
+  "40": {
     "title": "양치기소년",
     "link": "https://velog.io/@uiwwsw/양치기소년",
     "slug": "양치기소년",
@@ -5237,7 +8010,7 @@
       }
     ]
   },
-  "36": {
+  "41": {
     "title": "🔐 재미와 보안, 두 마리 토끼를 잡는 이스터에그 구현법",
     "link": "https://velog.io/@uiwwsw/재미와-보안-두-마리-토끼를-잡는-이스터에그-구현법",
     "slug": "재미와-보안-두-마리-토끼를-잡는-이스터에그-구현법",
@@ -5295,7 +8068,7 @@
       }
     ]
   },
-  "37": {
+  "42": {
     "title": "늦게 당도한 파도가 가장 깊은 곳을 적신다",
     "link": "https://velog.io/@uiwwsw/늦게-당도한-파도가-가장-깊은-곳을-적신다",
     "slug": "늦게-당도한-파도가-가장-깊은-곳을-적신다",
@@ -5436,7 +8209,7 @@
       }
     ]
   },
-  "38": {
+  "43": {
     "title": "💳 선불권을 디지털로 – 프리페이 실험기",
     "link": "https://velog.io/@uiwwsw/선불권을-디지털로-프리페이-실험기",
     "slug": "선불권을-디지털로-프리페이-실험기",
@@ -5568,7 +8341,7 @@
       }
     ]
   },
-  "39": {
+  "44": {
     "title": "🧪 커스텀 인풋과 키보드, 프로토타입에서 진짜 설계로 (2부)",
     "link": "https://velog.io/@uiwwsw/커스텀-인풋과-키보드-프로토타입에서-진짜-설계로-2부",
     "slug": "커스텀-인풋과-키보드-프로토타입에서-진짜-설계로-2부",
@@ -5699,7 +8472,7 @@
       }
     ]
   },
-  "40": {
+  "45": {
     "title": "🧠 한글 입력의 미스터리: 컴포지션 이슈의 정체 (1부)",
     "link": "https://velog.io/@uiwwsw/한글-입력의-미스터리-컴포지션-이슈의-정체-1부",
     "slug": "한글-입력의-미스터리-컴포지션-이슈의-정체-1부",
@@ -5826,7 +8599,7 @@
       }
     ]
   },
-  "41": {
+  "46": {
     "title": "리엑트쿼리 자동화 스크립트",
     "link": "https://velog.io/@uiwwsw/리엑트쿼리-자동화-스크립트",
     "slug": "리엑트쿼리-자동화-스크립트",
@@ -5939,7 +8712,7 @@
       }
     ]
   },
-  "42": {
+  "47": {
     "title": "\"AI는 왜 항상 페더레이션을 추천할까?\" — 현실적인 시선으로 바라본 MFE 선택기준",
     "link": "https://velog.io/@uiwwsw/페더레이션-vs-아이프레임",
     "slug": "페더레이션-vs-아이프레임",
@@ -6101,7 +8874,7 @@
       }
     ]
   },
-  "43": {
+  "48": {
     "title": "사진",
     "link": "https://velog.io/@uiwwsw/사진",
     "slug": "사진",
@@ -6117,7 +8890,7 @@
       }
     ]
   },
-  "44": {
+  "49": {
     "title": "Object.entries의 얕은 추론 한계를 해결하는 단 하나의 방법",
     "link": "https://velog.io/@uiwwsw/Object.entries의-얕은-추론-한계를-해결하는-단-하나의-방법",
     "slug": "Object.entries의-얕은-추론-한계를-해결하는-단-하나의-방법",
@@ -6273,7 +9046,7 @@
       }
     ]
   },
-  "45": {
+  "50": {
     "title": "😱 왜 빈 팝업이 뜰까? `onLoadCapture`로 해결하는 깔끔한 팝업 UX",
     "link": "https://velog.io/@uiwwsw/왜-빈-팝업이-뜰까-onLoadCapture로-해결하는-깔끔한-팝업-UX",
     "slug": "왜-빈-팝업이-뜰까-onLoadCapture로-해결하는-깔끔한-팝업-UX",
@@ -6383,7 +9156,7 @@
       }
     ]
   },
-  "46": {
+  "51": {
     "title": "💡 하나의 UI, 다양한 상황에 맞게 쪼개 쓰기 — Step 컴포넌트 만들기",
     "link": "https://velog.io/@uiwwsw/하나의-UI-다양한-상황에-맞게-쪼개-쓰기-Step-컴포넌트-만들기",
     "slug": "하나의-UI-다양한-상황에-맞게-쪼개-쓰기-Step-컴포넌트-만들기",
@@ -6540,7 +9313,7 @@
       }
     ]
   },
-  "47": {
+  "52": {
     "title": "🎨 팀으로서 일을 한다는 것",
     "link": "https://velog.io/@uiwwsw/팀으로서-일을-한다는-것",
     "slug": "팀으로서-일을-한다는-것",
@@ -6602,7 +9375,7 @@
       }
     ]
   },
-  "48": {
+  "53": {
     "title": "🎯 React에서 더 유연하게 Slot 컴포넌트 만들기 — JSX를 직접 다루는 패턴",
     "link": "https://velog.io/@uiwwsw/리액트에서-asChild로-Slot-패턴-구현하기",
     "slug": "리액트에서-asChild로-Slot-패턴-구현하기",
@@ -6732,7 +9505,7 @@
       }
     ]
   },
-  "49": {
+  "54": {
     "title": "🧠 useStorage — localStorage 동기화 유틸 훅 만들기 (React Custom Hook)",
     "link": "https://velog.io/@uiwwsw/useStorage-localStorage-동기화-유틸-훅-만들기-React-Custom-Hook",
     "slug": "useStorage-localStorage-동기화-유틸-훅-만들기-React-Custom-Hook",
@@ -6768,7 +9541,7 @@
       }
     ]
   },
-  "50": {
+  "55": {
     "title": "왜 또 “컨펌 모달”인가?",
     "link": "https://velog.io/@uiwwsw/confirm",
     "slug": "confirm",
@@ -6892,7 +9665,7 @@
       }
     ]
   },
-  "51": {
+  "56": {
     "title": "🧠 onDoublePointerDown — 더블 클릭보다 더 유연한 더블 포인터 이벤트\n",
     "link": "https://velog.io/@uiwwsw/withDoublePointerDown",
     "slug": "withDoublePointerDown",
@@ -6976,7 +9749,7 @@
       }
     ]
   },
-  "52": {
+  "57": {
     "title": "테이블 UI에서 \"자세히 보기\"를 구현하는 컴포넌트",
     "link": "https://velog.io/@uiwwsw/확대-ui-컴포넌트",
     "slug": "확대-ui-컴포넌트",
