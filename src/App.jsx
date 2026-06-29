@@ -7,13 +7,10 @@ import React, {
   useRef,
   useState
 } from 'react';
-import { Canvas } from '@react-three/fiber';
-import { PerspectiveCamera } from '@react-three/drei';
-import { Bloom, EffectComposer, Vignette } from '@react-three/postprocessing';
 import './index.css';
 import { buildUniverseModel, getContextWindow } from './utils/universeModel';
 
-const WordCloud = lazy(() => import('./components/WordCloud'));
+const UniverseScene = lazy(() => import('./components/UniverseScene'));
 const loadContextData = () => import('./data/velog-context.json');
 const UNIVERSE_SEED_STORAGE_KEY = 'uiwwsw.universe-seed.v1';
 const GUIDE_DISMISSED_STORAGE_KEY = 'uiwwsw.guide-dismissed.v1';
@@ -289,6 +286,7 @@ export default function App() {
   const [universeSeed] = useState(() => readUniverseSeed());
   const [showGuide, setShowGuide] = useState(() => !readGuideDismissed());
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [shouldRenderScene, setShouldRenderScene] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTopic, setSelectedTopic] = useState('all');
   const [codeOnly, setCodeOnly] = useState(false);
@@ -310,6 +308,33 @@ export default function App() {
 
     return () => {
       mounted = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      setShouldRenderScene(true);
+      return undefined;
+    }
+
+    let timeoutId = null;
+    let idleId = null;
+
+    const activateScene = () => setShouldRenderScene(true);
+
+    if ('requestIdleCallback' in window) {
+      idleId = window.requestIdleCallback(activateScene, { timeout: 1200 });
+    } else {
+      timeoutId = window.setTimeout(activateScene, 180);
+    }
+
+    return () => {
+      if (idleId !== null && 'cancelIdleCallback' in window) {
+        window.cancelIdleCallback(idleId);
+      }
+      if (timeoutId !== null) {
+        window.clearTimeout(timeoutId);
+      }
     };
   }, []);
 
@@ -672,19 +697,9 @@ export default function App() {
   return (
     <div className="app-shell">
       <div className={`canvas-container ${selectedSentence ? 'detail-active' : ''}`}>
-        <Canvas
-          gl={canvasOptions}
-          dpr={sceneProfile.dpr}
-          onCreated={({ gl }) => {
-            gl.setClearColor('#02040a');
-            gl.setPixelRatio(Math.min(window.devicePixelRatio, sceneProfile.pixelRatioMax));
-          }}
-        >
-          <color attach="background" args={['#02040a']} />
-          <PerspectiveCamera makeDefault position={[0, 12, 920]} fov={50} />
-
+        {shouldRenderScene && universe ? (
           <Suspense fallback={null}>
-            <WordCloud
+            <UniverseScene
               universe={universe}
               selectedSentence={selectedSentence}
               onSelectSentence={handleSelectSentence}
@@ -693,21 +708,11 @@ export default function App() {
               highlightedArticleIds={highlightedArticleIds}
               flightTargetArticleId={flightTargetArticleId}
               onFlightComplete={handleFlightComplete}
-              performanceProfile={sceneProfile}
+              sceneProfile={sceneProfile}
+              canvasOptions={canvasOptions}
             />
           </Suspense>
-
-          {sceneProfile.enablePostProcessing && (
-            <EffectComposer disableNormalPass>
-              <Bloom luminanceThreshold={0} mipmapBlur intensity={0.72} radius={0.62} />
-              <Vignette eskil={false} offset={0.12} darkness={0.9} />
-            </EffectComposer>
-          )}
-
-          <ambientLight intensity={0.78} />
-          <directionalLight position={[140, 220, 180]} intensity={0.38} color="#9ad5ff" />
-          <pointLight position={[-180, 60, 240]} intensity={0.22} color="#ffc670" />
-        </Canvas>
+        ) : null}
       </div>
 
       <div

@@ -23,7 +23,16 @@ export default defineConfig({
     chunkSizeWarningLimit: 1000,
     cssCodeSplit: true,
     modulePreload: {
-      polyfill: true
+      polyfill: true,
+      resolveDependencies(_filename, deps, context) {
+        if (context.hostType !== 'html') {
+          return deps;
+        }
+
+        return deps.filter((dependency) => {
+          return !/(UniverseScene|WordCloud|three-|troika-three-text)/.test(dependency);
+        });
+      }
     }
   },
   optimizeDeps: {
