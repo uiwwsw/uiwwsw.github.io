@@ -64,6 +64,8 @@ export default function useWordCloudController({
   const draggingRef = useRef(false);
   const lastPointerRef = useRef({ x: 0, y: 0 });
   const pinchDistanceRef = useRef(null);
+  const pinchCenterRef = useRef(null);
+  const activePointersRef = useRef(new Map());
   const focusTickRef = useRef(0);
   const discoveryTickRef = useRef(0);
   const lastDiscoveryAnchorRef = useRef(new THREE.Vector3());
@@ -132,6 +134,21 @@ export default function useWordCloudController({
     draggingRef.current = true;
     lastPointerRef.current = { x: clientX, y: clientY };
   }, [selectedSentence, syncRotationAnchor]);
+
+  const endGesture = useCallback(() => {
+    draggingRef.current = false;
+    pinchDistanceRef.current = null;
+    pinchCenterRef.current = null;
+  }, []);
+
+  const applyDragDelta = useCallback((dx, dy, sensitivityX = 0.00024, sensitivityY = 0.00018) => {
+    rotationVelocityRef.current.x += dx * sensitivityX;
+    rotationVelocityRef.current.y += dy * sensitivityY;
+  }, []);
+
+  const applyZoomDelta = useCallback((delta) => {
+    speedRef.current = clamp(speedRef.current + delta, -40, MAX_SPEED);
+  }, []);
 
   const registerCluster = useCallback((articleId, ref, article) => {
     clusterRefs.current.set(articleId, { ref, article });
@@ -578,6 +595,7 @@ export default function useWordCloudController({
   useEffect(() => {
     const canvas = gl.domElement;
     canvas.style.touchAction = 'none';
+    canvas.style.userSelect = 'none';
 
     const handleWheel = (event) => {
       if (selectedSentence) return;
@@ -587,7 +605,7 @@ export default function useWordCloudController({
       }
 
       event.preventDefault();
-      speedRef.current = clamp(speedRef.current - event.deltaY * 0.085, -40, MAX_SPEED);
+      applyZoomDelta(-event.deltaY * 0.085);
     };
 
     const handlePointerDown = (event) => {
@@ -597,98 +615,116 @@ export default function useWordCloudController({
         stopFlight();
       }
 
+      activePointersRef.current.set(event.pointerId, {
+        x: event.clientX,
+        y: event.clientY
+      });
+
+      if (typeof canvas.setPointerCapture === 'function') {
+        try {
+          canvas.setPointerCapture(event.pointerId);
+        } catch (error) {
+          // Ignore capture failures on unsupported browsers.
+        }
+      }
+
+      if (activePointersRef.current.size === 2) {
+        const [first, second] = [...activePointersRef.current.values()];
+        pinchDistanceRef.current = Math.hypot(first.x - second.x, first.y - second.y);
+        pinchCenterRef.current = {
+          x: (first.x + second.x) / 2,
+          y: (first.y + second.y) / 2
+        };
+        draggingRef.current = false;
+        return;
+      }
+
       beginGesture(event.clientX, event.clientY);
     };
 
     const handlePointerMove = (event) => {
-      if (!draggingRef.current || selectedSentence || flightTargetRef.current != null) return;
+      if (selectedSentence || flightTargetRef.current != null) return;
+
+      if (activePointersRef.current.has(event.pointerId)) {
+        activePointersRef.current.set(event.pointerId, {
+          x: event.clientX,
+          y: event.clientY
+        });
+      }
+
+      if (activePointersRef.current.size >= 2) {
+        const [first, second] = [...activePointersRef.current.values()];
+        const nextDistance = Math.hypot(first.x - second.x, first.y - second.y);
+        const nextCenter = {
+          x: (first.x + second.x) / 2,
+          y: (first.y + second.y) / 2
+        };
+
+        if (pinchDistanceRef.current !== null) {
+          applyZoomDelta((nextDistance - pinchDistanceRef.current) * 0.34);
+        }
+
+        if (pinchCenterRef.current) {
+          applyDragDelta(
+            nextCenter.x - pinchCenterRef.current.x,
+            nextCenter.y - pinchCenterRef.current.y,
+            0.00018,
+            0.00014
+          );
+        }
+
+        pinchDistanceRef.current = nextDistance;
+        pinchCenterRef.current = nextCenter;
+        return;
+      }
+
+      if (!draggingRef.current) return;
 
       const dx = event.clientX - lastPointerRef.current.x;
       const dy = event.clientY - lastPointerRef.current.y;
 
       lastPointerRef.current = { x: event.clientX, y: event.clientY };
-      rotationVelocityRef.current.x += dx * 0.00024;
-      rotationVelocityRef.current.y += dy * 0.00018;
+      applyDragDelta(dx, dy);
     };
 
-    const handlePointerUp = () => {
-      draggingRef.current = false;
-    };
+    const handlePointerUp = (event) => {
+      activePointersRef.current.delete(event.pointerId);
 
-    const handleTouchStart = (event) => {
-      if (selectedSentence || event.target !== canvas) return;
-
-      if (flightTargetRef.current != null) {
-        stopFlight();
+      if (typeof canvas.releasePointerCapture === 'function') {
+        try {
+          if (canvas.hasPointerCapture?.(event.pointerId)) {
+            canvas.releasePointerCapture(event.pointerId);
+          }
+        } catch (error) {
+          // Ignore release failures.
+        }
       }
 
-      if (event.touches.length === 1) {
-        beginGesture(event.touches[0].clientX, event.touches[0].clientY);
+      if (activePointersRef.current.size === 1) {
+        const remainingPointer = [...activePointersRef.current.values()][0];
+        pinchDistanceRef.current = null;
+        pinchCenterRef.current = null;
+        beginGesture(remainingPointer.x, remainingPointer.y);
+        return;
       }
 
-      if (event.touches.length === 2) {
-        const dx = event.touches[0].clientX - event.touches[1].clientX;
-        const dy = event.touches[0].clientY - event.touches[1].clientY;
-        pinchDistanceRef.current = Math.hypot(dx, dy);
-      }
-    };
-
-    const handleTouchMove = (event) => {
-      if (selectedSentence || event.target !== canvas || flightTargetRef.current != null) return;
-
-      if (event.touches.length === 1 && draggingRef.current) {
-        event.preventDefault();
-
-        const dx = event.touches[0].clientX - lastPointerRef.current.x;
-        const dy = event.touches[0].clientY - lastPointerRef.current.y;
-
-        lastPointerRef.current = {
-          x: event.touches[0].clientX,
-          y: event.touches[0].clientY
-        };
-
-        rotationVelocityRef.current.x += dx * 0.00028;
-        rotationVelocityRef.current.y += dy * 0.0002;
-      }
-
-      if (event.touches.length === 2 && pinchDistanceRef.current !== null) {
-        event.preventDefault();
-
-        const dx = event.touches[0].clientX - event.touches[1].clientX;
-        const dy = event.touches[0].clientY - event.touches[1].clientY;
-        const nextDistance = Math.hypot(dx, dy);
-        const delta = nextDistance - pinchDistanceRef.current;
-
-        pinchDistanceRef.current = nextDistance;
-        speedRef.current = clamp(speedRef.current + delta * 0.34, -40, MAX_SPEED);
-      }
-    };
-
-    const handleTouchEnd = () => {
-      draggingRef.current = false;
-      pinchDistanceRef.current = null;
+      endGesture();
     };
 
     canvas.addEventListener('wheel', handleWheel, { passive: false });
     canvas.addEventListener('pointerdown', handlePointerDown);
     window.addEventListener('pointermove', handlePointerMove);
     window.addEventListener('pointerup', handlePointerUp);
-    canvas.addEventListener('touchstart', handleTouchStart, { passive: false });
-    canvas.addEventListener('touchmove', handleTouchMove, { passive: false });
-    canvas.addEventListener('touchend', handleTouchEnd, { passive: true });
-    canvas.addEventListener('touchcancel', handleTouchEnd, { passive: true });
+    window.addEventListener('pointercancel', handlePointerUp);
 
     return () => {
       canvas.removeEventListener('wheel', handleWheel);
       canvas.removeEventListener('pointerdown', handlePointerDown);
       window.removeEventListener('pointermove', handlePointerMove);
       window.removeEventListener('pointerup', handlePointerUp);
-      canvas.removeEventListener('touchstart', handleTouchStart);
-      canvas.removeEventListener('touchmove', handleTouchMove);
-      canvas.removeEventListener('touchend', handleTouchEnd);
-      canvas.removeEventListener('touchcancel', handleTouchEnd);
+      window.removeEventListener('pointercancel', handlePointerUp);
     };
-  }, [beginGesture, gl, selectedSentence, stopFlight]);
+  }, [applyDragDelta, applyZoomDelta, beginGesture, endGesture, gl, selectedSentence, stopFlight]);
 
   const renderedArticles = useMemo(() => {
     return discoveredOrderRef.current
