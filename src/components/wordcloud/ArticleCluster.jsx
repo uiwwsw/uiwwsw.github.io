@@ -5,9 +5,9 @@ import * as THREE from 'three';
 import FragmentLabel from './FragmentLabel';
 import { clamp, fontUrl } from './shared';
 
-const MOBILE_AMBIENT_FRAGMENT_LIMIT = 3;
+const DEFAULT_AMBIENT_FRAGMENT_LIMIT = 7;
 
-function sampleAmbientFragments(fragments, limit = MOBILE_AMBIENT_FRAGMENT_LIMIT) {
+function sampleAmbientFragments(fragments, limit = DEFAULT_AMBIENT_FRAGMENT_LIMIT) {
   if (fragments.length <= limit) {
     return fragments;
   }
@@ -75,17 +75,18 @@ export default function ArticleCluster({
   const isFocused = focusedArticleId === article.articleId;
   const isSelected = selectedSentence?.articleId === article.articleId;
   const isMobile = performanceProfile?.isMobile === true;
+  const ambientFragmentLimit = Math.max(1, performanceProfile?.ambientFragmentLimit ?? DEFAULT_AMBIENT_FRAGMENT_LIMIT);
   const isFocusDimmed = focusedArticleId != null && !isSelected && !isFocused && !selectedSentence;
   const isSearchDimmed = searchActive && !isSearchMatch && !isSelected && !isFocused;
   const isDimmed = isFocusDimmed || isSearchDimmed;
   const labelVisible = isFocused || isSelected;
   const visibleFragments = useMemo(() => {
-    if (!isMobile || labelVisible) {
+    if (labelVisible) {
       return article.fragments;
     }
 
-    return sampleAmbientFragments(article.fragments);
-  }, [article.fragments, isMobile, labelVisible]);
+    return sampleAmbientFragments(article.fragments, ambientFragmentLimit);
+  }, [ambientFragmentLimit, article.fragments, labelVisible]);
   const hitSphereSegments = isMobile ? 12 : 20;
   const shellSphereSegments = isMobile ? 10 : 16;
   const ringSegments = isMobile ? 24 : 48;

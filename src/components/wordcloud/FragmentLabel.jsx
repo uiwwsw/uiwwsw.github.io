@@ -28,6 +28,7 @@ export default function FragmentLabel({
   const isSelectedArticle = !!selectedSentence && selectedSentence.articleId === fragment.articleId;
   const isMobile = performanceProfile?.isMobile === true;
   const isSearchDimmed = searchActive && !isSearchMatch && !isSelectedArticle;
+  const driftScaleMultiplier = performanceProfile?.fragmentDriftScale ?? 1;
   const hitWidth = Math.max(9.5, fragment.displayText.length * 1.28 + 3.8);
   const hitHeight = fragment.type === 'code' ? 4.6 : 4.1;
 
@@ -35,7 +36,7 @@ export default function FragmentLabel({
     if (!labelRef.current || !textRef.current) return;
 
     const time = state.clock.elapsedTime;
-    const driftScale = isMobile ? 0.22 : 1;
+    const driftScale = (isMobile ? 0.22 : 1) * driftScaleMultiplier;
     const driftX = Math.sin(time * 0.28 + baseLocalPosition.x * 0.03) * 0.9 * driftScale;
     const driftY = Math.cos(time * 0.34 + baseLocalPosition.z * 0.02) * 0.8 * driftScale;
     const driftZ = Math.sin(time * 0.22 + baseLocalPosition.y * 0.03) * 0.7 * driftScale;

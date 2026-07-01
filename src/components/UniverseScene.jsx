@@ -25,6 +25,7 @@ function UniverseScene({
         gl.setClearColor('#02040a');
         gl.setPixelRatio(Math.min(window.devicePixelRatio, sceneProfile.pixelRatioMax));
       }}
+      performance={{ min: 0.5 }}
     >
       <color attach="background" args={['#02040a']} />
       <PerspectiveCamera makeDefault position={[0, 12, 920]} fov={50} />
@@ -45,8 +46,13 @@ function UniverseScene({
 
       {sceneProfile.enablePostProcessing && (
         <EffectComposer disableNormalPass>
-          <Bloom luminanceThreshold={0} mipmapBlur intensity={0.72} radius={0.62} />
-          <Vignette eskil={false} offset={0.12} darkness={0.9} />
+          <Bloom
+            luminanceThreshold={0}
+            mipmapBlur
+            intensity={sceneProfile.bloomIntensity ?? 0.64}
+            radius={0.56}
+          />
+          <Vignette eskil={false} offset={0.12} darkness={sceneProfile.vignetteDarkness ?? 0.9} />
         </EffectComposer>
       )}
 
