@@ -1204,8 +1204,27 @@ body::before {
   backdrop-filter: none;
 }
 
+.overlay.is-mobile .search-panel.is-mobile-sheet {
+  position: fixed;
+  left: 10px;
+  right: 10px;
+  bottom: max(10px, env(safe-area-inset-bottom));
+  z-index: 22;
+  border-radius: 22px 22px 16px 16px;
+  background:
+    linear-gradient(180deg, rgba(10, 16, 26, 0.98), rgba(7, 12, 20, 0.96)),
+    rgba(8, 12, 20, 0.96);
+  box-shadow: 0 -12px 42px rgba(0, 0, 0, 0.36), 0 24px 60px rgba(0, 0, 0, 0.34);
+}
+
 .overlay.is-mobile .search-panel.is-open {
-  max-height: min(52vh, 420px);
+  max-height: min(68vh, 560px);
+}
+
+.overlay.is-mobile.is-search-open .focus-panel {
+  opacity: 0;
+  transform: translateY(12px);
+  pointer-events: none !important;
 }
 
 .overlay.is-mobile .focus-panel {
@@ -1239,6 +1258,14 @@ body::before {
     overflow: hidden;
   }
 
+  .search-sheet-handle {
+    width: 48px;
+    height: 5px;
+    margin: 0 auto 4px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.18);
+  }
+
   .overlay-inner {
     padding: max(12px, env(safe-area-inset-top)) 12px max(14px, env(safe-area-inset-bottom));
     gap: 12px;
@@ -1253,6 +1280,12 @@ body::before {
   .overlay.is-mobile .search-panel,
   .overlay.is-mobile .focus-panel {
     gap: 10px;
+  }
+
+  .overlay.is-mobile.is-search-open .mobile-command-bar {
+    opacity: 0;
+    transform: translateY(-8px);
+    pointer-events: none !important;
   }
 
   .mobile-command-bar {
@@ -1274,6 +1307,14 @@ body::before {
   .mobile-command-copy p {
     font-size: 0.8rem;
     line-height: 1.34;
+  }
+
+  .search-panel-header {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    padding-bottom: 2px;
+    background: linear-gradient(180deg, rgba(8, 12, 20, 0.98), rgba(8, 12, 20, 0.86));
   }
 
   .search-panel-header h3 {
@@ -1408,6 +1449,22 @@ body::before {
     border-radius: 16px;
   }
 
+  .overlay.is-mobile .search-panel.is-mobile-sheet {
+    left: 8px;
+    right: 8px;
+    bottom: max(8px, env(safe-area-inset-bottom));
+    padding: 10px 10px 12px;
+    border-radius: 18px 18px 14px 14px;
+  }
+
+  .overlay.is-mobile .search-panel.is-mobile-sheet.is-open {
+    max-height: min(72vh, 560px);
+  }
+
+  .overlay.is-mobile .search-results {
+    gap: 8px;
+  }
+
   .search-panel,
   .focus-panel,
   .detail-panel {
@@ -1497,6 +1554,10 @@ body::before {
   .canvas-container.detail-active {
     transform: none;
     filter: saturate(0.82) brightness(0.48);
+  }
+
+  .overlay.is-mobile.is-search-open .hero-shell {
+    min-height: 0;
   }
 }
 
