@@ -57,6 +57,7 @@ export default function Starfield({ performanceProfile }) {
   const { camera } = useThree();
   const starCount = performanceProfile?.starCount ?? STAR_COUNT;
   const starSize = performanceProfile?.starSize ?? 5.2;
+  const animateStarfield = performanceProfile?.animateStarfield !== false;
   const field = useMemo(() => buildStars(starCount, 127), [starCount]);
 
   useFrame((state) => {
@@ -94,13 +95,17 @@ export default function Starfield({ performanceProfile }) {
 
       if (dz > halfDepth) {
         positions[offset + 2] -= STARFIELD_DEPTH;
-        positions[offset] += Math.sin(drift + offset * 0.013) * 36;
-        positions[offset + 1] += Math.cos(drift + offset * 0.017) * 24;
+        if (animateStarfield) {
+          positions[offset] += Math.sin(drift + offset * 0.013) * 36;
+          positions[offset + 1] += Math.cos(drift + offset * 0.017) * 24;
+        }
         changed = true;
       } else if (dz < -halfDepth) {
         positions[offset + 2] += STARFIELD_DEPTH;
-        positions[offset] += Math.sin(drift + offset * 0.011) * 36;
-        positions[offset + 1] += Math.cos(drift + offset * 0.019) * 24;
+        if (animateStarfield) {
+          positions[offset] += Math.sin(drift + offset * 0.011) * 36;
+          positions[offset + 1] += Math.cos(drift + offset * 0.019) * 24;
+        }
         changed = true;
       }
     }

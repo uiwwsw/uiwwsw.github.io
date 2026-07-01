@@ -599,13 +599,30 @@ export default function App() {
   }, [filteredArticles, focusedArticle, hasSearchFilters, selectedArticle]);
   const isMobileViewport = overlayMetrics.isMobile;
   const sceneProfile = useMemo(() => {
+    const viewportWidth = typeof window !== 'undefined' ? window.innerWidth : 1440;
+    const deviceMemory = typeof navigator !== 'undefined' ? navigator.deviceMemory || 4 : 4;
+    const hardwareConcurrency = typeof navigator !== 'undefined' ? navigator.hardwareConcurrency || 4 : 4;
+    const prefersReducedMotion = typeof window !== 'undefined'
+      && typeof window.matchMedia === 'function'
+      && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const isLowPowerDevice = isMobileViewport || deviceMemory <= 4 || hardwareConcurrency <= 6;
+    const isCompactDesktop = !isMobileViewport && viewportWidth < 1440;
+    const pixelRatioMax = isMobileViewport ? 1 : isLowPowerDevice ? 1.1 : isCompactDesktop ? 1.25 : 1.4;
+
     return {
       isMobile: isMobileViewport,
-      dpr: isMobileViewport ? [0.8, 1] : [1, 1.6],
-      pixelRatioMax: isMobileViewport ? 1 : 1.6,
-      enablePostProcessing: !isMobileViewport,
-      starCount: isMobileViewport ? 900 : 2400,
-      starSize: isMobileViewport ? 4.4 : 5.2
+      isLowPowerDevice,
+      prefersReducedMotion,
+      dpr: isMobileViewport ? [0.72, 0.92] : isLowPowerDevice ? [0.9, 1.1] : [1, 1.35],
+      pixelRatioMax,
+      enablePostProcessing: !isMobileViewport && !isLowPowerDevice && !prefersReducedMotion,
+      bloomIntensity: isLowPowerDevice ? 0.46 : 0.64,
+      vignetteDarkness: isLowPowerDevice ? 0.78 : 0.9,
+      starCount: isMobileViewport ? 420 : isLowPowerDevice ? 900 : 1600,
+      starSize: isMobileViewport ? 4 : isLowPowerDevice ? 4.4 : 4.9,
+      animateStarfield: !prefersReducedMotion && !isLowPowerDevice,
+      ambientFragmentLimit: isMobileViewport ? 2 : isLowPowerDevice ? 4 : 7,
+      fragmentDriftScale: isMobileViewport ? 0.12 : isLowPowerDevice ? 0.3 : 0.72
     };
   }, [isMobileViewport]);
   const canvasOptions = useMemo(() => {
