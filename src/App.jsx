@@ -598,6 +598,10 @@ export default function App() {
     return [...nextIds];
   }, [filteredArticles, focusedArticle, hasSearchFilters, selectedArticle]);
   const isMobileViewport = overlayMetrics.isMobile;
+  const displayedSearchResults = useMemo(() => {
+    return isMobileViewport ? searchResults.slice(0, 10) : searchResults;
+  }, [isMobileViewport, searchResults]);
+  const isSearchResultsTrimmed = displayedSearchResults.length < searchResults.length;
   const sceneProfile = useMemo(() => {
     const viewportWidth = typeof window !== 'undefined' ? window.innerWidth : 1440;
     const deviceMemory = typeof navigator !== 'undefined' ? navigator.deviceMemory || 4 : 4;
@@ -733,7 +737,7 @@ export default function App() {
       </div>
 
       <div
-        className={`overlay ${selectedSentence ? 'is-hidden' : ''} ${isMobileViewport ? 'is-mobile' : ''}`}
+        className={`overlay ${selectedSentence ? 'is-hidden' : ''} ${isMobileViewport ? 'is-mobile' : ''} ${isSearchOpen ? 'is-search-open' : ''}`}
         style={overlayStyle}
       >
         <div className="overlay-inner">
@@ -820,7 +824,8 @@ export default function App() {
               </aside>
             )}
 
-            <section className={`search-panel ${isSearchOpen ? 'is-open' : ''}`}>
+            <section className={`search-panel ${isSearchOpen ? 'is-open' : ''} ${isMobileViewport ? 'is-mobile-sheet' : ''}`}>
+              {isMobileViewport && <div className="search-sheet-handle" aria-hidden="true" />}
               <div className="search-panel-header">
                 <div>
                   <span className="search-kicker">Atlas Search</span>
@@ -883,6 +888,7 @@ export default function App() {
               <div className="search-stats">
                 <span>{searchResultCountLabel}</span>
                 <span>{hasSearchFilters ? `${filteredFragmentCount} fragments in view` : 'entire archive ready'}</span>
+                {isSearchResultsTrimmed && <span>모바일엔 상위 10개만 표시</span>}
               </div>
 
               {topTags.length > 0 && (
@@ -902,7 +908,7 @@ export default function App() {
               )}
 
               <div className="search-results">
-                {searchResults.map((article) => (
+                {displayedSearchResults.map((article) => (
                   <button
                     key={article.id}
                     type="button"
@@ -918,7 +924,7 @@ export default function App() {
                   </button>
                 ))}
 
-                {searchResults.length === 0 && (
+                {displayedSearchResults.length === 0 && (
                   <div className="search-empty">
                     현재 조건과 맞는 별자리가 없습니다. 검색어나 필터를 조금 풀어보세요.
                   </div>
