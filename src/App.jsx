@@ -1,1114 +1,793 @@
 import React, {
   Suspense,
   lazy,
+  useCallback,
   useDeferredValue,
   useEffect,
   useMemo,
   useRef,
-  useState
-} from 'react';
-import './index.css';
-import { buildUniverseModel, getContextWindow } from './utils/universeModel';
+  useState,
+} from "react";
+import {
+  buildCatalog,
+  clamp,
+  filterCatalog,
+  formatDate,
+  TOPICS,
+} from "./utils/observatory";
+import {
+  AudioToggle,
+  Icon,
+  Panel,
+  SceneBoundary,
+} from "./components/Interface";
+import "./index.css";
 
-const UniverseScene = lazy(() => import('./components/UniverseScene'));
-const loadContextData = () => import('./data/velog-context.json');
-const UNIVERSE_SEED_STORAGE_KEY = 'uiwwsw.universe-seed.v1';
-const GUIDE_DISMISSED_STORAGE_KEY = 'uiwwsw.guide-dismissed.v1';
-const DATE_FORMATTER = new Intl.DateTimeFormat('ko-KR', {
-  year: 'numeric',
-  month: 'long',
-  day: 'numeric'
-});
-
-const canvasConfig = {
-  antialias: true,
-  alpha: false,
-  stencil: false,
-  depth: true,
-  powerPreference: 'high-performance'
-};
-
-function getOverlayMetrics(width, height) {
-  const safeWidth = Math.max(width ?? (typeof window !== 'undefined' ? window.innerWidth : 1440), 320);
-  const safeHeight = Math.max(height ?? (typeof window !== 'undefined' ? window.innerHeight : 940), 320);
-  const isMobile = safeWidth <= 768;
-  const isTablet = safeWidth <= 1180;
-  const frameWidth = isMobile ? safeWidth : isTablet ? 1040 : 1440;
-  const frameHeight = isMobile ? safeHeight : isTablet ? 1060 : 940;
-  const scale = isMobile ? 1 : Math.min(1, safeWidth / frameWidth, safeHeight / frameHeight);
-
-  return {
-    isMobile,
-    isTablet,
-    frameWidth,
-    frameHeight,
-    scale: Number(scale.toFixed(3))
-  };
-}
-
-function createUniverseSeed() {
-  if (typeof globalThis !== 'undefined' && globalThis.crypto?.getRandomValues) {
-    const values = new Uint32Array(1);
-    globalThis.crypto.getRandomValues(values);
-    return values[0];
-  }
-
-  return Math.floor(Math.random() * 4294967296);
-}
-
-function readUniverseSeed() {
-  if (typeof window === 'undefined') {
-    return 0;
-  }
-
-  try {
-    const params = new URLSearchParams(window.location.search);
-    const urlSeed = Number(params.get('seed'));
-
-    if (params.has('seed') && Number.isFinite(urlSeed)) {
-      const normalizedSeed = urlSeed >>> 0;
-      window.localStorage.setItem(UNIVERSE_SEED_STORAGE_KEY, String(normalizedSeed));
-      return normalizedSeed;
-    }
-
-    const storedSeed = window.localStorage.getItem(UNIVERSE_SEED_STORAGE_KEY);
-    const parsedSeed = Number(storedSeed);
-
-    if (storedSeed && Number.isFinite(parsedSeed)) {
-      return parsedSeed >>> 0;
-    }
-
-    const nextSeed = createUniverseSeed();
-    window.localStorage.setItem(UNIVERSE_SEED_STORAGE_KEY, String(nextSeed));
-    return nextSeed;
-  } catch (error) {
-    console.warn('Falling back to ephemeral universe seed.', error);
-    return createUniverseSeed();
-  }
-}
-
-function readGuideDismissed() {
-  if (typeof window === 'undefined') {
-    return false;
-  }
-
-  try {
-    return window.localStorage.getItem(GUIDE_DISMISSED_STORAGE_KEY) === '1';
-  } catch (error) {
-    console.warn('Failed to read guide preference.', error);
-    return false;
-  }
-}
-
-function persistGuideDismissed() {
-  if (typeof window === 'undefined') {
-    return;
-  }
-
-  try {
-    window.localStorage.setItem(GUIDE_DISMISSED_STORAGE_KEY, '1');
-  } catch (error) {
-    console.warn('Failed to persist guide preference.', error);
-  }
-}
-
-function truncateLabel(text, maxLength = 56) {
-  if (!text) return '';
-  if (text.length <= maxLength) return text;
-  return `${text.slice(0, maxLength - 1).trim()}...`;
-}
-
-function estimateReadingTime(sentences = []) {
-  const content = sentences
-    .filter(sentence => (sentence.type || 'text') !== 'code')
-    .map(sentence => sentence.fullSentence || '')
-    .join(' ')
-    .replace(/\s+/g, ' ')
-    .trim();
-
-  if (!content) {
-    return 1;
-  }
-
-  return Math.max(1, Math.ceil(content.split(' ').length / 220));
-}
-
-function formatPublishedDate(publishedAt) {
-  if (!publishedAt) return null;
-
-  const parsed = new Date(publishedAt);
-
-  if (Number.isNaN(parsed.getTime())) {
-    return null;
-  }
-
-  return DATE_FORMATTER.format(parsed);
-}
-
-function normalizeSearchValue(value) {
-  return (value || '').toLowerCase().trim();
-}
-
-function filterArticles(articles, { query, topic, codeOnly }) {
-  const normalizedQuery = normalizeSearchValue(query);
-
-  return articles
-    .map((article) => {
-      const tagText = (article.tags || []).join(' ');
-      const searchSpace = normalizeSearchValue([
-        article.title,
-        article.excerpt,
-        article.summary,
-        article.topicLabel,
-        tagText
-      ].join(' '));
-
-      const matchesTopic = topic === 'all' || article.topic === topic;
-      const matchesCode = !codeOnly || article.codeCount > 0;
-      const matchesQuery = !normalizedQuery || searchSpace.includes(normalizedQuery);
-
-      if (!matchesTopic || !matchesCode || !matchesQuery) {
-        return null;
-      }
-
-      let score = article.sentenceCount;
-
-      if (normalizedQuery) {
-        if (normalizeSearchValue(article.title).startsWith(normalizedQuery)) score += 1200;
-        if (normalizeSearchValue(article.title).includes(normalizedQuery)) score += 800;
-        if (normalizeSearchValue(tagText).includes(normalizedQuery)) score += 320;
-        if (normalizeSearchValue(article.excerpt).includes(normalizedQuery)) score += 180;
-      }
-
-      if (article.codeCount > 0) score += 30;
-      if (article.topic === topic) score += 120;
-
-      return {
-        article,
-        score
-      };
-    })
-    .filter(Boolean)
-    .sort((left, right) => {
-      if (right.score !== left.score) {
-        return right.score - left.score;
-      }
-
-      return left.article.articleId - right.article.articleId;
-    })
-    .map(result => result.article);
-}
-
-function getRelatedArticles(article, articles, limit = 3) {
-  if (!article) return [];
-
-  const articleTags = new Set(article.tags || []);
-
-  return articles
-    .filter(candidate => candidate.articleId !== article.articleId)
-    .map((candidate) => {
-      const sharedTagCount = (candidate.tags || []).filter(tag => articleTags.has(tag)).length;
-      const sameTopicScore = candidate.topic === article.topic ? 3 : 0;
-      const codeAffinity = candidate.codeCount > 0 && article.codeCount > 0 ? 1 : 0;
-      const recencyAffinity = Math.max(0, 2 - Math.abs(candidate.articleId - article.articleId) * 0.08);
-
-      return {
-        article: candidate,
-        score: sharedTagCount * 5 + sameTopicScore + codeAffinity + recencyAffinity
-      };
-    })
-    .sort((left, right) => right.score - left.score || left.article.articleId - right.article.articleId)
-    .slice(0, limit)
-    .map(result => result.article);
-}
-
-function getJumpPoints(article, currentSentenceIndex, targetCount = 5) {
-  if (!article) return [];
-
-  const textSentences = article.sentences
-    .map((sentence, index) => ({
-      index,
-      text: sentence.fullSentence,
-      type: sentence.type || 'text'
-    }))
-    .filter(sentence => sentence.type === 'text' && sentence.text);
-
-  if (textSentences.length === 0) {
-    return [];
-  }
-
-  const sampleIndexes = new Set();
-  const maxIndex = textSentences.length - 1;
-
-  for (let index = 0; index < Math.min(targetCount, textSentences.length); index += 1) {
-    sampleIndexes.add(Math.round((index * maxIndex) / Math.max(Math.min(targetCount, textSentences.length) - 1, 1)));
-  }
-
-  const currentTextIndex = textSentences.findIndex(sentence => sentence.index === currentSentenceIndex);
-
-  if (currentTextIndex >= 0) {
-    sampleIndexes.add(currentTextIndex);
-  }
-
-  return [...sampleIndexes]
-    .sort((left, right) => left - right)
-    .slice(0, targetCount + 1)
-    .map(sampleIndex => textSentences[sampleIndex])
-    .filter(Boolean)
-    .map(sentence => ({
-      sentenceIndex: sentence.index,
-      label: truncateLabel(sentence.text, 34),
-      isSelected: sentence.index === currentSentenceIndex
-    }));
-}
-
-function findArticleByParam(universe, articleParam) {
-  if (!universe || !articleParam) return null;
-
-  return universe.articles.find(article => {
-    return article.id === articleParam
-      || article.slug === articleParam
-      || String(article.articleId) === articleParam;
-  }) || null;
-}
-
-function getReadingTimeLabel(article) {
-  const minutes = article?.readingTime || estimateReadingTime(article?.sentences);
-  return `${minutes} min read`;
+const UniverseScene = lazy(() => import("./components/UniverseScene"));
+const initialParams = new URLSearchParams(window.location.search);
+function useMedia(query) {
+  const [matches, setMatches] = useState(
+    () => window.matchMedia(query).matches,
+  );
+  useEffect(() => {
+    const media = window.matchMedia(query);
+    const update = () => setMatches(media.matches);
+    media.addEventListener("change", update);
+    return () => media.removeEventListener("change", update);
+  }, [query]);
+  return matches;
 }
 
 export default function App() {
-  const [contextData, setContextData] = useState(null);
-  const [selectedSentence, setSelectedSentence] = useState(null);
-  const [contextSentences, setContextSentences] = useState([]);
-  const [focusedArticle, setFocusedArticle] = useState(null);
-  const [overlayMetrics, setOverlayMetrics] = useState(() => getOverlayMetrics());
-  const [universeSeed] = useState(() => readUniverseSeed());
-  const [showGuide, setShowGuide] = useState(() => !readGuideDismissed());
-  const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const [shouldRenderScene, setShouldRenderScene] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedTopic, setSelectedTopic] = useState('all');
-  const [codeOnly, setCodeOnly] = useState(false);
-  const [flightTargetArticleId, setFlightTargetArticleId] = useState(null);
-  const hasHydratedUrlRef = useRef(false);
-  const searchInputRef = useRef(null);
-  const deferredSearchQuery = useDeferredValue(searchQuery);
-
-  useEffect(() => {
-    let mounted = true;
-
-    loadContextData().then(module => {
-      if (mounted) {
-        setContextData(module.default);
-      }
-    }).catch((error) => {
-      console.error('Failed to load mental universe data.', error);
-    });
-
-    return () => {
-      mounted = false;
-    };
-  }, []);
-
-  useEffect(() => {
-    if (typeof window === 'undefined') {
-      setShouldRenderScene(true);
-      return undefined;
-    }
-
-    let timeoutId = null;
-    let idleId = null;
-
-    const activateScene = () => setShouldRenderScene(true);
-
-    if ('requestIdleCallback' in window) {
-      idleId = window.requestIdleCallback(activateScene, { timeout: 1200 });
-    } else {
-      timeoutId = window.setTimeout(activateScene, 180);
-    }
-
-    return () => {
-      if (idleId !== null && 'cancelIdleCallback' in window) {
-        window.cancelIdleCallback(idleId);
-      }
-      if (timeoutId !== null) {
-        window.clearTimeout(timeoutId);
-      }
-    };
-  }, []);
-
-  useEffect(() => {
-    const handleContextMenu = (event) => event.preventDefault();
-    document.addEventListener('contextmenu', handleContextMenu);
-    return () => document.removeEventListener('contextmenu', handleContextMenu);
-  }, []);
-
-  useEffect(() => {
-    const updateOverlayMetrics = () => {
-      setOverlayMetrics(getOverlayMetrics(window.innerWidth, window.innerHeight));
-    };
-
-    updateOverlayMetrics();
-    window.addEventListener('resize', updateOverlayMetrics);
-    window.addEventListener('orientationchange', updateOverlayMetrics);
-
-    return () => {
-      window.removeEventListener('resize', updateOverlayMetrics);
-      window.removeEventListener('orientationchange', updateOverlayMetrics);
-    };
-  }, []);
-
-  useEffect(() => {
-    if (!isSearchOpen) return undefined;
-
-    const handleEscape = (event) => {
-      if (event.key === 'Escape') {
-        setIsSearchOpen(false);
-      }
-    };
-
-    window.addEventListener('keydown', handleEscape);
-
-    return () => {
-      window.removeEventListener('keydown', handleEscape);
-    };
-  }, [isSearchOpen]);
-
-  useEffect(() => {
-    if (!isSearchOpen || typeof window === 'undefined') {
-      return undefined;
-    }
-
-    const frame = window.requestAnimationFrame(() => {
-      searchInputRef.current?.focus();
-    });
-
-    return () => {
-      window.cancelAnimationFrame(frame);
-    };
-  }, [isSearchOpen]);
-
-  const universe = useMemo(() => {
-    if (!contextData) return null;
-    return buildUniverseModel(contextData, universeSeed);
-  }, [contextData, universeSeed]);
-
-  const selectedArticle = selectedSentence && universe
-    ? universe.articleById[selectedSentence.articleId]
-    : null;
-  const activeArticle = selectedArticle || focusedArticle || null;
-  const hasActiveArticle = !!activeArticle;
-
-  const handleDismissGuide = () => {
-    persistGuideDismissed();
-    setShowGuide(false);
-  };
-
-  const handleSelectSentence = (sentenceData) => {
-    if (!universe) return;
-
-    const article = universe.articleById[sentenceData.articleId];
-
-    setSelectedSentence(sentenceData);
-    setContextSentences(getContextWindow(article, sentenceData.sentenceIndex, 7));
-    handleDismissGuide();
-  };
-
-  const clearSelection = () => {
-    setSelectedSentence(null);
-    setContextSentences([]);
-    setFocusedArticle(null);
-  };
-
-  const handleBack = () => {
-    clearSelection();
-  };
-
-  const handleOpenArticle = (article, forcedSentenceIndex = null) => {
-    if (!article) return;
-
-    const fallbackSentenceIndex = Math.max(
-      0,
-      article.sentences.findIndex(sentence => (sentence.type || 'text') === 'text')
-    );
-    const nextSentenceIndex = Number.isInteger(forcedSentenceIndex)
-      ? forcedSentenceIndex
-      : fallbackSentenceIndex;
-
-    setSelectedSentence({
-      articleId: article.articleId,
-      sentenceIndex: nextSentenceIndex
-    });
-    setContextSentences(getContextWindow(article, nextSentenceIndex, 7));
-    setFlightTargetArticleId(null);
-    setIsSearchOpen(false);
-    handleDismissGuide();
-  };
-
-  const handleOpenSearchPreset = ({
-    query = '',
-    topic = 'all',
-    code = false,
-    closeDetail = false
-  }) => {
-    if (closeDetail) {
-      clearSelection();
-    }
-
-    setSearchQuery(query);
-    setSelectedTopic(topic);
-    setCodeOnly(code);
-    setIsSearchOpen(true);
-    handleDismissGuide();
-  };
-
-  useEffect(() => {
-    if (!universe || hasHydratedUrlRef.current || typeof window === 'undefined') {
-      return;
-    }
-
-    const params = new URLSearchParams(window.location.search);
-    const topicParam = params.get('topic');
-    const queryParam = params.get('q');
-    const articleParam = params.get('article');
-    const sentenceParam = Number(params.get('sentence'));
-
-    if (topicParam && (topicParam === 'all' || universe.topicSummary.some(topic => topic.topic === topicParam))) {
-      setSelectedTopic(topicParam);
-    }
-
-    if (queryParam) {
-      setSearchQuery(queryParam);
-      setIsSearchOpen(true);
-    }
-
-    if (params.get('code') === '1') {
-      setCodeOnly(true);
-      setIsSearchOpen(true);
-    }
-
-    const article = findArticleByParam(universe, articleParam);
-
-    if (article) {
-      handleOpenArticle(article, Number.isFinite(sentenceParam) ? sentenceParam : null);
-    }
-
-    hasHydratedUrlRef.current = true;
-  }, [universe]);
-
-  useEffect(() => {
-    if (!universe || !hasHydratedUrlRef.current || typeof window === 'undefined') {
-      return;
-    }
-
-    const params = new URLSearchParams();
-    const normalizedQuery = searchQuery.trim();
-
-    if (normalizedQuery) {
-      params.set('q', normalizedQuery);
-    }
-
-    if (selectedTopic !== 'all') {
-      params.set('topic', selectedTopic);
-    }
-
-    if (codeOnly) {
-      params.set('code', '1');
-    }
-
-    params.set('seed', String(universeSeed));
-
-    if (selectedArticle) {
-      params.set('article', selectedArticle.id);
-
-      if (selectedSentence) {
-        params.set('sentence', String(selectedSentence.sentenceIndex));
-      }
-    }
-
-    const nextUrl = `${window.location.pathname}${params.toString() ? `?${params.toString()}` : ''}`;
-    window.history.replaceState({}, '', nextUrl);
-  }, [
-    universe,
-    universeSeed,
-    searchQuery,
-    selectedTopic,
-    codeOnly,
-    selectedArticle,
-    selectedSentence
-  ]);
-
-  const topicOptions = universe?.topicSummary || [];
-  const filteredArticles = useMemo(() => {
-    if (!universe) return [];
-
-    return filterArticles(universe.articles, {
-      query: deferredSearchQuery,
-      topic: selectedTopic,
-      codeOnly
-    });
-  }, [universe, deferredSearchQuery, selectedTopic, codeOnly]);
-
-  const searchResults = filteredArticles.slice(0, 6);
-  const hasSearchFilters = searchQuery.trim().length > 0 || selectedTopic !== 'all' || codeOnly;
-  const filteredFragmentCount = filteredArticles.reduce(
-    (total, article) => total + article.sentenceCount,
-    0
+  const [articles, setArticles] = useState([]);
+  const [dataState, setDataState] = useState("loading");
+  const [sceneReady, setSceneReady] = useState(false);
+  const [sceneError, setSceneError] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [cruising, setCruising] = useState(false);
+  const [motionPaused, setMotionPaused] = useState(false);
+  const [panel, setPanel] = useState(
+    initialParams.has("q") ||
+      initialParams.has("topic") ||
+      initialParams.has("code")
+      ? "archive"
+      : null,
   );
-  const topTags = useMemo(() => {
-    if (!universe) return [];
+  const [selected, setSelected] = useState(null);
+  const [query, setQuery] = useState(initialParams.get("q") || "");
+  const [topic, setTopic] = useState(
+    TOPICS[initialParams.get("topic")] ? initialParams.get("topic") : "all",
+  );
+  const [codeOnly, setCodeOnly] = useState(initialParams.get("code") === "1");
+  const compact = useMedia("(max-width: 760px)");
+  const reducedMotion = useMedia("(prefers-reduced-motion: reduce)");
+  const paused = motionPaused || reducedMotion || !!panel;
+  const sceneRef = useRef();
+  const searchRef = useRef();
+  const hydrated = useRef(false);
+  const deferredQuery = useDeferredValue(query);
 
-    const counts = new Map();
-
-    universe.articles.forEach((article) => {
-      (article.tags || []).forEach((tag) => {
-        counts.set(tag, (counts.get(tag) || 0) + 1);
+  useEffect(() => {
+    let active = true;
+    import("./data/velog-context.json")
+      .then((module) => {
+        if (active) {
+          setArticles(buildCatalog(module.default));
+          setDataState("ready");
+        }
+      })
+      .catch(() => {
+        if (active) setDataState("error");
       });
-    });
-
-    return [...counts.entries()]
-      .sort((left, right) => right[1] - left[1] || left[0].localeCompare(right[0], 'ko'))
-      .slice(0, 8)
-      .map(([tag, count]) => ({ tag, count }));
-  }, [universe]);
-  const relatedArticles = useMemo(() => {
-    if (!selectedArticle || !universe) return [];
-    return getRelatedArticles(selectedArticle, universe.articles);
-  }, [selectedArticle, universe]);
-  const jumpPoints = useMemo(() => {
-    if (!selectedArticle || !selectedSentence) return [];
-    return getJumpPoints(selectedArticle, selectedSentence.sentenceIndex);
-  }, [selectedArticle, selectedSentence]);
-  const highlightedArticleIds = useMemo(() => {
-    if (!hasSearchFilters) {
-      return null;
-    }
-
-    const nextIds = new Set(filteredArticles.map(article => article.articleId));
-
-    if (selectedArticle) {
-      nextIds.add(selectedArticle.articleId);
-    }
-
-    if (focusedArticle) {
-      nextIds.add(focusedArticle.articleId);
-    }
-
-    return [...nextIds];
-  }, [filteredArticles, focusedArticle, hasSearchFilters, selectedArticle]);
-  const isMobileViewport = overlayMetrics.isMobile;
-  const displayedSearchResults = useMemo(() => {
-    return isMobileViewport ? searchResults.slice(0, 10) : searchResults;
-  }, [isMobileViewport, searchResults]);
-  const isSearchResultsTrimmed = displayedSearchResults.length < searchResults.length;
-  const sceneProfile = useMemo(() => {
-    const viewportWidth = typeof window !== 'undefined' ? window.innerWidth : 1440;
-    const deviceMemory = typeof navigator !== 'undefined' ? navigator.deviceMemory || 4 : 4;
-    const hardwareConcurrency = typeof navigator !== 'undefined' ? navigator.hardwareConcurrency || 4 : 4;
-    const prefersReducedMotion = typeof window !== 'undefined'
-      && typeof window.matchMedia === 'function'
-      && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const isLowPowerDevice = isMobileViewport || deviceMemory <= 4 || hardwareConcurrency <= 6;
-    const isCompactDesktop = !isMobileViewport && viewportWidth < 1440;
-    const pixelRatioMax = isMobileViewport ? 1 : isLowPowerDevice ? 1.1 : isCompactDesktop ? 1.25 : 1.4;
-
-    return {
-      isMobile: isMobileViewport,
-      isLowPowerDevice,
-      prefersReducedMotion,
-      dpr: isMobileViewport ? [0.72, 0.92] : isLowPowerDevice ? [0.9, 1.1] : [1, 1.35],
-      pixelRatioMax,
-      enablePostProcessing: !isMobileViewport && !isLowPowerDevice && !prefersReducedMotion,
-      bloomIntensity: isLowPowerDevice ? 0.46 : 0.64,
-      vignetteDarkness: isLowPowerDevice ? 0.78 : 0.9,
-      starCount: isMobileViewport ? 420 : isLowPowerDevice ? 900 : 1600,
-      starSize: isMobileViewport ? 4 : isLowPowerDevice ? 4.4 : 4.9,
-      animateStarfield: !prefersReducedMotion && !isLowPowerDevice,
-      ambientFragmentLimit: isMobileViewport ? 2 : isLowPowerDevice ? 4 : 7,
-      fragmentDriftScale: isMobileViewport ? 0.12 : isLowPowerDevice ? 0.3 : 0.72
+    return () => {
+      active = false;
     };
-  }, [isMobileViewport]);
-  const canvasOptions = useMemo(() => {
-    return {
-      ...canvasConfig,
-      antialias: !isMobileViewport,
-      powerPreference: isMobileViewport ? 'default' : 'high-performance'
-    };
-  }, [isMobileViewport]);
+  }, []);
 
-  if (!universe) {
-    return <div className="app-shell" aria-hidden="true" />;
-  }
-
-  const overlayStyle = {
-    '--overlay-scale': overlayMetrics.scale,
-    '--overlay-frame-width': `${overlayMetrics.frameWidth}px`,
-    '--overlay-frame-height': `${overlayMetrics.frameHeight}px`
-  };
-  const hudTopic = activeArticle
-    ? activeArticle.topicLabel
-    : selectedTopic !== 'all'
-      ? topicOptions.find(topic => topic.topic === selectedTopic)?.label || 'Filtered Orbit'
-      : 'Free Flight';
-  const visibleArticleCount = hasSearchFilters ? filteredArticles.length : universe.stats.articleCount;
-  const visibleFragmentCount = hasSearchFilters ? filteredFragmentCount : universe.stats.fragmentCount;
-  const selectedArticlePublishedLabel = formatPublishedDate(selectedArticle?.publishedAt);
-  const searchResultCountLabel = hasSearchFilters
-    ? `${filteredArticles.length}개 별자리 일치`
-    : `${universe.stats.articleCount}개 전체 별자리`;
-  const isFlightActive = flightTargetArticleId != null;
-  const canOpenActiveArticle = hasActiveArticle && !selectedSentence && !isFlightActive;
-  const statusModeLabel = isFlightActive ? 'approaching orbit' : hasSearchFilters ? 'filtered orbit' : 'full atlas';
-
-  const handleToggleSearch = () => {
-    handleDismissGuide();
-    setIsSearchOpen(current => !current);
-  };
-
-  const handleSearchSubmit = (event) => {
-    event.preventDefault();
-
-    if (searchResults.length > 0) {
-      handleTravelToArticle(searchResults[0]);
-    }
-  };
-
-  const handleTravelToArticle = (article) => {
-    if (!article) return;
-
-    setFlightTargetArticleId(article.articleId);
-    setFocusedArticle(article);
-    setIsSearchOpen(false);
-    handleDismissGuide();
-  };
-
-  const handleFlightComplete = (articleId) => {
-    setFlightTargetArticleId((current) => {
-      if (current !== articleId) {
-        return current;
-      }
-
-      return null;
-    });
-  };
-
-  const handleResetFilters = () => {
-    setSearchQuery('');
-    setSelectedTopic('all');
+  const selectArticle = useCallback((article) => {
+    setSelected(article);
+    setPanel("article");
+    setCruising(false);
+    setProgress((current) => Math.max(current, 0.35));
+  }, []);
+  const closePanel = useCallback(() => {
+    setPanel(null);
+    setSelected(null);
+  }, []);
+  const returnHome = useCallback(() => {
+    setProgress(0);
+    setCruising(false);
+    setSelected(null);
+    setPanel(null);
+    setQuery("");
+    setTopic("all");
     setCodeOnly(false);
-  };
-  const handleApplyTag = (tag, { closeDetail = false } = {}) => {
-    handleOpenSearchPreset({
-      query: tag,
-      topic: 'all',
-      code: false,
-      closeDetail
-    });
-  };
-  const handleApplyTopic = (topic, { closeDetail = false, code = false } = {}) => {
-    handleOpenSearchPreset({
-      query: '',
-      topic,
-      code,
-      closeDetail
-    });
-  };
+  }, []);
+  const beginJourney = useCallback(() => {
+    setSelected(null);
+    setPanel(null);
+    if (reducedMotion || motionPaused) setProgress(0.65);
+    else {
+      setProgress((current) =>
+        current >= 0.98 ? 0.2 : Math.max(current, 0.16),
+      );
+      setCruising(true);
+    }
+  }, [reducedMotion, motionPaused]);
+
+  useEffect(() => {
+    if (dataState !== "ready" || hydrated.current) return;
+    hydrated.current = true;
+    const id = initialParams.get("article");
+    const article = articles.find(
+      (item) => item.id === id || item.legacyId === id,
+    );
+    if (article) selectArticle(article);
+  }, [articles, dataState, selectArticle]);
+  useEffect(() => {
+    if (!hydrated.current) return;
+    const params = new URLSearchParams();
+    if (query) params.set("q", query);
+    if (topic !== "all") params.set("topic", topic);
+    if (codeOnly) params.set("code", "1");
+    if (selected) params.set("article", selected.id);
+    window.history.replaceState(
+      null,
+      "",
+      `${window.location.pathname}${params.size ? `?${params}` : ""}`,
+    );
+    document.title = selected
+      ? `${selected.title} · uiwwsw`
+      : "uiwwsw — 기록이 별이 되는 우주";
+  }, [query, topic, codeOnly, selected, dataState]);
+  useEffect(() => {
+    if (panel === "archive") searchRef.current?.focus();
+  }, [panel]);
+  useEffect(() => {
+    if (!cruising || paused) return;
+    let frame;
+    let last = performance.now();
+    const tick = (now) => {
+      if (now - last > 40) {
+        const delta = Math.min(now - last, 100);
+        setProgress((value) => clamp(value + delta / 42000));
+        last = now;
+      }
+      frame = requestAnimationFrame(tick);
+    };
+    frame = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(frame);
+  }, [cruising, paused]);
+  useEffect(() => {
+    if (progress >= 1) setCruising(false);
+  }, [progress]);
+  useEffect(() => {
+    function keydown(event) {
+      const editing = /INPUT|TEXTAREA|SELECT/.test(event.target.tagName);
+      if (!editing && event.key === "/" && !panel) {
+        event.preventDefault();
+        setPanel("archive");
+        return;
+      }
+      if (panel || editing || event.altKey || event.ctrlKey || event.metaKey)
+        return;
+      if (
+        ["ArrowUp", "ArrowDown", "PageUp", "PageDown", "Home"].includes(
+          event.key,
+        )
+      ) {
+        event.preventDefault();
+        setCruising(false);
+        if (event.key === "Home") returnHome();
+        else
+          setProgress((value) =>
+            clamp(
+              value +
+                (["ArrowUp", "PageDown"].includes(event.key) ? 0.08 : -0.08),
+            ),
+          );
+      }
+    }
+    window.addEventListener("keydown", keydown);
+    return () => window.removeEventListener("keydown", keydown);
+  }, [panel, returnHome]);
+  useEffect(() => {
+    const element = sceneRef.current;
+    let touchY = null;
+    function wheel(event) {
+      if (panel || event.ctrlKey || event.target.closest("button, a, input"))
+        return;
+      event.preventDefault();
+      setCruising(false);
+      const delta =
+        event.deltaY *
+        (event.deltaMode === 1 ? 18 : event.deltaMode === 2 ? 700 : 1);
+      setProgress((value) => clamp(value + clamp(delta, -180, 180) * 0.00045));
+    }
+    function touchStart(event) {
+      if (event.touches.length === 1) touchY = event.touches[0].clientY;
+    }
+    function touchMove(event) {
+      if (
+        panel ||
+        touchY === null ||
+        event.touches.length !== 1 ||
+        event.target.closest("button")
+      )
+        return;
+      const y = event.touches[0].clientY;
+      setCruising(false);
+      setProgress((value) => clamp(value + (touchY - y) * 0.002));
+      touchY = y;
+    }
+    element.addEventListener("wheel", wheel, { passive: false });
+    element.addEventListener("touchstart", touchStart, { passive: true });
+    element.addEventListener("touchmove", touchMove, { passive: true });
+    return () => {
+      element.removeEventListener("wheel", wheel);
+      element.removeEventListener("touchstart", touchStart);
+      element.removeEventListener("touchmove", touchMove);
+    };
+  }, [panel]);
+
+  const filtered = useMemo(
+    () => filterCatalog(articles, deferredQuery, topic, codeOnly),
+    [articles, deferredQuery, topic, codeOnly],
+  );
+  const highlighted = useMemo(
+    () =>
+      query || topic !== "all" || codeOnly
+        ? new Set(filtered.map((a) => a.id))
+        : null,
+    [filtered, query, topic, codeOnly],
+  );
+  const ready = useCallback(() => setSceneReady(true), []);
+  const fail = useCallback(() => setSceneError(true), []);
+  const exploring = progress > 0.12 || !!selected;
+  const latestEssay =
+    articles.find((article) => article.topic === "essay") || articles[0];
+  const phase =
+    progress < 0.15
+      ? "달의 고요 속에서"
+      : progress < 0.68
+        ? "별과 별 사이를 지나"
+        : "조금 더 가까워진 이야기";
 
   return (
-    <div className="app-shell">
-      <div className={`canvas-container ${selectedSentence ? 'detail-active' : ''}`}>
-        {shouldRenderScene && universe ? (
-          <Suspense fallback={null}>
-            <UniverseScene
-              universe={universe}
-              selectedSentence={selectedSentence}
-              onSelectSentence={handleSelectSentence}
-              onSelectArticle={handleOpenArticle}
-              onFocusArticleChange={setFocusedArticle}
-              highlightedArticleIds={highlightedArticleIds}
-              flightTargetArticleId={flightTargetArticleId}
-              onFlightComplete={handleFlightComplete}
-              sceneProfile={sceneProfile}
-              canvasOptions={canvasOptions}
-            />
-          </Suspense>
-        ) : null}
-      </div>
-
-      <div
-        className={`overlay ${selectedSentence ? 'is-hidden' : ''} ${isMobileViewport ? 'is-mobile' : ''} ${isSearchOpen ? 'is-search-open' : ''}`}
-        style={overlayStyle}
+    <main
+      className={`observatory ${exploring ? "is-exploring" : ""} ${sceneReady ? "scene-ready" : ""}`}
+      ref={sceneRef}
+    >
+      <a
+        className="skip-link"
+        href="#archive"
+        onClick={(event) => {
+          event.preventDefault();
+          setPanel("archive");
+        }}
       >
-        <div className="overlay-inner">
-          <div className="overlay-atmosphere overlay-atmosphere-a" />
-          <div className="overlay-atmosphere overlay-atmosphere-b" />
-
-          <section className={`hero-shell ${isMobileViewport ? 'is-mobile' : ''}`}>
-            {isMobileViewport ? (
-              <div className="mobile-command-bar">
-                <div className="mobile-command-copy">
-                  <span className="mobile-command-kicker">{statusModeLabel}</span>
-                  <p>
-                    {hasActiveArticle
-                      ? `${activeArticle.title}을(를) 아래 카드에서 바로 열 수 있습니다.`
-                      : `${visibleArticleCount}개 글에서 원하는 궤도로 바로 진입하세요.`}
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  className={`hero-cta hero-cta-search ${isSearchOpen ? 'is-active' : ''}`}
-                  onClick={handleToggleSearch}
-                >
-                  {isSearchOpen ? '검색 닫기' : '글 찾기'}
-                </button>
-              </div>
-            ) : (
-              <>
-                <header className="header">
-                  <div className="brand-block">
-                    <span className="brand-kicker">GitHub Pages Mental Universe</span>
-                    <div className="logo">uiwwsw</div>
-                  </div>
-                </header>
-
-                <div className="atlas-statusbar" aria-hidden="true">
-                  <span className="atlas-statuschip atlas-statuschip-mode">{statusModeLabel}</span>
-                  <span className="atlas-statuschip">{hudTopic}</span>
-                  <span className="atlas-statuschip">{visibleArticleCount} constellations</span>
-                  <span className="atlas-statuschip">{visibleFragmentCount} fragments</span>
-                </div>
-
-                <div className="hero">
-                  <p className="eyebrow">항해하는 생각의 우주</p>
-                  <h1>
-                    내 모든 글이
-                    <br />
-                    별자리와 성운이 되는 곳
-                  </h1>
-                  <p className="subtitle">
-                    Velog에 쌓인 문장과 코드 조각을 정신세계의 우주로 다시 엮었습니다.
-                    검색으로 원하는 글의 궤도에 바로 진입하고, 열린 글 안에서 문맥을 따라 더 깊게 이동할 수 있습니다.
-                  </p>
-
-                  <div className="hero-hints">
-                    <span>제목, 주제, 태그 검색으로 원하는 글부터 여세요</span>
-                    <span>문장을 누르면 같은 글의 문맥이 열립니다</span>
-                  </div>
-
-                  <div className="hero-actions">
-                    <button
-                      type="button"
-                      className={`hero-cta hero-cta-search ${isSearchOpen ? 'is-active' : ''}`}
-                      onClick={handleToggleSearch}
-                    >
-                      {isSearchOpen ? '검색 닫기' : '검색 열기'}
-                    </button>
-                  </div>
-                </div>
-              </>
-            )}
-
-            {showGuide && !isMobileViewport && (
-              <aside className="guide-card">
-                <div className="guide-copy">
-                  <span className="guide-kicker">First Orbit</span>
-                  <p>
-                    검색을 열어 제목, 주제, 태그로 먼저 진입한 뒤
-                    열린 글 안에서 문장과 관련 글을 따라 이동하면 됩니다.
-                  </p>
-                </div>
-                <button type="button" className="guide-dismiss" onClick={handleDismissGuide}>
-                  안내 닫기
-                </button>
-              </aside>
-            )}
-
-            <section className={`search-panel ${isSearchOpen ? 'is-open' : ''} ${isMobileViewport ? 'is-mobile-sheet' : ''}`}>
-              {isMobileViewport && <div className="search-sheet-handle" aria-hidden="true" />}
-              <div className="search-panel-header">
-                <div>
-                  <span className="search-kicker">Atlas Search</span>
-                  <h3>원하는 글의 궤도로 바로 이동하기</h3>
-                </div>
-                <button type="button" className="search-close" onClick={() => setIsSearchOpen(false)}>
-                  닫기
-                </button>
-              </div>
-
-              <form className="search-form" onSubmit={handleSearchSubmit}>
-                <label className="search-field">
-                  <span className="sr-only">글 검색</span>
-                  <input
-                    ref={searchInputRef}
-                    type="search"
-                    value={searchQuery}
-                    onChange={event => setSearchQuery(event.target.value)}
-                    placeholder="글 제목, 주제, 태그로 탐색"
-                  />
-                </label>
-
-                <div className="search-controls">
-                  <label className="select-field">
-                    <span className="sr-only">주제 필터</span>
-                    <select
-                      value={selectedTopic}
-                      onChange={event => setSelectedTopic(event.target.value)}
-                    >
-                      <option value="all">모든 주제</option>
-                      {topicOptions.map((topic) => (
-                        <option key={topic.topic} value={topic.topic}>
-                          {topic.shortLabel}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
-
-                  <label className="toggle-field">
-                    <input
-                      type="checkbox"
-                      checked={codeOnly}
-                      onChange={event => setCodeOnly(event.target.checked)}
-                    />
-                    <span>코드 포함 글만</span>
-                  </label>
-
-                  <button type="submit" className="search-submit" disabled={searchResults.length === 0}>
-                    첫 결과로 이동
-                  </button>
-
-                  {hasSearchFilters && (
-                    <button type="button" className="search-reset" onClick={handleResetFilters}>
-                      초기화
-                    </button>
-                  )}
-                </div>
-              </form>
-
-              <div className="search-stats">
-                <span>{searchResultCountLabel}</span>
-                <span>{hasSearchFilters ? `${filteredFragmentCount} fragments in view` : 'entire archive ready'}</span>
-                {isSearchResultsTrimmed && <span>모바일엔 상위 10개만 표시</span>}
-              </div>
-
-              {topTags.length > 0 && (
-                <div className="tag-rail">
-                  {topTags.map(({ tag, count }) => (
-                    <button
-                      key={tag}
-                      type="button"
-                      className={`tag-chip ${searchQuery.trim() === tag ? 'is-active' : ''}`}
-                      onClick={() => handleApplyTag(tag)}
-                    >
-                      <span>#{tag}</span>
-                      <small>{count}</small>
-                    </button>
-                  ))}
-                </div>
-              )}
-
-              <div className="search-results">
-                {displayedSearchResults.map((article) => (
-                  <button
-                    key={article.id}
-                    type="button"
-                    className="search-result"
-                    onClick={() => handleTravelToArticle(article)}
-                  >
-                    <div className="search-result-header">
-                      <span className="search-result-topic">{article.topicShortLabel}</span>
-                      <span className="search-result-meta">{getReadingTimeLabel(article)}</span>
-                    </div>
-                    <strong>{article.title}</strong>
-                    <p>{article.excerpt}</p>
-                  </button>
-                ))}
-
-                {displayedSearchResults.length === 0 && (
-                  <div className="search-empty">
-                    현재 조건과 맞는 별자리가 없습니다. 검색어나 필터를 조금 풀어보세요.
-                  </div>
-                )}
-              </div>
-            </section>
-
-          </section>
-
-          <section
-            className={`focus-panel ${canOpenActiveArticle ? 'is-interactive' : hasActiveArticle ? 'is-tracking' : 'is-empty'}`}
-            style={{ '--focus-color': activeArticle?.color || '#83d8ff' }}
-            onClick={canOpenActiveArticle ? () => handleOpenArticle(activeArticle) : undefined}
-            onKeyDown={(event) => {
-              if (!canOpenActiveArticle) return;
-
-              if (event.key === 'Enter' || event.key === ' ') {
-                event.preventDefault();
-                handleOpenArticle(activeArticle);
-              }
-            }}
-            role={canOpenActiveArticle ? 'button' : undefined}
-            tabIndex={canOpenActiveArticle ? 0 : -1}
-            aria-hidden={!hasActiveArticle}
-            aria-label={canOpenActiveArticle ? `${activeArticle.title} 열기` : undefined}
-          >
-            {hasActiveArticle && (
-              <>
-                <div className="focus-header">
-                  <span className="focus-label">{isFlightActive ? 'Approaching Constellation' : 'Current Constellation'}</span>
-                  <span className="focus-sector">{activeArticle.topicLabel}</span>
-                </div>
-                <h2>{activeArticle.title}</h2>
-                <p>{activeArticle.excerpt}</p>
-                <div className="focus-meta">
-                  <span>{getReadingTimeLabel(activeArticle)}</span>
-                  <span>{activeArticle.sentenceCount} fragments</span>
-                  <span>{activeArticle.codeCount} code blocks</span>
-                </div>
-              </>
-            )}
-          </section>
-        </div>
-      </div>
-
-      <div className={`detail-overlay ${selectedSentence ? 'is-open' : ''}`}>
-        {selectedSentence && selectedArticle && (
-          <div className="detail-shell">
-            <nav className="detail-navbar">
-              <button onClick={handleBack} className="btn-back" aria-label="별자리로 돌아가기">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M15 18l-6-6 6-6" />
-                </svg>
-              </button>
-
-              <div className="detail-nav-copy">
-                <span className="detail-nav-label">Constellation View</span>
-                <strong>{selectedArticle.constellationName}</strong>
-              </div>
-
-              <a className="detail-link" href={selectedArticle.link} target="_blank" rel="noreferrer">
-                Velog 원문
-              </a>
-            </nav>
-
-            <article className="detail-panel" style={{ '--detail-accent': selectedArticle.color }}>
-              <div className="detail-header">
-                <button
-                  type="button"
-                  className="detail-sector detail-sector-button"
-                  onClick={() => handleApplyTopic(selectedArticle.topic, { closeDetail: true })}
-                >
-                  {selectedArticle.topicLabel}
-                </button>
-                <h2>{selectedArticle.title}</h2>
-                <p className="detail-excerpt">{selectedArticle.excerpt}</p>
-
-                <div className="detail-meta">
-                  {selectedArticlePublishedLabel && <span>{selectedArticlePublishedLabel}</span>}
-                  <span>{getReadingTimeLabel(selectedArticle)}</span>
-                  <span>{selectedArticle.sentenceCount} fragments</span>
-                  <span>{selectedArticle.codeCount} code blocks</span>
-                  <span>{`Archive #${selectedArticle.articleId + 1}`}</span>
-                </div>
-
-                {selectedArticle.tags?.length > 0 && (
-                  <div className="detail-tags">
-                    {selectedArticle.tags.map((tag) => (
-                      <button
-                        key={tag}
-                        type="button"
-                        className="detail-tag detail-tag-button"
-                        onClick={() => handleApplyTag(tag, { closeDetail: true })}
-                      >
-                        #{tag}
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {jumpPoints.length > 1 && (
-                <section className="detail-section">
-                  <div className="detail-section-header">
-                    <span className="detail-section-label">Key Fragments</span>
-                    <p>같은 글 안에서 다른 생각의 지점으로 바로 이동합니다.</p>
-                  </div>
-                  <div className="jump-points">
-                    {jumpPoints.map((point) => (
-                      <button
-                        key={`${selectedArticle.id}-${point.sentenceIndex}`}
-                        type="button"
-                        className={`jump-point ${point.isSelected ? 'is-selected' : ''}`}
-                        onClick={() => handleOpenArticle(selectedArticle, point.sentenceIndex)}
-                      >
-                        {point.label}
-                      </button>
-                    ))}
-                  </div>
-                </section>
-              )}
-
-              <div className="article-body">
-                {contextSentences.map((sentence, index) => (
-                  <div
-                    key={`${selectedArticle.articleId}-${index}`}
-                    className={`article-block ${sentence.isSelected ? 'is-selected' : 'is-context'}`}
-                  >
-                    {sentence.type === 'code' ? (
-                      <div className="code-window">
-                        <div className="code-header">
-                          <span className="code-dot red" />
-                          <span className="code-dot yellow" />
-                          <span className="code-dot green" />
-                          <span className="code-language">{sentence.language || 'code'}</span>
-                        </div>
-                        <pre><code>{sentence.text}</code></pre>
-                      </div>
-                    ) : (
-                      <p className="text-paragraph">{sentence.text}</p>
-                    )}
-                  </div>
-                ))}
-              </div>
-
-              {relatedArticles.length > 0 && (
-                <section className="detail-section">
-                  <div className="detail-section-header">
-                    <span className="detail-section-label">Related Orbits</span>
-                    <p>주제나 결이 가까운 다른 글로 이어서 이동합니다.</p>
-                  </div>
-                  <div className="related-grid">
-                    {relatedArticles.map((article) => (
-                      <button
-                        key={article.id}
-                        type="button"
-                        className="related-card"
-                        onClick={() => handleOpenArticle(article)}
-                      >
-                        <span className="related-topic">{article.topicShortLabel}</span>
-                        <strong>{article.title}</strong>
-                        <p>{article.excerpt}</p>
-                        <div className="related-meta">
-                          <span>{getReadingTimeLabel(article)}</span>
-                          <span>{article.sentenceCount} fragments</span>
-                        </div>
-                      </button>
-                    ))}
-                  </div>
-                </section>
-              )}
-
-              <div className="detail-footer">
-                <button className="secondary-cta" onClick={handleBack}>
-                  우주로 돌아가기
-                </button>
-                <a className="primary-cta" href={selectedArticle.link} target="_blank" rel="noreferrer">
-                  전체 글 읽기
-                </a>
-              </div>
-            </article>
-          </div>
+        글 목록으로 바로가기
+      </a>
+      <div
+        className="universe-canvas"
+        aria-label="달에서 지구를 바라보는 3D 우주. 휠로 이동하고 별을 선택해 글을 읽을 수 있습니다."
+      >
+        {!sceneError && (
+          <SceneBoundary onError={fail}>
+            <Suspense fallback={null}>
+              <UniverseScene
+                articles={articles}
+                progress={progress}
+                selected={selected}
+                highlighted={highlighted}
+                onSelect={selectArticle}
+                paused={paused}
+                reducedMotion={reducedMotion}
+                compact={compact}
+                onReady={ready}
+                onError={fail}
+              />
+            </Suspense>
+          </SceneBoundary>
         )}
       </div>
-    </div>
+      <div className="scene-shade" aria-hidden="true" />
+      <div className="screen-frame" aria-hidden="true">
+        <span />
+        <span />
+        <span />
+        <span />
+      </div>
+
+      <header className="site-header">
+        <button
+          className="wordmark"
+          onClick={returnHome}
+          aria-label="uiwwsw, 달로 돌아가기"
+        >
+          <Icon name="star" size={27} />
+          <span>
+            uiwwsw<span className="wordmark-period">.</span>
+          </span>
+        </button>
+        <nav aria-label="메인 메뉴">
+          <button className={!panel ? "active" : ""} onClick={beginJourney}>
+            우주 탐험
+          </button>
+          <button
+            className={panel === "archive" ? "active" : ""}
+            onClick={() => setPanel("archive")}
+          >
+            글 모아보기{" "}
+            <span className="nav-count">{articles.length || "—"}</span>
+          </button>
+          <button onClick={() => setPanel("about")}>소개</button>
+        </nav>
+        <a
+          className="github-link"
+          href="https://github.com/uiwwsw"
+          target="_blank"
+          rel="noreferrer"
+        >
+          GitHub <Icon name="external" size={16} />
+        </a>
+      </header>
+
+      <div className="top-coordinate" aria-hidden="true">
+        <span>PERSONAL UNIVERSE / VOL. 01</span>
+        <span>EST. ON EARTH</span>
+      </div>
+
+      <section
+        className="intro"
+        aria-hidden={exploring}
+        inert={exploring ? "" : undefined}
+      >
+        <p className="eyebrow intro-eyebrow">
+          <span className="tiny-line" /> A LITTLE SPACE FOR MY THOUGHTS
+        </p>
+        <h1>
+          기록은 별이 되고,
+          <br />
+          생각은 <span>우주가 된다.</span>
+        </h1>
+        <p className="intro-description">
+          코드를 쓰고, 생각을 씁니다.
+          <br />
+          흘려보내고 싶지 않은 순간들을 이곳에 띄워 둡니다.
+        </p>
+        <button className="journey-button" onClick={beginJourney}>
+          <span className="journey-icon">
+            <Icon name="arrow" size={19} />
+          </span>
+          <span>
+            나의 우주 유영하기<small>SCROLL TO EXPLORE</small>
+          </span>
+        </button>
+        <div className="intro-caption">
+          <span className="status-dot" />
+          {dataState === "loading"
+            ? "이야기를 불러오는 중"
+            : `${articles.length}개의 기록, 저마다의 궤도`}
+        </div>
+      </section>
+
+      {!exploring && (
+        <div className="earth-note" aria-hidden="true">
+          <span className="earth-note-line" />
+          <div>
+            <span className="eyebrow">OUR PALE BLUE DOT</span>
+            <p>모든 이야기가 시작된 곳</p>
+            <span className="earth-distance">EARTH · 384,400 KM FROM HOME</span>
+          </div>
+        </div>
+      )}
+
+      {exploring && !panel && (
+        <section className="explore-heading">
+          <p className="eyebrow">BETWEEN THE STARS</p>
+          <h1>{phase}</h1>
+          <p>별에 머물러 보세요. 하나의 이야기가 기다리고 있어요.</p>
+          <div className="sky-filters" aria-label="별의 주제">
+            <button
+              onClick={() => setTopic("all")}
+              aria-pressed={topic === "all"}
+            >
+              모든 별
+            </button>
+            {Object.entries(TOPICS).map(([id, item]) => (
+              <button
+                key={id}
+                aria-pressed={topic === id}
+                onClick={() => setTopic(id)}
+              >
+                <span style={{ background: item.color }} />
+                {item.label}
+              </button>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {!exploring && latestEssay && (
+        <button
+          className="featured-signal"
+          onClick={() => selectArticle(latestEssay)}
+        >
+          <span className="signal-orbit">
+            <Icon name="star" size={18} />
+          </span>
+          <span>
+            <small>마지막으로 띄운 생각</small>
+            <strong>{latestEssay.title}</strong>
+          </span>
+          <Icon name="external" size={17} />
+        </button>
+      )}
+
+      {(sceneError || dataState === "error") && (
+        <div className="fallback-notice" role="status">
+          <p>
+            {dataState === "error"
+              ? "글을 불러오지 못했어요. 벨로그에서 이야기를 만나보세요."
+              : "이 환경에서는 3D 우주를 열 수 없어요. 글 목록에서 모든 이야기를 읽을 수 있습니다."}
+          </p>
+          {dataState === "error" ? (
+            <a href="https://velog.io/@uiwwsw/posts">벨로그로 이동 ↗</a>
+          ) : (
+            <button onClick={() => setPanel("archive")}>글 목록 열기 ↗</button>
+          )}
+        </div>
+      )}
+
+      <aside className="journey-rail" aria-label="우주 여행 진행도">
+        <span>01</span>
+        <div className="rail-track">
+          <span style={{ height: `${Math.max(4, progress * 100)}%` }} />
+        </div>
+        <span>03</span>
+        <p>
+          {progress < 0.15
+            ? "LUNAR SURFACE"
+            : progress < 0.68
+              ? "DEEP SPACE"
+              : "EARTH ORBIT"}
+        </p>
+      </aside>
+
+      <footer className="flight-deck">
+        <div className="location">
+          <Icon name="moon" size={23} />
+          <div>
+            <span className="eyebrow">
+              {progress < 0.15
+                ? "THE MOON, A QUIET BEGINNING"
+                : "SOMEWHERE IN MY UNIVERSE"}
+            </span>
+            <p>
+              {phase}
+              <span className="location-index">
+                {" "}
+                /{" "}
+                {String(Math.min(3, Math.floor(progress * 3) + 1)).padStart(
+                  2,
+                  "0",
+                )}
+              </span>
+            </p>
+          </div>
+        </div>
+        <div className="flight-controls">
+          <div className="flight-labels">
+            <span>MOON</span>
+            <span>{exploring ? "별을 따라 천천히" : "스크롤하여 지구로"}</span>
+            <span>EARTH</span>
+          </div>
+          <div className="flight-slider">
+            <span className="origin-dot" />
+            <input
+              aria-label="달에서 지구까지 이동"
+              type="range"
+              min="0"
+              max="100"
+              value={Math.round(progress * 100)}
+              onChange={(event) => {
+                setCruising(false);
+                setProgress(Number(event.target.value) / 100);
+              }}
+            />
+            <Icon name="star" size={13} />
+          </div>
+        </div>
+        <div className="deck-actions">
+          <AudioToggle />
+          <button
+            className="icon-button"
+            onClick={() => {
+              setMotionPaused((value) => !value);
+              setCruising(false);
+            }}
+            aria-pressed={motionPaused || reducedMotion}
+            aria-label={motionPaused ? "움직임 재생" : "움직임 줄이기"}
+            disabled={reducedMotion}
+            title={
+              reducedMotion
+                ? "시스템의 동작 줄이기 설정 적용 중"
+                : "움직임 켜기 / 끄기"
+            }
+          >
+            <Icon
+              name={motionPaused || reducedMotion ? "play" : "pause"}
+              size={17}
+            />
+          </button>
+          {exploring && (
+            <button
+              className="icon-button"
+              onClick={returnHome}
+              aria-label="달로 돌아가기"
+              title="달로 돌아가기"
+            >
+              <Icon name="moon" size={17} />
+            </button>
+          )}
+        </div>
+      </footer>
+      <div className="bottom-credit">
+        <span>© {new Date().getFullYear()} UIWWSW</span>
+        <span>
+          {!sceneReady && !sceneError
+            ? "PREPARING THE UNIVERSE…"
+            : "MADE OF THOUGHTS & STARDUST"}
+        </span>
+        <span>
+          {exploring ? "DRAG TO LOOK AROUND" : "TAKE YOUR TIME. STAY A LITTLE."}
+        </span>
+      </div>
+
+      {panel === "archive" && (
+        <Panel
+          name="archive"
+          title="저마다 빛나는 이야기"
+          onClose={closePanel}
+          className="archive-panel"
+        >
+          <p className="panel-description">
+            하나의 글, 하나의 별. 마음이 닿는 이야기부터 읽어 보세요.
+          </p>
+          <div className="archive-search">
+            <Icon name="search" />
+            <input
+              ref={searchRef}
+              placeholder="어떤 생각을 찾고 있나요?"
+              aria-label="글 검색"
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+            />
+            {query && (
+              <button
+                className="icon-button"
+                onClick={() => setQuery("")}
+                aria-label="검색어 지우기"
+              >
+                <Icon name="close" size={16} />
+              </button>
+            )}
+            <kbd>/</kbd>
+          </div>
+          <div className="archive-topics">
+            <button
+              aria-pressed={topic === "all"}
+              onClick={() => setTopic("all")}
+            >
+              모든 글 <span>{articles.length}</span>
+            </button>
+            {Object.entries(TOPICS).map(([id, item]) => (
+              <button
+                key={id}
+                onClick={() => setTopic(id)}
+                aria-pressed={topic === id}
+              >
+                <i style={{ background: item.color }} />
+                {item.label}
+              </button>
+            ))}
+          </div>
+          <div className="archive-meta">
+            <span>{filtered.length}개의 별을 찾았어요</span>
+            <label>
+              <input
+                type="checkbox"
+                checked={codeOnly}
+                onChange={(event) => setCodeOnly(event.target.checked)}
+              />
+              코드가 있는 글
+            </label>
+          </div>
+          <div className="article-list">
+            {filtered.map((article, index) => (
+              <button
+                className="article-row"
+                key={article.id}
+                onClick={() => selectArticle(article)}
+              >
+                <span className="article-number">
+                  {String(index + 1).padStart(2, "0")}
+                </span>
+                <span className="article-row-content">
+                  <small style={{ color: article.color }}>
+                    {TOPICS[article.topic].label}{" "}
+                    <span>· {formatDate(article.publishedAt)}</span>
+                  </small>
+                  <strong>{article.title}</strong>
+                  <p>{article.summary}</p>
+                </span>
+                <Icon name="external" />
+              </button>
+            ))}
+            {dataState === "loading" && (
+              <p className="empty-state" role="status">
+                이야기를 불러오는 중입니다.
+              </p>
+            )}
+            {dataState === "error" && (
+              <p className="empty-state">
+                글을 불러오지 못했어요.{" "}
+                <a href="https://velog.io/@uiwwsw/posts">벨로그에서 읽기 ↗</a>
+              </p>
+            )}
+            {dataState === "ready" && filtered.length === 0 && (
+              <div className="empty-state">
+                <Icon name="star" size={32} />
+                <p>아직 이 이름의 별은 없네요.</p>
+                <button
+                  onClick={() => {
+                    setQuery("");
+                    setTopic("all");
+                    setCodeOnly(false);
+                  }}
+                >
+                  모든 이야기 보기
+                </button>
+              </div>
+            )}
+          </div>
+        </Panel>
+      )}
+
+      {panel === "article" && selected && (
+        <Panel
+          key={selected.id}
+          name="article"
+          title={selected.title}
+          onClose={closePanel}
+          className="reading-panel"
+        >
+          <div className="reading-meta">
+            <span style={{ color: selected.color }}>
+              {TOPICS[selected.topic].label}
+            </span>
+            <span>{formatDate(selected.publishedAt)}</span>
+            <span>{selected.readingTime}분 읽기</span>
+          </div>
+          <div className="reading-actions">
+            <a href={selected.link} target="_blank" rel="noreferrer">
+              벨로그에서 읽기 <Icon name="external" size={15} />
+            </a>
+            <button
+              onClick={() => {
+                setSelected(null);
+                setPanel("archive");
+              }}
+            >
+              <Icon name="list" size={15} />
+              모든 글
+            </button>
+          </div>
+          <p className="reading-source-note">
+            원문의 이미지와 서식은 벨로그에서 볼 수 있어요.
+          </p>
+          <div className="reading-body">
+            {selected.sentences
+              .filter((sentence) => sentence.type !== "image")
+              .map((sentence, index) =>
+                sentence.type === "code" ? (
+                  <div className="code-block" key={index}>
+                    <span>{sentence.language || "code"}</span>
+                    <pre>
+                      <code>{sentence.fullSentence}</code>
+                    </pre>
+                  </div>
+                ) : (
+                  <p key={index}>{sentence.fullSentence}</p>
+                ),
+              )}
+          </div>
+          <div className="reading-end">
+            <Icon name="star" size={24} />
+            <p>잠시, 같은 별을 바라봐 주셔서 고마워요.</p>
+            <button onClick={closePanel}>
+              다시 우주로 <Icon name="arrow" size={16} />
+            </button>
+          </div>
+        </Panel>
+      )}
+
+      {panel === "about" && (
+        <Panel
+          name="about"
+          title={
+            <>
+              안녕하세요,
+              <br />
+              글을 쓰는 개발자 uiwwsw입니다.
+            </>
+          }
+          onClose={closePanel}
+          className="about-panel"
+        >
+          <div className="about-star">
+            <Icon name="star" size={48} />
+          </div>
+          <p className="about-lead">
+            만드는 일과, 생각을 남기는 일을 좋아합니다.
+          </p>
+          <p>
+            코드를 쓰며 배운 것들, 무언가를 만들어 가는 과정, 그리고 일상에서
+            마주친 마음들을 기록합니다. 그렇게 쌓인 글들이 이 작은 우주의 별이
+            되었습니다.
+          </p>
+          <p>
+            빠르게 지나가지 않아도 괜찮아요.
+            <br />
+            어떤 별에는 조금 더 오래 머물러 주세요.
+          </p>
+          <div className="about-links">
+            <a
+              href="https://velog.io/@uiwwsw/posts"
+              target="_blank"
+              rel="noreferrer"
+            >
+              Velog <Icon name="external" />
+            </a>
+            <a
+              href="https://github.com/uiwwsw"
+              target="_blank"
+              rel="noreferrer"
+            >
+              GitHub <Icon name="external" />
+            </a>
+          </div>
+          <details className="credits">
+            <summary>이 우주에 도움을 준 것들</summary>
+            <p>
+              Three.js · React Three Fiber
+              <br />
+              지구:{" "}
+              <a
+                href="https://threejs.org/examples/webgpu_tsl_earth.html"
+                target="_blank"
+                rel="noreferrer"
+              >
+                Three.js Earth
+              </a>{" "}
+              예제의 셰이딩을 참고했습니다.
+              <br />
+              지구 텍스처:{" "}
+              <a
+                href="https://www.solarsystemscope.com/textures/"
+                target="_blank"
+                rel="noreferrer"
+              >
+                Solar System Scope
+              </a>{" "}
+              (CC BY 4.0).
+              <br />달 텍스처: Three.js 예제 에셋. 장면의 거리와 별의 위치는
+              글을 탐험하기 위한 예술적 구성입니다.
+            </p>
+          </details>
+        </Panel>
+      )}
+    </main>
   );
 }
