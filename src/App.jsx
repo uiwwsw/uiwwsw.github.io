@@ -22,6 +22,8 @@ import {
   SceneBoundary,
 } from "./components/Interface";
 import "./index.css";
+import { createFlightInput, centerFlightInput } from "./utils/flightInput.js";
+import { useFlightInput } from "./hooks/useFlightInput.js";
 
 const UniverseScene = lazy(() => import("./components/UniverseScene"));
 const initialParams = new URLSearchParams(window.location.search);
@@ -63,6 +65,7 @@ export default function App() {
   const reducedMotion = useMedia("(prefers-reduced-motion: reduce)");
   const paused = motionPaused || reducedMotion || !!panel;
   const sceneRef = useRef();
+  const inputRef = useRef(createFlightInput());
   const searchRef = useRef();
   const hydrated = useRef(false);
   const deferredQuery = useDeferredValue(query);
@@ -95,6 +98,7 @@ export default function App() {
     setSelected(null);
   }, []);
   const returnHome = useCallback(() => {
+    centerFlightInput(inputRef.current);
     setProgress(0);
     setCruising(false);
     setSelected(null);
@@ -104,6 +108,7 @@ export default function App() {
     setCodeOnly(false);
   }, []);
   const beginJourney = useCallback(() => {
+    centerFlightInput(inputRef.current);
     setSelected(null);
     setPanel(null);
     if (reducedMotion || motionPaused) setProgress(0.65);
@@ -172,12 +177,26 @@ export default function App() {
       if (panel || editing || event.altKey || event.ctrlKey || event.metaKey)
         return;
       if (
-        ["ArrowUp", "ArrowDown", "PageUp", "PageDown", "Home"].includes(
-          event.key,
-        )
+        [
+          "ArrowLeft",
+          "ArrowRight",
+          "ArrowUp",
+          "ArrowDown",
+          "PageUp",
+          "PageDown",
+          "Home",
+        ].includes(event.key)
       ) {
         event.preventDefault();
         setCruising(false);
+        if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
+          inputRef.current.lookX = clamp(
+            inputRef.current.lookX + (event.key === "ArrowLeft" ? -6 : 6),
+            -52,
+            52,
+          );
+          return;
+        }
         if (event.key === "Home") returnHome();
         else
           setProgress((value) =>
@@ -191,44 +210,18 @@ export default function App() {
     window.addEventListener("keydown", keydown);
     return () => window.removeEventListener("keydown", keydown);
   }, [panel, returnHome]);
-  useEffect(() => {
-    const element = sceneRef.current;
-    let touchY = null;
-    function wheel(event) {
-      if (panel || event.ctrlKey || event.target.closest("button, a, input"))
-        return;
-      event.preventDefault();
-      setCruising(false);
-      const delta =
-        event.deltaY *
-        (event.deltaMode === 1 ? 18 : event.deltaMode === 2 ? 700 : 1);
-      setProgress((value) => clamp(value + clamp(delta, -180, 180) * 0.00045));
-    }
-    function touchStart(event) {
-      if (event.touches.length === 1) touchY = event.touches[0].clientY;
-    }
-    function touchMove(event) {
-      if (
-        panel ||
-        touchY === null ||
-        event.touches.length !== 1 ||
-        event.target.closest("button")
-      )
-        return;
-      const y = event.touches[0].clientY;
-      setCruising(false);
-      setProgress((value) => clamp(value + (touchY - y) * 0.002));
-      touchY = y;
-    }
-    element.addEventListener("wheel", wheel, { passive: false });
-    element.addEventListener("touchstart", touchStart, { passive: true });
-    element.addEventListener("touchmove", touchMove, { passive: true });
-    return () => {
-      element.removeEventListener("wheel", wheel);
-      element.removeEventListener("touchstart", touchStart);
-      element.removeEventListener("touchmove", touchMove);
-    };
-  }, [panel]);
+  const manualInput = useCallback(() => setCruising(false), []);
+  const travel = useCallback(
+    (delta) => setProgress((value) => clamp(value + delta)),
+    [],
+  );
+  useFlightInput({
+    surfaceRef: sceneRef,
+    inputRef,
+    enabled: !panel,
+    onTravel: travel,
+    onManualInput: manualInput,
+  });
 
   const filtered = useMemo(
     () => filterCatalog(articles, deferredQuery, topic, codeOnly),
@@ -286,6 +279,7 @@ export default function App() {
                 compact={compact}
                 onReady={ready}
                 onError={fail}
+                inputRef={inputRef}
               />
             </Suspense>
           </SceneBoundary>
@@ -504,6 +498,17 @@ export default function App() {
           <button
             className="icon-button"
             onClick={() => {
+              centerFlightInput(inputRef.current);
+              setCruising(false);
+            }}
+            aria-label="시점 중앙으로"
+            title="시점 중앙으로"
+          >
+            <Icon name="compass" size={17} />
+          </button>
+          <button
+            className="icon-button"
+            onClick={() => {
               setMotionPaused((value) => !value);
               setCruising(false);
             }}
@@ -540,8 +545,10 @@ export default function App() {
             ? "PREPARING THE UNIVERSE…"
             : "MADE OF THOUGHTS & STARDUST"}
         </span>
-        <span>
-          {exploring ? "DRAG TO LOOK AROUND" : "TAKE YOUR TIME. STAY A LITTLE."}
+        <span className="gesture-hint">
+          {compact
+            ? "좌우 · 둘러보기  /  위아래 · 이동"
+            : "드래그 · 둘러보기  /  휠 · 이동"}
         </span>
       </div>
 
