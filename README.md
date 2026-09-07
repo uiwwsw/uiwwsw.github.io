@@ -4,10 +4,11 @@ A 3D writing portfolio: leave the Moon, approach Earth, and discover a real Velo
 
 ## Exploring the universe
 
-- Scroll (or swipe vertically) to travel; drag horizontally to look around. Desktop dragging also adjusts vertical view.
+- Scroll (or swipe vertically) to travel; swipe horizontally to look around, including gestures begun over the introductory text or star labels. Touch gestures lock to the first direction to avoid accidental diagonal travel. Desktop dragging also adjusts vertical view, and horizontal trackpad scrolling pans.
+- Tap the compass to center the view without resetting travel. Reading a star and returning preserves the previous viewing direction. A drag does not accidentally open an article; ordinary star taps and keyboard activation still work.
 - “나의 우주 유영하기” starts a slow automatic journey. Manual input stops the cruise.
 - Select a star to read, or use “글 모아보기” to search all posts and filter by topic or code content.
-- Keyboard: `/` opens search, `↑` / `PageDown` move toward Earth, `↓` / `PageUp` return toward the Moon, `Home` returns to the beginning, and `Esc` closes the current panel.
+- Keyboard: `/` opens search, `←` / `→` look around, `↑` / `PageDown` move toward Earth, `↓` / `PageUp` return toward the Moon, `Home` returns to the beginning, and `Esc` closes the current panel.
 - The bottom slider offers direct, keyboard-accessible travel. Sound starts muted and is generated locally with Web Audio.
 - Reduced-motion preferences disable ambient animation and animated camera transitions. The pause control stops ambient motion and automatic travel.
 - Article links retain the `?article=<slug>` address; old numeric article links also resolve. Search filters are shareable in the URL.
@@ -18,6 +19,8 @@ A 3D writing portfolio: leave the Moon, approach Earth, and discover a real Velo
 `src/utils/observatory.js` maps the checked-in Velog archive to deterministic stars: new posts never move the existing stars. Categories are inferred from titles. `UniverseScene.jsx` handles travel, screen-space label spacing, the star field and procedural nebula; `CelestialBodies.jsx` renders Earth's day/night/cloud/atmosphere shaders and the lunar terrain.
 
 Planet texture sources and attribution are documented in `public/textures/README.md` and the site's About panel. Shading references the [Three.js Earth example](https://threejs.org/examples/webgpu_tsl_earth.html), implemented in GLSL for the existing WebGL stack. No game assets are used. Distances and star positions are artistic rather than astronomical.
+
+The landscape social thumbnail is `public/og-yoon-changwon-v2.png`, with crisp English and Korean name typography. Metadata uses an absolute, versioned image URL plus its actual dimensions and accessible alternative text. The image-edit prompt and provenance are recorded in `design/og-thumbnail.md`.
 
 ## Local development
 

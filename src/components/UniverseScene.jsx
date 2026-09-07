@@ -165,52 +165,13 @@ function CameraRig({
   compact,
   inputRef,
 }) {
-  const { camera, gl } = useThree();
+  const { camera } = useThree();
   const look = useRef(new THREE.Vector3(...flightPose(0, compact).target));
   const drift = useRef(0);
-  const pointer = useRef({ x: 0, y: 0, startX: 0, startY: 0, dragging: false });
   useEffect(() => {
     camera.fov = compact ? 58 : 46;
     camera.updateProjectionMatrix();
   }, [camera, compact]);
-  useEffect(() => {
-    const element = gl.domElement;
-    function down(event) {
-      pointer.current.dragging = true;
-      pointer.current.startX = event.clientX;
-      pointer.current.startY = event.clientY;
-      inputRef.current.dragged = false;
-      element.setPointerCapture(event.pointerId);
-    }
-    function move(event) {
-      if (!pointer.current.dragging) return;
-      const dx = event.clientX - pointer.current.startX;
-      const dy = event.clientY - pointer.current.startY;
-      if (Math.abs(dx) + Math.abs(dy) > 5) inputRef.current.dragged = true;
-      pointer.current.x = clamp(pointer.current.x - dx * 0.035, -22, 22);
-      if (event.pointerType !== "touch")
-        pointer.current.y = clamp(pointer.current.y + dy * 0.025, -10, 13);
-      pointer.current.startX = event.clientX;
-      pointer.current.startY = event.clientY;
-    }
-    function up() {
-      pointer.current.dragging = false;
-    }
-    element.addEventListener("pointerdown", down);
-    element.addEventListener("pointermove", move);
-    element.addEventListener("pointerup", up);
-    element.addEventListener("pointercancel", up);
-    return () => {
-      element.removeEventListener("pointerdown", down);
-      element.removeEventListener("pointermove", move);
-      element.removeEventListener("pointerup", up);
-      element.removeEventListener("pointercancel", up);
-    };
-  }, [gl, inputRef]);
-  useEffect(() => {
-    pointer.current.x = 0;
-    pointer.current.y = 0;
-  }, [selected, progress === 0]);
   const targetPosition = useMemo(() => new THREE.Vector3(), []);
   const targetLook = useMemo(() => new THREE.Vector3(), []);
   useFrame((_, delta) => {
@@ -231,8 +192,8 @@ function CameraRig({
     } else {
       targetPosition.set(...pose.position);
       targetLook.set(
-        pose.target[0] + pointer.current.x,
-        pose.target[1] + pointer.current.y,
+        pose.target[0] + inputRef.current.lookX,
+        pose.target[1] + inputRef.current.lookY,
         pose.target[2],
       );
     }
@@ -466,10 +427,11 @@ export default function UniverseScene({
   compact,
   onReady,
   onError,
+  inputRef,
 }) {
-  const inputRef = useRef({ dragged: false });
   return (
     <Canvas
+      style={{ touchAction: "pinch-zoom" }}
       camera={{
         position: flightPose(0, compact).position,
         fov: compact ? 58 : 46,

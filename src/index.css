@@ -91,6 +91,7 @@ button {
   color: #fff;
 }
 .observatory {
+  touch-action: pinch-zoom;
   position: relative;
   width: 100%;
   height: 100%;
@@ -104,10 +105,10 @@ button {
   position: absolute;
   inset: 0;
   z-index: 0;
-  touch-action: none;
+  touch-action: pinch-zoom;
 }
 .universe-canvas canvas {
-  touch-action: none;
+  touch-action: pinch-zoom;
   cursor: grab;
 }
 .universe-canvas canvas:active {
@@ -246,6 +247,7 @@ button {
   color: var(--muted);
 }
 .intro {
+  user-select: none;
   position: absolute;
   left: 8.4%;
   top: 30%;
@@ -632,6 +634,7 @@ button {
   border-radius: 50%;
 }
 .star-label {
+  touch-action: pinch-zoom;
   position: relative;
   width: 178px;
   padding: 10px 23px 11px 13px;
@@ -701,6 +704,7 @@ button {
   top: 20px;
 }
 .panel {
+  touch-action: pan-y pinch-zoom;
   position: fixed;
   inset: 0 0 0 auto;
   margin: 0;
@@ -1468,6 +1472,22 @@ button {
   }
   .sky-filters {
     margin-top: 13px;
+  }
+}
+.bottom-credit .gesture-hint {
+  font-size: 11px;
+  letter-spacing: 0.02em;
+  color: #acb9ca;
+}
+@media (max-width: 760px) {
+  .deck-actions {
+    gap: 8px;
+  }
+  .location {
+    min-width: 0;
+  }
+  .bottom-credit .gesture-hint {
+    font-size: 10px;
   }
 }
 @media (prefers-reduced-motion: reduce) {
