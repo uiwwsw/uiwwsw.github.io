@@ -5,6 +5,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { createHash } from 'node:crypto';
 import { collectPosts } from './lib/velog-pagination.js';
+import { CONTENT_VERSION, canReuseContent, parseArticleBody, summarizeArticle, articleReadingTime } from './lib/article-content.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -41,169 +42,6 @@ function selectStableSentences(sentences, limit) {
             return left.sentenceIndex - right.sentenceIndex;
         })
         .slice(0, limit);
-}
-
-// Helper to remove markdown syntax
-function cleanMarkdown(text) {
-    return text
-        .replace(/^[\*\-]\s+/gm, '')     // Unordered lists
-        .replace(/^\d+\.\s+/gm, '')      // Ordered lists
-        .replace(/\*\*(.*?)\*\*/g, '$1') // Bold
-        .replace(/\*(.*?)\*/g, '$1')     // Italic
-        .replace(/\[(.*?)\]\(.*?\)/g, '$1') // Links
-        .replace(/`([^`]+)`/g, '$1')     // Inline code (keep text)
-        .replace(/^#+\s+/gm, '')         // Headers
-        .replace(/!\[.*?\]\(.*?\)/g, '') // Images
-        .replace(/>\s+/gm, '')           // Blockquotes
-        .replace(/^-{3,}/gm, '');        // Horizontal rules
-}
-
-// Helper to split text into sentences respecting quotes and brackets
-function splitSentences(text) {
-    const sentences = [];
-    let buffer = '';
-    let stack = [];
-
-    const inGroup = () => stack.length > 0;
-    const peek = () => stack[stack.length - 1];
-
-    for (let i = 0; i < text.length; i++) {
-        const char = text[i];
-        const prev = text[i - 1];
-        const next = text[i + 1];
-
-        // Handle Quotes
-        if (char === '"') {
-            if (peek() === '"') stack.pop();
-            else stack.push('"');
-        }
-        else if (char === '“') stack.push('“');
-        else if (char === '”') {
-            if (peek() === '“') stack.pop();
-        }
-        else if (char === '‘') stack.push('‘');
-        else if (char === '’') {
-            if (peek() === '‘') stack.pop();
-        }
-        else if (char === "'") {
-            // Apostrophe heuristic
-            const isApostrophe = /[a-zA-Z0-9]/.test(prev || '') && /[a-zA-Z0-9]/.test(next || '');
-            if (!isApostrophe) {
-                if (peek() === "'") stack.pop();
-                else stack.push("'");
-            }
-        }
-        // Parens and Brackets
-        else if (char === '(') stack.push('(');
-        else if (char === ')') {
-            if (peek() === '(') stack.pop();
-        }
-        else if (char === '[') stack.push('[');
-        else if (char === ']') {
-            if (peek() === '[') stack.pop();
-        }
-        else if (char === '{') stack.push('{');
-        else if (char === '}') {
-            if (peek() === '{') stack.pop();
-        }
-
-        buffer += char;
-
-        // Split Condition: Punctuation + Not in Group
-        if (/[.!?]/.test(char) && !inGroup()) {
-            sentences.push(buffer.trim());
-            buffer = '';
-        }
-    }
-
-    if (buffer.trim()) {
-        sentences.push(buffer.trim());
-    }
-
-    return sentences.filter(s => s.length > 0);
-}
-
-// Extract sentences from plain text
-function extractSentencesFromText(text) {
-    const cleanedMarkdown = cleanMarkdown(text);
-    const rawSentences = splitSentences(cleanedMarkdown);
-
-    const sentences = [];
-
-    for (const sentence of rawSentences) {
-        if (sentence.length < 5) continue;
-
-        const trimmed = sentence.length > 200 ? sentence.substring(0, 200) + '...' : sentence;
-        const words = trimmed.split(/\s+/);
-        if (words.length === 0) continue;
-
-        let checkWord = words[0];
-        checkWord = checkWord.replace(/^[^가-힣a-zA-Z0-9]+/, '');
-
-        if (checkWord.length < 1 && words.length === 1) continue;
-        if (/^\d+$/.test(checkWord)) continue;
-
-        // Filter out "Assisted by AI"
-        if (/Assisted\s+by\s+AI/i.test(trimmed)) continue;
-
-
-
-        // Must contain at least one valid char
-        if (!/[가-힣a-zA-Z0-9]/.test(checkWord)) continue;
-
-        // Check if this is an image sentence (contains velcdn or image references)
-        const isImageSentence = /velcdn/i.test(trimmed) ||
-            /\.(jpg|jpeg|png|gif|webp|svg)/i.test(trimmed) ||
-            /!\[.*?\]\(.*?\)/i.test(trimmed);
-
-        sentences.push({
-            fullSentence: trimmed,
-            type: isImageSentence ? 'image' : 'text'
-        });
-    }
-
-    return sentences;
-}
-
-function buildSummary(sentences, fallbackSummary = '') {
-    const fallback = cleanMarkdown(fallbackSummary || '').replace(/\s+/g, ' ').trim();
-    const textSummary = sentences
-        .filter(sentence => sentence.type === 'text')
-        .map(sentence => sentence.fullSentence.trim())
-        .filter(Boolean)
-        .slice(0, 2)
-        .join(' ');
-
-    const summary = (fallback || textSummary).replace(/\s+/g, ' ').trim();
-
-    if (!summary) {
-        return '';
-    }
-
-    return summary.length > 180
-        ? `${summary.slice(0, 177).trim()}...`
-        : summary;
-}
-
-function buildFallbackSentence(title, summary = '') {
-    const normalizedSummary = cleanMarkdown(summary || '').replace(/\s+/g, ' ').trim();
-    const candidate = normalizedSummary || (title || '').replace(/\s+/g, ' ').trim();
-
-    if (!candidate) {
-        return '';
-    }
-
-    return candidate.length > 200
-        ? `${candidate.slice(0, 197).trim()}...`
-        : candidate;
-}
-
-function estimateReadingTime(markdown = '') {
-    const withoutCodeBlocks = markdown.replace(/```[\s\S]*?```/g, ' ');
-    const normalized = cleanMarkdown(withoutCodeBlocks).replace(/\s+/g, ' ').trim();
-    const wordCount = normalized ? normalized.split(' ').length : 0;
-
-    return Math.max(1, Math.ceil(wordCount / 220));
 }
 
 function normalizeTags(rawTags) {
@@ -341,7 +179,8 @@ async function fetchAndProcess() {
         for (const item of posts) {
             console.log(`Processing [${articleId}]: ${item.title}`);
             const link = `https://velog.io/@${USERNAME}/${item.url_slug}`;
-            const oldArticle = previousBySlug.get(item.url_slug);
+            const cached = previousBySlug.get(item.url_slug);
+            const oldArticle = canReuseContent(cached) ? cached : null;
             const postData = await fetchPostData(link, oldArticle);
             const markdown = postData.body;
             const sourceHash = markdown
@@ -363,9 +202,6 @@ async function fetchAndProcess() {
                 continue;
             }
 
-            let itemSentences = [];
-            const readingTime = estimateReadingTime(markdown || '');
-
             if (!markdown) {
                 console.error(`  Failed to get markdown for ${item.title}`);
                 failedPosts.push({
@@ -377,53 +213,16 @@ async function fetchAndProcess() {
                 continue;
             }
 
-            // Split by Code Blocks
-            const parts = markdown.split(/(```[\s\S]*?```)/g);
-
-            parts.forEach(part => {
-                const trimmed = part.trim();
-                if (!trimmed) return;
-
-                if (trimmed.startsWith('```')) {
-                    // Extract language if present
-                    // Format: ```js\n code \n```
-                    const firstLineMatch = trimmed.match(/^```(\w+)?/);
-                    const language = firstLineMatch && firstLineMatch[1] ? firstLineMatch[1] : null;
-
-                    const content = trimmed.replace(/^```.*\n?/, '').replace(/```$/, '');
-                    if (content.trim().length > 0) {
-                        itemSentences.push({
-                            fullSentence: content.trim(),
-                            type: 'code',
-                            language: language
-                        });
-                    }
-                } else {
-                    const extracted = extractSentencesFromText(part);
-                    itemSentences.push(...extracted);
-                }
-            });
-
+            const itemSentences = parseArticleBody(markdown, link);
             if (itemSentences.length === 0) {
-                const fallbackSentence = buildFallbackSentence(item.title, postData.summary);
-
-                if (!fallbackSentence) {
-                    console.error(`  No extractable sentences for ${item.title}`);
-                    failedPosts.push({
-                        title: item.title,
-                        slug: item.url_slug,
-                        reason: 'no extractable sentences'
-                    });
-                    articleId++;
-                    continue;
-                }
-
-                console.warn(`  Using fallback sentence for ${item.title}`);
-                itemSentences.push({
-                    fullSentence: fallbackSentence,
-                    type: 'text'
+                failedPosts.push({
+                    title: item.title, slug: item.url_slug, reason: 'no readable text, code or images'
                 });
+                articleId++;
+                continue;
             }
+            const readingTime = articleReadingTime(itemSentences);
+            const summary = summarizeArticle(itemSentences);
 
             itemSentences.forEach((sentence, index) => {
                 allSentences.push({
@@ -436,7 +235,7 @@ async function fetchAndProcess() {
                     totalInArticle: itemSentences.length,
                     publishedAt: postData.releasedAt,
                     tags: postData.tags,
-                    summary: buildSummary(itemSentences, postData.summary),
+                    summary,
                     readingTime,
                     sourceHash,
                     sourceETag: postData.sourceETag,
@@ -473,6 +272,7 @@ async function fetchAndProcess() {
                     tags: s.tags,
                     summary: s.summary,
                     readingTime: s.readingTime,
+                    contentVersion: CONTENT_VERSION,
                     sourceHash: s.sourceHash,
                     sourceETag: s.sourceETag,
                     sourceModified: s.sourceModified,
@@ -483,7 +283,8 @@ async function fetchAndProcess() {
                 fullSentence: s.fullSentence,
                 index: s.sentenceIndex,
                 type: s.type,
-                language: s.language
+                language: s.language,
+                ...(s.type === 'image' ? { src: s.src, alt: s.alt } : {})
             });
         });
 
@@ -491,11 +292,27 @@ async function fetchAndProcess() {
         const textSentencesOnly = allSentences.filter(s => s.type !== 'image');
         console.log(`Filtered ${allSentences.length - textSentencesOnly.length} image sentences from cloud`);
 
-        if (textSentencesOnly.length === 0) {
-            throw new Error('No text or code sentences were extracted. Aborting refresh.');
+        if (allSentences.length === 0) {
+            throw new Error('No readable content was extracted. Aborting refresh.');
         }
 
-        const selected = selectStableSentences(textSentencesOnly, MAX_SENTENCES);
+        // Keep scraper validators and cache-only fields out of the legacy word data.
+        // Explicit field order also keeps fresh extraction and cached reuse identical.
+        const selected = selectStableSentences(textSentencesOnly, MAX_SENTENCES).map(s => ({
+            fullSentence: s.fullSentence,
+            type: s.type,
+            language: s.language,
+            link: s.link,
+            title: s.title,
+            slug: s.slug,
+            articleId: s.articleId,
+            sentenceIndex: s.sentenceIndex,
+            totalInArticle: s.totalInArticle,
+            publishedAt: s.publishedAt,
+            tags: s.tags,
+            summary: s.summary,
+            readingTime: s.readingTime
+        }));
 
         await fs.writeFile(CONTEXT_FILE, JSON.stringify(byArticle, null, 2));
         console.log(`Saved context data to ${CONTEXT_FILE}`);

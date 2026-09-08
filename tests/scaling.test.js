@@ -35,6 +35,7 @@ test("metadata contains no bodies; every content-addressed body exactly matches 
       "sourceHash",
       "sourceETag",
       "sourceModified",
+      "contentVersion",
     ])
       assert.equal(field in article, false);
     const raw = readFileSync(

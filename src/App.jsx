@@ -22,6 +22,7 @@ import SecretSignal from "./components/SecretSignal";
 import { advanceFlight, signalStrength } from "./utils/secretSignal.js";
 import { HOME_SECTOR, groupSectors } from "./utils/skyRegistry.js";
 import { useArticleContent } from "./hooks/useArticleContent.js";
+import ArticleBody from "./components/ArticleBody.jsx";
 
 const UniverseScene = lazy(() => import("./components/UniverseScene"));
 const initialParams = new URLSearchParams(window.location.search);
@@ -930,7 +931,8 @@ export default function App() {
             </button>
           </div>
           <p className="reading-source-note">
-            원문의 이미지와 서식은 벨로그에서 볼 수 있어요.
+            사진을 누르면 원본 크기로 볼 수 있어요. 원문의 전체 서식은
+            벨로그에서 확인해 주세요.
           </p>
           <div className="reading-body">
             {reading.status === "loading" && (
@@ -945,20 +947,11 @@ export default function App() {
                 <button onClick={reading.retry}>다시 불러오기 ↗</button>
               </div>
             )}
-            {reading.sentences
-              .filter((sentence) => sentence.type !== "image")
-              .map((sentence, index) =>
-                sentence.type === "code" ? (
-                  <div className="code-block" key={index}>
-                    <span>{sentence.language || "code"}</span>
-                    <pre>
-                      <code>{sentence.fullSentence}</code>
-                    </pre>
-                  </div>
-                ) : (
-                  <p key={index}>{sentence.fullSentence}</p>
-                ),
-              )}
+            <ArticleBody
+              sentences={reading.sentences}
+              title={selected.title}
+              articleLink={selected.link}
+            />
           </div>
           <div className="reading-end">
             <Icon name="star" size={24} />

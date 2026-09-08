@@ -1,3 +1,5 @@
+import { isArticleBlock } from "./articleMedia.js";
+
 export function createArticleLoader(
   fetcher = (...args) => fetch(...args),
   capacity = 12,
@@ -16,11 +18,10 @@ export function createArticleLoader(
       throw new Error(`Article request failed: ${response.status}`);
     const body = await response.json();
     if (
+      !body ||
       body.id !== article.id ||
       !Array.isArray(body.sentences) ||
-      body.sentences.some(
-        (sentence) => typeof sentence.fullSentence !== "string",
-      )
+      body.sentences.some((sentence) => !isArticleBlock(sentence))
     )
       throw new Error("Invalid article body");
     if (signal?.aborted) throw new DOMException("Aborted", "AbortError");

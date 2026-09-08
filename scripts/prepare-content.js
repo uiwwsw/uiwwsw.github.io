@@ -26,8 +26,14 @@ for (const article of buildCatalog(source)) {
   const filename = `${hash}.json`;
   filenames.add(filename);
   await writeFile(new URL(filename, directory), body);
-  const { sentences, sourceHash, sourceETag, sourceModified, ...metadata } =
-    article;
+  const {
+    sentences,
+    contentVersion,
+    sourceHash,
+    sourceETag,
+    sourceModified,
+    ...metadata
+  } = article;
   articles.push({
     ...metadata,
     ...registry.stars[article.id],
