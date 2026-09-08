@@ -3,6 +3,7 @@ import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Html } from "@react-three/drei";
 import * as THREE from "three";
 import { Earth, LunarSurface } from "./CelestialBodies";
+import { signalFlightPose } from "../utils/secretSignal.js";
 import {
   clamp,
   flightPose,
@@ -159,6 +160,7 @@ function BackgroundStars({ paused, compact }) {
 }
 function CameraRig({
   progress,
+  signal,
   selected,
   paused,
   reducedMotion,
@@ -177,7 +179,7 @@ function CameraRig({
   useFrame((_, delta) => {
     const dt = Math.min(delta, 0.05);
     if (!paused) drift.current += dt;
-    const pose = flightPose(progress, compact);
+    const pose = signalFlightPose(progress, signal, compact);
     if (selected) {
       targetPosition.set(
         selected.position[0] + (compact ? 0 : 4),
@@ -419,6 +421,7 @@ function SceneReady({ onReady }) {
 export default function UniverseScene({
   articles,
   progress,
+  signal,
   selected,
   highlighted,
   onSelect,
@@ -483,6 +486,7 @@ export default function UniverseScene({
       />
       <CameraRig
         progress={progress}
+        signal={signal}
         selected={selected}
         paused={paused}
         reducedMotion={reducedMotion}
