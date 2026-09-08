@@ -3,8 +3,10 @@ const CACHE_NAME = '__CACHE_VERSION__';
 const urlsToCache = [
   '/',
   '/index.html',
-  '/universe.png',
-  '/favicon.ico',
+  '/favicon.ico?v=3',
+  '/favicon-moon-v3.svg',
+  '/favicon-moon-v3-32.png',
+  '/apple-touch-moon-v3.png',
   '/fonts/SUITE-Variable.css',
   '/fonts/SUITE-Variable.ttf',
   '/fonts/SUITE-Variable.woff2'

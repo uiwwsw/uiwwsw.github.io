@@ -3,6 +3,8 @@ import * as cheerio from 'cheerio';
 import fs from 'fs/promises';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { createHash } from 'node:crypto';
+import { collectPosts } from './lib/velog-pagination.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -221,18 +223,24 @@ function normalizeTags(rawTags) {
 }
 
 // Helper: Fetch post content and metadata using the page Apollo state
-async function fetchPostData(url) {
+async function fetchPostData(url, previous) {
     try {
         const res = await fetch(url, {
+            signal: AbortSignal.timeout(20000),
             headers: {
+                ...(previous?.sourceETag ? { 'If-None-Match': previous.sourceETag } : {}),
+                ...(previous?.sourceModified ? { 'If-Modified-Since': previous.sourceModified } : {}),
                 'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
             }
         });
+        if (res.status === 304 && previous?.sentences?.length) return { unchanged: true };
         if (!res.ok) throw new Error(`Failed to fetch ${url}: ${res.status}`);
         const html = await res.text();
         const $ = cheerio.load(html);
 
         const postData = {
+            sourceETag: res.headers.get('etag'),
+            sourceModified: res.headers.get('last-modified'),
             body: null,
             releasedAt: null,
             tags: [],
@@ -273,10 +281,6 @@ async function fetchPostData(url) {
 
 // Helper: Fetch Posts List via GraphQL
 async function fetchAllPosts(username) {
-    const allPosts = [];
-    let cursor = null;
-    let hasNext = true;
-
     const query = `
         query Posts($username: String, $cursor: ID) {
             posts(username: $username, cursor: $cursor) {
@@ -289,50 +293,39 @@ async function fetchAllPosts(username) {
 
     console.log(`Fetching post list for ${username}...`);
 
-    while (hasNext) {
-        try {
-            const res = await fetch(GQL_URL, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'User-Agent': 'Mozilla/5.0'
-                },
-                body: JSON.stringify({
-                    query,
-                    variables: { username, cursor }
-                })
-            });
-            const json = await res.json();
+    return collectPosts(async (cursor) => {
+        const res = await fetch(GQL_URL, {
+            method: 'POST',
+            signal: AbortSignal.timeout(20000),
+            headers: {
+                'Content-Type': 'application/json',
+                'User-Agent': 'Mozilla/5.0'
+            },
+            body: JSON.stringify({
+                query,
+                variables: { username, cursor }
+            })
+        });
+        if (!res.ok) throw new Error(`Velog list request failed: ${res.status}`);
+        const json = await res.json();
 
-            if (json.errors) {
-                throw new Error(`GraphQL Errors: ${JSON.stringify(json.errors)}`);
-            }
-
-            const posts = json.data.posts;
-            if (posts.length === 0) {
-                hasNext = false;
-            } else {
-                // Add to list
-                posts.forEach(p => {
-                    allPosts.push(p);
-                });
-
-                cursor = posts[posts.length - 1].id;
-                console.log(`  Fetched ${posts.length} posts. Total: ${allPosts.length}`);
-
-                // Safety break to prevent infinite loops if API changes
-                if (allPosts.length > 1000) hasNext = false;
-            }
-        } catch (e) {
-            throw e;
+        if (json.errors) {
+            throw new Error(`GraphQL Errors: ${JSON.stringify(json.errors)}`);
         }
-    }
 
-    return allPosts;
+        return json.data?.posts;
+    });
 }
 
 async function fetchAndProcess() {
     try {
+        let previous = {};
+        try {
+            previous = JSON.parse(await fs.readFile(CONTEXT_FILE, 'utf8'));
+        } catch (error) {
+            if (error.code !== 'ENOENT') throw error;
+        }
+        const previousBySlug = new Map(Object.values(previous).map(article => [article.slug, article]));
         // 1. Get All Posts
         const posts = await fetchAllPosts(USERNAME);
         console.log(`Found ${posts.length} items total.`);
@@ -348,8 +341,27 @@ async function fetchAndProcess() {
         for (const item of posts) {
             console.log(`Processing [${articleId}]: ${item.title}`);
             const link = `https://velog.io/@${USERNAME}/${item.url_slug}`;
-            const postData = await fetchPostData(link);
+            const oldArticle = previousBySlug.get(item.url_slug);
+            const postData = await fetchPostData(link, oldArticle);
             const markdown = postData.body;
+            const sourceHash = markdown
+                ? createHash('sha256').update(JSON.stringify([
+                    markdown, item.title, postData.releasedAt, postData.tags, postData.summary
+                ])).digest('hex')
+                : null;
+            if (oldArticle && (postData.unchanged || sourceHash === oldArticle.sourceHash)) {
+                oldArticle.sentences.forEach((sentence, index) => allSentences.push({
+                    ...sentence, title: item.title, link, slug: item.url_slug,
+                    articleId, sentenceIndex: index, totalInArticle: oldArticle.sentences.length,
+                    publishedAt: oldArticle.publishedAt, tags: oldArticle.tags, summary: oldArticle.summary,
+                    readingTime: oldArticle.readingTime, sourceHash: oldArticle.sourceHash,
+                    sourceETag: postData.sourceETag || oldArticle.sourceETag,
+                    sourceModified: postData.sourceModified || oldArticle.sourceModified,
+                }));
+                articleId++;
+                await new Promise(r => setTimeout(r, 100));
+                continue;
+            }
 
             let itemSentences = [];
             const readingTime = estimateReadingTime(markdown || '');
@@ -425,7 +437,10 @@ async function fetchAndProcess() {
                     publishedAt: postData.releasedAt,
                     tags: postData.tags,
                     summary: buildSummary(itemSentences, postData.summary),
-                    readingTime
+                    readingTime,
+                    sourceHash,
+                    sourceETag: postData.sourceETag,
+                    sourceModified: postData.sourceModified
                 });
             });
 
@@ -458,6 +473,9 @@ async function fetchAndProcess() {
                     tags: s.tags,
                     summary: s.summary,
                     readingTime: s.readingTime,
+                    sourceHash: s.sourceHash,
+                    sourceETag: s.sourceETag,
+                    sourceModified: s.sourceModified,
                     sentences: []
                 };
             }
@@ -469,9 +487,6 @@ async function fetchAndProcess() {
             });
         });
 
-        await fs.writeFile(CONTEXT_FILE, JSON.stringify(byArticle, null, 2));
-        console.log(`Saved context data to ${CONTEXT_FILE}`);
-
         // Filter out image sentences for WordCloud (but keep them in context)
         const textSentencesOnly = allSentences.filter(s => s.type !== 'image');
         console.log(`Filtered ${allSentences.length - textSentencesOnly.length} image sentences from cloud`);
@@ -482,6 +497,8 @@ async function fetchAndProcess() {
 
         const selected = selectStableSentences(textSentencesOnly, MAX_SENTENCES);
 
+        await fs.writeFile(CONTEXT_FILE, JSON.stringify(byArticle, null, 2));
+        console.log(`Saved context data to ${CONTEXT_FILE}`);
         await fs.writeFile(OUTPUT_FILE, JSON.stringify(selected, null, 2));
         console.log(`Saved ${selected.length} sentences to ${OUTPUT_FILE}`);
 

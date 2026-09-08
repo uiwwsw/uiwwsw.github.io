@@ -92,6 +92,7 @@ export function filterCatalog(
   query,
   topic = "all",
   codeOnly = false,
+  year = "all",
 ) {
   const words = query.toLocaleLowerCase().trim().split(/\s+/).filter(Boolean);
   return articles.filter((article) => {
@@ -100,6 +101,7 @@ export function filterCatalog(
     return (
       (topic === "all" || article.topic === topic) &&
       (!codeOnly || article.codeCount > 0) &&
+      (year === "all" || article.publishedAt?.startsWith(year)) &&
       words.every((word) => text.includes(word))
     );
   });

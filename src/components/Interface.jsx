@@ -110,7 +110,9 @@ export function Panel({ name, title, onClose, children, className = "" }) {
               ? "THE STAR ARCHIVE"
               : name === "article"
                 ? "A SIGNAL FROM MY UNIVERSE"
-                : "THE PERSON BEHIND THE STARS"}
+                : name === "nearby"
+                  ? "NEARBY SIGNALS"
+                  : "THE PERSON BEHIND THE STARS"}
           </span>
           <button className="icon-button" onClick={onClose} aria-label="닫기">
             <Icon name="close" />

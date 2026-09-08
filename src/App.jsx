@@ -8,13 +8,7 @@ import React, {
   useRef,
   useState,
 } from "react";
-import {
-  buildCatalog,
-  clamp,
-  filterCatalog,
-  formatDate,
-  TOPICS,
-} from "./utils/observatory";
+import { clamp, filterCatalog, formatDate, TOPICS } from "./utils/observatory";
 import {
   AudioToggle,
   Icon,
@@ -26,6 +20,8 @@ import { createFlightInput, centerFlightInput } from "./utils/flightInput.js";
 import { useFlightInput } from "./hooks/useFlightInput.js";
 import SecretSignal from "./components/SecretSignal";
 import { advanceFlight, signalStrength } from "./utils/secretSignal.js";
+import { HOME_SECTOR, groupSectors } from "./utils/skyRegistry.js";
+import { useArticleContent } from "./hooks/useArticleContent.js";
 
 const UniverseScene = lazy(() => import("./components/UniverseScene"));
 const initialParams = new URLSearchParams(window.location.search);
@@ -44,17 +40,28 @@ function useMedia(query) {
 
 export default function App() {
   const [articles, setArticles] = useState([]);
+  const [sectors, setSectors] = useState([HOME_SECTOR]);
+  const [sectorId, setSectorId] = useState(
+    initialParams.get("sector") || "home",
+  );
+  const [year, setYear] = useState(initialParams.get("year") || "all");
+  const [page, setPage] = useState(0);
+  const [nearby, setNearby] = useState([]);
+  const [diagnosticsStats, setDiagnosticsStats] = useState("");
   const [dataState, setDataState] = useState("loading");
   const [sceneReady, setSceneReady] = useState(false);
-  const [sceneError, setSceneError] = useState(false);
+  const [sceneError, setSceneError] = useState(
+    import.meta.env.DEV && initialParams.get("webgl") === "off",
+  );
   const [distance, setDistance] = useState(0);
   const progress = clamp(distance);
-  const signal = signalStrength(distance);
+  const signal = sectorId === "home" ? signalStrength(distance) : 0;
   const [cruising, setCruising] = useState(false);
   const [motionPaused, setMotionPaused] = useState(false);
   const [panel, setPanel] = useState(
     initialParams.has("q") ||
       initialParams.has("topic") ||
+      initialParams.has("year") ||
       initialParams.has("code")
       ? "archive"
       : null,
@@ -66,20 +73,59 @@ export default function App() {
   );
   const [codeOnly, setCodeOnly] = useState(initialParams.get("code") === "1");
   const compact = useMedia("(max-width: 760px)");
-  const reducedMotion = useMedia("(prefers-reduced-motion: reduce)");
+  const reducedMotion =
+    useMedia("(prefers-reduced-motion: reduce)") ||
+    (import.meta.env.DEV && initialParams.get("motion") === "reduce");
   const paused = motionPaused || reducedMotion || !!panel;
   const sceneRef = useRef();
   const inputRef = useRef(createFlightInput());
   const searchRef = useRef();
   const hydrated = useRef(false);
   const deferredQuery = useDeferredValue(query);
+  const reading = useArticleContent(selected);
+  const archiveListRef = useRef();
+  const sectorGroups = useMemo(
+    () => groupSectors(articles, sectors),
+    [articles, sectors],
+  );
+  const sector = sectorGroups.find((item) => item.id === sectorId) ||
+    sectorGroups[0] || { ...HOME_SECTOR, articles: [] };
+  const years = useMemo(
+    () =>
+      [
+        ...new Set(
+          articles
+            .map((article) => article.publishedAt?.slice(0, 4))
+            .filter(Boolean),
+        ),
+      ]
+        .sort()
+        .reverse(),
+    [articles],
+  );
 
   useEffect(() => {
     let active = true;
-    import("./data/velog-context.json")
-      .then((module) => {
+    import("./data/velog-index.json")
+      .then(async (module) => {
+        let index = module.default;
+        if (
+          import.meta.env.DEV &&
+          [300, 1000, 3000].includes(Number(initialParams.get("stress")))
+        )
+          index = (await import("./utils/stressCatalog.js")).makeStressCatalog(
+            index,
+            Number(initialParams.get("stress")),
+          );
         if (active) {
-          setArticles(buildCatalog(module.default));
+          setArticles(index.articles);
+          setSectors(index.sectors);
+          if (
+            !index.sectors.some(
+              (item) => item.id === initialParams.get("sector"),
+            )
+          )
+            setSectorId("home");
           setDataState("ready");
         }
       })
@@ -92,6 +138,8 @@ export default function App() {
   }, []);
 
   const selectArticle = useCallback((article) => {
+    setSectorId(article.sectorId || "home");
+    setNearby([]);
     setSelected(article);
     setPanel("article");
     setCruising(false);
@@ -102,6 +150,8 @@ export default function App() {
     setSelected(null);
   }, []);
   const returnHome = useCallback(() => {
+    setSectorId("home");
+    setYear("all");
     centerFlightInput(inputRef.current);
     setDistance(0);
     setCruising(false);
@@ -112,6 +162,7 @@ export default function App() {
     setCodeOnly(false);
   }, []);
   const beginJourney = useCallback(() => {
+    setSectorId("home");
     centerFlightInput(inputRef.current);
     setSelected(null);
     setPanel(null);
@@ -123,6 +174,28 @@ export default function App() {
       setCruising(true);
     }
   }, [reducedMotion, motionPaused]);
+  const visitSector = useCallback((id) => {
+    centerFlightInput(inputRef.current);
+    setSectorId(id);
+    setDistance(0.25);
+    setCruising(false);
+    setSelected(null);
+    setTopic("all");
+    setQuery("");
+    setCodeOnly(false);
+    setYear("all");
+    setPanel(null);
+  }, []);
+  const showNearby = useCallback((items) => {
+    setNearby(items);
+    setPanel("nearby");
+    setCruising(false);
+  }, []);
+  const enterCloud = useCallback((id) => {
+    setTopic(id);
+    setDistance(0.65);
+    setCruising(false);
+  }, []);
 
   useEffect(() => {
     if (dataState !== "ready" || hydrated.current) return;
@@ -136,9 +209,14 @@ export default function App() {
   useEffect(() => {
     if (!hydrated.current) return;
     const params = new URLSearchParams();
+    if (import.meta.env.DEV)
+      for (const key of ["stress", "webgl", "motion"])
+        if (initialParams.has(key)) params.set(key, initialParams.get(key));
     if (query) params.set("q", query);
     if (topic !== "all") params.set("topic", topic);
     if (codeOnly) params.set("code", "1");
+    if (year !== "all") params.set("year", year);
+    if (sectorId !== "home") params.set("sector", sectorId);
     if (selected) params.set("article", selected.id);
     window.history.replaceState(
       null,
@@ -148,7 +226,7 @@ export default function App() {
     document.title = selected
       ? `${selected.title} · uiwwsw`
       : "uiwwsw — 기록이 별이 되는 우주";
-  }, [query, topic, codeOnly, selected, dataState]);
+  }, [query, topic, codeOnly, selected, dataState, year, sectorId]);
   useEffect(() => {
     if (panel === "archive") searchRef.current?.focus();
   }, [panel]);
@@ -172,8 +250,13 @@ export default function App() {
   }, [progress]);
   const manualInput = useCallback(() => setCruising(false), []);
   const travel = useCallback(
-    (delta) => setDistance((value) => advanceFlight(value, delta)),
-    [],
+    (delta) =>
+      setDistance((value) =>
+        sectorId === "home"
+          ? advanceFlight(value, delta)
+          : clamp(value + delta),
+      ),
+    [sectorId],
   );
   const leaveSignal = useCallback(() => {
     setDistance(0.9);
@@ -235,27 +318,40 @@ export default function App() {
   });
 
   const filtered = useMemo(
-    () => filterCatalog(articles, deferredQuery, topic, codeOnly),
-    [articles, deferredQuery, topic, codeOnly],
+    () => filterCatalog(articles, deferredQuery, topic, codeOnly, year),
+    [articles, deferredQuery, topic, codeOnly, year],
   );
+  useEffect(() => setPage(0), [deferredQuery, topic, codeOnly, year]);
+  const pageCount = Math.max(1, Math.ceil(filtered.length / 24));
+  const activePage = Math.min(page, pageCount - 1);
+  const pageArticles = filtered.slice(activePage * 24, (activePage + 1) * 24);
+  const changePage = (next) => {
+    setPage(next);
+    requestAnimationFrame(() => {
+      archiveListRef.current?.scrollIntoView({ block: "start" });
+      archiveListRef.current?.focus({ preventScroll: true });
+    });
+  };
   const highlighted = useMemo(
     () =>
-      query || topic !== "all" || codeOnly
+      query || topic !== "all" || codeOnly || year !== "all"
         ? new Set(filtered.map((a) => a.id))
         : null,
-    [filtered, query, topic, codeOnly],
+    [filtered, query, topic, codeOnly, year],
   );
   const ready = useCallback(() => setSceneReady(true), []);
   const fail = useCallback(() => setSceneError(true), []);
-  const exploring = progress > 0.12 || !!selected;
+  const exploring = sectorId !== "home" || progress > 0.12 || !!selected;
   const latestEssay =
     articles.find((article) => article.topic === "essay") || articles[0];
   const phase =
-    progress < 0.15
-      ? "달의 고요 속에서"
-      : progress < 0.68
-        ? "별과 별 사이를 지나"
-        : "조금 더 가까워진 이야기";
+    sectorId !== "home"
+      ? sector.label
+      : progress < 0.15
+        ? "달의 고요 속에서"
+        : progress < 0.68
+          ? "별과 별 사이를 지나"
+          : "조금 더 가까워진 이야기";
 
   return (
     <main
@@ -280,7 +376,12 @@ export default function App() {
           <SceneBoundary onError={fail}>
             <Suspense fallback={null}>
               <UniverseScene
-                articles={articles}
+                articles={sector.articles}
+                sector={sector}
+                onNearby={showNearby}
+                onCloud={enterCloud}
+                diagnostics={import.meta.env.DEV && initialParams.has("stress")}
+                onDiagnostics={setDiagnosticsStats}
                 progress={progress}
                 signal={signal}
                 selected={selected}
@@ -297,6 +398,11 @@ export default function App() {
           </SceneBoundary>
         )}
       </div>
+      {import.meta.env.DEV && initialParams.has("stress") && (
+        <output className="scene-diagnostics">
+          TEST SKY · {diagnosticsStats}
+        </output>
+      )}
       <div className="scene-shade" aria-hidden="true" />
       <p className="screen-reader-only" role="status">
         {signal >= 1
@@ -394,11 +500,15 @@ export default function App() {
         </div>
       )}
 
-      {exploring && !panel && progress < 0.99 && (
+      {exploring && !panel && (progress < 0.99 || sectorId !== "home") && (
         <section className="explore-heading">
           <p className="eyebrow">BETWEEN THE STARS</p>
           <h1>{phase}</h1>
-          <p>별에 머물러 보세요. 하나의 이야기가 기다리고 있어요.</p>
+          <p>
+            {progress < 0.38
+              ? "멀리서는 성운으로, 가까이에서는 하나의 이야기로."
+              : "별에 머물러 보세요. 가까이 모인 별은 함께 살펴볼 수 있어요."}
+          </p>
           <div className="sky-filters" aria-label="별의 주제">
             <button
               onClick={() => setTopic("all")}
@@ -417,10 +527,29 @@ export default function App() {
               </button>
             ))}
           </div>
+          <div className="sector-navigation">
+            <label>
+              탐험 구역
+              <select
+                aria-label="탐험 구역"
+                value={sector.id}
+                onChange={(event) => visitSector(event.target.value)}
+              >
+                {sectorGroups.map((item) => (
+                  <option key={item.id} value={item.id}>
+                    {item.label} · {item.articles.length}개
+                  </option>
+                ))}
+              </select>
+            </label>
+            <button onClick={() => setPanel("archive")}>
+              연도별로 찾기 ↗
+            </button>
+          </div>
         </section>
       )}
 
-      {progress >= 0.99 && !panel && (
+      {progress >= 0.99 && sectorId === "home" && !panel && (
         <SecretSignal
           strength={signal}
           quiet={paused}
@@ -470,11 +599,13 @@ export default function App() {
         </div>
         <span>03</span>
         <p>
-          {progress < 0.15
-            ? "LUNAR SURFACE"
-            : progress < 0.68
-              ? "DEEP SPACE"
-              : "EARTH ORBIT"}
+          {sectorId !== "home"
+            ? "STAR SECTOR"
+            : progress < 0.15
+              ? "LUNAR SURFACE"
+              : progress < 0.68
+                ? "DEEP SPACE"
+                : "EARTH ORBIT"}
         </p>
       </aside>
 
@@ -483,7 +614,7 @@ export default function App() {
           <Icon name="moon" size={23} />
           <div>
             <span className="eyebrow">
-              {progress < 0.15
+              {sectorId === "home" && progress < 0.15
                 ? "THE MOON, A QUIET BEGINNING"
                 : "SOMEWHERE IN MY UNIVERSE"}
             </span>
@@ -502,22 +633,28 @@ export default function App() {
         </div>
         <div className="flight-controls">
           <div className="flight-labels">
-            <span>MOON</span>
+            <span>{sectorId === "home" ? "MOON" : "NEBULA"}</span>
             <span>
-              {signal >= 1
-                ? "숨겨진 좌표 발견"
-                : progress >= 0.99
-                  ? "조금 더 가까이…"
-                  : exploring
-                    ? "별을 따라 천천히"
-                    : "스크롤하여 지구로"}
+              {sectorId !== "home"
+                ? "별을 따라 천천히"
+                : signal >= 1
+                  ? "숨겨진 좌표 발견"
+                  : progress >= 0.99
+                    ? "조금 더 가까이…"
+                    : exploring
+                      ? "별을 따라 천천히"
+                      : "스크롤하여 지구로"}
             </span>
-            <span>EARTH</span>
+            <span>{sectorId === "home" ? "EARTH" : "STARS"}</span>
           </div>
           <div className="flight-slider">
             <span className="origin-dot" />
             <input
-              aria-label="달에서 지구까지 이동"
+              aria-label={
+                sectorId === "home"
+                  ? "달에서 지구까지 이동"
+                  : "성운에서 별까지 이동"
+              }
               type="range"
               min="0"
               max="100"
@@ -672,15 +809,35 @@ export default function App() {
               코드가 있는 글
             </label>
           </div>
-          <div className="article-list">
-            {filtered.map((article, index) => (
+          <label className="archive-year">
+            기록한 해
+            <select
+              aria-label="기록한 해"
+              value={year}
+              onChange={(event) => setYear(event.target.value)}
+            >
+              <option value="all">모든 연도</option>
+              {years.map((value) => (
+                <option key={value} value={value}>
+                  {value}년
+                </option>
+              ))}
+            </select>
+          </label>
+          <div
+            className="article-list"
+            ref={archiveListRef}
+            tabIndex={-1}
+            aria-label={`검색 결과 ${activePage + 1}페이지`}
+          >
+            {pageArticles.map((article, index) => (
               <button
                 className="article-row"
                 key={article.id}
                 onClick={() => selectArticle(article)}
               >
                 <span className="article-number">
-                  {String(index + 1).padStart(2, "0")}
+                  {String(activePage * 24 + index + 1).padStart(2, "0")}
                 </span>
                 <span className="article-row-content">
                   <small style={{ color: article.color }}>
@@ -713,6 +870,7 @@ export default function App() {
                     setQuery("");
                     setTopic("all");
                     setCodeOnly(false);
+                    setYear("all");
                   }}
                 >
                   모든 이야기 보기
@@ -720,6 +878,25 @@ export default function App() {
               </div>
             )}
           </div>
+          {pageCount > 1 && (
+            <nav className="archive-pagination" aria-label="글 목록 페이지">
+              <button
+                disabled={activePage === 0}
+                onClick={() => changePage(activePage - 1)}
+              >
+                ← 이전
+              </button>
+              <span role="status">
+                {activePage + 1} / {pageCount}
+              </span>
+              <button
+                disabled={activePage + 1 >= pageCount}
+                onClick={() => changePage(activePage + 1)}
+              >
+                다음 →
+              </button>
+            </nav>
+          )}
         </Panel>
       )}
 
@@ -756,7 +933,19 @@ export default function App() {
             원문의 이미지와 서식은 벨로그에서 볼 수 있어요.
           </p>
           <div className="reading-body">
-            {selected.sentences
+            {reading.status === "loading" && (
+              <p role="status">이 별의 이야기를 불러오는 중…</p>
+            )}
+            {reading.status === "error" && (
+              <div className="reading-error" role="alert">
+                <p>
+                  이야기를 불러오지 못했어요. 다시 시도하거나 위의 벨로그
+                  링크에서 읽어 주세요.
+                </p>
+                <button onClick={reading.retry}>다시 불러오기 ↗</button>
+              </div>
+            )}
+            {reading.sentences
               .filter((sentence) => sentence.type !== "image")
               .map((sentence, index) =>
                 sentence.type === "code" ? (
@@ -777,6 +966,30 @@ export default function App() {
             <button onClick={closePanel}>
               다시 우주로 <Icon name="arrow" size={16} />
             </button>
+          </div>
+        </Panel>
+      )}
+
+      {panel === "nearby" && (
+        <Panel name="nearby" title="가까이 빛나는 이야기" onClose={closePanel}>
+          <p className="panel-description">
+            손끝에 모인 별들이에요. 읽고 싶은 이야기를 골라 주세요.
+          </p>
+          <div className="article-list">
+            {nearby.map((article) => (
+              <button
+                className="article-row"
+                key={article.id}
+                onClick={() => selectArticle(article)}
+              >
+                <span className="article-row-content">
+                  <small>{TOPICS[article.topic].label}</small>
+                  <strong>{article.title}</strong>
+                  <p>{article.summary}</p>
+                </span>
+                <Icon name="arrow" />
+              </button>
+            ))}
           </div>
         </Panel>
       )}

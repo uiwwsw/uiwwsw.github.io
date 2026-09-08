@@ -5,12 +5,15 @@
   "version": "1.0.1",
   "description": "A lunar journey through uiwwsw's writing universe",
   "scripts": {
+    "prepare-content": "node scripts/prepare-content.js",
+    "predev": "npm run prepare-content",
     "dev": "vite",
+    "pretest": "npm run prepare-content",
     "test": "node --test tests/*.test.js",
     "fetch-data": "node scripts/fetch-velog.js",
-    "refresh-content": "npm run fetch-data",
+    "refresh-content": "npm run fetch-data && npm run prepare-content",
     "build": "npm run build:app",
-    "build:app": "vite build && npm run version-dist",
+    "build:app": "npm run prepare-content && vite build && npm run version-dist",
     "build:full": "npm run refresh-content && npm run build:app",
     "version-dist": "node scripts/update-cache-version.js",
     "preview": "vite preview"
