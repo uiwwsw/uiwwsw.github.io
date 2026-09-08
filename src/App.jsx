@@ -24,6 +24,8 @@ import {
 import "./index.css";
 import { createFlightInput, centerFlightInput } from "./utils/flightInput.js";
 import { useFlightInput } from "./hooks/useFlightInput.js";
+import SecretSignal from "./components/SecretSignal";
+import { advanceFlight, signalStrength } from "./utils/secretSignal.js";
 
 const UniverseScene = lazy(() => import("./components/UniverseScene"));
 const initialParams = new URLSearchParams(window.location.search);
@@ -45,7 +47,9 @@ export default function App() {
   const [dataState, setDataState] = useState("loading");
   const [sceneReady, setSceneReady] = useState(false);
   const [sceneError, setSceneError] = useState(false);
-  const [progress, setProgress] = useState(0);
+  const [distance, setDistance] = useState(0);
+  const progress = clamp(distance);
+  const signal = signalStrength(distance);
   const [cruising, setCruising] = useState(false);
   const [motionPaused, setMotionPaused] = useState(false);
   const [panel, setPanel] = useState(
@@ -91,7 +95,7 @@ export default function App() {
     setSelected(article);
     setPanel("article");
     setCruising(false);
-    setProgress((current) => Math.max(current, 0.35));
+    setDistance((current) => clamp(current, 0.35, 1));
   }, []);
   const closePanel = useCallback(() => {
     setPanel(null);
@@ -99,7 +103,7 @@ export default function App() {
   }, []);
   const returnHome = useCallback(() => {
     centerFlightInput(inputRef.current);
-    setProgress(0);
+    setDistance(0);
     setCruising(false);
     setSelected(null);
     setPanel(null);
@@ -111,9 +115,9 @@ export default function App() {
     centerFlightInput(inputRef.current);
     setSelected(null);
     setPanel(null);
-    if (reducedMotion || motionPaused) setProgress(0.65);
+    if (reducedMotion || motionPaused) setDistance(0.65);
     else {
-      setProgress((current) =>
+      setDistance((current) =>
         current >= 0.98 ? 0.2 : Math.max(current, 0.16),
       );
       setCruising(true);
@@ -155,7 +159,7 @@ export default function App() {
     const tick = (now) => {
       if (now - last > 40) {
         const delta = Math.min(now - last, 100);
-        setProgress((value) => clamp(value + delta / 42000));
+        setDistance((value) => clamp(value + delta / 42000));
         last = now;
       }
       frame = requestAnimationFrame(tick);
@@ -166,15 +170,33 @@ export default function App() {
   useEffect(() => {
     if (progress >= 1) setCruising(false);
   }, [progress]);
+  const manualInput = useCallback(() => setCruising(false), []);
+  const travel = useCallback(
+    (delta) => setDistance((value) => advanceFlight(value, delta)),
+    [],
+  );
+  const leaveSignal = useCallback(() => {
+    setDistance(0.9);
+    setCruising(false);
+    sceneRef.current?.querySelector('input[type="range"]')?.focus();
+  }, []);
   useEffect(() => {
     function keydown(event) {
       const editing = /INPUT|TEXTAREA|SELECT/.test(event.target.tagName);
+      if (event.key === "Escape" && !panel && signal > 0) {
+        event.preventDefault();
+        leaveSignal();
+        return;
+      }
       if (!editing && event.key === "/" && !panel) {
         event.preventDefault();
         setPanel("archive");
         return;
       }
       if (panel || editing || event.altKey || event.ctrlKey || event.metaKey)
+        return;
+      // Arrow keys scroll a revealed card on short screens instead of closing it.
+      if (event.target.closest("[data-flight-control]") && event.key !== "Home")
         return;
       if (
         [
@@ -198,23 +220,12 @@ export default function App() {
           return;
         }
         if (event.key === "Home") returnHome();
-        else
-          setProgress((value) =>
-            clamp(
-              value +
-                (["ArrowUp", "PageDown"].includes(event.key) ? 0.08 : -0.08),
-            ),
-          );
+        else travel(["ArrowUp", "PageDown"].includes(event.key) ? 0.08 : -0.08);
       }
     }
     window.addEventListener("keydown", keydown);
     return () => window.removeEventListener("keydown", keydown);
-  }, [panel, returnHome]);
-  const manualInput = useCallback(() => setCruising(false), []);
-  const travel = useCallback(
-    (delta) => setProgress((value) => clamp(value + delta)),
-    [],
-  );
+  }, [panel, returnHome, travel, leaveSignal, signal]);
   useFlightInput({
     surfaceRef: sceneRef,
     inputRef,
@@ -271,6 +282,7 @@ export default function App() {
               <UniverseScene
                 articles={articles}
                 progress={progress}
+                signal={signal}
                 selected={selected}
                 highlighted={highlighted}
                 onSelect={selectArticle}
@@ -286,6 +298,11 @@ export default function App() {
         )}
       </div>
       <div className="scene-shade" aria-hidden="true" />
+      <p className="screen-reader-only" role="status">
+        {signal >= 1
+          ? "숨겨진 신호를 발견했어요. GitHub와 Velog 작업실 링크가 열렸습니다."
+          : ""}
+      </p>
       <div className="screen-frame" aria-hidden="true">
         <span />
         <span />
@@ -377,7 +394,7 @@ export default function App() {
         </div>
       )}
 
-      {exploring && !panel && (
+      {exploring && !panel && progress < 0.99 && (
         <section className="explore-heading">
           <p className="eyebrow">BETWEEN THE STARS</p>
           <h1>{phase}</h1>
@@ -403,6 +420,18 @@ export default function App() {
         </section>
       )}
 
+      {progress >= 0.99 && !panel && (
+        <SecretSignal
+          strength={signal}
+          quiet={paused}
+          onApproach={() => {
+            setCruising(false);
+            travel(0.11);
+          }}
+          onLeave={leaveSignal}
+        />
+      )}
+
       {!exploring && latestEssay && (
         <button
           className="featured-signal"
@@ -419,7 +448,7 @@ export default function App() {
         </button>
       )}
 
-      {(sceneError || dataState === "error") && (
+      {(sceneError || dataState === "error") && progress < 0.99 && (
         <div className="fallback-notice" role="status">
           <p>
             {dataState === "error"
@@ -474,7 +503,15 @@ export default function App() {
         <div className="flight-controls">
           <div className="flight-labels">
             <span>MOON</span>
-            <span>{exploring ? "별을 따라 천천히" : "스크롤하여 지구로"}</span>
+            <span>
+              {signal >= 1
+                ? "숨겨진 좌표 발견"
+                : progress >= 0.99
+                  ? "조금 더 가까이…"
+                  : exploring
+                    ? "별을 따라 천천히"
+                    : "스크롤하여 지구로"}
+            </span>
             <span>EARTH</span>
           </div>
           <div className="flight-slider">
@@ -487,7 +524,31 @@ export default function App() {
               value={Math.round(progress * 100)}
               onChange={(event) => {
                 setCruising(false);
-                setProgress(Number(event.target.value) / 100);
+                setDistance(Number(event.target.value) / 100);
+              }}
+              onKeyDown={(event) => {
+                if (
+                  event.altKey ||
+                  event.ctrlKey ||
+                  event.metaKey ||
+                  progress < 1 ||
+                  ![
+                    "ArrowUp",
+                    "ArrowRight",
+                    "PageDown",
+                    "ArrowDown",
+                    "ArrowLeft",
+                    "PageUp",
+                  ].includes(event.key)
+                )
+                  return;
+                event.preventDefault();
+                setCruising(false);
+                travel(
+                  ["ArrowUp", "ArrowRight", "PageDown"].includes(event.key)
+                    ? 0.08
+                    : -0.08,
+                );
               }}
             />
             <Icon name="star" size={13} />

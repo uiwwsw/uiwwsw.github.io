@@ -7,6 +7,7 @@ A 3D writing portfolio: leave the Moon, approach Earth, and discover a real Velo
 - Scroll (or swipe vertically) to travel; swipe horizontally to look around, including gestures begun over the introductory text or star labels. Touch gestures lock to the first direction to avoid accidental diagonal travel. Desktop dragging also adjusts vertical view, and horizontal trackpad scrolling pans.
 - Tap the compass to center the view without resetting travel. Reading a star and returning preserves the previous viewing direction. A drag does not accidentally open an article; ordinary star taps and keyboard activation still work.
 - “나의 우주 유영하기” starts a slow automatic journey. Manual input stops the cruise.
+- Easter egg: after reaching Earth, keep scrolling or swiping upward to receive a hidden signal and reveal the GitHub / Velog destinations. Auto-cruise stops before this extra approach. The signal button and the slider's forward arrow keys also work; reverse travel, “다시 별들 사이로”, `Esc`, or `Home` let you leave and discover it again. The reveal is non-modal, never auto-opens an external link, and remains available without WebGL or motion.
 - Select a star to read, or use “글 모아보기” to search all posts and filter by topic or code content.
 - Keyboard: `/` opens search, `←` / `→` look around, `↑` / `PageDown` move toward Earth, `↓` / `PageUp` return toward the Moon, `Home` returns to the beginning, and `Esc` closes the current panel.
 - The bottom slider offers direct, keyboard-accessible travel. Sound starts muted and is generated locally with Web Audio.

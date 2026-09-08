@@ -3,7 +3,7 @@ import { createFlightGesture } from "../utils/flightInput.js";
 
 function isControl(target) {
   return !!target.closest(
-    'a, input, select, textarea, button:not(.star-label), dialog, summary, label, [contenteditable="true"]',
+    'a, input, select, textarea, button:not(.star-label), dialog, summary, label, [data-flight-control], [contenteditable="true"]',
   );
 }
 
