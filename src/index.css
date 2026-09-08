@@ -1021,6 +1021,76 @@ button {
   border-radius: 5px;
   overflow: hidden;
 }
+.article-image {
+  margin: 30px 0;
+  min-width: 0;
+}
+.article-image-frame {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-height: 120px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  overflow: hidden;
+  background: #050a12;
+  cursor: zoom-in;
+}
+.article-image-frame img {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 80svh;
+  object-fit: contain;
+}
+.article-image-frame[aria-busy="true"] {
+  min-height: 240px;
+}
+.article-image-loading {
+  position: absolute;
+  font-size: 12px;
+  color: #9aadc4;
+  pointer-events: none;
+}
+.article-image figcaption {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 16px;
+  margin-top: 8px;
+  font-size: 12px;
+  line-height: 1.7;
+  color: #9aadc4;
+  overflow-wrap: anywhere;
+}
+.article-image figcaption a {
+  flex-shrink: 0;
+  padding: 8px 0;
+}
+.article-image-error {
+  padding: 24px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: #0b1423;
+  font-size: 13px;
+  color: #aebed0;
+}
+.article-image-error p {
+  margin-bottom: 8px;
+}
+.article-image-error > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 24px;
+  margin-top: 12px;
+}
+.article-image-error a,
+.article-image-error button {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  color: var(--gold);
+}
 .code-block > span {
   display: block;
   font-size: 10px;
