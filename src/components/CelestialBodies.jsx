@@ -3,6 +3,7 @@ import { useFrame } from "@react-three/fiber";
 import { useTexture } from "@react-three/drei";
 import * as THREE from "three";
 import { earthOrientation, earthSway } from "../utils/earthOrientation";
+import { advanceAmbientTime } from "../utils/ambientMotion.js";
 import {
   seededRandom,
   earthPosition,
@@ -34,8 +35,10 @@ const earthFragment = `
     float day = smoothstep(-0.16, 0.26, light);
     vec3 ground = pow(texture2D(dayMap, vUv).rgb, vec3(2.2));
     vec3 night = pow(texture2D(nightMap, vUv).rgb, vec3(2.2));
-    vec2 cloudUv = vec2(fract(vUv.x + time * 0.0012), vUv.y);
+    vec2 cloudUv = vec2(fract(vUv.x + time * 0.0018), vUv.y);
     float cloud = smoothstep(0.32, 0.95, texture2D(surfaceMap, cloudUv).b);
+    float shadow = smoothstep(.32, .95, texture2D(surfaceMap, cloudUv + vec2(.004, .0015)).b);
+    ground *= 1.0 - shadow * .15;
     ground = mix(ground, vec3(dot(ground, vec3(0.2126, 0.7152, 0.0722))), 0.12);
     ground = mix(ground, vec3(0.86, 0.91, 1.0), cloud * 0.88);
     vec3 color = ground * (max(light, 0.0) * 1.7 + 0.035) * day;
@@ -49,6 +52,8 @@ const earthFragment = `
   }
 `;
 const atmosphereFragment = `
+  uniform float time;
+  varying vec2 vUv;
   varying vec3 vNormal;
   varying vec3 vPosition;
   void main() {
@@ -56,7 +61,11 @@ const atmosphereFragment = `
     float facing = abs(dot(n, normalize(cameraPosition - vPosition)));
     float rim = pow(1.0 - facing, 4.0);
     float sunlight = smoothstep(-0.45, 0.7, dot(n, normalize(vec3(-0.95, 0.45, 0.45))));
-    gl_FragColor = vec4(vec3(0.18, 0.48, 1.0), rim * sunlight * 0.6);
+    float breath = .94 + .06 * sin(time * .19 + n.y * 3.);
+    float polarBand = exp(-pow((abs(vUv.y - .5) - .34) * 25., 2.));
+    float curtain = pow(.5 + .5 * sin(vUv.x * 65. + time * .23 + sin(vUv.x * 21. - time * .12) * 2.), 3.);
+    float aurora = polarBand * curtain * (1. - sunlight) * .16;
+    gl_FragColor = vec4(mix(vec3(.18,.48,1.), vec3(.26,.92,.77), aurora * 3.), rim * (sunlight * .6 * breath + aurora));
     #include <colorspace_fragment>
   }
 `;
@@ -79,7 +88,11 @@ export function Earth({ paused, compact }) {
   );
   useFrame((_, delta) => {
     if (!paused) {
-      uniforms.time.value += Math.min(delta, 0.05);
+      uniforms.time.value = advanceAmbientTime(
+        uniforms.time.value,
+        delta,
+        paused,
+      );
       globe.current.rotation.y = earthSway(uniforms.time.value);
     }
   });
@@ -102,6 +115,7 @@ export function Earth({ paused, compact }) {
         <shaderMaterial
           vertexShader={planetVertex}
           fragmentShader={atmosphereFragment}
+          uniforms={uniforms}
           transparent
           side={THREE.BackSide}
           depthWrite={false}

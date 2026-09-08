@@ -57,6 +57,8 @@ export default function App() {
   const [page, setPage] = useState(0);
   const [nearby, setNearby] = useState([]);
   const [diagnosticsStats, setDiagnosticsStats] = useState("");
+  const [ambientStats, setAmbientStats] = useState("");
+  const [pageHidden, setPageHidden] = useState(document.hidden);
   const [dataState, setDataState] = useState("loading");
   const [sceneReady, setSceneReady] = useState(false);
   const [sceneError, setSceneError] = useState(
@@ -85,7 +87,12 @@ export default function App() {
   const reducedMotion =
     useMedia("(prefers-reduced-motion: reduce)") ||
     (import.meta.env.DEV && initialParams.get("motion") === "reduce");
-  const paused = motionPaused || reducedMotion || !!panel;
+  const paused = motionPaused || reducedMotion || !!panel || pageHidden;
+  useEffect(() => {
+    const update = () => setPageHidden(document.hidden);
+    document.addEventListener("visibilitychange", update);
+    return () => document.removeEventListener("visibilitychange", update);
+  }, []);
   const sceneRef = useRef();
   const inputRef = useRef(createFlightInput());
   const searchRef = useRef();
@@ -224,7 +231,7 @@ export default function App() {
     if (!hydrated.current) return;
     const params = new URLSearchParams();
     if (import.meta.env.DEV)
-      for (const key of ["stress", "webgl", "motion"])
+      for (const key of ["stress", "webgl", "motion", "ambient"])
         if (initialParams.has(key)) params.set(key, initialParams.get(key));
     if (query) params.set("q", query);
     if (topic !== "all") params.set("topic", topic);
@@ -392,8 +399,13 @@ export default function App() {
                 sector={sector}
                 onNearby={showNearby}
                 onCloud={enterCloud}
-                diagnostics={import.meta.env.DEV && initialParams.has("stress")}
+                diagnostics={
+                  import.meta.env.DEV &&
+                  (initialParams.has("stress") || initialParams.has("ambient"))
+                }
                 onDiagnostics={setDiagnosticsStats}
+                onAmbientDiagnostics={setAmbientStats}
+                visible={!pageHidden}
                 progress={progress}
                 signal={signal}
                 selected={selected}
@@ -410,11 +422,14 @@ export default function App() {
           </SceneBoundary>
         )}
       </div>
-      {import.meta.env.DEV && initialParams.has("stress") && (
-        <output className="scene-diagnostics">
-          TEST SKY · {diagnosticsStats}
-        </output>
-      )}
+      {import.meta.env.DEV &&
+        (initialParams.has("stress") || initialParams.has("ambient")) && (
+          <output className="scene-diagnostics">
+            TEST SKY · {diagnosticsStats}
+            <br />
+            {ambientStats}
+          </output>
+        )}
       <div className="scene-shade" aria-hidden="true" />
       <p className="screen-reader-only" role="status">
         {signal >= 1

@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
 import { Html } from "@react-three/drei";
 import * as THREE from "three";
+import { advanceAmbientTime } from "../utils/ambientMotion.js";
 import {
   clamp,
   TOPICS,
@@ -18,6 +19,7 @@ const ignoreRaycast = () => {};
 const vertex = `
   attribute vec3 aColor; attribute float aVisible; attribute float aIndex;
   uniform float uSize; uniform float uDetail; uniform float uFocus;
+  uniform float uTime;
   varying vec3 vColor; varying float vAlpha;
   void main() {
     vec4 p = modelViewMatrix * vec4(position, 1.0);
@@ -25,7 +27,8 @@ const vertex = `
     gl_PointSize = clamp(uSize * focus / max(1.0, -p.z), 2.0, 60.0);
     gl_Position = projectionMatrix * p;
     vColor = aColor;
-    vAlpha = mix(.2, .95, uDetail) * mix(.08, 1.0, aVisible);
+    float shimmer = .88 + .12 * sin(uTime * .65 + aIndex * 2.399);
+    vAlpha = mix(.2, .95, uDetail) * mix(.08, 1.0, aVisible) * shimmer;
   }
 `;
 const fragment = `
@@ -52,6 +55,7 @@ function glowTexture() {
 
 export default function ArticleSky({
   articles,
+  paused,
   progress,
   selected,
   highlighted,
@@ -95,6 +99,7 @@ export default function ArticleSky({
       uSize: { value: 600 },
       uDetail: { value: 0 },
       uFocus: { value: -1 },
+      uTime: { value: 0 },
     }),
     [],
   );
@@ -134,7 +139,12 @@ export default function ArticleSky({
     [articles, highlighted, compact],
   );
 
-  useFrame(({ camera, clock }) => {
+  useFrame(({ camera, clock }, delta) => {
+    uniforms.uTime.value = advanceAmbientTime(
+      uniforms.uTime.value,
+      delta,
+      paused,
+    );
     frames.current++;
     if (diagnostics && clock.elapsedTime - lastStats.current > 1) {
       const fps = Math.round(
