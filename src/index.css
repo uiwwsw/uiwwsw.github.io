@@ -196,15 +196,16 @@ button {
   align-items: center;
   font-size: 14px;
 }
-.site-header nav button {
+.site-header nav button,
+.site-header nav a {
   position: relative;
   min-height: 42px;
   color: #a3adba;
 }
-.site-header nav button.active {
+.site-header nav .active {
   color: #f0eee8;
 }
-.site-header nav button.active:after {
+.site-header nav .active:after {
   content: "";
   position: absolute;
   width: 3px;
@@ -213,6 +214,11 @@ button {
   background: var(--gold);
   left: 50%;
   bottom: 0;
+}
+.site-header nav a {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
 }
 .nav-count {
   font-size: 11px;
