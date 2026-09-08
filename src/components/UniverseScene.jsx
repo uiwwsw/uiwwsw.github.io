@@ -1,17 +1,10 @@
-import React, { Suspense, useEffect, useMemo, useRef, useState } from "react";
+import React, { Suspense, useEffect, useMemo, useRef } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { Html } from "@react-three/drei";
+import ArticleSky from "./ArticleSky";
 import * as THREE from "three";
 import { Earth, LunarSurface } from "./CelestialBodies";
 import { signalFlightPose } from "../utils/secretSignal.js";
-import {
-  clamp,
-  flightPose,
-  seededRandom,
-  TOPICS,
-  earthPosition,
-  EARTH_RADIUS,
-} from "../utils/observatory";
+import { flightPose, seededRandom } from "../utils/observatory";
 
 const starVertex = `
   attribute float aSize;
@@ -166,6 +159,7 @@ function CameraRig({
   reducedMotion,
   compact,
   inputRef,
+  sector,
 }) {
   const { camera } = useThree();
   const look = useRef(new THREE.Vector3(...flightPose(0, compact).target));
@@ -176,10 +170,23 @@ function CameraRig({
   }, [camera, compact]);
   const targetPosition = useMemo(() => new THREE.Vector3(), []);
   const targetLook = useMemo(() => new THREE.Vector3(), []);
+  useEffect(() => {
+    // Warp between distant regions; never fly through Earth to reach a sector.
+    const pose = flightPose(progress, compact);
+    camera.position.set(
+      ...pose.position.map((value, i) => value + sector.origin[i]),
+    );
+    look.current.set(
+      ...pose.target.map((value, i) => value + sector.origin[i]),
+    );
+    camera.lookAt(look.current);
+  }, [sector.id]);
   useFrame((_, delta) => {
     const dt = Math.min(delta, 0.05);
     if (!paused) drift.current += dt;
     const pose = signalFlightPose(progress, signal, compact);
+    pose.position = pose.position.map((value, i) => value + sector.origin[i]);
+    pose.target = pose.target.map((value, i) => value + sector.origin[i]);
     if (selected) {
       targetPosition.set(
         selected.position[0] + (compact ? 0 : 4),
@@ -210,208 +217,6 @@ function CameraRig({
   });
   return null;
 }
-function createGlowTexture() {
-  const canvas = document.createElement("canvas");
-  canvas.width = canvas.height = 128;
-  const context = canvas.getContext("2d");
-  const gradient = context.createRadialGradient(64, 64, 0, 64, 64, 64);
-  gradient.addColorStop(0, "rgba(255,255,255,1)");
-  gradient.addColorStop(0.065, "rgba(255,255,255,1)");
-  gradient.addColorStop(0.14, "rgba(255,255,255,0.4)");
-  gradient.addColorStop(0.4, "rgba(255,255,255,0.08)");
-  gradient.addColorStop(1, "rgba(255,255,255,0)");
-  context.fillStyle = gradient;
-  context.fillRect(0, 0, 128, 128);
-  return new THREE.CanvasTexture(canvas);
-}
-function ArticleStar({
-  article,
-  glow,
-  visible,
-  dimmed,
-  selected,
-  onSelect,
-  inputRef,
-}) {
-  const [hovered, setHovered] = useState(false);
-  return (
-    <group position={article.position}>
-      <sprite scale={selected || hovered ? [2, 2, 2] : [1.15, 1.15, 1.15]}>
-        <spriteMaterial
-          map={glow}
-          color={article.color}
-          transparent
-          opacity={dimmed ? 0.12 : 0.95}
-          depthWrite={false}
-          blending={THREE.AdditiveBlending}
-        />
-      </sprite>
-      <mesh
-        onPointerOver={(event) => {
-          event.stopPropagation();
-          setHovered(true);
-        }}
-        onPointerOut={() => setHovered(false)}
-        onClick={(event) => {
-          event.stopPropagation();
-          if (!inputRef.current.dragged && !dimmed) onSelect(article);
-        }}
-      >
-        <sphereGeometry args={[0.38, 8, 6]} />
-        <meshBasicMaterial transparent opacity={0} depthWrite={false} />
-      </mesh>
-      {((visible && !dimmed) || hovered || selected) && (
-        <Html
-          position={[0.5, 0.05, 0]}
-          zIndexRange={[8, 1]}
-          style={{ pointerEvents: "auto" }}
-        >
-          <button
-            className={`star-label ${selected ? "is-selected" : ""}`}
-            style={{ "--star-color": article.color }}
-            onPointerDown={(event) => event.stopPropagation()}
-            onClick={() => onSelect(article)}
-          >
-            <span>{TOPICS[article.topic].english}</span>
-            <strong>{article.title}</strong>
-            <i aria-hidden="true">↗</i>
-          </button>
-        </Html>
-      )}
-    </group>
-  );
-}
-function ArticleSky({
-  articles,
-  progress,
-  selected,
-  highlighted,
-  onSelect,
-  inputRef,
-  compact,
-}) {
-  const { size } = useThree();
-  const glow = useMemo(createGlowTexture, []);
-  const [visible, setVisible] = useState([]);
-  const lastCheck = useRef(0);
-  const vector = useMemo(() => new THREE.Vector3(), []);
-  useEffect(() => () => glow.dispose(), [glow]);
-  useFrame(({ camera, clock }) => {
-    if (clock.elapsedTime - lastCheck.current < 0.35) return;
-    lastCheck.current = clock.elapsedTime;
-    const planet = new THREE.Vector3(...earthPosition(compact));
-    const planetDistance = planet.distanceTo(camera.position);
-    planet.project(camera);
-    const planetX = ((planet.x + 1) * size.width) / 2;
-    const planetY = ((1 - planet.y) * size.height) / 2;
-    const planetRadius =
-      (((EARTH_RADIUS * 1.03) / planetDistance) * size.height) /
-      (2 * Math.tan((camera.fov * Math.PI) / 360));
-    const labelWidth = compact ? 156 : 198;
-    const labelHeight = compact ? 72 : 82;
-    const candidates =
-      progress > 0.12 && !selected
-        ? articles
-            .map((article) => {
-              vector.set(...article.position);
-              const distance = vector.distanceTo(camera.position);
-              vector.project(camera);
-              const x = ((vector.x + 1) * size.width) / 2 + 10;
-              const y = ((1 - vector.y) * size.height) / 2;
-              const overlapsPlanet =
-                Math.hypot(
-                  clamp(planetX, x, x + labelWidth) - planetX,
-                  clamp(planetY, y, y + labelHeight) - planetY,
-                ) <
-                planetRadius + 16;
-              const overlapsHeading =
-                x < (compact ? size.width : 490) &&
-                y < size.height * (compact ? 0.38 : 0.42);
-              return {
-                id: article.id,
-                distance,
-                x,
-                y,
-                visible:
-                  vector.z < 1 &&
-                  vector.z > -1 &&
-                  x > size.width * 0.06 &&
-                  x + labelWidth < size.width * 0.93 &&
-                  y > size.height * 0.2 &&
-                  y + labelHeight < size.height - (compact ? 185 : 160) &&
-                  !overlapsPlanet &&
-                  !overlapsHeading &&
-                  (!highlighted || highlighted.has(article.id)),
-              };
-            })
-            .filter((item) => item.visible && item.distance < 75)
-            .sort((a, b) => a.distance - b.distance)
-        : [];
-    const kept = [];
-    for (const candidate of candidates) {
-      if (
-        !kept.some(
-          (other) =>
-            Math.abs(other.x - candidate.x) < labelWidth + 14 &&
-            Math.abs(other.y - candidate.y) < labelHeight + 12,
-        )
-      )
-        kept.push(candidate);
-      if (kept.length >= (compact ? 3 : 5)) break;
-    }
-    const nearest = kept.map((item) => item.id);
-    setVisible((previous) =>
-      previous.join() === nearest.join() ? previous : nearest,
-    );
-  });
-  const lines = useMemo(() => {
-    const points = [];
-    for (const topic of Object.keys(TOPICS)) {
-      const group = articles.filter((article) => article.topic === topic);
-      group.slice(0, -1).forEach((article, index) => {
-        const next = group[index + 1];
-        if (
-          Math.hypot(...article.position.map((v, i) => v - next.position[i])) <
-          22
-        )
-          points.push(...article.position, ...next.position);
-      });
-    }
-    return new Float32Array(points);
-  }, [articles]);
-  return (
-    <group>
-      <lineSegments>
-        <bufferGeometry>
-          <bufferAttribute
-            attach="attributes-position"
-            array={lines}
-            count={lines.length / 3}
-            itemSize={3}
-          />
-        </bufferGeometry>
-        <lineBasicMaterial
-          color="#aac9db"
-          transparent
-          opacity={progress > 0.15 ? 0.13 : 0.035}
-          depthWrite={false}
-        />
-      </lineSegments>
-      {articles.map((article) => (
-        <ArticleStar
-          key={article.id}
-          article={article}
-          glow={glow}
-          visible={visible.includes(article.id)}
-          dimmed={highlighted && !highlighted.has(article.id)}
-          selected={selected?.id === article.id}
-          onSelect={onSelect}
-          inputRef={inputRef}
-        />
-      ))}
-    </group>
-  );
-}
 function SceneReady({ onReady }) {
   useEffect(() => {
     onReady();
@@ -431,6 +236,11 @@ export default function UniverseScene({
   onReady,
   onError,
   inputRef,
+  sector,
+  onNearby,
+  onCloud,
+  diagnostics,
+  onDiagnostics,
 }) {
   return (
     <Canvas
@@ -468,11 +278,15 @@ export default function UniverseScene({
         intensity={2.8}
         color="#e2e8f4"
       />
-      <DeepSky />
-      <BackgroundStars paused={paused} compact={compact} />
+      <group position={sector.origin}>
+        <DeepSky />
+        <BackgroundStars paused={paused} compact={compact} />
+      </group>
       <Suspense fallback={null}>
         <Earth paused={paused} compact={compact} />
-        <LunarSurface progress={progress} reducedMotion={reducedMotion} />
+        {sector.id === "home" && (
+          <LunarSurface progress={progress} reducedMotion={reducedMotion} />
+        )}
         <SceneReady onReady={onReady} />
       </Suspense>
       <ArticleSky
@@ -483,8 +297,14 @@ export default function UniverseScene({
         onSelect={onSelect}
         inputRef={inputRef}
         compact={compact}
+        sector={sector}
+        onNearby={onNearby}
+        onCloud={onCloud}
+        diagnostics={diagnostics}
+        onDiagnostics={onDiagnostics}
       />
       <CameraRig
+        sector={sector}
         progress={progress}
         signal={signal}
         selected={selected}
