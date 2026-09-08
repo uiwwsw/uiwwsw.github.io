@@ -2,6 +2,7 @@ import React, { useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import { useTexture } from "@react-three/drei";
 import * as THREE from "three";
+import { earthOrientation, earthSway } from "../utils/earthOrientation";
 import {
   seededRandom,
   earthPosition,
@@ -60,6 +61,7 @@ const atmosphereFragment = `
 `;
 export function Earth({ paused, compact }) {
   const globe = useRef();
+  const orientation = useMemo(() => earthOrientation(compact), [compact]);
   const [day, night, surface] = useTexture([
     "/textures/earth-day.jpg",
     "/textures/earth-night.jpg",
@@ -76,15 +78,14 @@ export function Earth({ paused, compact }) {
   );
   useFrame((_, delta) => {
     if (!paused) {
-      globe.current.rotation.y += Math.min(delta, 0.05) * 0.017;
       uniforms.time.value += Math.min(delta, 0.05);
+      globe.current.rotation.y = earthSway(uniforms.time.value);
     }
   });
   return (
-    <group position={earthPosition(compact)} rotation={[0.08, 0, -0.17]}>
+    <group position={earthPosition(compact)} quaternion={orientation}>
       <mesh
         ref={globe}
-        rotation={[0, 2.8, 0]}
         onPointerOver={(event) => event.stopPropagation()}
         onClick={(event) => event.stopPropagation()}
       >
