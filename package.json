@@ -13,7 +13,9 @@
     "fetch-data": "node scripts/fetch-velog.js",
     "refresh-content": "npm run fetch-data && npm run prepare-content",
     "build": "npm run build:app",
-    "build:app": "npm run prepare-content && vite build && npm run version-dist",
+    "build:app": "npm run prepare-content && vite build && npm run build:seo && npm run version-dist && npm run check:seo",
+    "build:seo": "node scripts/build-seo.js",
+    "check:seo": "node scripts/check-seo.js",
     "build:full": "npm run refresh-content && npm run build:app",
     "version-dist": "node scripts/update-cache-version.js",
     "preview": "vite preview"

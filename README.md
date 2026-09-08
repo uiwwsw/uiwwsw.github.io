@@ -15,7 +15,7 @@ A 3D writing portfolio: leave the Moon, approach Earth, and discover a real Velo
 - Keyboard: `/` opens search, `←` / `→` look around, `↑` / `PageDown` move toward Earth, `↓` / `PageUp` return toward the Moon, `Home` returns to the beginning, and `Esc` closes the current panel.
 - The bottom slider offers direct, keyboard-accessible travel. Sound starts muted and is generated locally with Web Audio.
 - Reduced-motion preferences disable ambient animation and animated camera transitions. The pause control stops ambient motion and automatic travel.
-- Article links retain the `?article=<slug>` address; old numeric article links also resolve. Search filters are shareable in the URL.
+- The immersive reader retains the `?article=<slug>` address; old numeric article links also resolve. Search filters are shareable in the URL. Each article also has a permanent `/writing/<slug>/` reading page for search engines and sharing, with a link back to its star.
 - If WebGL or an asset fails, the full searchable reading archive remains available.
 
 ## Scene and content
@@ -52,6 +52,8 @@ npm run build
 
 Builds the app only, using the checked-in data files already in `src/data`.
 
+The build also generates complete static reading pages and runs `npm run check:seo` before deployment. Use `npm run preview` to check these production-only pages locally; the Vite development server is for the interactive universe.
+
 To refresh Velog content before building:
 
 ```bash
@@ -82,6 +84,28 @@ Monthly content refresh is handled separately by `.github/workflows/monthly-upda
 - Running refresh and deployment in one workflow avoids a stale-data race between scheduled content updates and the Pages deploy job.
 - Pagination continues to an empty page, without the old 1,000-post cutoff. Invalid responses, repeated/cyclic cursors and failed extraction abort before replacing archive content. Unchanged posts reuse parsed content; HTTP validators avoid downloading unchanged bodies when Velog supplies and honors them, with a source hash as the fallback. This still checks all post URLs—there is no assumed reliable update timestamp.
 - The refresh commits `sky-registry.json` together with the archive and runs the same tests before deploying.
+
+## Search visibility
+
+`scripts/build-seo.js` runs after Vite on every build, including the monthly refresh. It generates:
+
+- A homepage title/description identifying **윤창원 / Yoon Changwon / uiwwsw**, a frontend developer who writes. Matching visible profile copy and `Person`, `ProfilePage`, and `WebSite` structured data connect the author to the existing GitHub and Velog profiles.
+- `/writing/<slug>/index.html` for every real article: the full ordered text, code and photographs are present in the HTTP response, without requiring JavaScript or WebGL. Each page includes a unique title/description, self-canonical, article social metadata, `BlogPosting` and breadcrumbs. Photo posts use their first real image; text-only posts use the portfolio thumbnail. Publication dates come from Velog; modification dates are deliberately omitted because the source does not currently provide a reliable one.
+- `/writing/` and `/writing/page/<n>/` with at most 24 posts per page and crawlable pagination. The universe's article links now have real `href` destinations; normal clicks still open the immersive reader, while modified clicks and “글 전용 페이지” open the static page.
+- `/sitemap.xml` containing the homepage, every archive page and every article, plus `/robots.txt` declaring the sitemap. Only preferred static URLs are listed, not search filters or alternate `?article=` views. The immersive view updates its canonical/metadata to the corresponding static page and restores the homepage metadata when closed.
+- Visible homepage fallback content and recent article links when JavaScript does not run, and content-hashed reader CSS to avoid stale service-worker styles.
+
+`npm run check:seo` verifies the final built HTML, all local links/assets, canonical metadata, structured data, sitemap coverage, and exact text/code/image block preservation. Generated pages remain in ignored `dist`; no manual page maintenance is needed when new writing arrives. Static paths reuse the Velog slug (independent of title, date and numeric IDs). Unsafe or filesystem-oversized slugs fail the build rather than silently omitting an article.
+
+### One-time owner setup
+
+1. In [Google Search Console](https://search.google.com/search-console), add the URL-prefix property `https://uiwwsw.github.io/` and verify ownership. In [Naver Search Advisor](https://searchadvisor.naver.com/), add and verify the same site. Preserve any verification file/meta tag supplied by those services; no token or registration is fabricated by the build.
+2. Submit `https://uiwwsw.github.io/sitemap.xml` to both services. You only need to submit the sitemap once; the monthly workflow keeps its contents current.
+3. Inspect the homepage and a `/writing/<slug>/` page in Search Console, then request indexing if needed. Check Naver's collection/indexing status separately. Account registration and sitemap submission require the owner's authenticated access and are not performed by the GitHub workflow.
+
+SEO makes pages discoverable; it cannot promise indexing or a rank for broad searches such as “개발자”. Because the original articles also appear on Velog, a search engine may choose the Velog original as its canonical even though the portfolio declares its own preferred URL. Original-source links remain visible, and Velog content/settings are not modified. See [the SEO QA record](design/seo-qa.md).
+
+References: [Google's JavaScript SEO guidance](https://developers.google.com/search/docs/crawling-indexing/javascript/javascript-seo-basics), [crawlable links](https://developers.google.com/search/docs/crawling-indexing/links-crawlable), [Article structured data](https://developers.google.com/search/docs/appearance/structured-data/article), [canonical URLs](https://developers.google.com/search/docs/crawling-indexing/consolidate-duplicate-urls), and [Naver's SEO guide](https://searchadvisor.naver.com/guide/seo-basic-intro).
 
 ## Scaling verification
 

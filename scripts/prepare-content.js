@@ -3,6 +3,7 @@ import { createHash } from "node:crypto";
 import { fileURLToPath } from "node:url";
 import { buildCatalog } from "../src/utils/observatory.js";
 import { extendRegistry } from "../src/utils/skyRegistry.js";
+import { articleImage } from "../src/utils/seo.js";
 
 const root = new URL("../", import.meta.url);
 const registryPath = new URL("src/data/sky-registry.json", root);
@@ -36,6 +37,7 @@ for (const article of buildCatalog(source)) {
   } = article;
   articles.push({
     ...metadata,
+    seoImage: articleImage(article),
     ...registry.stars[article.id],
     bodyUrl: `/data/articles/${filename}`,
   });

@@ -23,9 +23,17 @@ import { advanceFlight, signalStrength } from "./utils/secretSignal.js";
 import { HOME_SECTOR, groupSectors } from "./utils/skyRegistry.js";
 import { useArticleContent } from "./hooks/useArticleContent.js";
 import ArticleBody from "./components/ArticleBody.jsx";
+import { articlePath, updatePageSeo } from "./utils/seo.js";
 
 const UniverseScene = lazy(() => import("./components/UniverseScene"));
 const initialParams = new URLSearchParams(window.location.search);
+const plainNavigation = (event) =>
+  !event.defaultPrevented &&
+  event.button === 0 &&
+  !event.metaKey &&
+  !event.ctrlKey &&
+  !event.shiftKey &&
+  !event.altKey;
 function useMedia(query) {
   const [matches, setMatches] = useState(
     () => window.matchMedia(query).matches,
@@ -146,6 +154,11 @@ export default function App() {
     setCruising(false);
     setDistance((current) => clamp(current, 0.35, 1));
   }, []);
+  const followArticle = (event, article) => {
+    if (!plainNavigation(event)) return;
+    event.preventDefault();
+    selectArticle(article);
+  };
   const closePanel = useCallback(() => {
     setPanel(null);
     setSelected(null);
@@ -224,9 +237,7 @@ export default function App() {
       "",
       `${window.location.pathname}${params.size ? `?${params}` : ""}`,
     );
-    document.title = selected
-      ? `${selected.title} · uiwwsw`
-      : "uiwwsw — 기록이 별이 되는 우주";
+    updatePageSeo(selected);
   }, [query, topic, codeOnly, selected, dataState, year, sectorId]);
   useEffect(() => {
     if (panel === "archive") searchRef.current?.focus();
@@ -432,13 +443,18 @@ export default function App() {
           <button className={!panel ? "active" : ""} onClick={beginJourney}>
             우주 탐험
           </button>
-          <button
+          <a
+            href="/writing/"
             className={panel === "archive" ? "active" : ""}
-            onClick={() => setPanel("archive")}
+            onClick={(event) => {
+              if (!plainNavigation(event)) return;
+              event.preventDefault();
+              setPanel("archive");
+            }}
           >
             글 모아보기{" "}
             <span className="nav-count">{articles.length || "—"}</span>
-          </button>
+          </a>
           <button onClick={() => setPanel("about")}>소개</button>
         </nav>
         <a
@@ -470,9 +486,9 @@ export default function App() {
           생각은 <span>우주가 된다.</span>
         </h1>
         <p className="intro-description">
-          코드를 쓰고, 생각을 씁니다.
+          글 쓰는 프론트엔드 개발자 윤창원입니다.
           <br />
-          흘려보내고 싶지 않은 순간들을 이곳에 띄워 둡니다.
+          코드를 쓰고, 생각을 씁니다.
         </p>
         <button className="journey-button" onClick={beginJourney}>
           <span className="journey-icon">
@@ -563,9 +579,10 @@ export default function App() {
       )}
 
       {!exploring && latestEssay && (
-        <button
+        <a
           className="featured-signal"
-          onClick={() => selectArticle(latestEssay)}
+          href={articlePath(latestEssay)}
+          onClick={(event) => followArticle(event, latestEssay)}
         >
           <span className="signal-orbit">
             <Icon name="star" size={18} />
@@ -575,7 +592,7 @@ export default function App() {
             <strong>{latestEssay.title}</strong>
           </span>
           <Icon name="external" size={17} />
-        </button>
+        </a>
       )}
 
       {(sceneError || dataState === "error") && progress < 0.99 && (
@@ -832,10 +849,11 @@ export default function App() {
             aria-label={`검색 결과 ${activePage + 1}페이지`}
           >
             {pageArticles.map((article, index) => (
-              <button
+              <a
                 className="article-row"
                 key={article.id}
-                onClick={() => selectArticle(article)}
+                href={articlePath(article)}
+                onClick={(event) => followArticle(event, article)}
               >
                 <span className="article-number">
                   {String(activePage * 24 + index + 1).padStart(2, "0")}
@@ -849,7 +867,7 @@ export default function App() {
                   <p>{article.summary}</p>
                 </span>
                 <Icon name="external" />
-              </button>
+              </a>
             ))}
             {dataState === "loading" && (
               <p className="empty-state" role="status">
@@ -917,6 +935,9 @@ export default function App() {
             <span>{selected.readingTime}분 읽기</span>
           </div>
           <div className="reading-actions">
+            <a href={articlePath(selected)}>
+              글 전용 페이지 <Icon name="external" size={15} />
+            </a>
             <a href={selected.link} target="_blank" rel="noreferrer">
               벨로그에서 읽기 <Icon name="external" size={15} />
             </a>
@@ -970,10 +991,11 @@ export default function App() {
           </p>
           <div className="article-list">
             {nearby.map((article) => (
-              <button
+              <a
                 className="article-row"
                 key={article.id}
-                onClick={() => selectArticle(article)}
+                href={articlePath(article)}
+                onClick={(event) => followArticle(event, article)}
               >
                 <span className="article-row-content">
                   <small>{TOPICS[article.topic].label}</small>
@@ -981,7 +1003,7 @@ export default function App() {
                   <p>{article.summary}</p>
                 </span>
                 <Icon name="arrow" />
-              </button>
+              </a>
             ))}
           </div>
         </Panel>
@@ -993,8 +1015,7 @@ export default function App() {
           title={
             <>
               안녕하세요,
-              <br />
-              글을 쓰는 개발자 uiwwsw입니다.
+              <br />글 쓰는 프론트엔드 개발자 윤창원입니다.
             </>
           }
           onClose={closePanel}
@@ -1005,6 +1026,12 @@ export default function App() {
           </div>
           <p className="about-lead">
             만드는 일과, 생각을 남기는 일을 좋아합니다.
+          </p>
+          <p>
+            윤창원 · Yoon Changwon · uiwwsw
+            <br />
+            React와 TypeScript로 사용자 인터페이스를 만들며, 개발 경험과
+            프로젝트 회고, 일상 에세이를 씁니다.
           </p>
           <p>
             코드를 쓰며 배운 것들, 무언가를 만들어 가는 과정, 그리고 일상에서
