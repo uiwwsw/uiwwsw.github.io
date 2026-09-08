@@ -1,6 +1,8 @@
 import React, { Suspense, useEffect, useMemo, useRef } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import ArticleSky from "./ArticleSky";
+import AmbientSpace from "./AmbientSpace.jsx";
+import { advanceAmbientTime } from "../utils/ambientMotion.js";
 import * as THREE from "three";
 import { Earth, LunarSurface } from "./CelestialBodies";
 import { signalFlightPose } from "../utils/secretSignal.js";
@@ -11,10 +13,12 @@ const starVertex = `
   attribute float aPhase;
   varying float vPhase;
   varying vec3 vColor;
+  varying float vBright;
   uniform float uPixelRatio;
   void main() {
     vPhase = aPhase;
     vColor = color;
+    vBright = smoothstep(3.8, 7., aSize);
     vec4 p = modelViewMatrix * vec4(position, 1.0);
     gl_PointSize = aSize * uPixelRatio;
     gl_Position = projectionMatrix * p;
@@ -24,17 +28,30 @@ const starFragment = `
   uniform float uTime;
   varying float vPhase;
   varying vec3 vColor;
+  varying float vBright;
   void main() {
     float d = length(gl_PointCoord - 0.5) * 2.0;
     float strength = pow(max(0.0, 1.0 - d), 2.5);
-    gl_FragColor = vec4(vColor, strength * (0.68 + 0.32 * sin(vPhase + uTime * 0.35)));
+    vec2 p = abs(gl_PointCoord - .5) * 2.;
+    float rays = (exp(-p.x * 28.) * pow(max(0., 1.-p.y), 3.) + exp(-p.y * 28.) * pow(max(0., 1.-p.x), 3.)) * vBright * .16;
+    float shimmer = .72 + .28 * sin(vPhase + uTime * (.48 + .16 * sin(vPhase * 2.)));
+    gl_FragColor = vec4(vColor, (strength + rays) * shimmer);
   }
 `;
-function DeepSky() {
+function DeepSky({ paused }) {
+  const uniforms = useMemo(() => ({ uTime: { value: 0 } }), []);
+  useFrame((_, delta) => {
+    uniforms.uTime.value = advanceAmbientTime(
+      uniforms.uTime.value,
+      delta,
+      paused,
+    );
+  });
   return (
     <mesh>
       <sphereGeometry args={[480, 32, 20]} />
       <shaderMaterial
+        uniforms={uniforms}
         side={THREE.BackSide}
         depthWrite={false}
         vertexShader={`
@@ -43,6 +60,7 @@ function DeepSky() {
     `}
         fragmentShader={`
       varying vec3 vDirection;
+      uniform float uTime;
       float hash(vec3 p) { p = fract(p * .3183099 + vec3(.1, .2, .3)); p *= 17.; return fract(p.x * p.y * p.z * (p.x + p.y + p.z)); }
       float noise(vec3 x) {
         vec3 p = floor(x), f = fract(x); f = f * f * (3. - 2. * f);
@@ -51,10 +69,12 @@ function DeepSky() {
       float fbm(vec3 p) { float f = 0.; float a = .5; for (int i=0; i<4; i++) { f += noise(p)*a; p = p*2.03+12.3; a *= .5; } return f; }
       void main() {
         vec3 d = normalize(vDirection);
-        float cloud = fbm(d * 7.);
+        vec3 flow = vec3(sin(uTime * .027) * .7, uTime * .016, (cos(uTime * .021) - 1.) * .5);
+        float cloud = fbm(d * 7. + flow);
         float band = exp(-pow((d.y - d.x * .45 - .1 + cloud * .1) * 5., 2.));
-        float dust = smoothstep(.29, .76, fbm(d * 16. + cloud * 4.)) * band;
-        vec3 color = vec3(.0118, .0235, .047) + mix(vec3(.047,.068,.105), vec3(.095,.076,.073), cloud) * dust;
+        float dust = smoothstep(.29, .76, fbm(d * 16. + cloud * 4. - flow * .48)) * band;
+        float breath = .86 + .14 * sin(uTime * .15 + cloud * 5.);
+        vec3 color = vec3(.0118, .0235, .047) + mix(vec3(.052,.09,.15), vec3(.14,.098,.11), cloud) * dust * breath;
         gl_FragColor = vec4(color, 1.);
       }
     `}
@@ -109,7 +129,11 @@ function BackgroundStars({ paused, compact }) {
     };
   }, [compact]);
   useFrame((_, delta) => {
-    if (!paused) uniforms.uTime.value += Math.min(delta, 0.05);
+    uniforms.uTime.value = advanceAmbientTime(
+      uniforms.uTime.value,
+      delta,
+      paused,
+    );
   });
   return (
     <points frustumCulled={false}>
@@ -183,7 +207,7 @@ function CameraRig({
   }, [sector.id]);
   useFrame((_, delta) => {
     const dt = Math.min(delta, 0.05);
-    if (!paused) drift.current += dt;
+    drift.current = advanceAmbientTime(drift.current, dt, paused);
     const pose = signalFlightPose(progress, signal, compact);
     pose.position = pose.position.map((value, i) => value + sector.origin[i]);
     pose.target = pose.target.map((value, i) => value + sector.origin[i]);
@@ -206,7 +230,7 @@ function CameraRig({
         pose.target[2],
       );
     }
-    if (!paused && !selected) {
+    if (!reducedMotion && !selected) {
       targetPosition.x += Math.sin(drift.current * 0.14) * 0.28;
       targetPosition.y += Math.sin(drift.current * 0.21) * 0.16;
     }
@@ -241,9 +265,12 @@ export default function UniverseScene({
   onCloud,
   diagnostics,
   onDiagnostics,
+  onAmbientDiagnostics,
+  visible = true,
 }) {
   return (
     <Canvas
+      frameloop={visible ? "always" : "never"}
       style={{ touchAction: "pinch-zoom" }}
       camera={{
         position: flightPose(0, compact).position,
@@ -279,9 +306,15 @@ export default function UniverseScene({
         color="#e2e8f4"
       />
       <group position={sector.origin}>
-        <DeepSky />
+        <DeepSky paused={paused} />
         <BackgroundStars paused={paused} compact={compact} />
       </group>
+      <AmbientSpace
+        paused={paused}
+        compact={compact}
+        diagnostics={diagnostics}
+        onDiagnostics={onAmbientDiagnostics}
+      />
       <Suspense fallback={null}>
         <Earth paused={paused} compact={compact} />
         {sector.id === "home" && (
@@ -290,6 +323,7 @@ export default function UniverseScene({
         <SceneReady onReady={onReady} />
       </Suspense>
       <ArticleSky
+        paused={paused}
         articles={articles}
         progress={progress}
         selected={selected}

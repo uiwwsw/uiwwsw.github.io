@@ -15,6 +15,8 @@ A 3D writing portfolio: leave the Moon, approach Earth, and discover a real Velo
 - Keyboard: `/` opens search, `←` / `→` look around, `↑` / `PageDown` move toward Earth, `↓` / `PageUp` return toward the Moon, `Home` returns to the beginning, and `Esc` closes the current panel.
 - The bottom slider offers direct, keyboard-accessible travel. Sound starts muted and is generated locally with Web Audio.
 - Reduced-motion preferences disable ambient animation and animated camera transitions. The pause control stops ambient motion and automatic travel.
+- Even at rest, the universe moves: procedural nebula flow, independently shimmering stars, slowly drifting foreground dust, moving cloud shadows and a faint polar atmospheric shimmer. A brief distant light trail passes about every 29 seconds after an initial quiet interval. These are artistic atmosphere effects, not a physical simulation or additional article stars.
+- Atmospheric effects freeze while a panel is open or motion is paused/reduced. Hidden tabs stop both the ambient clock and canvas rendering; resuming does not fast-forward the scene. Decorative dust is one GPU point batch (180 particles on mobile / 360 on desktop); the occasional trail adds one draw only while visible. Existing article coordinates and picking targets do not move with these effects.
 - The immersive reader retains the `?article=<slug>` address; old numeric article links also resolve. Search filters are shareable in the URL. Each article also has a permanent `/writing/<slug>/` reading page for search engines and sharing, with a link back to its star.
 - If WebGL or an asset fails, the full searchable reading archive remains available.
 
@@ -112,3 +114,5 @@ References: [Google's JavaScript SEO guidance](https://developers.google.com/sea
 `npm test` covers content integrity, stable links/positions, 300/1,000/3,000-post sectors, selection bounds, loader retry/cache/cancellation, pagination safety, touch input, Korea orientation and the secret signal.
 
 In development only, `?stress=300`, `?stress=1000`, and `?stress=3000` add clearly marked synthetic writing and a rendering counter. Combine with `&webgl=off` or `&motion=reduce` for fallback checks. These switches and synthetic articles are excluded from production builds. See [the QA record](design/scaling-qa.md) for observations and limits. If the metadata catalog itself becomes too large, the next step is year-sharded indexes; batching the scene does not eliminate metadata download costs.
+
+`?ambient=1` shows the real sky's FPS/draw counts and ambient clock in development (without synthetic posts). Use it to verify idle motion, pause/resume and `&motion=reduce`; it is not displayed in production. See [ambient QA](design/ambient-qa.md).
