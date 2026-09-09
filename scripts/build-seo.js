@@ -1,7 +1,9 @@
 import { readFile, writeFile, mkdir } from "node:fs/promises";
 import { load } from "cheerio";
 import { createHash } from "node:crypto";
+import { createServer } from "vite";
 import { buildCatalog } from "../src/utils/observatory.js";
+import { createHomeSnapshot } from "../src/utils/homeSnapshot.js";
 import {
   SITE,
   articlePath,
@@ -51,9 +53,26 @@ $(
   "title, meta[name='description'], meta[name='keywords'], meta[name='author'], meta[name='robots'], meta[property^='og:'], meta[property^='twitter:'], meta[name^='twitter:'], link[rel='canonical'], script[type='application/ld+json']",
 ).remove();
 $("head").append(renderSeoHead(pageSeo(), structuredData()));
-$("head").append(`<link rel="stylesheet" href="${stylePath}">`);
-$("#root").html(renderHomeFallback(articles));
+const snapshot = createHomeSnapshot(articles);
+const renderer = await createServer({
+  server: { middlewareMode: true, hmr: false },
+  appType: "custom",
+});
+try {
+  const { renderHome } = await renderer.ssrLoadModule("/entry-server.jsx");
+  $("#root").attr("data-prerendered", "true").html(renderHome(snapshot));
+} finally {
+  await renderer.close();
+}
+$("#initial-home").remove();
+$("body").append(
+  `<script id="initial-home" type="application/json">${JSON.stringify(snapshot).replace(/</g, "\\u003c")}</script>`,
+);
 $("noscript").remove();
+// No-JS reading remains complete, but it must not flash before the live app.
+$("body").append(
+  `<noscript><style>#root { display: none; }</style><link rel="stylesheet" href="${stylePath}">${renderHomeFallback(articles)}</noscript>`,
+);
 await writeFile(new URL("index.html", dist), $.html());
 
 async function writePage(path, html) {

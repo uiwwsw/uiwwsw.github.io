@@ -7,8 +7,6 @@ const urlsToCache = [
   '/favicon-moon-v3.svg',
   '/favicon-moon-v3-32.png',
   '/apple-touch-moon-v3.png',
-  '/fonts/SUITE-Variable.css',
-  '/fonts/SUITE-Variable.ttf',
   '/fonts/SUITE-Variable.woff2'
 ];
 const CACHEABLE_DESTINATIONS = new Set(['document', 'script', 'style', 'image', 'font']);

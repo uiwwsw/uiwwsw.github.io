@@ -7,6 +7,7 @@ import React, {
   useMemo,
   useRef,
   useState,
+  useSyncExternalStore,
 } from "react";
 import { clamp, filterCatalog, formatDate, TOPICS } from "./utils/observatory";
 import {
@@ -27,7 +28,9 @@ import ArticleBody from "./components/ArticleBody.jsx";
 import { articlePath, updatePageSeo } from "./utils/seo.js";
 
 const UniverseScene = lazy(() => import("./components/UniverseScene"));
-const initialParams = new URLSearchParams(window.location.search);
+const initialParams = new URLSearchParams(
+  typeof window === "undefined" ? "" : window.location.search,
+);
 const plainNavigation = (event) =>
   !event.defaultPrevented &&
   event.button === 0 &&
@@ -36,51 +39,45 @@ const plainNavigation = (event) =>
   !event.shiftKey &&
   !event.altKey;
 function useMedia(query) {
-  const [matches, setMatches] = useState(
-    () => window.matchMedia(query).matches,
+  const subscribe = useCallback(
+    (update) => {
+      const media = window.matchMedia(query);
+      media.addEventListener("change", update);
+      return () => media.removeEventListener("change", update);
+    },
+    [query],
   );
-  useEffect(() => {
-    const media = window.matchMedia(query);
-    const update = () => setMatches(media.matches);
-    media.addEventListener("change", update);
-    return () => media.removeEventListener("change", update);
-  }, [query]);
-  return matches;
+  return useSyncExternalStore(
+    subscribe,
+    () => window.matchMedia(query).matches,
+    () => false,
+  );
 }
 
-export default function App() {
+export default function App({ initialHome } = {}) {
   const [articles, setArticles] = useState([]);
   const [sectors, setSectors] = useState([HOME_SECTOR]);
-  const [sectorId, setSectorId] = useState(
-    initialParams.get("sector") || "home",
-  );
-  const [year, setYear] = useState(initialParams.get("year") || "all");
+  const [sectorId, setSectorId] = useState("home");
+  const [year, setYear] = useState("all");
   const [page, setPage] = useState(0);
   const [nearby, setNearby] = useState([]);
   const [diagnosticsStats, setDiagnosticsStats] = useState("");
   const [ambientStats, setAmbientStats] = useState("");
-  const [pageHidden, setPageHidden] = useState(document.hidden);
+  const [pageHidden, setPageHidden] = useState(false);
   const [dataState, setDataState] = useState("loading");
+  const [clientReady, setClientReady] = useState(false);
+  const [locationReady, setLocationReady] = useState(false);
   const [sceneReady, setSceneReady] = useState(false);
   const [sceneError, setSceneError] = useState(
     import.meta.env.DEV && initialParams.get("webgl") === "off",
   );
   const [cruising, setCruising] = useState(false);
   const [motionPaused, setMotionPaused] = useState(false);
-  const [panel, setPanel] = useState(
-    initialParams.has("q") ||
-      initialParams.has("topic") ||
-      initialParams.has("year") ||
-      initialParams.has("code")
-      ? "archive"
-      : null,
-  );
+  const [panel, setPanel] = useState(null);
   const [selected, setSelected] = useState(null);
-  const [query, setQuery] = useState(initialParams.get("q") || "");
-  const [topic, setTopic] = useState(
-    TOPICS[initialParams.get("topic")] ? initialParams.get("topic") : "all",
-  );
-  const [codeOnly, setCodeOnly] = useState(initialParams.get("code") === "1");
+  const [query, setQuery] = useState("");
+  const [topic, setTopic] = useState("all");
+  const [codeOnly, setCodeOnly] = useState(false);
   const compact = useMedia("(max-width: 760px)");
   const reducedMotion =
     useMedia("(prefers-reduced-motion: reduce)") ||
@@ -95,6 +92,8 @@ export default function App() {
   const signal = sectorId === "home" ? signalStrength(distance) : 0;
   useEffect(() => {
     const update = () => setPageHidden(document.hidden);
+    update();
+    setClientReady(true);
     document.addEventListener("visibilitychange", update);
     return () => document.removeEventListener("visibilitychange", update);
   }, []);
@@ -168,8 +167,11 @@ export default function App() {
   }, []);
   const followArticle = (event, article) => {
     if (!plainNavigation(event)) return;
+    const loadedArticle = articles.find((item) => item.id === article.id);
+    // Before catalog loading completes, keep the prerendered real href usable.
+    if (!loadedArticle?.bodyUrl) return;
     event.preventDefault();
-    selectArticle(article);
+    selectArticle(loadedArticle);
   };
   const closePanel = useCallback(() => {
     setPanel(null);
@@ -226,14 +228,27 @@ export default function App() {
   useEffect(() => {
     if (dataState !== "ready" || hydrated.current) return;
     hydrated.current = true;
+    if (initialParams.has("q")) setQuery(initialParams.get("q"));
+    if (initialParams.has("topic"))
+      setTopic(
+        TOPICS[initialParams.get("topic")] ? initialParams.get("topic") : "all",
+      );
+    if (initialParams.has("year")) setYear(initialParams.get("year") || "all");
+    if (initialParams.has("code"))
+      setCodeOnly(initialParams.get("code") === "1");
+    if (sectors.some((item) => item.id === initialParams.get("sector")))
+      setSectorId(initialParams.get("sector"));
+    if (["q", "topic", "year", "code"].some((key) => initialParams.has(key)))
+      setPanel("archive");
     const id = initialParams.get("article");
     const article = articles.find(
       (item) => item.id === id || item.legacyId === id,
     );
     if (article) selectArticle(article);
-  }, [articles, dataState, selectArticle]);
+    setLocationReady(true);
+  }, [articles, sectors, dataState, selectArticle]);
   useEffect(() => {
-    if (!hydrated.current) return;
+    if (!locationReady) return;
     const params = new URLSearchParams();
     if (import.meta.env.DEV)
       for (const key of ["stress", "webgl", "motion", "ambient"])
@@ -250,7 +265,16 @@ export default function App() {
       `${window.location.pathname}${params.size ? `?${params}` : ""}`,
     );
     updatePageSeo(selected);
-  }, [query, topic, codeOnly, selected, dataState, year, sectorId]);
+  }, [
+    query,
+    topic,
+    codeOnly,
+    selected,
+    dataState,
+    year,
+    sectorId,
+    locationReady,
+  ]);
   useEffect(() => {
     if (panel === "archive") searchRef.current?.focus();
   }, [panel]);
@@ -358,7 +382,11 @@ export default function App() {
   const fail = useCallback(() => setSceneError(true), []);
   const exploring = sectorId !== "home" || progress > 0.12 || !!selected;
   const latestEssay =
-    articles.find((article) => article.topic === "essay") || articles[0];
+    articles.find((article) => article.topic === "essay") ||
+    articles[0] ||
+    initialHome?.latestEssay;
+  const articleCount =
+    dataState === "ready" ? articles.length : initialHome?.articleCount || 0;
   const phase =
     sectorId !== "home"
       ? sector.label
@@ -387,7 +415,7 @@ export default function App() {
         className="universe-canvas"
         aria-label="달에서 지구를 바라보는 3D 우주. 휠로 이동하고 별을 선택해 글을 읽을 수 있습니다."
       >
-        {!sceneError && (
+        {clientReady && !sceneError && (
           <SceneBoundary onError={fail}>
             <Suspense fallback={null}>
               <UniverseScene
@@ -464,7 +492,9 @@ export default function App() {
             }}
           >
             글 모아보기{" "}
-            <span className="nav-count">{articles.length || "—"}</span>
+            <span className="nav-count">
+              {dataState === "loading" && !initialHome ? "—" : articleCount}
+            </span>
           </a>
           <button onClick={() => setPanel("about")}>소개</button>
         </nav>
@@ -511,9 +541,9 @@ export default function App() {
         </button>
         <div className="intro-caption">
           <span className="status-dot" />
-          {dataState === "loading"
+          {dataState === "loading" && !initialHome
             ? "이야기를 불러오는 중"
-            : `${articles.length}개의 기록, 저마다의 궤도`}
+            : `${articleCount}개의 기록, 저마다의 궤도`}
         </div>
       </section>
 

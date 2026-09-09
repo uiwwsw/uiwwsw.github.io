@@ -24,6 +24,8 @@ test("ambient time advances while idle and freezes without fast-forwarding on re
 });
 
 test("decorative dust is deterministic, bounded and smaller on mobile", () => {
+  assert.equal(dustBudget(true), 360);
+  assert.equal(dustBudget(false), 720);
   assert.ok(dustBudget(true) < dustBudget(false));
   for (const compact of [false, true]) {
     const field = createDustField(compact);

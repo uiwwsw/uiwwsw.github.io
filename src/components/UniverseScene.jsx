@@ -242,9 +242,12 @@ function CameraRig({
   return null;
 }
 function SceneReady({ onReady }) {
-  useEffect(() => {
-    onReady();
-  }, [onReady]);
+  const frames = useRef(0);
+  // Suspense has resolved the textures; let the complete scene render behind
+  // the transparent canvas for two frames before starting its opacity reveal.
+  useFrame(() => {
+    if (++frames.current === 3) onReady();
+  });
   return null;
 }
 export default function UniverseScene({
