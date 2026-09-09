@@ -5,6 +5,8 @@ import { createServer } from "vite";
 import { load } from "cheerio";
 import { createHomeSnapshot } from "../src/utils/homeSnapshot.js";
 import { articlePath } from "../src/utils/seo.js";
+import React from "react";
+import { renderToStaticMarkup } from "react-dom/server";
 
 const catalog = JSON.parse(
   readFileSync(new URL("../src/data/velog-index.json", import.meta.url)),
@@ -47,6 +49,21 @@ test("the real App prerenders without browser globals, WebGL or a replacement re
   });
   try {
     const { renderHome } = await renderer.ssrLoadModule("/entry-server.jsx");
+    const { default: SecretSignal } = await renderer.ssrLoadModule(
+      "/components/SecretSignal.jsx",
+    );
+    for (const strength of [0, 0.25, 0.99, 0.99999]) {
+      assert.equal(
+        renderToStaticMarkup(React.createElement(SecretSignal, { strength })),
+        "",
+      );
+    }
+    const reward = load(
+      renderToStaticMarkup(React.createElement(SecretSignal, { strength: 1 })),
+    );
+    assert.equal(reward(".secret-destinations a").length, 2);
+    assert.equal(reward("[data-flight-control]").length, 1);
+    assert.equal(reward('[role="meter"]').length, 0);
     for (const articles of [catalog.articles, []]) {
       const snapshot = createHomeSnapshot(articles);
       const html = renderHome(snapshot);
@@ -56,6 +73,7 @@ test("the real App prerenders without browser globals, WebGL or a replacement re
       assert.equal($(".intro h1").length, 1);
       assert.equal($(".flight-deck").length, 1);
       assert.equal($(".static-fallback, canvas, dialog").length, 0);
+      assert.equal($(".secret-signal").length, 0);
       assert.equal($(".nav-count").text(), String(articles.length));
       assert.match(
         $(".intro-caption").text(),
@@ -83,6 +101,15 @@ test("startup uses hydration, defers the scene, and prevents a late font/partial
     readFileSync(new URL(`../${path}`, import.meta.url), "utf8");
   assert.match(read("src/main.jsx"), /ReactDOM\.hydrateRoot\(root, app\)/);
   assert.match(read("src/App.jsx"), /clientReady && !sceneError/);
+  assert.match(
+    read("src/App.jsx"),
+    /signal >= 1 && sectorId === "home" && !panel/,
+  );
+  assert.doesNotMatch(read("src/App.jsx"), /저항 너머|희미한 신호|가까워지고/);
+  assert.doesNotMatch(
+    read("src/components/SecretSignal.jsx"),
+    /onApproach|setInterval|role="meter"|UNIDENTIFIED/,
+  );
   assert.match(read("src/App.jsx"), /if \(!locationReady\) return/);
   assert.match(read("src/App.jsx"), /if \(!loadedArticle\?\.bodyUrl\) return/);
   assert.match(read("src/index.css"), /font-display: optional/);

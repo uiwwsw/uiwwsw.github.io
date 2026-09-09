@@ -351,7 +351,7 @@ export default function App({ initialHome } = {}) {
   useFlightInput({
     surfaceRef: sceneRef,
     inputRef,
-    enabled: !panel,
+    enabled: !panel && !pageHidden,
     onTravel: travel,
     onManualInput: manualInput,
   });
@@ -413,7 +413,7 @@ export default function App({ initialHome } = {}) {
       </a>
       <div
         className="universe-canvas"
-        aria-label="달에서 지구를 바라보는 3D 우주. 휠로 이동하고 별을 선택해 글을 읽을 수 있습니다."
+        aria-label="달에서 지구를 바라보는 3D 우주. 휠을 아래로 굴리거나 화면을 아래로 끌면 다가갑니다. 가로·대각선 드래그로 둘러보고 별을 선택해 글을 읽을 수 있습니다."
       >
         {clientReady && !sceneError && (
           <SceneBoundary onError={fail}>
@@ -558,7 +558,7 @@ export default function App({ initialHome } = {}) {
         </div>
       )}
 
-      {exploring && !panel && (progress < 0.99 || sectorId !== "home") && (
+      {exploring && !panel && signal < 1 && (
         <section className="explore-heading">
           <p className="eyebrow">BETWEEN THE STARS</p>
           <h1>{phase}</h1>
@@ -605,14 +605,10 @@ export default function App({ initialHome } = {}) {
         </section>
       )}
 
-      {progress >= 0.99 && sectorId === "home" && !panel && (
+      {signal >= 1 && sectorId === "home" && !panel && (
         <SecretSignal
           strength={signal}
           quiet={paused}
-          onApproach={(effort) => {
-            setCruising(false);
-            travel(effort);
-          }}
           onLeave={leaveSignal}
         />
       )}
@@ -634,7 +630,7 @@ export default function App({ initialHome } = {}) {
         </a>
       )}
 
-      {(sceneError || dataState === "error") && progress < 0.99 && (
+      {(sceneError || dataState === "error") && signal < 1 && (
         <div className="fallback-notice" role="status">
           <p>
             {dataState === "error"
@@ -696,11 +692,9 @@ export default function App({ initialHome } = {}) {
                 ? "별을 따라 천천히"
                 : signal >= 1
                   ? "숨겨진 좌표 발견"
-                  : progress >= 0.99
-                    ? "저항 너머의 희미한 신호"
-                    : exploring
-                      ? "별을 따라 천천히"
-                      : "스크롤하여 지구로"}
+                  : exploring
+                    ? "별을 따라 천천히"
+                    : "스크롤하여 지구로"}
             </span>
             <span>{sectorId === "home" ? "EARTH" : "STARS"}</span>
           </div>
@@ -802,7 +796,7 @@ export default function App({ initialHome } = {}) {
         </span>
         <span className="gesture-hint">
           {compact
-            ? "좌우 · 둘러보기  /  위아래 · 이동"
+            ? "가로·대각선 · 시선  /  아래로 끌어 다가가기"
             : "드래그 · 둘러보기  /  휠 · 이동"}
         </span>
       </div>

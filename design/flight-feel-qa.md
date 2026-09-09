@@ -1,5 +1,7 @@
 # Deliberate flight and a resistant signal — 2026-09-09
 
+Historical revision (`bb87178`); current controls, hidden discovery and timings supersede this document in [flight-controls-qa.md](./flight-controls-qa.md).
+
 ## Direction
 
 More deliberate input should mean more time among the writing, not more abrupt jumps. Keep the Moon–Earth route, registered star positions, article counts, SEO and refresh/deployment workflows unchanged.
