@@ -58,9 +58,7 @@ export function createFlightGesture(input, getViewport) {
         input.lookY = clamp(input.lookY + dy * 0.04, -16, 20);
       return {
         travel:
-          pointer.axis === "vertical"
-            ? (-dy * 1.35) / Math.max(height, 320)
-            : 0,
+          pointer.axis === "vertical" ? (-dy * 0.3) / Math.max(height, 320) : 0,
       };
     },
     end(event) {
@@ -78,7 +76,7 @@ export function createFlightGesture(input, getViewport) {
         input.lookX = clamp(input.lookX - clamp(dx, -180, 180) * 0.07, -52, 52);
         return { travel: 0 };
       }
-      return { travel: clamp(dy, -180, 180) * 0.00045 };
+      return { travel: clamp(dy, -180, 180) * 0.00018 };
     },
   };
 }

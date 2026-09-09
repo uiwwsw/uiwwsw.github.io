@@ -13,6 +13,7 @@ import {
   nearbyStars,
   packStarLabels,
   pickBudget,
+  transitionStarLabels,
 } from "../utils/starSelection.js";
 
 const ignoreRaycast = () => {};
@@ -28,7 +29,10 @@ const vertex = `
     gl_Position = projectionMatrix * p;
     vColor = aColor;
     float shimmer = .88 + .12 * sin(uTime * .65 + aIndex * 2.399);
-    vAlpha = mix(.2, .95, uDetail) * mix(.08, 1.0, aVisible) * shimmer;
+    float nearFade = smoothstep(2.0, 12.0, -p.z);
+    vec2 screen = abs(gl_Position.xy / max(.001, gl_Position.w));
+    float edgeFade = 1.0 - smoothstep(.84, 1.02, max(screen.x, screen.y));
+    vAlpha = mix(.2, .95, uDetail) * mix(.08, 1.0, aVisible) * shimmer * nearFade * edgeFade;
   }
 `;
 const fragment = `
@@ -70,6 +74,8 @@ export default function ArticleSky({
 }) {
   const { gl, size } = useThree();
   const [labels, setLabels] = useState([]);
+  const labelState = useRef([]);
+  const individualLabels = useRef(false);
   const [hovered, setHovered] = useState(null);
   const candidates = useRef([]);
   const lastCheck = useRef(0);
@@ -179,6 +185,7 @@ export default function ArticleSky({
         x > size.width ||
         y < 0 ||
         y > size.height ||
+        distance < 5 ||
         distance > 110
       )
         return null;
@@ -196,28 +203,44 @@ export default function ArticleSky({
       .sort((a, b) => a.distance - b.distance);
     candidates.current =
       detail > 0.45 && !selected ? projected.slice(0, pickBudget(compact)) : [];
+    // A small threshold dead band prevents topic/article labels flickering
+    // back and forth when the user reverses a wheel near their transition.
+    if (detail > 0.62) individualLabels.current = true;
+    else if (detail < 0.45) individualLabels.current = false;
     const visible =
       progress > 0.12 && !selected
         ? packStarLabels(
-            detail < 0.55 ? clouds.map(project).filter(Boolean) : projected,
+            individualLabels.current
+              ? projected
+              : clouds.map(project).filter(Boolean),
             size.width,
             size.height,
             compact,
             sector.id === "home" && planet.z >= -1 && planet.z <= 1
               ? { x: planetX, y: planetY, radius: planetRadius }
               : undefined,
+            labelState.current.map((item) => item.id),
           )
         : [];
+    const next = transitionStarLabels(
+      labelState.current,
+      visible,
+      clock.elapsedTime,
+      paused || !!selected,
+    );
+    labelState.current = next;
     setLabels((previous) =>
-      previous.map((item) => item.id).join() ===
-      visible.map((item) => item.id).join()
+      previous.map((item) => `${item.id}:${item.leavingAt}`).join() ===
+      next.map((item) => `${item.id}:${item.leavingAt}`).join()
         ? previous
-        : visible,
+        : next,
     );
   });
 
   useEffect(() => {
     candidates.current = [];
+    labelState.current = [];
+    individualLabels.current = false;
     setLabels([]);
     setHovered(null);
   }, [sector.id, highlighted, articles]);
@@ -304,10 +327,15 @@ export default function ArticleSky({
           key={item.id}
           position={item.position}
           zIndexRange={[8, 1]}
-          style={{ pointerEvents: "auto", marginLeft: 10 }}
+          style={{
+            pointerEvents: item.leavingAt === null ? "auto" : "none",
+            marginLeft: 10,
+          }}
         >
           <button
-            className={`star-label ${item.count ? "cloud-label" : ""}`}
+            className={`star-label ${item.count ? "cloud-label" : ""} ${item.leavingAt !== null ? "is-leaving" : ""}`}
+            tabIndex={item.leavingAt === null ? 0 : -1}
+            aria-hidden={item.leavingAt !== null}
             style={{ "--star-color": item.color }}
             onClick={() => (item.count ? onCloud(item.topic) : onSelect(item))}
           >

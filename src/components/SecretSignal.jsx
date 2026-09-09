@@ -6,6 +6,35 @@ export default function SecretSignal({ strength, onApproach, onLeave, quiet }) {
   const revealed = strength >= 1;
   const actionRef = useRef();
   const headingRef = useRef();
+  const hold = useRef(null);
+  const suppressClick = useRef(false);
+  const approach = useRef(onApproach);
+  approach.current = onApproach;
+  const stopHold = () => {
+    clearInterval(hold.current);
+    hold.current = null;
+  };
+  const startHold = () => {
+    if (revealed || hold.current !== null) return;
+    suppressClick.current = true;
+    approach.current(0.022);
+    hold.current = setInterval(() => approach.current(0.022), 100);
+  };
+  useEffect(() => {
+    if (revealed || quiet) stopHold();
+  }, [revealed, quiet]);
+  useEffect(() => {
+    const hide = () => {
+      if (document.hidden) stopHold();
+    };
+    window.addEventListener("blur", stopHold);
+    document.addEventListener("visibilitychange", hide);
+    return () => {
+      stopHold();
+      window.removeEventListener("blur", stopHold);
+      document.removeEventListener("visibilitychange", hide);
+    };
+  }, []);
   useEffect(() => {
     // Keyboard/tap activation gets a useful next focus target. Scrolling never
     // steals focus or opens a modal over the universe.
@@ -45,9 +74,11 @@ export default function SecretSignal({ strength, onApproach, onLeave, quiet }) {
           </>
         ) : (
           <>
-            지구 너머에서 희미한 신호가 들려요.
+            가까워질수록, 신호가 밀어내요.
             <br />
-            조금만 더 가까이 와 볼래요?
+            {quiet
+              ? "천천히, 꾸준히 밀어 보세요."
+              : "멈추면 조금씩 멀어집니다. 계속 밀어 볼까요?"}
           </>
         )}
       </p>
@@ -94,14 +125,51 @@ export default function SecretSignal({ strength, onApproach, onLeave, quiet }) {
       <button
         ref={actionRef}
         className="secret-signal-action"
-        onClick={revealed ? onLeave : onApproach}
+        onPointerDown={(event) => {
+          if (event.button !== 0) return;
+          if (revealed) {
+            suppressClick.current = false;
+            return;
+          }
+          event.currentTarget.setPointerCapture(event.pointerId);
+          startHold();
+        }}
+        onPointerUp={stopHold}
+        onPointerCancel={stopHold}
+        onLostPointerCapture={stopHold}
+        onBlur={stopHold}
+        onKeyDown={(event) => {
+          if (revealed) {
+            suppressClick.current = false;
+            return;
+          }
+          if (!revealed && [" ", "Enter"].includes(event.key)) {
+            event.preventDefault();
+            startHold();
+          }
+        }}
+        onKeyUp={(event) => {
+          if (revealed) return;
+          if ([" ", "Enter"].includes(event.key)) {
+            event.preventDefault();
+            stopHold();
+          }
+        }}
+        onClick={(event) => {
+          if (suppressClick.current && event.detail !== 0) {
+            suppressClick.current = false;
+            return;
+          }
+          if (revealed) onLeave();
+          else onApproach(0.06);
+        }}
       >
-        {revealed ? "다시 별들 사이로" : "신호에 다가가기"}
+        {revealed ? "다시 별들 사이로" : "길게 눌러 신호 밀기"}
         <Icon name="arrow" size={16} />
       </button>
       {!revealed && (
         <p className="secret-signal-hint">
-          계속 스크롤 · 위로 쓸어 올리기 · ↑ 키
+          계속 스크롤 · 위로 쓸어 올리기 · 버튼에서 Space 길게
         </p>
       )}
     </section>

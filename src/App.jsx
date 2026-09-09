@@ -18,8 +18,9 @@ import {
 import "./index.css";
 import { createFlightInput, centerFlightInput } from "./utils/flightInput.js";
 import { useFlightInput } from "./hooks/useFlightInput.js";
+import { useFlightMotion } from "./hooks/useFlightMotion.js";
 import SecretSignal from "./components/SecretSignal";
-import { advanceFlight, signalStrength } from "./utils/secretSignal.js";
+import { signalStrength } from "./utils/secretSignal.js";
 import { HOME_SECTOR, groupSectors } from "./utils/skyRegistry.js";
 import { useArticleContent } from "./hooks/useArticleContent.js";
 import ArticleBody from "./components/ArticleBody.jsx";
@@ -64,9 +65,6 @@ export default function App() {
   const [sceneError, setSceneError] = useState(
     import.meta.env.DEV && initialParams.get("webgl") === "off",
   );
-  const [distance, setDistance] = useState(0);
-  const progress = clamp(distance);
-  const signal = sectorId === "home" ? signalStrength(distance) : 0;
   const [cruising, setCruising] = useState(false);
   const [motionPaused, setMotionPaused] = useState(false);
   const [panel, setPanel] = useState(
@@ -88,6 +86,13 @@ export default function App() {
     useMedia("(prefers-reduced-motion: reduce)") ||
     (import.meta.env.DEV && initialParams.get("motion") === "reduce");
   const paused = motionPaused || reducedMotion || !!panel || pageHidden;
+  const { distance, setDistance, travel } = useFlightMotion({
+    enabled: !panel && !pageHidden,
+    reducedMotion: reducedMotion || motionPaused,
+    allowSignal: sectorId === "home",
+  });
+  const progress = clamp(distance);
+  const signal = sectorId === "home" ? signalStrength(distance) : 0;
   useEffect(() => {
     const update = () => setPageHidden(document.hidden);
     document.addEventListener("visibilitychange", update);
@@ -268,15 +273,6 @@ export default function App() {
     if (progress >= 1) setCruising(false);
   }, [progress]);
   const manualInput = useCallback(() => setCruising(false), []);
-  const travel = useCallback(
-    (delta) =>
-      setDistance((value) =>
-        sectorId === "home"
-          ? advanceFlight(value, delta)
-          : clamp(value + delta),
-      ),
-    [sectorId],
-  );
   const leaveSignal = useCallback(() => {
     setDistance(0.9);
     setCruising(false);
@@ -322,7 +318,7 @@ export default function App() {
           return;
         }
         if (event.key === "Home") returnHome();
-        else travel(["ArrowUp", "PageDown"].includes(event.key) ? 0.08 : -0.08);
+        else travel(["ArrowUp", "PageDown"].includes(event.key) ? 0.03 : -0.03);
       }
     }
     window.addEventListener("keydown", keydown);
@@ -574,9 +570,7 @@ export default function App() {
                 ))}
               </select>
             </label>
-            <button onClick={() => setPanel("archive")}>
-              연도별로 찾기 ↗
-            </button>
+            <button onClick={() => setPanel("archive")}>연도별로 찾기 ↗</button>
           </div>
         </section>
       )}
@@ -585,9 +579,9 @@ export default function App() {
         <SecretSignal
           strength={signal}
           quiet={paused}
-          onApproach={() => {
+          onApproach={(effort) => {
             setCruising(false);
-            travel(0.11);
+            travel(effort);
           }}
           onLeave={leaveSignal}
         />
@@ -673,7 +667,7 @@ export default function App() {
                 : signal >= 1
                   ? "숨겨진 좌표 발견"
                   : progress >= 0.99
-                    ? "조금 더 가까이…"
+                    ? "저항 너머의 희미한 신호"
                     : exploring
                       ? "별을 따라 천천히"
                       : "스크롤하여 지구로"}
@@ -716,8 +710,8 @@ export default function App() {
                 setCruising(false);
                 travel(
                   ["ArrowUp", "ArrowRight", "PageDown"].includes(event.key)
-                    ? 0.08
-                    : -0.08,
+                    ? 0.03
+                    : -0.03,
                 );
               }}
             />
