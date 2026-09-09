@@ -1,6 +1,6 @@
 # Mobile direction, free look and hidden discovery — 2026-09-09
 
-Historical revision (`88145c2`). Mobile direction/normal-flight tuning remain; forced recoils, hidden-camera behavior and ambient parameters are superseded by [earth-focus-qa.md](./earth-focus-qa.md).
+Historical revision (`88145c2`). The vertical-swipe mobile mapping below is superseded by [pinch-controls-qa.md](./pinch-controls-qa.md). Forced recoils, hidden-camera behavior and ambient parameters are superseded by [earth-focus-qa.md](./earth-focus-qa.md).
 
 ## Input and camera
 

@@ -337,7 +337,7 @@ export default function UniverseScene({
   return (
     <Canvas
       frameloop={visible ? "always" : "never"}
-      style={{ touchAction: "pinch-zoom" }}
+      style={{ touchAction: "none" }}
       camera={{
         position: flightPose(0, compact).position,
         fov: compact ? 58 : 46,

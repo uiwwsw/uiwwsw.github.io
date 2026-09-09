@@ -85,7 +85,12 @@ export default function App({ initialHome } = {}) {
     useMedia("(prefers-reduced-motion: reduce)") ||
     (import.meta.env.DEV && initialParams.get("motion") === "reduce");
   const paused = motionPaused || reducedMotion || !!panel || pageHidden;
-  const { distance, setDistance, travel } = useFlightMotion({
+  const {
+    distance,
+    setDistance,
+    travel,
+    stop: stopTravel,
+  } = useFlightMotion({
     enabled: !panel && !pageHidden,
     reducedMotion: reducedMotion || motionPaused,
     allowSignal: sectorId === "home",
@@ -358,6 +363,7 @@ export default function App({ initialHome } = {}) {
     enabled: !panel && !pageHidden,
     onTravel: travel,
     onManualInput: manualInput,
+    onLook: stopTravel,
   });
 
   const filtered = useMemo(
@@ -435,7 +441,7 @@ export default function App({ initialHome } = {}) {
           )
             setSceneSettled(true);
         }}
-        aria-label="달에서 지구를 바라보는 3D 우주. 휠을 아래로 굴리거나 화면을 아래로 끌면 다가갑니다. 가로·대각선 드래그로 둘러보고 별을 선택해 글을 읽을 수 있습니다."
+        aria-label="달에서 지구를 바라보는 3D 우주. 한 손가락 드래그로 상하좌우를 둘러봅니다. 두 손가락을 벌리면 다가가고 오므리면 멀어집니다. PC에서는 휠로 이동합니다. 별을 선택해 글을 읽을 수 있습니다."
       >
         {clientReady && !sceneError && (
           <SceneBoundary onError={fail}>
@@ -559,7 +565,8 @@ export default function App({ initialHome } = {}) {
             <Icon name="arrow" size={19} />
           </span>
           <span>
-            나의 우주 유영하기<small>SCROLL TO EXPLORE</small>
+            나의 우주 유영하기
+            <small>{compact ? "PINCH TO EXPLORE" : "SCROLL TO EXPLORE"}</small>
           </span>
         </button>
         <div className="intro-caption">
@@ -819,7 +826,7 @@ export default function App({ initialHome } = {}) {
         </span>
         <span className="gesture-hint">
           {compact
-            ? "가로·대각선 · 시선  /  아래로 끌어 다가가기"
+            ? "한 손가락 · 둘러보기  /  두 손가락 · 확대·축소"
             : "드래그 · 둘러보기  /  휠 · 이동"}
         </span>
       </div>

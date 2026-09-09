@@ -96,11 +96,34 @@ test("even maximal sustained effort takes time, then a discovered signal stays o
   assert.ok(state.distance < SIGNAL_DISTANCE, "reverse is never resisted");
 });
 
-test("repeated mobile swipes can discover it; short pauses between strokes are allowed", () => {
+test("repeated mobile pinches can discover it; short finger-reset gaps are allowed", () => {
   const state = createFlightMotion(1);
+  const gesture = createFlightGesture(createFlightInput(), () => ({
+    width: 390,
+    height: 844,
+  }));
+  const finger = (x, id = 1) => ({
+    pointerId: id,
+    pointerType: "touch",
+    button: 0,
+    clientX: x,
+    clientY: 300,
+  });
   for (let frame = 0; frame < 60 * 100; frame++) {
-    // One 300px downward stroke per second, spread across 0.6s.
-    if (frame % 60 < 36) queueFlightImpulse(state, (300 * 0.3) / 844 / 36);
+    const phase = frame % 60;
+    // A 100→200px spread over 0.6s, then 0.4s to lift and reposition.
+    if (phase === 0) {
+      gesture.start(finger(100));
+      gesture.start(finger(200, 2));
+    }
+    if (phase < 36) {
+      gesture.move(finger(200 + (100 * (phase + 1)) / 36, 2));
+      queueFlightImpulse(state, gesture.flush()?.travel || 0);
+    }
+    if (phase === 36) {
+      gesture.end(finger(100));
+      gesture.end(finger(300, 2));
+    }
     stepFlightMotion(state, 1 / 60);
   }
   assert.equal(state.distance, SIGNAL_DISTANCE);

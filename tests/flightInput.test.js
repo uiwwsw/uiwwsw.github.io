@@ -4,6 +4,7 @@ import {
   createFlightInput,
   createFlightGesture,
   centerFlightInput,
+  PINCH_GAIN,
 } from "../src/utils/flightInput.js";
 
 const touch = (x, y, props = {}) => ({
@@ -38,28 +39,28 @@ test("a horizontal mobile swipe changes the view without advancing the flight", 
   assert.equal(input.dragged, true);
 });
 
-test("vertical touch travel is independent of left/right finger drift", () => {
+test("vertical touch only looks, even with lateral drift", () => {
   const { input, gesture } = setup();
   gesture.start(touch(180, 520));
-  assert.ok(gesture.move(touch(185, 330)).travel < 0);
-  assert.equal(input.lookX, 0);
-  assert.ok(gesture.move(touch(260, 400)).travel > 0);
-  assert.equal(input.lookX, 0);
+  assert.equal(gesture.move(touch(185, 330)).travel, 0);
+  assert.ok(input.lookY < 0);
+  assert.equal(gesture.move(touch(260, 400)).travel, 0);
+  assert.ok(input.lookX < 0);
 });
 
-test("down approaches, up retreats, and flight pitch resets without accumulating across strokes", () => {
+test("repeated up/down drags never request travel or travel pitch", () => {
   const { input, gesture } = setup();
   for (let stroke = 0; stroke < 20; stroke++) {
     gesture.start(touch(180, 200));
-    assert.ok(gesture.move(touch(180, 500)).travel > 0);
-    assert.ok(input.travelPitch > 0 && input.travelPitch <= 5);
-    assert.equal(input.lookY, 0);
+    assert.equal(gesture.move(touch(180, 500)).travel, 0);
+    assert.equal(input.travelPitch, 0);
+    assert.ok(input.lookY > 0);
     gesture.end(touch(180, 500));
     assert.equal(input.travelPitch, 0);
   }
   gesture.start(touch(180, 500));
-  assert.ok(gesture.move(touch(180, 200)).travel < 0);
-  assert.ok(input.travelPitch < 0);
+  assert.equal(gesture.move(touch(180, 200)).travel, 0);
+  assert.equal(input.travelPitch, 0);
   gesture.cancel();
   assert.equal(input.travelPitch, 0);
 });
@@ -77,24 +78,26 @@ test("diagonal gestures look vertically without flight and pitch has generous sa
   assert.equal(input.lookY, 0);
 });
 
-test("equivalent relative swipes have the same gain across phones and pointer event rates", () => {
+test("pinch ratio gain is equal across orientation, phones and event rates", () => {
   const samples = [];
-  for (const height of [640, 844, 960]) {
-    for (const events of [1, 6, 30, 120]) {
+  for (const height of [390, 640, 844, 960]) {
+    for (const events of [6, 30, 120]) {
       const gesture = createFlightGesture(createFlightInput(), () => ({
         width: 390,
         height,
       }));
-      gesture.start(touch(180, 100));
+      gesture.start(touch(100, 100));
+      gesture.start(touch(200, 100, { pointerId: 2, isPrimary: false }));
       let total = 0;
-      for (let step = 1; step <= events; step++)
-        total +=
-          gesture.move(touch(180, 100 + (height * 0.35 * step) / events))
-            ?.travel || 0;
+      for (let step = 1; step <= events; step++) {
+        gesture.move(touch(200 + (100 * step) / events, 100, { pointerId: 2 }));
+        total += gesture.flush()?.travel || 0;
+      }
       samples.push(total);
     }
   }
-  for (const total of samples) assert.ok(Math.abs(total - 0.105) < 1e-10);
+  for (const total of samples)
+    assert.ok(Math.abs(total - Math.log(2) * PINCH_GAIN) < 1e-10);
 });
 
 test("a wheel notch and the same pixels split into trackpad events request the same distance", () => {
@@ -127,15 +130,98 @@ test("small taps remain clickable while gradual drags accumulate beyond the thre
   );
 });
 
-test("pinch and cancelled gestures cannot leave the camera dragging", () => {
+test("pinch accepts a non-primary second finger without changing the look", () => {
   const { input, gesture } = setup();
   gesture.start(touch(100, 100));
   gesture.start(touch(200, 100, { pointerId: 2, isPrimary: false }));
-  assert.equal(gesture.move(touch(300, 100)), null);
+  assert.equal(gesture.move(touch(80, 100)).travel, 0);
+  assert.ok(gesture.flush().travel > 0);
   assert.equal(input.lookX, 0);
-  gesture.start(touch(100, 100));
+  assert.equal(input.lookY, 0);
   gesture.cancel();
   assert.equal(gesture.move(touch(300, 100)), null);
+  assert.equal(gesture.flush(), null);
+});
+
+test("spreading approaches and closing retreats symmetrically on both axes", () => {
+  for (const vertical of [false, true]) {
+    const { gesture } = setup();
+    const second = (distance) =>
+      touch(vertical ? 100 : 100 + distance, vertical ? 100 + distance : 100, {
+        pointerId: 2,
+      });
+    gesture.start(touch(100, 100));
+    gesture.start(second(120));
+    gesture.move(second(160));
+    const forward = gesture.flush().travel;
+    gesture.move(second(120));
+    const backward = gesture.flush().travel;
+    assert.ok(forward > 0 && backward < 0);
+    assert.ok(Math.abs(forward + backward) < 1e-10);
+  }
+});
+
+test("two fingers moving together do not zoom or rotate, including sequential events", () => {
+  const { input, gesture } = setup();
+  gesture.start(touch(100, 100));
+  gesture.start(touch(200, 100, { pointerId: 2 }));
+  for (let offset = 10; offset <= 100; offset += 10) {
+    gesture.move(touch(100 + offset, 100 + offset));
+    gesture.move(touch(200 + offset, 100 + offset, { pointerId: 2 }));
+    assert.equal(gesture.flush()?.travel || 0, 0);
+  }
+  assert.equal(input.lookX, 0);
+  assert.equal(input.lookY, 0);
+});
+
+test("pinch-to-drag and finger replacement rebase without jumps or unwanted taps", () => {
+  const { input, gesture } = setup();
+  gesture.start(touch(100, 100));
+  gesture.start(touch(200, 100, { pointerId: 2 }));
+  gesture.move(touch(230, 100, { pointerId: 2 }));
+  assert.ok(gesture.flush().travel > 0);
+  gesture.end(touch(100, 100));
+  assert.equal(gesture.move(touch(232, 100, { pointerId: 2 })), null);
+  assert.equal(input.lookX, 0);
+  assert.equal(gesture.move(touch(250, 100, { pointerId: 2 })).kind, "look");
+  const look = input.lookX;
+  gesture.start(touch(80, 100, { pointerId: 3, isPrimary: false }));
+  assert.equal(gesture.flush(), null);
+  assert.equal(input.lookX, look);
+  gesture.end(touch(250, 100, { pointerId: 2 }));
+  gesture.end(touch(80, 100, { pointerId: 3 }));
+  assert.equal(input.dragged, true);
+  gesture.start(touch(150, 150, { pointerId: 4 }));
+  assert.equal(input.dragged, false);
+});
+
+test("a third finger pauses pinch and safely rebases whichever pair remains", () => {
+  const { input, gesture } = setup();
+  gesture.start(touch(100, 100));
+  gesture.start(touch(200, 100, { pointerId: 2 }));
+  gesture.start(touch(300, 100, { pointerId: 3 }));
+  gesture.move(touch(400, 100, { pointerId: 3 }));
+  assert.equal(gesture.flush(), null);
+  gesture.end(touch(200, 100, { pointerId: 2 }));
+  assert.equal(gesture.flush(), null);
+  gesture.move(touch(440, 100, { pointerId: 3 }));
+  assert.ok(gesture.flush().travel > 0);
+  assert.equal(input.lookX, 0);
+});
+
+test("tiny spans, initial jitter and extreme pinch samples cannot cause runaway zoom", () => {
+  const { gesture } = setup();
+  gesture.start(touch(100, 100));
+  gesture.start(touch(101, 100, { pointerId: 2 }));
+  gesture.move(touch(120, 100, { pointerId: 2 }));
+  assert.equal(gesture.flush(), null);
+  gesture.move(touch(200, 100, { pointerId: 2 }));
+  assert.equal(gesture.flush(), null);
+  gesture.move(touch(202, 100, { pointerId: 2 }));
+  assert.equal(gesture.flush(), null);
+  gesture.move(touch(10000, 100, { pointerId: 2 }));
+  assert.equal(gesture.flush().travel, 0.35 * PINCH_GAIN);
+  assert.equal(gesture.flush().travel, 0);
 });
 
 test("desktop dragging still moves both look axes and trackpad sideways scroll pans", () => {

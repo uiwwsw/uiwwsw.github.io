@@ -12,82 +12,118 @@ export function centerFlightInput(input) {
   input.travelPitch = 0;
 }
 
-// Lock only the gesture's intent, not its viewing axes. A diagonal/look gesture
-// stays free to pan vertically without accidentally becoming forward travel.
+export const PINCH_GAIN = 0.18;
+const MIN_PINCH_SPAN = 40;
+
+// One pointer looks; two touch pointers travel. Pinch is sampled once per frame
+// so two fingers translating together cannot generate alternating zoom impulses.
 export function createFlightGesture(input, getViewport) {
-  let pointer = null;
+  const pointers = new Map();
+  let pinch = null;
+  const span = () => {
+    const [a, b] = pointers.values();
+    return Math.hypot(a.x - b.x, a.y - b.y);
+  };
+  const rebase = () => {
+    pinch = null;
+    for (const point of pointers.values()) {
+      point.originX = point.x;
+      point.originY = point.y;
+      point.looking = false;
+    }
+    if (pointers.size === 2) {
+      const distance = span();
+      pinch = { distance, active: false };
+    }
+  };
   return {
+    pointerIds: () => [...pointers.keys()],
     start(event) {
-      input.dragged = false;
-      input.travelPitch = 0;
-      if (event.isPrimary === false) {
-        pointer = null;
-        input.dragged = true;
-        return false;
-      }
       if (event.button !== 0) return false;
-      pointer = {
+      if (pointers.has(event.pointerId)) return false;
+      // Secondary touch is essential for pinch; secondary mouse/pen is not.
+      if (
+        event.pointerType !== "touch" &&
+        (event.isPrimary === false || pointers.size)
+      )
+        return false;
+      if (
+        [...pointers.values()].some((point) => point.type !== event.pointerType)
+      )
+        return false;
+      if (!pointers.size) input.dragged = false;
+      input.travelPitch = 0;
+      pointers.set(event.pointerId, {
         id: event.pointerId,
         type: event.pointerType,
         originX: event.clientX,
         originY: event.clientY,
         x: event.clientX,
         y: event.clientY,
-        axis: null,
-      };
+        looking: false,
+      });
+      if (pointers.size > 1) input.dragged = true;
+      rebase();
       return true;
     },
     move(event) {
-      if (!pointer || pointer.id !== event.pointerId) return null;
-      const totalX = event.clientX - pointer.originX;
-      const totalY = event.clientY - pointer.originY;
-      if (!pointer.axis) {
-        if (Math.hypot(totalX, totalY) < 8) return null;
-        pointer.axis =
-          pointer.type === "touch"
-            ? Math.abs(totalY) > Math.abs(totalX) * 1.25
-              ? "vertical"
-              : "free"
-            : "free";
-      }
-      input.dragged = true;
+      const pointer = pointers.get(event.pointerId);
+      if (!pointer) return null;
       const dx = event.clientX - pointer.x;
       const dy = event.clientY - pointer.y;
+      if (pointers.size > 1) {
+        pointer.x = event.clientX;
+        pointer.y = event.clientY;
+        return { travel: 0, kind: "pinch" };
+      }
+      const totalX = event.clientX - pointer.originX;
+      const totalY = event.clientY - pointer.originY;
+      if (!pointer.looking) {
+        if (Math.hypot(totalX, totalY) < 8) return null;
+        pointer.looking = true;
+      }
+      input.dragged = true;
       pointer.x = event.clientX;
       pointer.y = event.clientY;
       const { width, height } = getViewport();
-      if (pointer.axis !== "vertical") {
-        const sensitivity =
-          pointer.type === "touch" ? 72 / Math.max(width, 320) : 0.055;
-        input.lookX = clamp(input.lookX - dx * sensitivity, -52, 52);
+      const touch = pointer.type === "touch";
+      input.lookX = clamp(
+        input.lookX - dx * (touch ? 72 / Math.max(width, 320) : 0.055),
+        -52,
+        52,
+      );
+      input.lookY = clamp(
+        input.lookY + dy * (touch ? 56 / Math.max(height, 320) : 0.055),
+        -32,
+        36,
+      );
+      return { travel: 0, kind: "look" };
+    },
+    flush() {
+      if (pointers.size !== 2 || !pinch) return null;
+      const distance = span();
+      if (distance < MIN_PINCH_SPAN || pinch.distance < MIN_PINCH_SPAN) {
+        pinch = { distance, active: false };
+        return null;
       }
-      if (pointer.axis === "free") {
-        const sensitivity =
-          pointer.type === "touch" ? 56 / Math.max(height, 320) : 0.055;
-        input.lookY = clamp(input.lookY + dy * sensitivity, -32, 36);
-      } else {
-        // A small flight lean follows the finger, then returns on release.
-        // Repeated forward strokes never accumulate a view pointed off-world.
-        input.travelPitch = clamp(
-          input.travelPitch + (dy * 14) / Math.max(height, 320),
-          -5,
-          5,
-        );
-      }
-      return {
-        travel:
-          pointer.axis === "vertical" ? (dy * 0.3) / Math.max(height, 320) : 0,
-      };
+      if (!pinch.active && Math.abs(distance - pinch.distance) < 4) return null;
+      pinch.active = true;
+      // Ratio gain is orientation/viewport independent and symmetric on reversal.
+      // Bound malformed/low-frequency jumps; the flight integrator also caps speed.
+      const travel =
+        clamp(Math.log(distance / pinch.distance), -0.35, 0.35) * PINCH_GAIN;
+      pinch.distance = distance;
+      return { travel, kind: "pinch" };
     },
     end(event) {
-      if (pointer?.id === event.pointerId) {
-        pointer = null;
-        input.travelPitch = 0;
-      }
+      if (!pointers.delete(event.pointerId)) return;
+      rebase();
+      input.travelPitch = 0;
     },
     cancel() {
-      if (pointer) input.dragged = true;
-      pointer = null;
+      if (pointers.size) input.dragged = true;
+      pointers.clear();
+      pinch = null;
       input.travelPitch = 0;
     },
     wheel(event) {
