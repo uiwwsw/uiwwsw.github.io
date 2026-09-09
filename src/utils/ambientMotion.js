@@ -1,7 +1,7 @@
 import { seededRandom } from "./observatory.js";
 
 export const DUST_BOUNDS = [150, 100, 180];
-export const dustBudget = (compact) => (compact ? 180 : 360);
+export const dustBudget = (compact) => (compact ? 360 : 720);
 
 // Advance only visible, unpaused time. Returning from a background tab must not
 // fast-forward a streak or jump the camera/clouds by the time spent away.

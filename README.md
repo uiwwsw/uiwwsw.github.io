@@ -17,7 +17,7 @@ A 3D writing portfolio: leave the Moon, approach Earth, and discover a real Velo
 - The bottom slider offers direct, keyboard-accessible travel. Sound starts muted and is generated locally with Web Audio.
 - Reduced-motion preferences disable ambient animation and animated camera transitions. The pause control stops ambient motion and automatic travel.
 - Even at rest, the universe moves: procedural nebula flow, independently shimmering stars, slowly drifting foreground dust, moving cloud shadows and a faint polar atmospheric shimmer. A brief distant light trail passes about every 29 seconds after an initial quiet interval. These are artistic atmosphere effects, not a physical simulation or additional article stars.
-- Atmospheric effects freeze while a panel is open or motion is paused/reduced. Hidden tabs stop both the ambient clock and canvas rendering; resuming does not fast-forward the scene. Decorative dust is one GPU point batch (180 particles on mobile / 360 on desktop); the occasional trail adds one draw only while visible. Existing article coordinates and picking targets do not move with these effects.
+- Atmospheric effects freeze while a panel is open or motion is paused/reduced. Hidden tabs stop both the ambient clock and canvas rendering; resuming does not fast-forward the scene. Decorative dust is one GPU point batch (360 particles on mobile / 720 on desktop); the occasional trail adds one draw only while visible. Existing article coordinates and picking targets do not move with these effects.
 - The immersive reader retains the `?article=<slug>` address; old numeric article links also resolve. Search filters are shareable in the URL. Each article also has a permanent `/writing/<slug>/` reading page for search engines and sharing, with a link back to its star.
 - If WebGL or an asset fails, the full searchable reading archive remains available.
 
@@ -99,6 +99,12 @@ Monthly content refresh is handled separately by `.github/workflows/monthly-upda
 - Visible homepage fallback content and recent article links when JavaScript does not run, and content-hashed reader CSS to avoid stale service-worker styles.
 
 `npm run check:seo` verifies the final built HTML, all local links/assets, canonical metadata, structured data, sitemap coverage, and exact text/code/image block preservation. Generated pages remain in ignored `dist`; no manual page maintenance is needed when new writing arrives. Static paths reuse the Velog slug (independent of title, date and numeric IDs). Unsafe or filesystem-oversized slugs fail the build rather than silently omitting an article.
+
+## Stable startup
+
+The homepage is prerendered from the real `App` through `entry-server.jsx`, then hydrated in place. Its header, hero, article count, featured link and flight controls already have their final responsive layout before JavaScript runs. Only a small count/featured-title snapshot is embedded; the complete metadata catalog and article bodies stay lazy-loaded as the archive grows. An early featured-link click can use its static article URL before the catalog is ready.
+
+The separate reading-layout fallback is restricted to `<noscript>` so it cannot flash before the universe. Its CSS is loaded only for no-JS reading; every individual SEO article page remains complete HTML. Browser media/URL state is restored after the matching initial hydration, and URL rewriting waits for restoration. The local font uses `font-display: optional` with preload to avoid a delayed font swap. The whole canvas fades in after its textures resolve and two full warm-up frames render, instead of revealing the background, Earth and Moon separately. See [startup QA](design/startup-qa.md) for verification and limitations.
 
 ### One-time owner setup
 

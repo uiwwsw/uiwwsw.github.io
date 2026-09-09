@@ -48,6 +48,44 @@ for (const path of expectedPaths) {
     `${SITE.url}${path}`,
   );
   assert.equal($("h1").length, 1, path);
+  if (path === "/") {
+    assert.equal($("#root[data-prerendered='true'] > .observatory").length, 1);
+    assert.equal(
+      $("#root .static-fallback").length,
+      0,
+      "A different reading layout must never precede the universe",
+    );
+    assert.equal($("#root .intro h1").length, 1);
+    assert.equal(
+      $("#root .site-header .nav-count").text(),
+      String(articles.length),
+    );
+    assert.equal(
+      $("#root canvas").length,
+      0,
+      "WebGL initializes only on the client",
+    );
+    const initial = JSON.parse($("#initial-home").text());
+    assert.equal(initial.articleCount, articles.length);
+    assert.ok(!initial.articles, "The full catalog must stay lazy-loaded");
+    const withoutJs = load(html, { scriptingEnabled: false });
+    assert.equal(
+      withoutJs("noscript .static-fallback .writing-list > li").length,
+      Math.min(6, articles.length),
+    );
+    assert.equal(withoutJs("noscript a[href='/writing/']").length, 2);
+    const fallbackStyle = withoutJs("noscript link[rel='stylesheet']").attr(
+      "href",
+    );
+    assert.ok(fallbackStyle);
+    await access(new URL(`.${fallbackStyle}`, dist));
+    assert.ok(
+      !$("head link[rel='stylesheet']")
+        .toArray()
+        .some((node) => /reading-/.test($(node).attr("href"))),
+      "Reading-only CSS must not block or restyle the homepage",
+    );
+  }
   assert.ok(!/noindex/i.test($("meta[name='robots']").attr("content")), path);
   assert.ok(!html.includes("__SW_VERSION__"), path);
   JSON.parse($("#page-schema").text());

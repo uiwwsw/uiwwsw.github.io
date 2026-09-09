@@ -2,7 +2,7 @@
   font-family: SUITE;
   src: url("/fonts/SUITE-Variable.woff2") format("woff2");
   font-weight: 100 900;
-  font-display: swap;
+  font-display: optional;
 }
 :root {
   font-family:
@@ -106,6 +106,11 @@ button {
   inset: 0;
   z-index: 0;
   touch-action: pinch-zoom;
+  opacity: 0;
+  transition: opacity 0.7s ease-out;
+}
+.scene-ready .universe-canvas {
+  opacity: 1;
 }
 .universe-canvas canvas {
   touch-action: pinch-zoom;
@@ -221,6 +226,9 @@ button {
   gap: 5px;
 }
 .nav-count {
+  display: inline-block;
+  min-width: 2ch;
+  font-variant-numeric: tabular-nums;
   font-size: 11px;
   vertical-align: super;
   margin-left: 4px;
