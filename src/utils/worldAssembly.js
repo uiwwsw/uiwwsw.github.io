@@ -5,11 +5,17 @@ import {
   flightPose,
 } from "./observatory.js";
 
-export const ASSEMBLY_DURATION = 5.6;
-const smootherstep = (value) => {
-  const t = clamp(value);
-  return t * t * t * (t * (t * 6 - 15) + 10);
+// Seconds from the real scene-ready signal, not from navigation. Travel starts
+// briskly while still offscreen and decelerates to zero velocity on arrival.
+// A long rest-to-rest ease used to hide the first Earth edge for almost 2s.
+export const ASSEMBLY_TIMING = {
+  earth: { start: 0, duration: 1.25 },
+  ground: { start: 0.18, duration: 1.62 },
 };
+export const ASSEMBLY_DURATION =
+  ASSEMBLY_TIMING.ground.start + ASSEMBLY_TIMING.ground.duration;
+const remainingOffset = (elapsed, { start, duration }) =>
+  (1 - clamp((elapsed - start) / duration)) ** 3;
 
 const dot = (a, b) => a.reduce((sum, value, i) => sum + value * b[i], 0);
 const normalize = (v) => v.map((value) => value / Math.hypot(...v));
@@ -86,14 +92,11 @@ export function stepWorldAssembly(
     }
   } else {
     state.elapsed = Math.min(ASSEMBLY_DURATION, state.elapsed + dt);
-    state.earth = Math.min(
-      state.earth,
-      clamp(1 - smootherstep((state.elapsed - 0.2) / 4.4)),
-    );
-    state.ground = Math.min(
-      state.ground,
-      clamp(1 - smootherstep((state.elapsed - 0.85) / 4.75)),
-    );
+    for (const key of ["earth", "ground"])
+      state[key] = Math.min(
+        state[key],
+        remainingOffset(state.elapsed, ASSEMBLY_TIMING[key]),
+      );
   }
   if (state.elapsed === ASSEMBLY_DURATION) state.earth = state.ground = 0;
   if (state.earth === 0 && state.ground === 0) {

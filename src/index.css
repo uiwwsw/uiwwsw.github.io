@@ -124,7 +124,7 @@ button {
   z-index: 1;
   touch-action: none;
   opacity: 0;
-  transition: opacity 1.4s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: opacity 0.32s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .scene-ready .universe-canvas {
   opacity: 1;
@@ -385,7 +385,7 @@ button {
   z-index: 10;
   pointer-events: none;
   opacity: 0;
-  transition: opacity 0.9s var(--ease);
+  transition: opacity 0.28s var(--ease);
 }
 .scene-ready.has-assembled .earth-note {
   opacity: 0.8;
