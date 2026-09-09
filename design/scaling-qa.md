@@ -1,5 +1,7 @@
 # Favicon and archive scaling QA — 2026-09-08
 
+The original year/topic overflow policy below is superseded by the [V2 capacity-based allocation repair](sector-allocation-qa.md). The rendering budgets and append-only behavior after migration remain; all 59 current records now fit in the home route.
+
 ## Automated checks
 
 - 36 Node tests: original 18 regression tests plus body/index integrity, stable registry, 300/1,000/3,000-star fixtures, bounded picking/labels, Earth label exclusion, body LRU/retry/cancellation, 3,000-post collector pagination, duplicate/cyclic cursor handling, and icon dimensions.
