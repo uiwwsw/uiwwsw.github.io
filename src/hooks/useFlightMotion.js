@@ -26,6 +26,7 @@ export function useFlightMotion({ enabled, reducedMotion, allowSignal }) {
     },
     [enabled, reducedMotion, allowSignal],
   );
+  const stop = useCallback(() => stopFlightMotion(motion.current), []);
   useEffect(() => {
     stopFlightMotion(motion.current);
     if (!enabled) return;
@@ -47,5 +48,5 @@ export function useFlightMotion({ enabled, reducedMotion, allowSignal }) {
       stopFlightMotion(motion.current);
     };
   }, [enabled, reducedMotion, allowSignal]);
-  return { distance, setDistance, travel };
+  return { distance, setDistance, travel, stop };
 }
