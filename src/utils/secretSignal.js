@@ -29,7 +29,7 @@ export function advanceFlight(distance, delta) {
   // Stronger resistance near the signal; reverse input always remains easy.
   const effort =
     delta > 0 && distance >= 1
-      ? (Math.min(delta, 0.12) * 0.12) / (1 + 5 * signalStrength(distance) ** 2)
+      ? (Math.min(delta, 0.08) * 0.4) / (1 + 2.2 * signalStrength(distance) ** 2)
       : delta;
   const next = clamp(distance + effort, 0, SIGNAL_DISTANCE);
   // Arriving at Earth is not enough: another deliberate forward input is needed.

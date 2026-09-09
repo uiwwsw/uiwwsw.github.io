@@ -420,6 +420,7 @@ export default function UniverseScene({
       />
       <Suspense fallback={null}>
         <Earth
+          signal={signal}
           assemblyRef={assemblyRef}
           planetPositionRef={planetPositionRef}
           paused={paused}

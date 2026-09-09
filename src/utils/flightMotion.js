@@ -7,8 +7,8 @@ import {
 
 export const FLIGHT_SPEED = 0.075;
 export const MAX_COAST = 0.045;
-export const SIGNAL_EFFORT_RATE = 0.16;
-export const SIGNAL_RELEASE_GRACE = 0.7;
+export const SIGNAL_EFFORT_RATE = 0.18;
+export const SIGNAL_RELEASE_GRACE = 0.95;
 
 export const createFlightMotion = (distance = 0) => ({
   distance,

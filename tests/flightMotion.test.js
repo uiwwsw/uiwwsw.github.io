@@ -81,7 +81,7 @@ test("arrival consumes normal momentum and a lone hard push cannot find the secr
 test("even maximal sustained effort takes time, then a discovered signal stays open", () => {
   const state = createFlightMotion(1);
   let revealedAt;
-  for (let i = 0; i < 60 * 65; i++) {
+  for (let i = 0; i < 60 * 15; i++) {
     queueFlightImpulse(state, 999);
     stepFlightMotion(state, 1 / 60);
     if (state.distance === SIGNAL_DISTANCE) {
@@ -89,50 +89,61 @@ test("even maximal sustained effort takes time, then a discovered signal stays o
       break;
     }
   }
-  assert.ok(revealedAt > 40 && revealedAt < 55, `reveal after ${revealedAt}s`);
+  assert.ok(revealedAt > 7 && revealedAt < 9, `reveal after ${revealedAt}s`);
   run(state, 20);
   assert.equal(state.distance, SIGNAL_DISTANCE);
   queueFlightImpulse(state, -0.03);
   assert.ok(state.distance < SIGNAL_DISTANCE, "reverse is never resisted");
 });
 
-test("repeated mobile pinches can discover it; short finger-reset gaps are allowed", () => {
-  const state = createFlightMotion(1);
-  const gesture = createFlightGesture(createFlightInput(), () => ({
-    width: 390,
-    height: 844,
-  }));
-  const finger = (x, id = 1) => ({
-    pointerId: id,
-    pointerType: "touch",
-    button: 0,
-    clientX: x,
-    clientY: 300,
-  });
-  for (let frame = 0; frame < 60 * 100; frame++) {
-    const phase = frame % 60;
-    // A 100→200px spread over 0.6s, then 0.4s to lift and reposition.
-    if (phase === 0) {
-      gesture.start(finger(100));
-      gesture.start(finger(200, 2));
+test("repeated mobile pinches discover within 11–16 seconds, including finger-reset gaps", () => {
+  for (const gapFrames of [24, 36, 48]) {
+    const state = createFlightMotion(1);
+    const gesture = createFlightGesture(createFlightInput(), () => ({
+      width: 390,
+      height: 844,
+    }));
+    const finger = (x, id = 1) => ({
+      pointerId: id,
+      pointerType: "touch",
+      button: 0,
+      clientX: x,
+      clientY: 300,
+    });
+    let revealedAt;
+    for (let frame = 0; frame < 60 * 20; frame++) {
+      const phase = frame % (36 + gapFrames);
+      // A 100→200px spread over 0.6s, then 0.4–0.8s to lift and reposition.
+      if (phase === 0) {
+        gesture.start(finger(100));
+        gesture.start(finger(200, 2));
+      }
+      if (phase < 36) {
+        gesture.move(finger(200 + (100 * (phase + 1)) / 36, 2));
+        queueFlightImpulse(state, gesture.flush()?.travel || 0);
+      }
+      if (phase === 36) {
+        gesture.end(finger(100));
+        gesture.end(finger(300, 2));
+      }
+      stepFlightMotion(state, 1 / 60);
+      if (state.distance === SIGNAL_DISTANCE) {
+        revealedAt = (frame + 1) / 60;
+        break;
+      }
     }
-    if (phase < 36) {
-      gesture.move(finger(200 + (100 * (phase + 1)) / 36, 2));
-      queueFlightImpulse(state, gesture.flush()?.travel || 0);
-    }
-    if (phase === 36) {
-      gesture.end(finger(100));
-      gesture.end(finger(300, 2));
-    }
-    stepFlightMotion(state, 1 / 60);
+    assert.equal(state.distance, SIGNAL_DISTANCE);
+    assert.ok(
+      revealedAt > 10 && revealedAt < 16,
+      `${gapFrames / 60}s gap: ${revealedAt}s`,
+    );
   }
-  assert.equal(state.distance, SIGNAL_DISTANCE);
 });
 
 test("sustained approach never rebounds; only release returns to the entry orbit", () => {
   const state = createFlightMotion(1);
   let backwardFrames = 0;
-  for (let frame = 0; frame < 60 * 35; frame++) {
+  for (let frame = 0; frame < 60 * 4; frame++) {
     queueFlightImpulse(state, 0.03);
     const before = state.distance;
     stepFlightMotion(state, 1 / 60);
@@ -140,9 +151,9 @@ test("sustained approach never rebounds; only release returns to the entry orbit
   }
   assert.equal(backwardFrames, 0);
   assert.ok(state.distance > 1 && state.distance < SIGNAL_DISTANCE);
-  run(state, 0.5);
+  run(state, 0.85);
   const held = state.distance;
-  run(state, 0.3);
+  run(state, 0.2);
   assert.ok(state.distance < held);
   run(state, 3);
   assert.equal(state.distance, 1);
@@ -166,13 +177,13 @@ test("casual scrolling and a trackpad fling cannot accidentally complete discove
     if (frame % 60 === 0) queueFlightImpulse(casual, wheel());
     stepFlightMotion(casual, 1 / 60);
   }
-  assert.ok(casual.distance < 1.02);
+  assert.ok(signalStrength(casual.distance) < 0.2);
   const fling = createFlightMotion(0.99);
   for (let frame = 0; frame < 60 * 6; frame++) {
     queueFlightImpulse(fling, wheel(400 * Math.exp(-frame / 30)));
     stepFlightMotion(fling, 1 / 60);
   }
-  assert.ok(fling.distance < 1.08);
+  assert.ok(signalStrength(fling.distance) < 0.5);
   run(fling, 10);
   assert.equal(fling.distance, 1);
 });
@@ -192,7 +203,7 @@ test("reduced motion still requires sustained effort without involuntary recoil"
     }
   }
   assert.ok(
-    revealedAt > 40 && revealedAt < 60,
+    revealedAt > 7 && revealedAt < 9,
     `quiet discovery after ${revealedAt}s`,
   );
 });
@@ -210,6 +221,24 @@ test("secret effort remains consistent at 30, 60 and 120 Hz", () => {
   assert.ok(Math.max(...timings) - Math.min(...timings) < 0.4, String(timings));
 });
 
+test("deliberate wheel and equivalent trackpad input reveal in 10–12 seconds", () => {
+  const times = [6, 30, 60, 120].map((eventsPerSecond) => {
+    const state = createFlightMotion(1);
+    for (let frame = 0; frame < 120 * 16; frame++) {
+      if (frame % (120 / eventsPerSecond) === 0)
+        queueFlightImpulse(state, wheel(720 / eventsPerSecond));
+      stepFlightMotion(state, 1 / 120);
+      if (state.distance === SIGNAL_DISTANCE) return (frame + 1) / 120;
+    }
+    assert.fail(`unreachable with ${eventsPerSecond} events/s`);
+  });
+  assert.ok(
+    times.every((time) => time > 10 && time < 12),
+    String(times),
+  );
+  assert.ok(Math.max(...times) - Math.min(...times) < 0.15, String(times));
+});
+
 test("reduced motion keeps manual access and resets on release without zoom-out animation", () => {
   const options = { reducedMotion: true };
   const state = createFlightMotion();
@@ -223,7 +252,7 @@ test("reduced motion keeps manual access and resets on release without zoom-out 
   queueFlightImpulse(state, 0.05, options);
   run(state, 0.3, options);
   assert.ok(state.distance > 1);
-  run(state, 0.5, options);
+  run(state, 0.7, options);
   assert.equal(state.distance, 1);
 });
 

@@ -54,7 +54,7 @@ test("ordinary wheel and pinch press only a little into the field; dragging neve
       distance,
       gesture.wheel({ deltaX: 0, deltaY: 180, deltaMode: 0 }).travel,
     );
-  assert.ok(signalStrength(distance) > 0 && signalStrength(distance) < 0.15);
+  assert.ok(signalStrength(distance) > 0 && signalStrength(distance) < 0.2);
   const touch = (x, y, pointerId = 1) => ({
     pointerId,
     pointerType: "touch",
@@ -80,7 +80,7 @@ test("ordinary wheel and pinch press only a little into the field; dragging neve
 test("resistance grows toward the signal and release pushes back without losing a discovery", () => {
   const early = advanceFlight(1.02, 0.03) - 1.02;
   const late = advanceFlight(1.3, 0.03) - 1.3;
-  assert.ok(late < early / 3);
+  assert.ok(late < early * 0.45 && late > early * 0.25);
   assert.ok(releaseSignal(1.2, 1) < 1.2);
   assert.equal(releaseSignal(1.001, 10), 1);
   assert.equal(releaseSignal(0.8, 1), 0.8);
