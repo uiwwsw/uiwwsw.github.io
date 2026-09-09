@@ -5,6 +5,14 @@ import * as THREE from "three";
 import { earthOrientation, earthSway } from "../utils/earthOrientation";
 import { advanceAmbientTime } from "../utils/ambientMotion.js";
 import {
+  CLOUD_OPACITY,
+  CLOUD_SHELL_SCALE,
+  CLOUD_SHADOW_STRENGTH,
+  cloudSampling,
+  configureEarthTextures,
+  earthCloudOffset,
+} from "../utils/earthLayers.js";
+import {
   seededRandom,
   earthPosition,
   EARTH_RADIUS,
@@ -24,8 +32,8 @@ const planetVertex = `
 const earthFragment = `
   uniform sampler2D dayMap;
   uniform sampler2D nightMap;
-  uniform sampler2D surfaceMap;
-  uniform float time;
+  uniform float cloudShadowStrength;
+  ${cloudSampling}
   varying vec2 vUv;
   varying vec3 vNormal;
   varying vec3 vPosition;
@@ -35,18 +43,36 @@ const earthFragment = `
     float day = smoothstep(-0.16, 0.26, light);
     vec3 ground = pow(texture2D(dayMap, vUv).rgb, vec3(2.2));
     vec3 night = pow(texture2D(nightMap, vUv).rgb, vec3(2.2));
-    vec2 cloudUv = vec2(fract(vUv.x + time * 0.0018), vUv.y);
-    float cloud = smoothstep(0.32, 0.95, texture2D(surfaceMap, cloudUv).b);
-    float shadow = smoothstep(.32, .95, texture2D(surfaceMap, cloudUv + vec2(.004, .0015)).b);
-    ground *= 1.0 - shadow * .15;
+    // Terrain never drifts or receives a second pale color map. Only a faint,
+    // closely aligned shadow comes from the physically separate cloud shell.
+    float shadow = cloudDensity(vUv, vec2(.0007, .0004));
+    ground *= 1.0 - shadow * cloudShadowStrength;
     ground = mix(ground, vec3(dot(ground, vec3(0.2126, 0.7152, 0.0722))), 0.12);
-    ground = mix(ground, vec3(0.86, 0.91, 1.0), cloud * 0.88);
     vec3 color = ground * (max(light, 0.0) * 1.7 + 0.035) * day;
     color += night * (1.0 - day) * vec3(1.7, 1.25, 0.8);
     float fresnel = pow(1.0 - max(dot(n, normalize(cameraPosition - vPosition)), 0.0), 3.2);
     vec3 atmosphere = mix(vec3(0.55, 0.18, 0.075), vec3(0.16, 0.5, 1.0), smoothstep(-0.2, 0.6, light));
     color += atmosphere * fresnel * smoothstep(-0.35, 0.6, light) * 0.8;
     gl_FragColor = vec4(color, 1.0);
+    #include <tonemapping_fragment>
+    #include <colorspace_fragment>
+  }
+`;
+const cloudFragment = `
+  ${cloudSampling}
+  uniform float cloudOpacity;
+  varying vec2 vUv;
+  varying vec3 vNormal;
+  varying vec3 vPosition;
+  void main() {
+    vec3 n = normalize(vNormal);
+    float light = dot(n, normalize(vec3(-0.95, 0.45, 0.45)));
+    float daylight = smoothstep(-0.18, 0.32, light);
+    float facing = max(dot(n, normalize(cameraPosition - vPosition)), 0.0);
+    float alpha = cloudDensity(vUv, vec2(0.0)) * cloudOpacity * daylight * smoothstep(0.0, 0.22, facing);
+    if (alpha < 0.002) discard;
+    vec3 color = vec3(.76, .84, .93) * (max(light, 0.0) * 1.2 + .12);
+    gl_FragColor = vec4(color, alpha);
     #include <tonemapping_fragment>
     #include <colorspace_fragment>
   }
@@ -72,16 +98,22 @@ const atmosphereFragment = `
 export function Earth({ paused, compact }) {
   const globe = useRef();
   const orientation = useMemo(() => earthOrientation(compact), [compact]);
-  const [day, night, surface] = useTexture([
-    "/textures/earth-day.jpg",
-    "/textures/earth-night.jpg",
-    "/textures/earth-surface.jpg",
-  ]);
+  const [day, night, surface] = useTexture(
+    [
+      "/textures/earth-day.jpg",
+      "/textures/earth-night.jpg",
+      "/textures/earth-surface.jpg",
+    ],
+    configureEarthTextures,
+  );
   const uniforms = useMemo(
     () => ({
       dayMap: { value: day },
       nightMap: { value: night },
       surfaceMap: { value: surface },
+      cloudOffset: { value: 0 },
+      cloudOpacity: { value: CLOUD_OPACITY },
+      cloudShadowStrength: { value: CLOUD_SHADOW_STRENGTH },
       time: { value: 0 },
     }),
     [day, night, surface],
@@ -94,34 +126,52 @@ export function Earth({ paused, compact }) {
         paused,
       );
       globe.current.rotation.y = earthSway(uniforms.time.value);
+      uniforms.cloudOffset.value = earthCloudOffset(uniforms.time.value);
     }
   });
   return (
     <group position={earthPosition(compact)} quaternion={orientation}>
-      <mesh
-        ref={globe}
-        onPointerOver={(event) => event.stopPropagation()}
-        onClick={(event) => event.stopPropagation()}
-      >
-        <sphereGeometry args={[EARTH_RADIUS, 96, 64]} />
-        <shaderMaterial
-          vertexShader={planetVertex}
-          fragmentShader={earthFragment}
-          uniforms={uniforms}
-        />
-      </mesh>
-      <mesh scale={1.025}>
-        <sphereGeometry args={[EARTH_RADIUS, 64, 48]} />
-        <shaderMaterial
-          vertexShader={planetVertex}
-          fragmentShader={atmosphereFragment}
-          uniforms={uniforms}
-          transparent
-          side={THREE.BackSide}
-          depthWrite={false}
-          blending={THREE.AdditiveBlending}
-        />
-      </mesh>
+      <group ref={globe}>
+        <mesh
+          name="earth-surface"
+          onPointerOver={(event) => event.stopPropagation()}
+          onClick={(event) => event.stopPropagation()}
+        >
+          <sphereGeometry args={[EARTH_RADIUS, 96, 64]} />
+          <shaderMaterial
+            vertexShader={planetVertex}
+            fragmentShader={earthFragment}
+            uniforms={uniforms}
+          />
+        </mesh>
+        <mesh name="earth-clouds" scale={CLOUD_SHELL_SCALE} raycast={() => {}}>
+          <sphereGeometry args={[EARTH_RADIUS, 96, 64]} />
+          <shaderMaterial
+            vertexShader={planetVertex}
+            fragmentShader={cloudFragment}
+            uniforms={uniforms}
+            transparent
+            side={THREE.FrontSide}
+            depthWrite={false}
+            polygonOffset
+            polygonOffsetFactor={-1}
+            polygonOffsetUnits={-1}
+            blending={THREE.NormalBlending}
+          />
+        </mesh>
+        <mesh name="earth-atmosphere" scale={1.025} raycast={() => {}}>
+          <sphereGeometry args={[EARTH_RADIUS, 64, 48]} />
+          <shaderMaterial
+            vertexShader={planetVertex}
+            fragmentShader={atmosphereFragment}
+            uniforms={uniforms}
+            transparent
+            side={THREE.BackSide}
+            depthWrite={false}
+            blending={THREE.AdditiveBlending}
+          />
+        </mesh>
+      </group>
     </group>
   );
 }

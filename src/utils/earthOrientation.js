@@ -1,15 +1,24 @@
 import { MathUtils, Matrix4, Quaternion, Vector3 } from "three";
 import { earthPosition, flightPose } from "./observatory.js";
 
+export const EARTH_FOCUS = { latitude: 36, longitude: 128 };
+
+export function geographicSurfacePoint(latitude, longitude) {
+  const lat = MathUtils.degToRad(latitude);
+  const lon = MathUtils.degToRad(longitude);
+  return new Vector3(
+    Math.cos(lat) * Math.cos(lon),
+    Math.sin(lat),
+    -Math.cos(lat) * Math.sin(lon),
+  );
+}
+
 export function earthOrientation(compact) {
-  // Approximate South Korean center, matched to the equirectangular map and
-  // Three.js SphereGeometry UVs (Greenwich is +X, east runs toward -Z).
-  const latitude = MathUtils.degToRad(36);
-  const longitude = MathUtils.degToRad(128);
-  const korea = new Vector3(
-    Math.cos(latitude) * Math.cos(longitude),
-    Math.sin(latitude),
-    -Math.cos(latitude) * Math.sin(longitude),
+  // One global equirectangular map: Greenwich is +X, east runs toward -Z.
+  // Rotate the geographic frame once, never the terrain's texture coordinates.
+  const korea = geographicSurfacePoint(
+    EARTH_FOCUS.latitude,
+    EARTH_FOCUS.longitude,
   );
   const north = new Vector3(0, 1, 0);
   const localFrame = new Matrix4().lookAt(korea, new Vector3(), north);
