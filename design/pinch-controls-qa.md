@@ -16,7 +16,7 @@ The custom gesture owns `touch-action: none` only on the sky/canvas and star lab
 
 This follows the browser's [touch-action ownership model](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/touch-action) and [Pointer Events pinch pattern](https://developer.mozilla.org/en-US/docs/Web/API/Pointer_events/Pinch_zoom_gestures), with frame batching and explicit pointer-count transitions added.
 
-The Earth/Korea focus and secret resistance are unchanged. Repeated forward pinches (100→200 px over 0.6 s, lift/reset for 0.4 s) can discover the secret; pausing beyond the existing grace period still returns to the entry orbit. Merely dragging up/down cannot enter the secret.
+The pinch-only control remains unchanged. The later [Seoul signal revision](seoul-signal-qa.md) makes the secret more attainable: repeated forward pinches (100→200 px over 0.6 s, lift/reset for 0.4–0.8 s) reveal in about 11–16 seconds in simulations. Pausing beyond the 0.95-second grace still returns to the entry orbit. Merely dragging up/down cannot enter the secret.
 
 ## Verification
 

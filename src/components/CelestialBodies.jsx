@@ -11,6 +11,12 @@ import {
 import { advanceAmbientTime } from "../utils/ambientMotion.js";
 import { SCENE_TEXTURES } from "../utils/sceneStartup.js";
 import { patchLunarRevealShader } from "../utils/lunarReveal.js";
+import {
+  seoulSurfacePoint,
+  seoulFocusBlend,
+  seoulGlowStrength,
+  seoulGlowShader,
+} from "../utils/earthSignalGlow.js";
 import { SceneBoundary } from "./Interface";
 import {
   assemblyEarthPosition,
@@ -37,10 +43,12 @@ import {
 
 const planetVertex = `
   varying vec2 vUv;
+  varying vec3 vLocalNormal;
   varying vec3 vNormal;
   varying vec3 vPosition;
   void main() {
     vUv = uv;
+    vLocalNormal = normal;
     vNormal = normalize(mat3(modelMatrix) * normal);
     vPosition = (modelMatrix * vec4(position, 1.0)).xyz;
     gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
@@ -51,6 +59,7 @@ const earthFragment = `
   uniform sampler2D nightMap;
   uniform float nightStrength;
   uniform float cloudShadowStrength;
+  ${seoulGlowShader}
   ${cloudSampling}
   varying vec2 vUv;
   varying vec3 vNormal;
@@ -71,6 +80,7 @@ const earthFragment = `
     float fresnel = pow(1.0 - max(dot(n, normalize(cameraPosition - vPosition)), 0.0), 3.2);
     vec3 atmosphere = mix(vec3(0.55, 0.18, 0.075), vec3(0.16, 0.5, 1.0), smoothstep(-0.2, 0.6, light));
     color += atmosphere * fresnel * smoothstep(-0.35, 0.6, light) * 0.8;
+    color += seoulLight();
     gl_FragColor = vec4(color, 1.0);
     #include <tonemapping_fragment>
     #include <colorspace_fragment>
@@ -133,6 +143,7 @@ function EarthDetails({ uniforms, detailsReady }) {
 export function Earth({
   paused,
   compact,
+  signal = 0,
   focusRef,
   enhance,
   assemblyRef,
@@ -147,6 +158,7 @@ export function Earth({
     [],
   );
   const north = useMemo(() => new THREE.Vector3(0, 1, 0), []);
+  const seoul = useMemo(seoulSurfacePoint, []);
   const [day] = useTexture([SCENE_TEXTURES.day], configureEarthTextures);
   const uniforms = useMemo(
     () => ({
@@ -160,8 +172,10 @@ export function Earth({
       cloudOpacity: { value: 0 },
       cloudShadowStrength: { value: 0 },
       time: { value: 0 },
+      signalGlow: { value: 0 },
+      seoulDirection: { value: seoul },
     }),
-    [day],
+    [day, seoul],
   );
   const detailsReady = useRef(false);
   const detailMix = useRef(0);
@@ -189,6 +203,7 @@ export function Earth({
           Math.min(delta, 0.05),
         );
     uniforms.nightStrength.value = detailMix.current;
+    uniforms.signalGlow.value = seoulGlowStrength(signal);
     uniforms.cloudOpacity.value = CLOUD_OPACITY * detailMix.current;
     uniforms.cloudShadowStrength.value =
       CLOUD_SHADOW_STRENGTH * detailMix.current;
@@ -205,6 +220,8 @@ export function Earth({
     // state updates, second globe, UV offset or independent rotation clock.
     focusRef.current
       .copy(korea)
+      .lerp(seoul, seoulFocusBlend(signal))
+      .normalize()
       .applyAxisAngle(north, globe.current.rotation.y)
       .applyQuaternion(orientation);
   }, -1);

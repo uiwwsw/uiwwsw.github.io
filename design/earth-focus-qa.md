@@ -1,5 +1,7 @@
 # Release-only return, Korea close-up and readable idle motion — 2026-09-09
 
+Historical record: the difficulty/grace and absence of a surface clue below are superseded by [Seoul signal QA](seoul-signal-qa.md). Release-only return, normal flight and the single geographic globe are preserved.
+
 ## Interaction
 
 - Ordinary Moon–Earth wheel/touch gain, short bounded coast and mobile downward-forward direction are unchanged. Automatic cruise and direct slider travel still stop at the normal Earth boundary.
