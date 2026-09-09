@@ -70,6 +70,7 @@ export default function App({ initialHome } = {}) {
   const [locationReady, setLocationReady] = useState(false);
   const [sceneReady, setSceneReady] = useState(false);
   const [sceneSettled, setSceneSettled] = useState(false);
+  const [landed, setLanded] = useState(false);
   const [sceneError, setSceneError] = useState(
     import.meta.env.DEV && initialParams.get("webgl") === "off",
   );
@@ -305,7 +306,10 @@ export default function App({ initialHome } = {}) {
   useEffect(() => {
     if (progress >= 1) setCruising(false);
   }, [progress]);
-  const manualInput = useCallback(() => setCruising(false), []);
+  const manualInput = useCallback(() => {
+    inputRef.current.interacted = true;
+    setCruising(false);
+  }, []);
   const leaveSignal = useCallback(() => {
     setDistance(0.9);
     setCruising(false);
@@ -341,7 +345,7 @@ export default function App({ initialHome } = {}) {
         ].includes(event.key)
       ) {
         event.preventDefault();
-        setCruising(false);
+        manualInput();
         if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
           inputRef.current.lookX = clamp(
             inputRef.current.lookX + (event.key === "ArrowLeft" ? -6 : 6),
@@ -356,7 +360,7 @@ export default function App({ initialHome } = {}) {
     }
     window.addEventListener("keydown", keydown);
     return () => window.removeEventListener("keydown", keydown);
-  }, [panel, returnHome, travel, leaveSignal, signal]);
+  }, [panel, returnHome, travel, leaveSignal, signal, manualInput]);
   useFlightInput({
     surfaceRef: sceneRef,
     inputRef,
@@ -389,6 +393,7 @@ export default function App({ initialHome } = {}) {
     [filtered, query, topic, codeOnly, year],
   );
   const ready = useCallback(() => setSceneReady(true), []);
+  const landingComplete = useCallback(() => setLanded(true), []);
   const fail = useCallback(() => {
     setSceneError(true);
     setSceneReady(false);
@@ -416,7 +421,7 @@ export default function App({ initialHome } = {}) {
 
   return (
     <main
-      className={`observatory ${exploring ? "is-exploring" : ""} ${sceneReady ? "scene-ready" : ""} ${focusingEarth ? "is-earth-focused" : ""}`}
+      className={`observatory ${exploring ? "is-exploring" : ""} ${sceneReady ? "scene-ready" : ""} ${landed ? "has-landed" : ""} ${focusingEarth ? "is-earth-focused" : ""}`}
       style={{ "--earth-focus": earthFocus }}
       ref={sceneRef}
     >
@@ -467,6 +472,9 @@ export default function App({ initialHome } = {}) {
                 reducedMotion={reducedMotion}
                 compact={compact}
                 onReady={ready}
+                revealed={sceneReady}
+                onLandingComplete={landingComplete}
+                skipLanding={motionPaused || !!panel}
                 enhance={sceneSettled}
                 onError={fail}
                 inputRef={inputRef}

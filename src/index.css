@@ -384,6 +384,10 @@ button {
   gap: 13px;
   z-index: 10;
   pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.9s var(--ease);
+}
+.scene-ready.has-landed .earth-note {
   opacity: 0.8;
 }
 .earth-note-line {

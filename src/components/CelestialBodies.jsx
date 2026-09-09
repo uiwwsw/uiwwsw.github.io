@@ -1,5 +1,5 @@
 import React, { Suspense, useEffect, useMemo, useRef } from "react";
-import { useFrame } from "@react-three/fiber";
+import { useFrame, useThree } from "@react-three/fiber";
 import { useTexture } from "@react-three/drei";
 import * as THREE from "three";
 import {
@@ -11,6 +11,11 @@ import {
 import { advanceAmbientTime } from "../utils/ambientMotion.js";
 import { SCENE_TEXTURES } from "../utils/sceneStartup.js";
 import { SceneBoundary } from "./Interface";
+import {
+  createLunarCraters,
+  lunarHeight,
+  lunarSegments,
+} from "../utils/lunarTerrain.js";
 import {
   CLOUD_OPACITY,
   CLOUD_SHELL_SCALE,
@@ -229,24 +234,16 @@ export function Earth({ paused, compact, focusRef, enhance }) {
     </group>
   );
 }
-function terrainHeight(x, z, craters) {
-  let h =
-    Math.sin(x * 0.08 + z * 0.03) * 1.5 + Math.cos(z * 0.13 - x * 0.04) * 1.1;
-  h +=
-    Math.sin(x * 0.27 + z * 0.22) * 0.34 + Math.sin(x * 0.9 - z * 0.6) * 0.12;
-  for (const crater of craters) {
-    const d = Math.hypot(x - crater.x, z - crater.z) / crater.radius;
-    if (d < 1.5)
-      h +=
-        (-Math.exp(-d * d * 3.8) * 0.42 +
-          Math.exp(-Math.pow((d - 0.92) * 5.5, 2)) * 0.2) *
-        crater.radius;
-  }
-  return h - 10;
-}
-export function LunarSurface({ progress, reducedMotion }) {
+export function LunarSurface({ progress, reducedMotion, compact, landingRef }) {
+  const { gl } = useThree();
   const group = useRef();
+  const ground = useRef();
   useFrame((_, delta) => {
+    // The Moon begins below the frame. Submit its buffers during the startup
+    // draws too, instead of a first-upload hitch when its ridge enters view.
+    const cull = landingRef.current.phase === "done";
+    ground.current.frustumCulled = cull;
+    rocks.current.frustumCulled = cull;
     const target = -Math.pow(progress, 1.3) * 40;
     group.current.position.y = reducedMotion
       ? target
@@ -259,24 +256,24 @@ export function LunarSurface({ progress, reducedMotion }) {
   });
   const map = useTexture(SCENE_TEXTURES.moon);
   const { geometry, craters } = useMemo(() => {
-    const random = seededRandom(1997);
-    const craters = Array.from({ length: 48 }, () => ({
-      x: (random() - 0.5) * 200,
-      z: random() * 170 - 72,
-      radius: 3 + random() * 12,
-    }));
-    const geometry = new THREE.PlaneGeometry(260, 220, 220, 180);
+    const craters = createLunarCraters();
+    const geometry = new THREE.PlaneGeometry(
+      260,
+      220,
+      ...lunarSegments(compact),
+    );
     geometry.rotateX(-Math.PI / 2);
     geometry.translate(0, 0, 30);
     const positions = geometry.attributes.position;
     for (let i = 0; i < positions.count; i++)
       positions.setY(
         i,
-        terrainHeight(positions.getX(i), positions.getZ(i), craters),
+        lunarHeight(positions.getX(i), positions.getZ(i), craters),
       );
     geometry.computeVertexNormals();
+    geometry.computeBoundingSphere();
     return { geometry, craters };
-  }, []);
+  }, [compact]);
   const lunarMap = useMemo(() => {
     const texture = map.clone();
     texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
@@ -287,13 +284,16 @@ export function LunarSurface({ progress, reducedMotion }) {
   }, [map]);
   const rocks = useRef();
   React.useLayoutEffect(() => {
+    gl.initTexture(lunarMap);
+  }, [gl, lunarMap]);
+  React.useLayoutEffect(() => {
     const random = seededRandom(42);
     const dummy = new THREE.Object3D();
     for (let i = 0; i < 180; i++) {
       const x = (random() - 0.5) * 120;
       const z = random() * 120 - 50;
       const scale = 0.12 + Math.pow(random(), 3) * 1.3;
-      dummy.position.set(x, terrainHeight(x, z, craters) + scale * 0.2, z);
+      dummy.position.set(x, lunarHeight(x, z, craters) + scale * 0.2, z);
       dummy.scale.set(scale * 1.4, scale * 0.65, scale);
       dummy.rotation.set(random(), random() * 6, random());
       dummy.updateMatrix();
@@ -301,19 +301,14 @@ export function LunarSurface({ progress, reducedMotion }) {
     }
     rocks.current.instanceMatrix.needsUpdate = true;
   }, [craters]);
-  React.useEffect(
-    () => () => {
-      geometry.dispose();
-      lunarMap.dispose();
-    },
-    [geometry, lunarMap],
-  );
+  React.useEffect(() => () => geometry.dispose(), [geometry]);
+  React.useEffect(() => () => lunarMap.dispose(), [lunarMap]);
   return (
     <group ref={group}>
-      <mesh geometry={geometry}>
+      <mesh ref={ground} name="lunar-ground" geometry={geometry}>
         <meshStandardMaterial
           map={lunarMap}
-          color="#858a98"
+          color="#85837f"
           roughness={1}
           bumpMap={lunarMap}
           bumpScale={0.65}

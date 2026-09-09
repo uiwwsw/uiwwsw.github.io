@@ -1,5 +1,7 @@
 # Progressive first paint and startup dependency repair — 2026-09-09
 
+The progressive-loading infrastructure below is retained. The visible opening camera and lunar-resource warm-up now follow [landing-qa.md](./landing-qa.md).
+
 ## Confirmed code/build causes
 
 - The canvas stayed at opacity zero until all four Earth/Moon maps loaded, including the 1,508,389-byte packed cloud map. The previously correct SSR interface therefore sat above a mostly empty dark background before a relatively fast 0.7-second scene reveal.

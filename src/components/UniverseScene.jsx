@@ -18,6 +18,12 @@ import {
 } from "../utils/secretSignal.js";
 import { flightPose, seededRandom } from "../utils/observatory";
 import { createSceneStartup } from "../utils/sceneStartup.js";
+import {
+  createLandingMotion,
+  stepLandingMotion,
+  landingPose,
+  landingLight,
+} from "../utils/landingMotion.js";
 
 const starVertex = `
   attribute float aSize;
@@ -194,6 +200,50 @@ function BackgroundStars({ paused, compact, focus }) {
     </points>
   );
 }
+function LandingSequence({
+  landingRef,
+  ready,
+  visible,
+  skip,
+  progress,
+  inputRef,
+  onComplete,
+}) {
+  const reported = useRef(false);
+  useFrame((_, delta) => {
+    stepLandingMotion(landingRef.current, delta, {
+      ready,
+      paused: !visible,
+      skip,
+      interrupted: progress > 0 || inputRef.current.interacted,
+    });
+    if (landingRef.current.phase === "done" && !reported.current) {
+      reported.current = true;
+      onComplete?.();
+    }
+  }, -2);
+  return null;
+}
+
+function LunarLight({ landingRef }) {
+  const light = useRef();
+  const cool = useMemo(() => new THREE.Color("#e2e8f4"), []);
+  const warm = useMemo(() => new THREE.Color("#ffdfb4"), []);
+  useFrame(() => {
+    const { warmth, intensity } = landingLight(landingRef.current.amount);
+    light.current.color.copy(cool).lerp(warm, warmth);
+    light.current.intensity = intensity;
+  });
+  return (
+    <directionalLight
+      ref={light}
+      position={[-40, 45, 20]}
+      intensity={2.8}
+      color="#e2e8f4"
+    />
+  );
+}
+
 function CameraRig({
   progress,
   signal,
@@ -204,6 +254,7 @@ function CameraRig({
   inputRef,
   sector,
   earthFocusRef,
+  landingRef,
 }) {
   const { camera } = useThree();
   const look = useRef(new THREE.Vector3(...flightPose(0, compact).target));
@@ -214,9 +265,13 @@ function CameraRig({
   }, [camera, compact]);
   const targetPosition = useMemo(() => new THREE.Vector3(), []);
   const targetLook = useMemo(() => new THREE.Vector3(), []);
-  useEffect(() => {
+  useLayoutEffect(() => {
     // Warp between distant regions; never fly through Earth to reach a sector.
-    const pose = flightPose(progress, compact);
+    const pose = landingPose(
+      flightPose(progress, compact),
+      sector.id === "home" ? landingRef.current.amount : 0,
+      compact,
+    );
     camera.position.set(
       ...pose.position.map((value, i) => value + sector.origin[i]),
     );
@@ -229,13 +284,17 @@ function CameraRig({
     const dt = Math.min(delta, 0.05);
     drift.current = advanceAmbientTime(drift.current, dt, paused);
     const focus = earthFocusBlend(signal);
-    const pose = signalFlightPose(
-      progress,
-      signal,
+    const pose = landingPose(
+      signalFlightPose(
+        progress,
+        signal,
+        compact,
+        earthFocusRef.current.lengthSq() > 0.5
+          ? earthFocusRef.current.toArray()
+          : undefined,
+      ),
+      landingRef.current.amount,
       compact,
-      earthFocusRef.current.lengthSq() > 0.5
-        ? earthFocusRef.current.toArray()
-        : undefined,
     );
     const fov = selected ? (compact ? 58 : 46) : earthFocusFov(signal, compact);
     const nextFov = reducedMotion
@@ -320,6 +379,9 @@ export default function UniverseScene({
   reducedMotion,
   compact,
   onReady,
+  revealed = false,
+  onLandingComplete,
+  skipLanding = false,
   enhance = false,
   onError,
   inputRef,
@@ -333,6 +395,7 @@ export default function UniverseScene({
 }) {
   const earthFocusRef = useRef(new THREE.Vector3());
   const assetsReady = useRef(false);
+  const landingRef = useRef(createLandingMotion());
   const focus = earthFocusBlend(signal);
   return (
     <Canvas
@@ -365,12 +428,19 @@ export default function UniverseScene({
         );
       }}
     >
-      <ambientLight intensity={0.12} color="#8a9fca" />
-      <directionalLight
-        position={[-40, 45, 20]}
-        intensity={2.8}
-        color="#e2e8f4"
+      <LandingSequence
+        landingRef={landingRef}
+        ready={revealed}
+        onComplete={onLandingComplete}
+        visible={visible}
+        skip={
+          reducedMotion || skipLanding || !!selected || sector.id !== "home"
+        }
+        progress={progress}
+        inputRef={inputRef}
       />
+      <ambientLight intensity={0.12} color="#8a9fca" />
+      <LunarLight landingRef={landingRef} />
       <group position={sector.origin}>
         <DeepSky paused={paused} focus={focus} />
         <BackgroundStars paused={paused} compact={compact} focus={focus} />
@@ -390,7 +460,12 @@ export default function UniverseScene({
           enhance={enhance}
         />
         {sector.id === "home" && (
-          <LunarSurface progress={progress} reducedMotion={reducedMotion} />
+          <LunarSurface
+            landingRef={landingRef}
+            progress={progress}
+            reducedMotion={reducedMotion}
+            compact={compact}
+          />
         )}
         <SceneReady assetsReady={assetsReady} />
       </Suspense>
@@ -411,6 +486,7 @@ export default function UniverseScene({
         onDiagnostics={onDiagnostics}
       />
       <CameraRig
+        landingRef={landingRef}
         earthFocusRef={earthFocusRef}
         sector={sector}
         progress={progress}
