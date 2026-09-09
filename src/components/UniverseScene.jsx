@@ -16,7 +16,8 @@ import {
   earthFocusBlend,
   earthFocusFov,
 } from "../utils/secretSignal.js";
-import { flightPose, seededRandom, earthPosition } from "../utils/observatory";
+import { flightPose, earthPosition } from "../utils/observatory";
+import { createBackgroundStarData } from "../utils/skyBackdrop.js";
 import { createSceneStartup } from "../utils/sceneStartup.js";
 import {
   createWorldAssembly,
@@ -114,43 +115,7 @@ function BackgroundStars({ paused, compact, focus }) {
     }),
     [gl],
   );
-  const data = useMemo(() => {
-    const random = seededRandom(20260907);
-    const count = compact ? 2800 : 6000;
-    const positions = [],
-      colors = [],
-      sizes = [],
-      phases = [];
-    for (let i = 0; i < count; i++) {
-      const azimuth = random() * Math.PI * 2;
-      const latitude =
-        i < count * 0.65
-          ? (random() - 0.5) * 0.22
-          : Math.asin(random() * 2 - 1);
-      const radius = 200 + random() * 180;
-      const x = Math.cos(azimuth) * Math.cos(latitude) * radius;
-      const y = Math.sin(latitude) * radius;
-      positions.push(
-        x,
-        y + x * 0.45 + 40,
-        Math.sin(azimuth) * Math.cos(latitude) * radius,
-      );
-      const warmth = random();
-      colors.push(
-        0.67 + warmth * 0.3,
-        0.73 + warmth * 0.17,
-        0.9 - warmth * 0.15,
-      );
-      sizes.push(random() < 0.025 ? 4 + random() * 3 : 0.7 + random() * 2.1);
-      phases.push(random() * 6.28);
-    }
-    return {
-      positions: new Float32Array(positions),
-      colors: new Float32Array(colors),
-      sizes: new Float32Array(sizes),
-      phases: new Float32Array(phases),
-    };
-  }, [compact]);
+  const data = useMemo(() => createBackgroundStarData(compact), [compact]);
   useFrame((_, delta) => {
     uniforms.uOpacity.value = 1 - focus;
     uniforms.uTime.value = advanceAmbientTime(
@@ -439,11 +404,15 @@ export default function UniverseScene({
         color="#e2e8f4"
       />
       <group position={sector.origin}>
-        <DeepSky paused={paused} focus={focus} />
-        <BackgroundStars paused={paused} compact={compact} focus={focus} />
+        <DeepSky paused={paused || !revealed} focus={focus} />
+        <BackgroundStars
+          paused={paused || !revealed}
+          compact={compact}
+          focus={focus}
+        />
       </group>
       <AmbientSpace
-        paused={paused}
+        paused={paused || !revealed}
         compact={compact}
         focus={focus}
         diagnostics={diagnostics}

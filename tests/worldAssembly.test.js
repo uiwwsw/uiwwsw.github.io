@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import * as THREE from "three";
+import { lunarRevealOpacity } from "../src/utils/lunarReveal.js";
 import {
   createWorldAssembly,
   stepWorldAssembly,
@@ -63,7 +64,7 @@ const earthSphere = (state) =>
     EARTH_RADIUS * 1.025,
   );
 
-test("the entire Earth atmosphere and lunar floor/rocks start outside every tested viewport", () => {
+test("Earth starts fully offscreen and the gently lowered Moon is completely unrevealed", () => {
   for (const [width, height] of viewports) {
     const { state, frustum } = setup(width, height);
     assert.equal(
@@ -72,15 +73,9 @@ test("the entire Earth atmosphere and lunar floor/rocks start outside every test
       `Earth edge at ${width}x${height}`,
     );
     const drop = assemblyGroundY(state.layout, 1);
-    const groundAndRocks = new THREE.Box3(
-      new THREE.Vector3(-132, -25 + drop, -82),
-      new THREE.Vector3(132, 4 + drop, 142),
-    );
-    assert.equal(
-      frustum.intersectsBox(groundAndRocks),
-      false,
-      `ground edge at ${width}x${height}`,
-    );
+    assert.ok(drop >= -3.2 && drop < 0, "no large elevator-like displacement");
+    for (let height = 0; height <= 1; height += 0.01)
+      assert.equal(lunarRevealOpacity(height, 1 - state.ground), 0);
     advance(state, ASSEMBLY_DURATION + 0.1);
     assert.equal(frustum.intersectsSphere(earthSphere(state)), true);
   }
@@ -144,15 +139,16 @@ test("the visible Earth and floor keep their rhythm across viewports and refresh
             return (
               Math.abs(point.x) < 1 &&
               Math.abs(point.y) < 1 &&
-              Math.abs(point.z) < 1
+              Math.abs(point.z) < 1 &&
+              lunarRevealOpacity((point.y + 1) / 2, 1 - state.ground) > 0.05
             );
           })
         )
           firstGround = state.elapsed;
       }
-      assert.ok(firstEarth > 0 && firstEarth <= 0.2, `Earth at ${firstEarth}`);
+      assert.ok(firstEarth > 0.4 && firstEarth < 1.2, `Earth at ${firstEarth}`);
       assert.ok(
-        firstGround > firstEarth + 0.2 && firstGround < 0.65,
+        firstGround >= 0.85 && firstGround < 1.35,
         `floor at ${firstGround}`,
       );
       assert.equal(state.phase, "done");
@@ -183,21 +179,24 @@ test("cold startup and hidden tabs never consume the object entry animation", ()
   }
 });
 
-test("brisk entry and soft settlement follow separate beats without an empty lead-in", () => {
+test("the sky gets a short lead, then both bodies accelerate and settle without a launch snap", () => {
   const state = createWorldAssembly();
   stepWorldAssembly(state, 1 / 120, { ready: true });
-  assert.ok(state.earth < 1, "Earth moves on the first ready frame");
+  assert.equal(state.earth, 1, "the background starts the handoff first");
   assert.equal(state.ground, 1, "the floor waits for its own beat");
   advance(state, 0.1, { ready: true }, 120);
   assert.equal(state.ground, 1);
   advance(state, 0.1, { ready: true }, 120);
+  assert.ok(state.earth < 1);
+  assert.equal(state.ground, 1);
+  advance(state, 0.5, { ready: true }, 120);
   assert.ok(state.ground < 1);
-  assert.equal(ASSEMBLY_DURATION, 1.8);
+  assert.equal(ASSEMBLY_DURATION, 2.6);
   for (const [key, timing] of Object.entries(ASSEMBLY_TIMING)) {
     const end = timing.start + timing.duration;
     const nearArrival = createWorldAssembly();
     advance(nearArrival, end - 0.05);
-    assert.ok(nearArrival[key] < 0.0001, "no visible last-frame snap");
+    assert.ok(nearArrival[key] < 0.0002, "no visible last-frame snap");
     advance(nearArrival, 0.1);
     assert.equal(nearArrival[key], 0);
   }

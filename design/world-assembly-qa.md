@@ -1,5 +1,7 @@
 # World assembly: fixed camera, offscreen objects
 
+Historical record of the 1.8-second entrance. The later background-pop / floating-floor correction supersedes its large terrain translation and timing; see [continuous-sky-qa.md](./continuous-sky-qa.md) for the current implementation and browser verification.
+
 ## Corrected direction
 
 The owner clarified that the **world itself** should slide into place, then requested a faster, rhythmic cinematic start. The previous camera descent and changing warm sidelight remain removed. On a fresh load, Earth starts fully beyond the right edge and the entire lunar terrain/rock group below the bottom edge. Earth slides horizontally toward its existing upper-right position; the floor follows upward on a delayed curve. Both now settle without overshoot in **1.8 seconds**, down from 5.6. This is real group translation, not a fade of stationary objects, a CSS canvas transform, a moved camera or a duplicate globe/poster.

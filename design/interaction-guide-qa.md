@@ -2,7 +2,7 @@
 
 ## Intent and interaction
 
-Replace the small, permanently printed footer gesture text with a short, visually distinct invitation. The actual world and its 1.8-second opening stay unchanged. Guidance becomes visible only after the scene is ready and assembly completes; its 0.25-second opacity / 0.35-second position transition adds no page-load timer or control lock.
+Replace the small, permanently printed footer gesture text with a short, visually distinct invitation. Guidance follows the world-assembly completion callback, not a hardcoded duration (the current opening is 2.6 seconds). Its 0.25-second opacity / 0.35-second position transition adds no page-load timer or control lock.
 
 - Desktop: **스크롤을 내려, 별 사이로**, with a moving mouse-wheel glyph and secondary drag / arrow-key / star-click instructions.
 - Touch: **두 손가락을 벌려 다가가 보세요**, with two fingertip glyphs spreading apart and secondary drag-to-look / tap-star-to-read instructions. One-finger dragging is never described as zoom.

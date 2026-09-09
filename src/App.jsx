@@ -447,6 +447,7 @@ export default function App({ initialHome } = {}) {
           setGuidePointer(event.pointerType);
       }}
       className={`observatory ${exploring ? "is-exploring" : ""} ${sceneReady ? "scene-ready" : ""} ${assembled ? "has-assembled" : ""} ${focusingEarth ? "is-earth-focused" : ""}`}
+      data-reduced-motion={reducedMotion}
       style={{ "--earth-focus": earthFocus }}
       ref={sceneRef}
     >

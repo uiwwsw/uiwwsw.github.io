@@ -5,17 +5,18 @@ import {
   flightPose,
 } from "./observatory.js";
 
-// Seconds from the real scene-ready signal, not from navigation. Travel starts
-// briskly while still offscreen and decelerates to zero velocity on arrival.
-// A long rest-to-rest ease used to hide the first Earth edge for almost 2s.
+// Seconds from real readiness. Background handoff and world entry overlap,
+// without launching the planet at full velocity or lifting an entire slab.
 export const ASSEMBLY_TIMING = {
-  earth: { start: 0, duration: 1.25 },
-  ground: { start: 0.18, duration: 1.62 },
+  earth: { start: 0.12, duration: 2 },
+  ground: { start: 0.65, duration: 1.95 },
 };
 export const ASSEMBLY_DURATION =
   ASSEMBLY_TIMING.ground.start + ASSEMBLY_TIMING.ground.duration;
-const remainingOffset = (elapsed, { start, duration }) =>
-  (1 - clamp((elapsed - start) / duration)) ** 3;
+const remainingOffset = (elapsed, { start, duration }) => {
+  const t = clamp((elapsed - start) / duration);
+  return clamp(1 - t * t * t * (t * (t * 6 - 15) + 10));
+};
 
 const dot = (a, b) => a.reduce((sum, value, i) => sum + value * b[i], 0);
 const normalize = (v) => v.map((value) => value / Math.hypot(...v));
@@ -26,8 +27,8 @@ const cross = (a, b) => [
 ];
 
 // Calibrate against the fixed opening frustum, never against a moving camera.
-// The entire atmosphere sphere starts past the right plane; terrain AND rocks
-// start below the bottom plane. Pixel offsets would fail on wide/tall screens.
+// The entire atmosphere sphere starts past the right plane. The ground uses
+// a feathered screen-edge reveal plus a small physical settlement instead.
 export function worldAssemblyLayout(compact, aspect = 1) {
   const pose = flightPose(0, compact);
   const forward = normalize(pose.target.map((v, i) => v - pose.position[i]));
@@ -108,4 +109,6 @@ export function stepWorldAssembly(
 export const assemblyEarthPosition = ({ baseEarth, earthOffset }, amount) =>
   baseEarth.map((v, i) => v + earthOffset[i] * clamp(amount));
 export const assemblyGroundY = ({ groundOffset }, amount) =>
-  clamp(amount) === 0 ? 0 : groundOffset * clamp(amount);
+  clamp(amount) === 0
+    ? 0
+    : -Math.min(3.2, Math.abs(groundOffset) * 0.055) * clamp(amount) ** 2;
