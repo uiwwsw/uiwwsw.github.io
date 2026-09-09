@@ -81,7 +81,7 @@ test("arrival consumes normal momentum and a lone hard push cannot find the secr
 test("even maximal sustained effort takes time, then a discovered signal stays open", () => {
   const state = createFlightMotion(1);
   let revealedAt;
-  for (let i = 0; i < 60 * 15; i++) {
+  for (let i = 0; i < 60 * 65; i++) {
     queueFlightImpulse(state, 999);
     stepFlightMotion(state, 1 / 60);
     if (state.distance === SIGNAL_DISTANCE) {
@@ -89,7 +89,8 @@ test("even maximal sustained effort takes time, then a discovered signal stays o
       break;
     }
   }
-  assert.ok(revealedAt > 8 && revealedAt < 12, `reveal after ${revealedAt}s`);
+  assert.ok(revealedAt > 40 && revealedAt < 55, `reveal after ${revealedAt}s`);
+  assert.equal(state.reboundIndex, 3);
   run(state, 20);
   assert.equal(state.distance, SIGNAL_DISTANCE);
   queueFlightImpulse(state, -0.03);
@@ -98,12 +99,77 @@ test("even maximal sustained effort takes time, then a discovered signal stays o
 
 test("repeated mobile swipes can discover it; short pauses between strokes are allowed", () => {
   const state = createFlightMotion(1);
-  for (let frame = 0; frame < 60 * 35; frame++) {
-    // One 300px upward stroke per second, spread across 0.6s.
+  for (let frame = 0; frame < 60 * 100; frame++) {
+    // One 300px downward stroke per second, spread across 0.6s.
     if (frame % 60 < 36) queueFlightImpulse(state, (300 * 0.3) / 844 / 36);
     stepFlightMotion(state, 1 / 60);
   }
   assert.equal(state.distance, SIGNAL_DISTANCE);
+});
+
+test("the field visibly rebounds three times, then stopping loses unfinished progress", () => {
+  const state = createFlightMotion(1);
+  let backwardFrames = 0;
+  for (let frame = 0; frame < 60 * 35; frame++) {
+    queueFlightImpulse(state, 0.03);
+    const before = state.distance;
+    stepFlightMotion(state, 1 / 60);
+    if (state.distance < before) backwardFrames++;
+  }
+  assert.equal(state.reboundIndex, 3);
+  assert.ok(backwardFrames > 40);
+  assert.ok(state.distance > 1 && state.distance < SIGNAL_DISTANCE);
+  run(state, 12);
+  assert.equal(state.distance, 1);
+  assert.equal(state.reboundIndex, 0, "a new attempt includes all resistance shells");
+});
+
+test("casual scrolling and a trackpad fling cannot accidentally complete discovery", () => {
+  const casual = createFlightMotion(1);
+  for (let frame = 0; frame < 60 * 120; frame++) {
+    if (frame % 60 === 0) queueFlightImpulse(casual, wheel());
+    stepFlightMotion(casual, 1 / 60);
+  }
+  assert.ok(casual.distance < 1.02);
+  const fling = createFlightMotion(0.99);
+  for (let frame = 0; frame < 60 * 6; frame++) {
+    queueFlightImpulse(fling, wheel(400 * Math.exp(-frame / 30)));
+    stepFlightMotion(fling, 1 / 60);
+  }
+  assert.ok(fling.distance < 1.08);
+  run(fling, 10);
+  assert.equal(fling.distance, 1);
+});
+
+test("reduced motion still requires sustained effort without involuntary recoil", () => {
+  const options = { reducedMotion: true };
+  const state = createFlightMotion(1);
+  let revealedAt;
+  for (let frame = 0; frame < 60 * 70; frame++) {
+    queueFlightImpulse(state, 0.03, options);
+    const before = state.distance;
+    stepFlightMotion(state, 1 / 60, options);
+    assert.ok(state.distance >= before);
+    if (state.distance === SIGNAL_DISTANCE) {
+      revealedAt = (frame + 1) / 60;
+      break;
+    }
+  }
+  assert.ok(revealedAt > 40 && revealedAt < 60, `quiet discovery after ${revealedAt}s`);
+  assert.equal(state.reboundIndex, 3);
+});
+
+test("secret effort and rebounds remain consistent at 30, 60 and 120 Hz", () => {
+  const timings = [30, 60, 120].map((fps) => {
+    const state = createFlightMotion(1);
+    for (let frame = 0; frame < fps * 70; frame++) {
+      queueFlightImpulse(state, 0.16 / fps);
+      stepFlightMotion(state, 1 / fps);
+      if (state.distance === SIGNAL_DISTANCE) return (frame + 1) / fps;
+    }
+    assert.fail("unreachable at " + fps);
+  });
+  assert.ok(Math.max(...timings) - Math.min(...timings) < 0.4, String(timings));
 });
 
 test("reduced motion keeps manual access with no normal inertia or passive pushback", () => {
@@ -137,6 +203,41 @@ test("flight pace is frame-rate independent and hidden-tab-sized deltas do not j
   stepFlightMotion(state, NaN);
   queueFlightImpulse(state, Infinity);
   assert.equal(state.distance, before);
+});
+
+test("normal cruise feels consistent for wheel bursts and continuous trackpad delivery", () => {
+  const distances = [6, 30, 60, 120].map((eventsPerSecond) => {
+    const state = createFlightMotion(0.1);
+    for (let frame = 0; frame < 120 * 6; frame++) {
+      if (frame % (120 / eventsPerSecond) === 0)
+        queueFlightImpulse(state, wheel(360 / eventsPerSecond));
+      stepFlightMotion(state, 1 / 120);
+    }
+    run(state, 2);
+    return state.distance;
+  });
+  assert.ok(
+    Math.max(...distances) - Math.min(...distances) < 0.001,
+    String(distances),
+  );
+  assert.ok(Math.abs(distances[0] - (0.1 + 6 * 360 * 0.00018)) < 0.001);
+});
+
+test("pausing flushes hidden pressure; reverse and an explicit reset always escape", () => {
+  const state = createFlightMotion(1.1);
+  queueFlightImpulse(state, 0.1);
+  stopFlightMotion(state);
+  run(state, 0.5);
+  assert.equal(state.distance, 1.1);
+  state.rebound = 0.02;
+  state.reboundIndex = 1;
+  queueFlightImpulse(state, -0.03);
+  assert.ok(state.distance < 1.1);
+  assert.equal(state.rebound, 0);
+  resetFlightMotion(state, 0.2);
+  run(state, 10);
+  assert.equal(state.distance, 0.2);
+  assert.equal(state.reboundIndex, 0);
 });
 
 test("programmatic travel clears inertia and non-home sectors cannot enter the signal", () => {

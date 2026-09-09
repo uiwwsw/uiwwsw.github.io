@@ -36,7 +36,7 @@ test("signal progress is bounded, reversible and can be rediscovered", () => {
   assert.ok(signalStrength(advanceFlight(SIGNAL_DISTANCE, -0.08)) < 1);
   assert.equal(signalStrength(advanceFlight(SIGNAL_DISTANCE, -1)), 0);
   let distance = 1;
-  for (let i = 0; i < 50; i++) distance = advanceFlight(distance, 0.11);
+  for (let i = 0; i < 100; i++) distance = advanceFlight(distance, 0.11);
   assert.equal(signalStrength(distance), 1);
 });
 
@@ -59,12 +59,12 @@ test("ordinary wheel and touch gestures press only a little into the field", () 
     clientX: x,
     clientY: y,
   });
-  gesture.start(touch(180, 600));
+  gesture.start(touch(180, 350));
   const touchSignal = signalStrength(
-    advanceFlight(1, gesture.move(touch(180, 350)).travel),
+    advanceFlight(1, gesture.move(touch(180, 600)).travel),
   );
   assert.ok(touchSignal > 0 && touchSignal < 0.1);
-  gesture.end(touch(180, 350));
+  gesture.end(touch(180, 600));
   gesture.start(touch(300, 450));
   assert.equal(
     signalStrength(advanceFlight(1, gesture.move(touch(100, 450)).travel)),
@@ -97,6 +97,13 @@ test("the extra approach preserves the main route and stays safely outside Earth
         Math.hypot(...position.map((value, i) => value - earth[i])) >
           EARTH_RADIUS + 5,
       );
+      if (progress === 1) {
+        const separation = Math.hypot(
+          ...position.map((value, i) => value - earth[i]),
+        );
+        assert.ok(Math.abs(separation - (EARTH_RADIUS + 5.5)) < 1e-10);
+        assert.deepEqual(target, earth);
+      }
     }
   }
 });

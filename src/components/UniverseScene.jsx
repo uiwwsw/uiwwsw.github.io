@@ -224,9 +224,12 @@ function CameraRig({
       );
     } else {
       targetPosition.set(...pose.position);
+      const viewScale = 1 - signal * signal * 0.9;
       targetLook.set(
-        pose.target[0] + inputRef.current.lookX,
-        pose.target[1] + inputRef.current.lookY,
+        pose.target[0] + inputRef.current.lookX * viewScale,
+        pose.target[1] +
+          (inputRef.current.lookY + (paused ? 0 : inputRef.current.travelPitch)) *
+            viewScale,
         pose.target[2],
       );
     }
@@ -234,9 +237,10 @@ function CameraRig({
       targetPosition.x += Math.sin(drift.current * 0.14) * 0.28;
       targetPosition.y += Math.sin(drift.current * 0.21) * 0.16;
     }
-    const easing = reducedMotion ? 1 : 1 - Math.exp(-dt * 2.2);
+    const easing = reducedMotion ? 1 : 1 - Math.exp(-dt * 4.5);
     camera.position.lerp(targetPosition, easing);
-    look.current.lerp(targetLook, easing);
+    // Looking responds faster than travel so the finger never feels tethered.
+    look.current.lerp(targetLook, reducedMotion ? 1 : 1 - Math.exp(-dt * 8));
     camera.lookAt(look.current);
   });
   return null;

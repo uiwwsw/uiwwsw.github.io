@@ -1,18 +1,25 @@
 import { clamp } from "./observatory.js";
 
-export const createFlightInput = () => ({ lookX: 0, lookY: 0, dragged: false });
+export const createFlightInput = () => ({
+  lookX: 0,
+  lookY: 0,
+  travelPitch: 0,
+  dragged: false,
+});
 export function centerFlightInput(input) {
   input.lookX = 0;
   input.lookY = 0;
+  input.travelPitch = 0;
 }
 
-// One gesture owns both axes. Lock touch gestures after a small tap tolerance,
-// so a horizontal swipe never also advances the flight because of finger jitter.
+// Lock only the gesture's intent, not its viewing axes. A diagonal/look gesture
+// stays free to pan vertically without accidentally becoming forward travel.
 export function createFlightGesture(input, getViewport) {
   let pointer = null;
   return {
     start(event) {
       input.dragged = false;
+      input.travelPitch = 0;
       if (event.isPrimary === false) {
         pointer = null;
         input.dragged = true;
@@ -38,9 +45,9 @@ export function createFlightGesture(input, getViewport) {
         if (Math.hypot(totalX, totalY) < 8) return null;
         pointer.axis =
           pointer.type === "touch"
-            ? Math.abs(totalX) > Math.abs(totalY)
-              ? "horizontal"
-              : "vertical"
+            ? Math.abs(totalY) > Math.abs(totalX) * 1.25
+              ? "vertical"
+              : "free"
             : "free";
       }
       input.dragged = true;
@@ -54,22 +61,42 @@ export function createFlightGesture(input, getViewport) {
           pointer.type === "touch" ? 72 / Math.max(width, 320) : 0.055;
         input.lookX = clamp(input.lookX - dx * sensitivity, -52, 52);
       }
-      if (pointer.axis === "free")
-        input.lookY = clamp(input.lookY + dy * 0.04, -16, 20);
+      if (pointer.axis === "free") {
+        const sensitivity =
+          pointer.type === "touch" ? 56 / Math.max(height, 320) : 0.055;
+        input.lookY = clamp(input.lookY + dy * sensitivity, -32, 36);
+      } else {
+        // A small flight lean follows the finger, then returns on release.
+        // Repeated forward strokes never accumulate a view pointed off-world.
+        input.travelPitch = clamp(
+          input.travelPitch + (dy * 14) / Math.max(height, 320),
+          -5,
+          5,
+        );
+      }
       return {
         travel:
-          pointer.axis === "vertical" ? (-dy * 0.3) / Math.max(height, 320) : 0,
+          pointer.axis === "vertical" ? (dy * 0.3) / Math.max(height, 320) : 0,
       };
     },
     end(event) {
-      if (pointer?.id === event.pointerId) pointer = null;
+      if (pointer?.id === event.pointerId) {
+        pointer = null;
+        input.travelPitch = 0;
+      }
     },
     cancel() {
       if (pointer) input.dragged = true;
       pointer = null;
+      input.travelPitch = 0;
     },
     wheel(event) {
-      const unit = event.deltaMode === 1 ? 18 : event.deltaMode === 2 ? 700 : 1;
+      const unit =
+        event.deltaMode === 1
+          ? 18
+          : event.deltaMode === 2
+            ? Math.max(getViewport().height, 320)
+            : 1;
       const dx = event.deltaX * unit;
       const dy = event.deltaY * unit;
       if (Math.abs(dx) > Math.abs(dy)) {
