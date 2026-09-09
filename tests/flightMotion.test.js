@@ -1,0 +1,191 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import {
+  createFlightGesture,
+  createFlightInput,
+} from "../src/utils/flightInput.js";
+import {
+  createFlightMotion,
+  queueFlightImpulse,
+  resetFlightMotion,
+  stepFlightMotion,
+  stopFlightMotion,
+  FLIGHT_SPEED,
+  MAX_COAST,
+} from "../src/utils/flightMotion.js";
+import { SIGNAL_DISTANCE, signalStrength } from "../src/utils/secretSignal.js";
+import {
+  packStarLabels,
+  transitionStarLabels,
+} from "../src/utils/starSelection.js";
+
+const run = (state, seconds, options = {}, fps = 60) => {
+  for (let i = 0; i < seconds * fps; i++)
+    stepFlightMotion(state, 1 / fps, options);
+};
+const wheel = (deltaY = 100, deltaMode = 0) =>
+  createFlightGesture(createFlightInput(), () => ({
+    width: 390,
+    height: 844,
+  })).wheel({ deltaX: 0, deltaY, deltaMode }).travel;
+
+test("a wheel notch gives a small, smooth impulse instead of an immediate jump", () => {
+  const state = createFlightMotion();
+  queueFlightImpulse(state, wheel());
+  assert.equal(state.distance, 0);
+  for (let i = 0; i < 120; i++) {
+    const before = state.distance;
+    stepFlightMotion(state, 1 / 60);
+    assert.ok(state.distance - before <= FLIGHT_SPEED / 60 + 1e-10);
+  }
+  assert.ok(state.distance > 0.017 && state.distance < 0.019);
+  assert.equal(
+    wheel(3, 1),
+    wheel(54, 0),
+    "line and pixel input use the same scale",
+  );
+  assert.ok(wheel(10000) < 0.033, "large trackpad deltas are capped");
+});
+
+test("bursty trackpad momentum cannot bank an entire trip, and reverse input brakes", () => {
+  const state = createFlightMotion(0.4);
+  for (let i = 0; i < 100; i++) queueFlightImpulse(state, wheel(180));
+  assert.equal(state.pending, MAX_COAST);
+  run(state, 0.5);
+  assert.ok(state.distance <= 0.4 + FLIGHT_SPEED * 0.5 + 1e-10);
+  const before = state.distance;
+  queueFlightImpulse(state, -wheel());
+  run(state, 0.5);
+  assert.ok(state.distance < before);
+  stopFlightMotion(state);
+  const stopped = state.distance;
+  run(state, 1);
+  assert.equal(state.distance, stopped);
+});
+
+test("arrival consumes normal momentum and a lone hard push cannot find the secret", () => {
+  const state = createFlightMotion(0.99);
+  queueFlightImpulse(state, 999);
+  run(state, 2);
+  assert.equal(state.distance, 1);
+  assert.equal(state.pending, 0);
+  queueFlightImpulse(state, 999);
+  run(state, 0.4);
+  assert.ok(
+    signalStrength(state.distance) > 0 && signalStrength(state.distance) < 0.08,
+  );
+  run(state, 4);
+  assert.equal(state.distance, 1);
+});
+
+test("even maximal sustained effort takes time, then a discovered signal stays open", () => {
+  const state = createFlightMotion(1);
+  let revealedAt;
+  for (let i = 0; i < 60 * 15; i++) {
+    queueFlightImpulse(state, 999);
+    stepFlightMotion(state, 1 / 60);
+    if (state.distance === SIGNAL_DISTANCE) {
+      revealedAt = (i + 1) / 60;
+      break;
+    }
+  }
+  assert.ok(revealedAt > 8 && revealedAt < 12, `reveal after ${revealedAt}s`);
+  run(state, 20);
+  assert.equal(state.distance, SIGNAL_DISTANCE);
+  queueFlightImpulse(state, -0.03);
+  assert.ok(state.distance < SIGNAL_DISTANCE, "reverse is never resisted");
+});
+
+test("repeated mobile swipes can discover it; short pauses between strokes are allowed", () => {
+  const state = createFlightMotion(1);
+  for (let frame = 0; frame < 60 * 35; frame++) {
+    // One 300px upward stroke per second, spread across 0.6s.
+    if (frame % 60 < 36) queueFlightImpulse(state, (300 * 0.3) / 844 / 36);
+    stepFlightMotion(state, 1 / 60);
+  }
+  assert.equal(state.distance, SIGNAL_DISTANCE);
+});
+
+test("reduced motion keeps manual access with no normal inertia or passive pushback", () => {
+  const options = { reducedMotion: true };
+  const state = createFlightMotion();
+  queueFlightImpulse(state, wheel(), options);
+  assert.equal(state.distance, wheel());
+  run(state, 2, options);
+  assert.equal(state.distance, wheel());
+  resetFlightMotion(state, 1.2);
+  run(state, 5, options);
+  assert.equal(state.distance, 1.2);
+  queueFlightImpulse(state, 0.05, options);
+  run(state, 0.3, options);
+  assert.ok(state.distance > 1.2);
+});
+
+test("flight pace is frame-rate independent and hidden-tab-sized deltas do not jump", () => {
+  const distances = [30, 60, 120].map((fps) => {
+    const state = createFlightMotion(0.2);
+    queueFlightImpulse(state, 0.09);
+    run(state, 1, {}, fps);
+    return state.distance;
+  });
+  assert.ok(Math.max(...distances) - Math.min(...distances) < 0.001);
+  const state = createFlightMotion(0.2);
+  queueFlightImpulse(state, 0.09);
+  stepFlightMotion(state, 50);
+  assert.ok(state.distance <= 0.2 + FLIGHT_SPEED * 0.05);
+  const before = state.distance;
+  stepFlightMotion(state, NaN);
+  queueFlightImpulse(state, Infinity);
+  assert.equal(state.distance, before);
+});
+
+test("programmatic travel clears inertia and non-home sectors cannot enter the signal", () => {
+  const state = createFlightMotion(0.5);
+  queueFlightImpulse(state, 0.09);
+  resetFlightMotion(state, 0.25);
+  run(state, 2);
+  assert.equal(state.distance, 0.25);
+  resetFlightMotion(state, 1);
+  for (let i = 0; i < 300; i++) {
+    queueFlightImpulse(state, 0.1, { allowSignal: false });
+    stepFlightMotion(state, 1 / 60, { allowSignal: false });
+  }
+  assert.equal(state.distance, 1);
+});
+
+test("readable labels retain priority instead of reshuffling with nearest-star order", () => {
+  const a = { id: "reading", x: 600, y: 300 };
+  const b = { id: "new-nearest", x: 620, y: 300 };
+  assert.deepEqual(
+    packStarLabels([b, a], 1280, 720, false, undefined, [a.id]).map(
+      (item) => item.id,
+    ),
+    [a.id],
+  );
+  assert.deepEqual(
+    packStarLabels([b], 1280, 720, false, undefined, [a.id]).map(
+      (item) => item.id,
+    ),
+    [b.id],
+  );
+});
+
+test("labels fade out before replacements and never exceed the existing DOM budget", () => {
+  const old = [{ id: "a" }, { id: "b" }, { id: "c" }];
+  const desired = [{ id: "a" }, { id: "d" }, { id: "e" }];
+  const initial = transitionStarLabels([], old, 0);
+  const fading = transitionStarLabels(initial, desired, 1);
+  assert.equal(fading.length, 3);
+  assert.equal(fading[1].leavingAt, 1);
+  assert.deepEqual(transitionStarLabels(fading, desired, 1.2), fading);
+  assert.deepEqual(
+    transitionStarLabels(fading, desired, 1.5).map((item) => item.id),
+    ["a", "d", "e"],
+  );
+  assert.deepEqual(transitionStarLabels(fading, [], 1.1, true), []);
+  assert.equal(
+    transitionStarLabels(fading, old, 1.2)[1].leavingAt,
+    null,
+    "reversing can retain a fading label",
+  );
+});

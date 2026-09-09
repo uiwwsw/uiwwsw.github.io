@@ -650,7 +650,14 @@ button {
   backdrop-filter: blur(6px);
   border-radius: 0 4px 4px 0;
   animation: appear 0.6s var(--ease);
-  transition: background 0.2s;
+  transition:
+    background 0.2s,
+    opacity 0.4s ease;
+}
+.star-label.is-leaving {
+  opacity: 0;
+  pointer-events: none;
+  animation: none;
 }
 .star-label > span {
   display: block;
