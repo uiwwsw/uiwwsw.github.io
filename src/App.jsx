@@ -26,6 +26,8 @@ import { HOME_SECTOR, groupSectors } from "./utils/skyRegistry.js";
 import { useArticleContent } from "./hooks/useArticleContent.js";
 import ArticleBody from "./components/ArticleBody.jsx";
 import OpeningSky from "./components/OpeningSky.jsx";
+import FlightGuide from "./components/FlightGuide.jsx";
+import { shouldShowFlightGuide } from "./utils/flightGuide.js";
 import { articlePath, updatePageSeo } from "./utils/seo.js";
 
 const UniverseScene = lazy(() => import("./components/UniverseScene"));
@@ -71,6 +73,8 @@ export default function App({ initialHome } = {}) {
   const [sceneReady, setSceneReady] = useState(false);
   const [sceneSettled, setSceneSettled] = useState(false);
   const [assembled, setAssembled] = useState(false);
+  const [guideRequested, setGuideRequested] = useState(true);
+  const [guidePointer, setGuidePointer] = useState(null);
   const [sceneError, setSceneError] = useState(
     import.meta.env.DEV && initialParams.get("webgl") === "off",
   );
@@ -82,6 +86,8 @@ export default function App({ initialHome } = {}) {
   const [topic, setTopic] = useState("all");
   const [codeOnly, setCodeOnly] = useState(false);
   const compact = useMedia("(max-width: 760px)");
+  const coarsePointer = useMedia("(pointer: coarse)");
+  const touchControls = guidePointer ? guidePointer === "touch" : coarsePointer;
   const reducedMotion =
     useMedia("(prefers-reduced-motion: reduce)") ||
     (import.meta.env.DEV && initialParams.get("motion") === "reduce");
@@ -100,6 +106,15 @@ export default function App({ initialHome } = {}) {
   const signal = sectorId === "home" ? signalStrength(distance) : 0;
   const earthFocus = sceneError ? 0 : earthFocusBlend(signal);
   const focusingEarth = earthFocus > 0.05;
+  const guideVisible = shouldShowFlightGuide({
+    requested: guideRequested,
+    ready: sceneReady,
+    assembled,
+    sceneError: sceneError || dataState === "error",
+    panel,
+    pageHidden,
+    focusingEarth: signal > 0,
+  });
   useEffect(() => {
     const update = () => setPageHidden(document.hidden);
     update();
@@ -168,6 +183,7 @@ export default function App({ initialHome } = {}) {
   }, []);
 
   const selectArticle = useCallback((article) => {
+    setGuideRequested(false);
     setSectorId(article.sectorId || "home");
     setNearby([]);
     setSelected(article);
@@ -200,6 +216,7 @@ export default function App({ initialHome } = {}) {
     setCodeOnly(false);
   }, []);
   const beginJourney = useCallback(() => {
+    setGuideRequested(false);
     setSectorId("home");
     centerFlightInput(inputRef.current);
     setSelected(null);
@@ -213,6 +230,7 @@ export default function App({ initialHome } = {}) {
     }
   }, [reducedMotion, motionPaused]);
   const visitSector = useCallback((id) => {
+    setGuideRequested(false);
     centerFlightInput(inputRef.current);
     setSectorId(id);
     setDistance(0.25);
@@ -225,11 +243,13 @@ export default function App({ initialHome } = {}) {
     setPanel(null);
   }, []);
   const showNearby = useCallback((items) => {
+    setGuideRequested(false);
     setNearby(items);
     setPanel("nearby");
     setCruising(false);
   }, []);
   const enterCloud = useCallback((id) => {
+    setGuideRequested(false);
     setTopic(id);
     setDistance(0.65);
     setCruising(false);
@@ -308,6 +328,7 @@ export default function App({ initialHome } = {}) {
   }, [progress]);
   const manualInput = useCallback(() => {
     inputRef.current.interacted = true;
+    setGuideRequested(false);
     setCruising(false);
   }, []);
   const leaveSignal = useCallback(() => {
@@ -421,6 +442,10 @@ export default function App({ initialHome } = {}) {
 
   return (
     <main
+      onPointerDownCapture={(event) => {
+        if (event.pointerType === "touch" || event.pointerType === "mouse")
+          setGuidePointer(event.pointerType);
+      }}
       className={`observatory ${exploring ? "is-exploring" : ""} ${sceneReady ? "scene-ready" : ""} ${assembled ? "has-assembled" : ""} ${focusingEarth ? "is-earth-focused" : ""}`}
       style={{ "--earth-focus": earthFocus }}
       ref={sceneRef}
@@ -574,7 +599,9 @@ export default function App({ initialHome } = {}) {
           </span>
           <span>
             나의 우주 유영하기
-            <small>{compact ? "PINCH TO EXPLORE" : "SCROLL TO EXPLORE"}</small>
+            <small>
+              {touchControls ? "PINCH TO EXPLORE" : "SCROLL TO EXPLORE"}
+            </small>
           </span>
         </button>
         <div className="intro-caption">
@@ -725,15 +752,34 @@ export default function App({ initialHome } = {}) {
         <div className="flight-controls">
           <div className="flight-labels">
             <span>{sectorId === "home" ? "MOON" : "NEBULA"}</span>
-            <span>
-              {sectorId !== "home"
-                ? "별을 따라 천천히"
-                : signal >= 1
-                  ? "숨겨진 좌표 발견"
-                  : exploring
-                    ? "별을 따라 천천히"
-                    : "스크롤하여 지구로"}
-            </span>
+            {!sceneError && dataState !== "error" && signal === 0 ? (
+              <button
+                className="flight-help"
+                data-flight-control
+                aria-label="우주 조작 안내"
+                title={guideVisible ? "조작 안내 닫기" : "조작 안내 보기"}
+                aria-controls="flight-guide"
+                aria-describedby={
+                  guideVisible ? "flight-guide-copy" : undefined
+                }
+                aria-expanded={guideVisible}
+                disabled={!sceneReady}
+                onClick={() => setGuideRequested(!guideVisible)}
+              >
+                조작 안내
+                <Icon name="help" size={13} />
+              </button>
+            ) : (
+              <span>
+                {sectorId !== "home"
+                  ? "별을 따라 천천히"
+                  : signal >= 1
+                    ? "숨겨진 좌표 발견"
+                    : exploring
+                      ? "별을 따라 천천히"
+                      : "스크롤하여 지구로"}
+              </span>
+            )}
             <span>{sectorId === "home" ? "EARTH" : "STARS"}</span>
           </div>
           <div className="flight-slider">
@@ -749,7 +795,7 @@ export default function App({ initialHome } = {}) {
               max="100"
               value={Math.round(progress * 100)}
               onChange={(event) => {
-                setCruising(false);
+                manualInput();
                 setDistance(Number(event.target.value) / 100);
               }}
               onKeyDown={(event) => {
@@ -769,7 +815,7 @@ export default function App({ initialHome } = {}) {
                 )
                   return;
                 event.preventDefault();
-                setCruising(false);
+                manualInput();
                 travel(
                   ["ArrowUp", "ArrowRight", "PageDown"].includes(event.key)
                     ? 0.03
@@ -825,17 +871,19 @@ export default function App({ initialHome } = {}) {
           )}
         </div>
       </footer>
-      <div className="bottom-credit">
+      <FlightGuide
+        visible={guideVisible}
+        touch={touchControls}
+        quiet={paused}
+      />
+      <div
+        className={`bottom-credit ${guideVisible ? "has-flight-guide" : ""}`}
+      >
         <span>© {new Date().getFullYear()} UIWWSW</span>
         <span>
           {!sceneReady && !sceneError
             ? "PREPARING THE UNIVERSE…"
             : "MADE OF THOUGHTS & STARDUST"}
-        </span>
-        <span className="gesture-hint">
-          {compact
-            ? "한 손가락 · 둘러보기  /  두 손가락 · 확대·축소"
-            : "드래그 · 둘러보기  /  휠 · 이동"}
         </span>
       </div>
 
