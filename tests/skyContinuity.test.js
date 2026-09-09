@@ -108,7 +108,7 @@ test("the initial backdrop has no image request or Three dependency and keeps ma
   assert.doesNotMatch(css, /#233e5c80|#26364e65/);
   assert.match(
     read("src/components/UniverseScene.jsx"),
-    /createBackgroundStarData\(compact\)/,
+    /createBackgroundStarData\(compact, visitSeed\)/,
   );
   assert.match(
     read("src/components/UniverseScene.jsx"),

@@ -28,6 +28,7 @@ import ArticleBody from "./components/ArticleBody.jsx";
 import OpeningSky from "./components/OpeningSky.jsx";
 import FlightGuide from "./components/FlightGuide.jsx";
 import { shouldShowFlightGuide } from "./utils/flightGuide.js";
+import { arrangeVisitStars } from "./utils/visitSky.js";
 import { articlePath, updatePageSeo } from "./utils/seo.js";
 
 const UniverseScene = lazy(() => import("./components/UniverseScene"));
@@ -57,7 +58,7 @@ function useMedia(query) {
   );
 }
 
-export default function App({ initialHome } = {}) {
+export default function App({ initialHome, visitSeed = 0 } = {}) {
   const [articles, setArticles] = useState([]);
   const [sectors, setSectors] = useState([HOME_SECTOR]);
   const [sectorId, setSectorId] = useState("home");
@@ -163,7 +164,9 @@ export default function App({ initialHome } = {}) {
             Number(initialParams.get("stress")),
           );
         if (active) {
-          setArticles(index.articles);
+          setArticles(
+            arrangeVisitStars(index.articles, index.sectors, visitSeed),
+          );
           setSectors(index.sectors);
           if (
             !index.sectors.some(
@@ -290,7 +293,7 @@ export default function App({ initialHome } = {}) {
     if (sectorId !== "home") params.set("sector", sectorId);
     if (selected) params.set("article", selected.id);
     window.history.replaceState(
-      null,
+      window.history.state,
       "",
       `${window.location.pathname}${params.size ? `?${params}` : ""}`,
     );
@@ -448,6 +451,7 @@ export default function App({ initialHome } = {}) {
       }}
       className={`observatory ${exploring ? "is-exploring" : ""} ${sceneReady ? "scene-ready" : ""} ${assembled ? "has-assembled" : ""} ${focusingEarth ? "is-earth-focused" : ""}`}
       data-reduced-motion={reducedMotion}
+      data-sky-visit={clientReady ? visitSeed : undefined}
       style={{ "--earth-focus": earthFocus }}
       ref={sceneRef}
     >
@@ -478,6 +482,7 @@ export default function App({ initialHome } = {}) {
           <SceneBoundary onError={fail}>
             <Suspense fallback={null}>
               <UniverseScene
+                visitSeed={visitSeed}
                 articles={sector.articles}
                 sector={sector}
                 onNearby={showNearby}
