@@ -49,6 +49,22 @@ for (const article of articles) {
 }
 
 const $ = load(await readFile(new URL("index.html", dist), "utf8"));
+// Start downloading the lazy 3D runtime at HTML discovery, without executing it
+// before hydration. Only the homepage gets these low-priority preload hints.
+const manifest = JSON.parse(
+  await readFile(new URL(".vite/manifest.json", dist), "utf8"),
+);
+const sceneEntry = manifest["components/UniverseScene.jsx"];
+if (!sceneEntry) throw new Error("Missing scene entry in the build manifest");
+for (const chunk of [
+  sceneEntry,
+  ...(sceneEntry.imports || []).map((key) => manifest[key]),
+]) {
+  if (!chunk || !/\/(UniverseScene|three)-/.test(chunk.file)) continue;
+  $("head").append(
+    `<link rel="modulepreload" href="/${chunk.file}" crossorigin fetchpriority="low" data-scene-preload>`,
+  );
+}
 $(
   "title, meta[name='description'], meta[name='keywords'], meta[name='author'], meta[name='robots'], meta[property^='og:'], meta[property^='twitter:'], meta[name^='twitter:'], link[rel='canonical'], script[type='application/ld+json']",
 ).remove();

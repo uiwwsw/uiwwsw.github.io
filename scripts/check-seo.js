@@ -4,9 +4,26 @@ import { load } from "cheerio";
 import { buildCatalog } from "../src/utils/observatory.js";
 import { SITE, articlePath, archivePath, pageSeo } from "../src/utils/seo.js";
 import { PAGE_SIZE } from "./lib/seo-pages.js";
+import { SCENE_TEXTURES } from "../src/utils/sceneStartup.js";
 
 const root = new URL("../", import.meta.url);
 const dist = new URL("dist/", root);
+const manifest = JSON.parse(
+  await readFile(new URL(".vite/manifest.json", dist), "utf8"),
+);
+const eager = new Set();
+function collectEager(key) {
+  if (eager.has(key)) return;
+  eager.add(key);
+  for (const imported of manifest[key]?.imports || []) collectEager(imported);
+}
+collectEager("index.html");
+assert.ok(
+  ![...eager].some((key) =>
+    /three|UniverseScene/.test(manifest[key]?.file || key),
+  ),
+  "The initial UI must not statically depend on the lazy 3D runtime",
+);
 const articles = buildCatalog(
   JSON.parse(
     await readFile(new URL("src/data/velog-context.json", root), "utf8"),
@@ -56,6 +73,21 @@ for (const path of expectedPaths) {
       "A different reading layout must never precede the universe",
     );
     assert.equal($("#root .intro h1").length, 1);
+    assert.equal($("#root .opening-sky[aria-hidden='true'] circle").length, 96);
+    const criticalImages = $("head link[rel='preload'][as='image']")
+      .toArray()
+      .map((node) => $(node).attr("href"));
+    assert.deepEqual(
+      new Set(criticalImages),
+      new Set([SCENE_TEXTURES.day, SCENE_TEXTURES.moon]),
+    );
+    const preloads = $("head link[data-scene-preload]").toArray();
+    assert.equal(preloads.length, 2);
+    for (const node of preloads) {
+      assert.equal($(node).attr("rel"), "modulepreload");
+      assert.equal($(node).attr("fetchpriority"), "low");
+      await access(new URL(`.${$(node).attr("href")}`, dist));
+    }
     assert.equal(
       $("#root .site-header .nav-count").text(),
       String(articles.length),

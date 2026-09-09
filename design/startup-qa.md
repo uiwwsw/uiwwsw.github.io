@@ -1,5 +1,7 @@
 # Stable refresh and denser ambient dust — 2026-09-09
 
+Historical revision (`291908e`). SSR/hydration safeguards remain; the all-textures readiness gate and 0.7-second reveal are superseded by [progressive-startup-qa.md](./progressive-startup-qa.md).
+
 ## Code-confirmed causes
 
 The previous `build-seo.js` inserted a standalone `.static-fallback.reading-site` inside `#root`, including a differently arranged header, title and article list. `main.jsx` then replaced it using `createRoot`. A normal JavaScript-enabled load could therefore first paint a reading page and then replace it with the immersive interface. This is a directly observed mismatch in the generated HTML and startup code, not a measured CLS value.

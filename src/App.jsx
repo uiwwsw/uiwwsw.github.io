@@ -25,6 +25,7 @@ import { signalStrength, earthFocusBlend } from "./utils/secretSignal.js";
 import { HOME_SECTOR, groupSectors } from "./utils/skyRegistry.js";
 import { useArticleContent } from "./hooks/useArticleContent.js";
 import ArticleBody from "./components/ArticleBody.jsx";
+import OpeningSky from "./components/OpeningSky.jsx";
 import { articlePath, updatePageSeo } from "./utils/seo.js";
 
 const UniverseScene = lazy(() => import("./components/UniverseScene"));
@@ -68,6 +69,7 @@ export default function App({ initialHome } = {}) {
   const [clientReady, setClientReady] = useState(false);
   const [locationReady, setLocationReady] = useState(false);
   const [sceneReady, setSceneReady] = useState(false);
+  const [sceneSettled, setSceneSettled] = useState(false);
   const [sceneError, setSceneError] = useState(
     import.meta.env.DEV && initialParams.get("webgl") === "off",
   );
@@ -381,7 +383,15 @@ export default function App({ initialHome } = {}) {
     [filtered, query, topic, codeOnly, year],
   );
   const ready = useCallback(() => setSceneReady(true), []);
-  const fail = useCallback(() => setSceneError(true), []);
+  const fail = useCallback(() => {
+    setSceneError(true);
+    setSceneReady(false);
+    setSceneSettled(false);
+  }, []);
+  useEffect(() => {
+    // A reduced-motion handoff has no transitionend event.
+    if (sceneReady && reducedMotion) setSceneSettled(true);
+  }, [sceneReady, reducedMotion]);
   const exploring = sectorId !== "home" || progress > 0.12 || !!selected;
   const latestEssay =
     articles.find((article) => article.topic === "essay") ||
@@ -414,8 +424,17 @@ export default function App({ initialHome } = {}) {
       >
         글 목록으로 바로가기
       </a>
+      {!sceneSettled && <OpeningSky />}
       <div
         className="universe-canvas"
+        onTransitionEnd={(event) => {
+          if (
+            event.target === event.currentTarget &&
+            event.propertyName === "opacity" &&
+            sceneReady
+          )
+            setSceneSettled(true);
+        }}
         aria-label="달에서 지구를 바라보는 3D 우주. 휠을 아래로 굴리거나 화면을 아래로 끌면 다가갑니다. 가로·대각선 드래그로 둘러보고 별을 선택해 글을 읽을 수 있습니다."
       >
         {clientReady && !sceneError && (
@@ -442,6 +461,7 @@ export default function App({ initialHome } = {}) {
                 reducedMotion={reducedMotion}
                 compact={compact}
                 onReady={ready}
+                enhance={sceneSettled}
                 onError={fail}
                 inputRef={inputRef}
               />

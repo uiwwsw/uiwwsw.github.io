@@ -8,18 +8,23 @@ export default defineConfig({
   base: "/",
   publicDir: "../public",
   build: {
+    manifest: true,
     outDir: "../dist",
     emptyOutDir: true,
     rollupOptions: {
       output: {
-        manualChunks: {
-          vendor: ["react", "react-dom"],
-          three: [
-            "three",
-            "@react-three/fiber",
-            "@react-three/drei",
-            "@react-three/postprocessing",
-          ],
+        manualChunks(id) {
+          // Shared JSX/CJS/preload helpers must not land in the 3D chunk:
+          // otherwise the supposedly lazy scene blocks initial React execution.
+          if (
+            /commonjsHelpers|vite\/preload-helper/.test(id) ||
+            /\/node_modules\/(react|react-dom|react-is|scheduler)(\/|$)/.test(
+              id,
+            )
+          )
+            return "vendor";
+          if (/\/node_modules\/(three\/|@react-three\/)/.test(id))
+            return "three";
         },
       },
     },

@@ -1,18 +1,24 @@
-const CACHE_NAME = '__CACHE_VERSION__';
+const CACHE_NAME = "__CACHE_VERSION__";
 // Use relative paths for GitHub Pages compatibility
 const urlsToCache = [
-  '/',
-  '/index.html',
-  '/favicon.ico?v=3',
-  '/favicon-moon-v3.svg',
-  '/favicon-moon-v3-32.png',
-  '/apple-touch-moon-v3.png',
-  '/fonts/SUITE-Variable.woff2'
+  "/",
+  "/index.html",
+  "/favicon.ico?v=3",
+  "/favicon-moon-v3.svg",
+  "/favicon-moon-v3-32.png",
+  "/apple-touch-moon-v3.png",
+  "/fonts/SUITE-Variable.woff2",
 ];
-const CACHEABLE_DESTINATIONS = new Set(['document', 'script', 'style', 'image', 'font']);
+const CACHEABLE_DESTINATIONS = new Set([
+  "document",
+  "script",
+  "style",
+  "image",
+  "font",
+]);
 
 function shouldCacheRequest(request) {
-  if (request.method !== 'GET') {
+  if (request.method !== "GET") {
     return false;
   }
 
@@ -22,7 +28,7 @@ function shouldCacheRequest(request) {
     return false;
   }
 
-  if (url.pathname.startsWith('/data/')) {
+  if (url.pathname.startsWith("/data/")) {
     return false;
   }
 
@@ -30,7 +36,7 @@ function shouldCacheRequest(request) {
 }
 
 function isCacheableResponse(response) {
-  return !!response && response.status === 200 && response.type === 'basic';
+  return !!response && response.status === 200 && response.type === "basic";
 }
 
 async function putInCache(request, response) {
@@ -38,14 +44,23 @@ async function putInCache(request, response) {
     return;
   }
 
+  // Clone before the first await: the browser may start consuming the original
+  // response as soon as we return it, while CacheStorage is still opening.
+  const copy = response.clone();
   const cache = await caches.open(CACHE_NAME);
-  await cache.put(request, response.clone());
+  await cache.put(request, copy);
 }
 
-async function handleDocumentRequest(request) {
+function cacheWithoutBlocking(event, request, response) {
+  // Do not buffer the entire HTML/asset into CacheStorage before giving its
+  // stream to the page. Cache/quota failures must not discard a good response.
+  event.waitUntil(putInCache(request, response).catch(() => {}));
+}
+
+async function handleDocumentRequest(request, event) {
   try {
     const response = await fetch(request);
-    await putInCache(request, response);
+    cacheWithoutBlocking(event, request, response);
     return response;
   } catch (error) {
     const cachedResponse = await caches.match(request);
@@ -54,7 +69,7 @@ async function handleDocumentRequest(request) {
       return cachedResponse;
     }
 
-    const appShell = await caches.match('/index.html');
+    const appShell = await caches.match("/index.html");
 
     if (appShell) {
       return appShell;
@@ -64,7 +79,7 @@ async function handleDocumentRequest(request) {
   }
 }
 
-async function handleStaticRequest(request) {
+async function handleStaticRequest(request, event) {
   const cachedResponse = await caches.match(request);
 
   if (cachedResponse) {
@@ -72,57 +87,59 @@ async function handleStaticRequest(request) {
   }
 
   const response = await fetch(request);
-  await putInCache(request, response);
+  cacheWithoutBlocking(event, request, response);
   return response;
 }
 
 // Install event - cache resources
-self.addEventListener('install', (event) => {
+self.addEventListener("install", (event) => {
   event.waitUntil(
     Promise.all([
-      caches.open(CACHE_NAME)
-        .then((cache) => {
-          console.log('Opened cache');
-          // Cache individual resources with error handling
-          return Promise.all(
-            urlsToCache.map(url => {
-              return cache.add(url).catch(err => {
-                console.warn(`Failed to cache ${url}:`, err);
-                return Promise.resolve();
-              });
-            })
-          );
-        }),
-      self.skipWaiting()
-    ])
+      caches.open(CACHE_NAME).then((cache) => {
+        console.log("Opened cache");
+        // Cache individual resources with error handling
+        return Promise.all(
+          urlsToCache.map((url) => {
+            return cache.add(url).catch((err) => {
+              console.warn(`Failed to cache ${url}:`, err);
+              return Promise.resolve();
+            });
+          }),
+        );
+      }),
+      self.skipWaiting(),
+    ]),
   );
 });
 
 // Fetch event - serve from cache when offline
-self.addEventListener('fetch', (event) => {
-  if (event.request.mode === 'navigate' || event.request.destination === 'document') {
-    event.respondWith(handleDocumentRequest(event.request));
+self.addEventListener("fetch", (event) => {
+  if (
+    event.request.mode === "navigate" ||
+    event.request.destination === "document"
+  ) {
+    event.respondWith(handleDocumentRequest(event.request, event));
     return;
   }
 
-  event.respondWith(handleStaticRequest(event.request));
+  event.respondWith(handleStaticRequest(event.request, event));
 });
 
 // Activate event - clean up old caches
-self.addEventListener('activate', (event) => {
+self.addEventListener("activate", (event) => {
   event.waitUntil(
     Promise.all([
       caches.keys().then((cacheNames) => {
         return Promise.all(
           cacheNames.map((cacheName) => {
             if (cacheName !== CACHE_NAME) {
-              console.log('Deleting old cache:', cacheName);
+              console.log("Deleting old cache:", cacheName);
               return caches.delete(cacheName);
             }
-          })
+          }),
         );
       }),
-      self.clients.claim()
-    ])
+      self.clients.claim(),
+    ]),
   );
 });

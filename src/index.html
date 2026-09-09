@@ -49,6 +49,23 @@
     />
 
     <!-- Critical CSS inline -->
+    <!-- Only base geometry textures are critical; clouds/night follow reveal. -->
+    <link
+      rel="preload"
+      as="image"
+      href="/textures/earth-day.jpg"
+      type="image/jpeg"
+      crossorigin="anonymous"
+      fetchpriority="low"
+    />
+    <link
+      rel="preload"
+      as="image"
+      href="/textures/moon.jpg"
+      type="image/jpeg"
+      crossorigin="anonymous"
+      fetchpriority="low"
+    />
     <style>
       html,
       body,
