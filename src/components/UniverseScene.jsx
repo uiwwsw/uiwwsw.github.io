@@ -1,4 +1,10 @@
-import React, { Suspense, useEffect, useMemo, useRef } from "react";
+import React, {
+  Suspense,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+} from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import ArticleSky from "./ArticleSky";
 import AmbientSpace from "./AmbientSpace.jsx";
@@ -11,6 +17,7 @@ import {
   earthFocusFov,
 } from "../utils/secretSignal.js";
 import { flightPose, seededRandom } from "../utils/observatory";
+import { createSceneStartup } from "../utils/sceneStartup.js";
 
 const starVertex = `
   attribute float aSize;
@@ -275,13 +282,31 @@ function CameraRig({
   });
   return null;
 }
-function SceneReady({ onReady }) {
-  const frames = useRef(0);
-  // Suspense has resolved the textures; let the complete scene render behind
-  // the transparent canvas for two frames before starting its opacity reveal.
-  useFrame(() => {
-    if (++frames.current === 3) onReady();
-  });
+function SceneReady({ assetsReady }) {
+  useLayoutEffect(() => {
+    assetsReady.current = true;
+    return () => {
+      assetsReady.current = false;
+    };
+  }, [assetsReady]);
+  return null;
+}
+function SceneRender({ assetsReady, onReady, onError }) {
+  const { gl, scene, camera } = useThree();
+  const startup = useRef();
+  useEffect(() => {
+    const controller = createSceneStartup({
+      warm: () => gl.compileAsync(scene, camera),
+      render: () => gl.render(scene, camera),
+      onReady,
+      onError,
+    });
+    startup.current = controller;
+    return () => controller.dispose();
+  }, [gl, scene, camera, onReady, onError]);
+  // Positive priority owns the render, after camera/uniform updates. Do not
+  // force pending GPU programs to draw while compileAsync is still warming.
+  useFrame(() => startup.current?.frame(assetsReady.current), 1);
   return null;
 }
 export default function UniverseScene({
@@ -295,6 +320,7 @@ export default function UniverseScene({
   reducedMotion,
   compact,
   onReady,
+  enhance = false,
   onError,
   inputRef,
   sector,
@@ -306,6 +332,7 @@ export default function UniverseScene({
   visible = true,
 }) {
   const earthFocusRef = useRef(new THREE.Vector3());
+  const assetsReady = useRef(false);
   const focus = earthFocusBlend(signal);
   return (
     <Canvas
@@ -356,11 +383,16 @@ export default function UniverseScene({
         onDiagnostics={onAmbientDiagnostics}
       />
       <Suspense fallback={null}>
-        <Earth paused={paused} compact={compact} focusRef={earthFocusRef} />
+        <Earth
+          paused={paused}
+          compact={compact}
+          focusRef={earthFocusRef}
+          enhance={enhance}
+        />
         {sector.id === "home" && (
           <LunarSurface progress={progress} reducedMotion={reducedMotion} />
         )}
-        <SceneReady onReady={onReady} />
+        <SceneReady assetsReady={assetsReady} />
       </Suspense>
       <ArticleSky
         paused={paused}
@@ -388,6 +420,11 @@ export default function UniverseScene({
         reducedMotion={reducedMotion}
         compact={compact}
         inputRef={inputRef}
+      />
+      <SceneRender
+        assetsReady={assetsReady}
+        onReady={onReady}
+        onError={onError}
       />
     </Canvas>
   );

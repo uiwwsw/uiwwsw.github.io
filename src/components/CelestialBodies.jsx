@@ -1,4 +1,4 @@
-import React, { useMemo, useRef } from "react";
+import React, { Suspense, useEffect, useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import { useTexture } from "@react-three/drei";
 import * as THREE from "three";
@@ -9,6 +9,8 @@ import {
   geographicSurfacePoint,
 } from "../utils/earthOrientation";
 import { advanceAmbientTime } from "../utils/ambientMotion.js";
+import { SCENE_TEXTURES } from "../utils/sceneStartup.js";
+import { SceneBoundary } from "./Interface";
 import {
   CLOUD_OPACITY,
   CLOUD_SHELL_SCALE,
@@ -37,6 +39,7 @@ const planetVertex = `
 const earthFragment = `
   uniform sampler2D dayMap;
   uniform sampler2D nightMap;
+  uniform float nightStrength;
   uniform float cloudShadowStrength;
   ${cloudSampling}
   varying vec2 vUv;
@@ -54,7 +57,7 @@ const earthFragment = `
     ground *= 1.0 - shadow * cloudShadowStrength;
     ground = mix(ground, vec3(dot(ground, vec3(0.2126, 0.7152, 0.0722))), 0.12);
     vec3 color = ground * (max(light, 0.0) * 1.7 + 0.035) * day;
-    color += night * (1.0 - day) * vec3(1.7, 1.25, 0.8);
+    color += night * (1.0 - day) * vec3(1.7, 1.25, 0.8) * nightStrength;
     float fresnel = pow(1.0 - max(dot(n, normalize(cameraPosition - vPosition)), 0.0), 3.2);
     vec3 atmosphere = mix(vec3(0.55, 0.18, 0.075), vec3(0.16, 0.5, 1.0), smoothstep(-0.2, 0.6, light));
     color += atmosphere * fresnel * smoothstep(-0.35, 0.6, light) * 0.8;
@@ -100,7 +103,24 @@ const atmosphereFragment = `
     #include <colorspace_fragment>
   }
 `;
-export function Earth({ paused, compact, focusRef }) {
+const ignoreOptionalTextureError = () => {};
+function EarthDetails({ uniforms, detailsReady }) {
+  const [night, surface] = useTexture(
+    [SCENE_TEXTURES.night, SCENE_TEXTURES.clouds],
+    configureEarthTextures,
+  );
+  useEffect(() => {
+    uniforms.nightMap.value = night;
+    uniforms.surfaceMap.value = surface;
+    detailsReady.current = true;
+    return () => {
+      detailsReady.current = false;
+    };
+  }, [night, surface, uniforms, detailsReady]);
+  return null;
+}
+
+export function Earth({ paused, compact, focusRef, enhance }) {
   const globe = useRef();
   const orientation = useMemo(() => earthOrientation(compact), [compact]);
   const korea = useMemo(
@@ -108,27 +128,38 @@ export function Earth({ paused, compact, focusRef }) {
     [],
   );
   const north = useMemo(() => new THREE.Vector3(0, 1, 0), []);
-  const [day, night, surface] = useTexture(
-    [
-      "/textures/earth-day.jpg",
-      "/textures/earth-night.jpg",
-      "/textures/earth-surface.jpg",
-    ],
-    configureEarthTextures,
-  );
+  const [day] = useTexture([SCENE_TEXTURES.day], configureEarthTextures);
   const uniforms = useMemo(
     () => ({
       dayMap: { value: day },
-      nightMap: { value: night },
-      surfaceMap: { value: surface },
+      // Valid same-type placeholders keep one stable shader program. Optional
+      // maps are masked out, never painted as a second geographic surface.
+      nightMap: { value: day },
+      surfaceMap: { value: day },
+      nightStrength: { value: 0 },
       cloudOffset: { value: 0 },
-      cloudOpacity: { value: CLOUD_OPACITY },
-      cloudShadowStrength: { value: CLOUD_SHADOW_STRENGTH },
+      cloudOpacity: { value: 0 },
+      cloudShadowStrength: { value: 0 },
       time: { value: 0 },
     }),
-    [day, night, surface],
+    [day],
   );
+  const detailsReady = useRef(false);
+  const detailMix = useRef(0);
   useFrame((_, delta) => {
+    const target = detailsReady.current ? 1 : 0;
+    detailMix.current = paused
+      ? target
+      : THREE.MathUtils.damp(
+          detailMix.current,
+          target,
+          2.8,
+          Math.min(delta, 0.05),
+        );
+    uniforms.nightStrength.value = detailMix.current;
+    uniforms.cloudOpacity.value = CLOUD_OPACITY * detailMix.current;
+    uniforms.cloudShadowStrength.value =
+      CLOUD_SHADOW_STRENGTH * detailMix.current;
     if (!paused) {
       uniforms.time.value = advanceAmbientTime(
         uniforms.time.value,
@@ -147,6 +178,13 @@ export function Earth({ paused, compact, focusRef }) {
   });
   return (
     <group position={earthPosition(compact)} quaternion={orientation}>
+      {enhance && (
+        <SceneBoundary onError={ignoreOptionalTextureError}>
+          <Suspense fallback={null}>
+            <EarthDetails uniforms={uniforms} detailsReady={detailsReady} />
+          </Suspense>
+        </SceneBoundary>
+      )}
       <group ref={globe}>
         <mesh
           name="earth-surface"
@@ -219,7 +257,7 @@ export function LunarSurface({ progress, reducedMotion }) {
           Math.min(delta, 0.05),
         );
   });
-  const map = useTexture("/textures/moon.jpg");
+  const map = useTexture(SCENE_TEXTURES.moon);
   const { geometry, craters } = useMemo(() => {
     const random = seededRandom(1997);
     const craters = Array.from({ length: 48 }, () => ({

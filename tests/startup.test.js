@@ -73,6 +73,9 @@ test("the real App prerenders without browser globals, WebGL or a replacement re
       assert.equal($(".intro h1").length, 1);
       assert.equal($(".flight-deck").length, 1);
       assert.equal($(".static-fallback, canvas, dialog").length, 0);
+      assert.equal($(".opening-sky[aria-hidden='true']").length, 1);
+      assert.equal($(".opening-sky circle").length, 96);
+      assert.equal($(".opening-sky image, .opening-sky img").length, 0);
       assert.equal($(".secret-signal").length, 0);
       assert.equal($(".nav-count").text(), String(articles.length));
       assert.match(
@@ -132,8 +135,11 @@ test("startup uses hydration, defers the scene, and prevents a late font/partial
   );
   assert.match(
     read("src/components/UniverseScene.jsx"),
-    /\+\+frames\.current === 3/,
+    /gl\.compileAsync\(scene, camera\)/,
   );
+  assert.match(read("src/App.jsx"), /!sceneSettled && <OpeningSky/);
+  assert.match(read("src/App.jsx"), /sceneReady && reducedMotion/);
+  assert.match(read("src/index.css"), /transition: opacity 1\.4s cubic-bezier/);
   assert.ok(!read("src/index.html").includes("/fonts/SUITE-Variable.css"));
   assert.ok(!read("public/sw.js").includes("SUITE-Variable.ttf"));
 });
