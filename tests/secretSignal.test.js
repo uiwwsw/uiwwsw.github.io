@@ -6,6 +6,9 @@ import {
   signalStrength,
   signalFlightPose,
   SIGNAL_DISTANCE,
+  EARTH_FOCUS_ALTITUDE,
+  earthFocusBlend,
+  earthFocusFov,
 } from "../src/utils/secretSignal.js";
 import {
   earthPosition,
@@ -95,15 +98,59 @@ test("the extra approach preserves the main route and stays safely outside Earth
       assert.ok([...position, ...target].every(Number.isFinite));
       assert.ok(
         Math.hypot(...position.map((value, i) => value - earth[i])) >
-          EARTH_RADIUS + 5,
+          EARTH_RADIUS + EARTH_FOCUS_ALTITUDE - 1e-10,
       );
       if (progress === 1) {
         const separation = Math.hypot(
           ...position.map((value, i) => value - earth[i]),
         );
-        assert.ok(Math.abs(separation - (EARTH_RADIUS + 5.5)) < 1e-10);
-        assert.deepEqual(target, earth);
+        assert.ok(
+          Math.abs(separation - (EARTH_RADIUS + EARTH_FOCUS_ALTITUDE)) < 1e-10,
+        );
+        assert.ok(
+          Math.abs(
+            Math.hypot(...target.map((value, i) => value - earth[i])) -
+              EARTH_RADIUS,
+          ) < 1e-10,
+        );
       }
     }
   }
+});
+
+test("Earth-only presentation engages only beyond normal flight and reverses continuously", () => {
+  assert.equal(earthFocusBlend(0), 0);
+  assert.equal(earthFocusBlend(0.24), 1);
+  assert.equal(earthFocusBlend(1), 1);
+  for (const compact of [false, true]) {
+    assert.equal(earthFocusFov(0, compact), compact ? 58 : 46);
+    assert.equal(earthFocusFov(1, compact), compact ? 38 : 32);
+    const initial = flightPose(1, compact);
+    const tiny = signalFlightPose(1, 0.00001, compact);
+    assert.ok(
+      Math.hypot(...tiny.position.map((v, i) => v - initial.position[i])) <
+        0.002,
+    );
+    let separation = Infinity;
+    for (let step = 0; step <= 100; step++) {
+      const pose = signalFlightPose(1, step / 100, compact);
+      const distance = Math.hypot(
+        ...pose.position.map((v, i) => v - earthPosition(compact)[i]),
+      );
+      assert.ok(distance <= separation + 1e-10);
+      separation = distance;
+    }
+  }
+});
+
+test("release recovery is frame-rate independent and ends exactly at the first Earth scale", () => {
+  const values = [30, 60, 120].map((fps) => {
+    let distance = 1.31;
+    for (let i = 0; i < fps; i++) distance = releaseSignal(distance, 1 / fps);
+    return distance;
+  });
+  assert.ok(Math.max(...values) - Math.min(...values) < 1e-10);
+  assert.equal(releaseSignal(1.31, 4), 1);
+  for (const dt of [0, -1, NaN, Infinity])
+    assert.equal(releaseSignal(1.2, dt), 1.2);
 });

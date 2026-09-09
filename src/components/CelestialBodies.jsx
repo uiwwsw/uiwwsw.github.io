@@ -2,7 +2,12 @@ import React, { useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import { useTexture } from "@react-three/drei";
 import * as THREE from "three";
-import { earthOrientation, earthSway } from "../utils/earthOrientation";
+import {
+  earthOrientation,
+  earthSway,
+  EARTH_FOCUS,
+  geographicSurfacePoint,
+} from "../utils/earthOrientation";
 import { advanceAmbientTime } from "../utils/ambientMotion.js";
 import {
   CLOUD_OPACITY,
@@ -95,9 +100,14 @@ const atmosphereFragment = `
     #include <colorspace_fragment>
   }
 `;
-export function Earth({ paused, compact }) {
+export function Earth({ paused, compact, focusRef }) {
   const globe = useRef();
   const orientation = useMemo(() => earthOrientation(compact), [compact]);
+  const korea = useMemo(
+    () => geographicSurfacePoint(EARTH_FOCUS.latitude, EARTH_FOCUS.longitude),
+    [],
+  );
+  const north = useMemo(() => new THREE.Vector3(0, 1, 0), []);
   const [day, night, surface] = useTexture(
     [
       "/textures/earth-day.jpg",
@@ -128,6 +138,12 @@ export function Earth({ paused, compact }) {
       globe.current.rotation.y = earthSway(uniforms.time.value);
       uniforms.cloudOffset.value = earthCloudOffset(uniforms.time.value);
     }
+    // Share the exact texture orientation with the focus camera; no React
+    // state updates, second globe, UV offset or independent rotation clock.
+    focusRef.current
+      .copy(korea)
+      .applyAxisAngle(north, globe.current.rotation.y)
+      .applyQuaternion(orientation);
   });
   return (
     <group position={earthPosition(compact)} quaternion={orientation}>

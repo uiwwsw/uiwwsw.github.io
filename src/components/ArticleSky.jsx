@@ -21,6 +21,7 @@ const vertex = `
   attribute vec3 aColor; attribute float aVisible; attribute float aIndex;
   uniform float uSize; uniform float uDetail; uniform float uFocus;
   uniform float uTime;
+  uniform float uOpacity;
   varying vec3 vColor; varying float vAlpha;
   void main() {
     vec4 p = modelViewMatrix * vec4(position, 1.0);
@@ -32,7 +33,7 @@ const vertex = `
     float nearFade = smoothstep(2.0, 12.0, -p.z);
     vec2 screen = abs(gl_Position.xy / max(.001, gl_Position.w));
     float edgeFade = 1.0 - smoothstep(.84, 1.02, max(screen.x, screen.y));
-    vAlpha = mix(.2, .95, uDetail) * mix(.08, 1.0, aVisible) * shimmer * nearFade * edgeFade;
+    vAlpha = mix(.2, .95, uDetail) * mix(.08, 1.0, aVisible) * shimmer * nearFade * edgeFade * uOpacity;
   }
 `;
 const fragment = `
@@ -60,6 +61,7 @@ function glowTexture() {
 export default function ArticleSky({
   articles,
   paused,
+  focus = 0,
   progress,
   selected,
   highlighted,
@@ -86,6 +88,7 @@ export default function ArticleSky({
   const glow = useMemo(glowTexture, []);
   useEffect(() => () => glow.dispose(), [glow]);
   const detail = clamp((progress - 0.22) / 0.3);
+  const focusing = focus > 0.05;
   const buffers = useMemo(() => {
     const positions = new Float32Array(articles.length * 3);
     const colors = new Float32Array(articles.length * 3);
@@ -106,6 +109,7 @@ export default function ArticleSky({
       uDetail: { value: 0 },
       uFocus: { value: -1 },
       uTime: { value: 0 },
+      uOpacity: { value: 1 },
     }),
     [],
   );
@@ -146,6 +150,7 @@ export default function ArticleSky({
   );
 
   useFrame(({ camera, clock }, delta) => {
+    uniforms.uOpacity.value = 1 - focus;
     uniforms.uTime.value = advanceAmbientTime(
       uniforms.uTime.value,
       delta,
@@ -202,13 +207,15 @@ export default function ArticleSky({
       .filter(Boolean)
       .sort((a, b) => a.distance - b.distance);
     candidates.current =
-      detail > 0.45 && !selected ? projected.slice(0, pickBudget(compact)) : [];
+      detail > 0.45 && !selected && !focusing
+        ? projected.slice(0, pickBudget(compact))
+        : [];
     // A small threshold dead band prevents topic/article labels flickering
     // back and forth when the user reverses a wheel near their transition.
     if (detail > 0.62) individualLabels.current = true;
     else if (detail < 0.45) individualLabels.current = false;
     const visible =
-      progress > 0.12 && !selected
+      progress > 0.12 && !selected && !focusing
         ? packStarLabels(
             individualLabels.current
               ? projected
@@ -256,13 +263,14 @@ export default function ArticleSky({
       );
     };
     const click = (event) => {
-      if (inputRef.current.dragged) return;
+      if (inputRef.current.dragged || focusing) return;
       const nearby = hits(event);
       if (nearby.length > 1) onNearby(nearby);
       else if (nearby.length === 1) onSelect(nearby[0]);
     };
     const move = (event) => {
-      if (event.pointerType === "touch" || inputRef.current.dragged) return;
+      if (event.pointerType === "touch" || inputRef.current.dragged || focusing)
+        return;
       setHovered(hits(event)[0]?.id || null);
     };
     const leave = () => setHovered(null);
@@ -274,7 +282,7 @@ export default function ArticleSky({
       canvas.removeEventListener("pointermove", move);
       canvas.removeEventListener("pointerleave", leave);
     };
-  }, [gl, compact, inputRef, onSelect, onNearby]);
+  }, [gl, compact, inputRef, onSelect, onNearby, focusing]);
   return (
     <group>
       <points raycast={ignoreRaycast} frustumCulled={false}>
@@ -316,7 +324,7 @@ export default function ArticleSky({
             map={glow}
             color={cloud.color}
             transparent
-            opacity={(1 - detail) * 0.22}
+            opacity={(1 - detail) * 0.22 * (1 - focus)}
             depthWrite={false}
             blending={THREE.AdditiveBlending}
           />
@@ -328,16 +336,20 @@ export default function ArticleSky({
           position={item.position}
           zIndexRange={[8, 1]}
           style={{
-            pointerEvents: item.leavingAt === null ? "auto" : "none",
+            pointerEvents:
+              !focusing && item.leavingAt === null ? "auto" : "none",
+            opacity: 1 - focus,
             marginLeft: 10,
           }}
         >
           <button
             className={`star-label ${item.count ? "cloud-label" : ""} ${item.leavingAt !== null ? "is-leaving" : ""}`}
-            tabIndex={item.leavingAt === null ? 0 : -1}
-            aria-hidden={item.leavingAt !== null}
+            tabIndex={!focusing && item.leavingAt === null ? 0 : -1}
+            aria-hidden={focusing || item.leavingAt !== null}
             style={{ "--star-color": item.color }}
-            onClick={() => (item.count ? onCloud(item.topic) : onSelect(item))}
+            onClick={() =>
+              !focusing && (item.count ? onCloud(item.topic) : onSelect(item))
+            }
           >
             <span>
               {item.count ? "DISTANT NEBULA" : TOPICS[item.topic].english}

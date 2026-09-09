@@ -1649,6 +1649,24 @@ button {
   letter-spacing: 0.02em;
   color: #acb9ca;
 }
+/* Earth approach removes the writing HUD without adding a hint or meter.
+   Keep the archive, travel slider and escape controls available throughout. */
+.observatory.is-exploring .scene-shade {
+  opacity: calc(0.65 - var(--earth-focus, 0) * 0.45);
+}
+.explore-heading,
+.journey-rail,
+.location,
+.bottom-credit .gesture-hint {
+  opacity: calc(1 - var(--earth-focus, 0));
+}
+.screen-frame {
+  opacity: calc(1 - var(--earth-focus, 0) * 0.85);
+}
+.is-earth-focused .explore-heading,
+.is-earth-focused .explore-heading * {
+  pointer-events: none;
+}
 @media (max-width: 760px) {
   .deck-actions {
     gap: 8px;

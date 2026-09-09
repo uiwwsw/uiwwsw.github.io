@@ -90,7 +90,6 @@ test("even maximal sustained effort takes time, then a discovered signal stays o
     }
   }
   assert.ok(revealedAt > 40 && revealedAt < 55, `reveal after ${revealedAt}s`);
-  assert.equal(state.reboundIndex, 3);
   run(state, 20);
   assert.equal(state.distance, SIGNAL_DISTANCE);
   queueFlightImpulse(state, -0.03);
@@ -107,7 +106,7 @@ test("repeated mobile swipes can discover it; short pauses between strokes are a
   assert.equal(state.distance, SIGNAL_DISTANCE);
 });
 
-test("the field visibly rebounds three times, then stopping loses unfinished progress", () => {
+test("sustained approach never rebounds; only release returns to the entry orbit", () => {
   const state = createFlightMotion(1);
   let backwardFrames = 0;
   for (let frame = 0; frame < 60 * 35; frame++) {
@@ -116,12 +115,26 @@ test("the field visibly rebounds three times, then stopping loses unfinished pro
     stepFlightMotion(state, 1 / 60);
     if (state.distance < before) backwardFrames++;
   }
-  assert.equal(state.reboundIndex, 3);
-  assert.ok(backwardFrames > 40);
+  assert.equal(backwardFrames, 0);
   assert.ok(state.distance > 1 && state.distance < SIGNAL_DISTANCE);
-  run(state, 12);
+  run(state, 0.5);
+  const held = state.distance;
+  run(state, 0.3);
+  assert.ok(state.distance < held);
+  run(state, 3);
   assert.equal(state.distance, 1);
-  assert.equal(state.reboundIndex, 0, "a new attempt includes all resistance shells");
+});
+
+test("a new forward gesture immediately interrupts the return instead of a forced bounce", () => {
+  const state = createFlightMotion(1.25);
+  run(state, 0.4);
+  assert.ok(state.distance < 1.25 && state.distance > 1);
+  for (let frame = 0; frame < 180; frame++) {
+    const before = state.distance;
+    queueFlightImpulse(state, 0.01);
+    stepFlightMotion(state, 1 / 60);
+    assert.ok(state.distance > before);
+  }
 });
 
 test("casual scrolling and a trackpad fling cannot accidentally complete discovery", () => {
@@ -155,11 +168,13 @@ test("reduced motion still requires sustained effort without involuntary recoil"
       break;
     }
   }
-  assert.ok(revealedAt > 40 && revealedAt < 60, `quiet discovery after ${revealedAt}s`);
-  assert.equal(state.reboundIndex, 3);
+  assert.ok(
+    revealedAt > 40 && revealedAt < 60,
+    `quiet discovery after ${revealedAt}s`,
+  );
 });
 
-test("secret effort and rebounds remain consistent at 30, 60 and 120 Hz", () => {
+test("secret effort remains consistent at 30, 60 and 120 Hz", () => {
   const timings = [30, 60, 120].map((fps) => {
     const state = createFlightMotion(1);
     for (let frame = 0; frame < fps * 70; frame++) {
@@ -172,7 +187,7 @@ test("secret effort and rebounds remain consistent at 30, 60 and 120 Hz", () => 
   assert.ok(Math.max(...timings) - Math.min(...timings) < 0.4, String(timings));
 });
 
-test("reduced motion keeps manual access with no normal inertia or passive pushback", () => {
+test("reduced motion keeps manual access and resets on release without zoom-out animation", () => {
   const options = { reducedMotion: true };
   const state = createFlightMotion();
   queueFlightImpulse(state, wheel(), options);
@@ -181,10 +196,12 @@ test("reduced motion keeps manual access with no normal inertia or passive pushb
   assert.equal(state.distance, wheel());
   resetFlightMotion(state, 1.2);
   run(state, 5, options);
-  assert.equal(state.distance, 1.2);
+  assert.equal(state.distance, 1);
   queueFlightImpulse(state, 0.05, options);
   run(state, 0.3, options);
-  assert.ok(state.distance > 1.2);
+  assert.ok(state.distance > 1);
+  run(state, 0.5, options);
+  assert.equal(state.distance, 1);
 });
 
 test("flight pace is frame-rate independent and hidden-tab-sized deltas do not jump", () => {
@@ -229,15 +246,11 @@ test("pausing flushes hidden pressure; reverse and an explicit reset always esca
   stopFlightMotion(state);
   run(state, 0.5);
   assert.equal(state.distance, 1.1);
-  state.rebound = 0.02;
-  state.reboundIndex = 1;
   queueFlightImpulse(state, -0.03);
   assert.ok(state.distance < 1.1);
-  assert.equal(state.rebound, 0);
   resetFlightMotion(state, 0.2);
   run(state, 10);
   assert.equal(state.distance, 0.2);
-  assert.equal(state.reboundIndex, 0);
 });
 
 test("programmatic travel clears inertia and non-home sectors cannot enter the signal", () => {
