@@ -1,6 +1,6 @@
 # Progressive first paint and startup dependency repair — 2026-09-09
 
-The progressive-loading infrastructure below is retained. The current fixed-camera object entrance and offscreen resource warm-up follow [world-assembly-qa.md](./world-assembly-qa.md).
+The progressive-loading infrastructure below is retained. This report records the original 1.4-second visual handoff; the current fixed-camera object entrance uses a **0.32-second crossfade and 1.8-second assembly**, and optional detail loading now waits for both. Current timings and offscreen resource warm-up follow [world-assembly-qa.md](./world-assembly-qa.md).
 
 ## Confirmed code/build causes
 

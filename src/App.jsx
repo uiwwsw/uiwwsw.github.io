@@ -475,7 +475,7 @@ export default function App({ initialHome } = {}) {
                 revealed={sceneReady}
                 onAssemblyComplete={assemblyComplete}
                 skipAssembly={motionPaused || !!panel}
-                enhance={sceneSettled}
+                enhance={sceneSettled && assembled}
                 onError={fail}
                 inputRef={inputRef}
               />

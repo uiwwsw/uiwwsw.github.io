@@ -9,6 +9,7 @@ import {
   assemblyEarthPosition,
   assemblyGroundY,
   ASSEMBLY_DURATION,
+  ASSEMBLY_TIMING,
 } from "../src/utils/worldAssembly.js";
 import {
   flightPose,
@@ -25,6 +26,15 @@ const advance = (state, seconds, options = { ready: true }, fps = 60) => {
   for (let i = 0; i < Math.ceil(seconds * fps); i++)
     stepWorldAssembly(state, 1 / fps, options);
 };
+const viewports = [
+  [320, 568],
+  [390, 844],
+  [430, 932],
+  [768, 1024],
+  [1440, 900],
+  [3440, 1440],
+  [844, 390],
+];
 function setup(width, height) {
   const compact = width <= 760;
   const pose = flightPose(0, compact);
@@ -54,15 +64,7 @@ const earthSphere = (state) =>
   );
 
 test("the entire Earth atmosphere and lunar floor/rocks start outside every tested viewport", () => {
-  for (const [width, height] of [
-    [320, 568],
-    [390, 844],
-    [430, 932],
-    [768, 1024],
-    [1440, 900],
-    [3440, 1440],
-    [844, 390],
-  ]) {
+  for (const [width, height] of viewports) {
     const { state, frustum } = setup(width, height);
     assert.equal(
       frustum.intersectsSphere(earthSphere(state)),
@@ -96,7 +98,7 @@ test("objects assemble with real translations while camera position, rotation an
     const initialProjection = earthSphere(state).center.clone().project(camera);
     let previousX = Infinity,
       previousFloor = -Infinity;
-    for (let i = 0; i < 340; i++) {
+    for (let i = 0; i < Math.ceil((ASSEMBLY_DURATION + 0.1) * 60); i++) {
       stepWorldAssembly(state, 1 / 60, { ready: true });
       const projected = earthSphere(state).center.clone().project(camera);
       const floor = assemblyGroundY(state.layout, state.ground);
@@ -117,45 +119,48 @@ test("objects assemble with real translations while camera position, rotation an
   }
 });
 
-test("the globe enters first and the actual lunar surface follows from below, then both settle", () => {
+test("the visible Earth and floor keep their rhythm across viewports and refresh rates", (t) => {
   const craters = createLunarCraters();
   const terrain = [];
   for (let x = -130; x <= 130; x += 4)
     for (let z = -80; z <= 70; z += 4)
       terrain.push([x, lunarHeight(x, z, craters), z]);
-  for (const [width, height] of [
-    [1440, 900],
-    [390, 844],
-  ]) {
-    const { state, camera, frustum } = setup(width, height);
-    let firstEarth, firstGround;
-    for (let i = 0; i < 340; i++) {
-      stepWorldAssembly(state, 1 / 60, { ready: true });
-      if (!firstEarth && frustum.intersectsSphere(earthSphere(state)))
-        firstEarth = state.elapsed;
-      if (
-        !firstGround &&
-        terrain.some((p) => {
-          const point = new THREE.Vector3(
-            p[0],
-            p[1] + assemblyGroundY(state.layout, state.ground),
-            p[2],
-          ).project(camera);
-          return (
-            Math.abs(point.x) < 1 &&
-            Math.abs(point.y) < 1 &&
-            Math.abs(point.z) < 1
-          );
-        })
-      )
-        firstGround = state.elapsed;
+  for (const [width, height] of viewports) {
+    for (const fps of [30, 60, 120]) {
+      const { state, camera, frustum } = setup(width, height);
+      let firstEarth, firstGround;
+      for (let i = 0; i < Math.ceil((ASSEMBLY_DURATION + 0.1) * fps); i++) {
+        stepWorldAssembly(state, 1 / fps, { ready: true });
+        if (!firstEarth && frustum.intersectsSphere(earthSphere(state)))
+          firstEarth = state.elapsed;
+        if (
+          !firstGround &&
+          terrain.some((p) => {
+            const point = new THREE.Vector3(
+              p[0],
+              p[1] + assemblyGroundY(state.layout, state.ground),
+              p[2],
+            ).project(camera);
+            return (
+              Math.abs(point.x) < 1 &&
+              Math.abs(point.y) < 1 &&
+              Math.abs(point.z) < 1
+            );
+          })
+        )
+          firstGround = state.elapsed;
+      }
+      assert.ok(firstEarth > 0 && firstEarth <= 0.2, `Earth at ${firstEarth}`);
+      assert.ok(
+        firstGround > firstEarth + 0.2 && firstGround < 0.65,
+        `floor at ${firstGround}`,
+      );
+      assert.equal(state.phase, "done");
+      if (fps === 60)
+        t.diagnostic(
+          `${width}x${height}: Earth ${firstEarth.toFixed(2)}s, floor ${firstGround.toFixed(2)}s (projection only)`,
+        );
     }
-    assert.ok(firstEarth > 1.4 && firstEarth < 2.1, `Earth at ${firstEarth}`);
-    assert.ok(
-      firstGround > firstEarth + 0.7 && firstGround < 3.3,
-      `floor at ${firstGround}`,
-    );
-    assert.equal(state.phase, "done");
   }
 });
 
@@ -165,7 +170,7 @@ test("cold startup and hidden tabs never consume the object entry animation", ()
   assert.deepEqual(state, createWorldAssembly());
   advance(state, 30, { ready: true, paused: true });
   assert.equal(state.earth, 1);
-  advance(state, 2);
+  advance(state, 0.5);
   const before = structuredClone(state);
   advance(state, 60, { ready: true, paused: true });
   assert.deepEqual(state, before);
@@ -178,15 +183,35 @@ test("cold startup and hidden tabs never consume the object entry animation", ()
   }
 });
 
-test("staggered rest-to-rest timing is consistent at 30/60/120Hz and never overshoots", () => {
+test("brisk entry and soft settlement follow separate beats without an empty lead-in", () => {
+  const state = createWorldAssembly();
+  stepWorldAssembly(state, 1 / 120, { ready: true });
+  assert.ok(state.earth < 1, "Earth moves on the first ready frame");
+  assert.equal(state.ground, 1, "the floor waits for its own beat");
+  advance(state, 0.1, { ready: true }, 120);
+  assert.equal(state.ground, 1);
+  advance(state, 0.1, { ready: true }, 120);
+  assert.ok(state.ground < 1);
+  assert.equal(ASSEMBLY_DURATION, 1.8);
+  for (const [key, timing] of Object.entries(ASSEMBLY_TIMING)) {
+    const end = timing.start + timing.duration;
+    const nearArrival = createWorldAssembly();
+    advance(nearArrival, end - 0.05);
+    assert.ok(nearArrival[key] < 0.0001, "no visible last-frame snap");
+    advance(nearArrival, 0.1);
+    assert.equal(nearArrival[key], 0);
+  }
+});
+
+test("staggered ease-out timing is consistent at 30/60/120Hz and never overshoots", () => {
   const samples = [];
   for (const fps of [30, 60, 120]) {
     const state = createWorldAssembly();
-    advance(state, 2.5, { ready: true }, fps);
+    advance(state, 0.5, { ready: true }, fps);
     samples.push([state.earth, state.ground]);
     assert.ok(state.earth < state.ground, "Earth starts before the ground");
     let previous = [state.earth, state.ground];
-    for (let i = 0; i < fps * 6; i++) {
+    for (let i = 0; i < Math.ceil(fps * ASSEMBLY_DURATION); i++) {
       stepWorldAssembly(state, 1 / fps, { ready: true });
       assert.ok(state.earth >= 0 && state.earth <= previous[0]);
       assert.ok(state.ground >= 0 && state.ground <= previous[1]);
@@ -202,7 +227,7 @@ test("staggered rest-to-rest timing is consistent at 30/60/120Hz and never overs
 
 test("manual takeover completes object placement smoothly without restarting the timeline", () => {
   const state = createWorldAssembly();
-  advance(state, 2);
+  advance(state, 0.5);
   const before = [state.earth, state.ground];
   stepWorldAssembly(state, 1 / 60, { ready: true, interrupted: true });
   assert.equal(state.phase, "handoff");
@@ -224,7 +249,7 @@ test("early input, reduced motion, panels, navigation and secret focus can skip 
     assert.equal(state.ground, 0);
   }
   const state = createWorldAssembly();
-  advance(state, 2);
+  advance(state, 0.5);
   stepWorldAssembly(state, 0, { skip: true });
   assert.equal(state.phase, "done");
 });
@@ -248,7 +273,7 @@ test("final object transforms preserve the exact existing Earth origin and Moon 
 
 test("responsive recalibration does not replay the sequence or alter completed placements", () => {
   const state = createWorldAssembly(true);
-  advance(state, 2);
+  advance(state, 0.5);
   const before = [state.earth, state.ground, state.elapsed];
   state.layout = worldAssemblyLayout(false, 844 / 390);
   assert.deepEqual([state.earth, state.ground, state.elapsed], before);

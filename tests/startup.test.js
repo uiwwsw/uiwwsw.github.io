@@ -139,7 +139,10 @@ test("startup uses hydration, defers the scene, and prevents a late font/partial
   );
   assert.match(read("src/App.jsx"), /!sceneSettled && <OpeningSky/);
   assert.match(read("src/App.jsx"), /sceneReady && reducedMotion/);
-  assert.match(read("src/index.css"), /transition: opacity 1\.4s cubic-bezier/);
+  assert.match(
+    read("src/index.css"),
+    /transition: opacity 0\.32s cubic-bezier/,
+  );
   assert.ok(!read("src/index.html").includes("/fonts/SUITE-Variable.css"));
   assert.ok(!read("public/sw.js").includes("SUITE-Variable.ttf"));
 });
