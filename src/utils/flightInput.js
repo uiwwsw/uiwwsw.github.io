@@ -5,8 +5,10 @@ export const createFlightInput = () => ({
   lookY: 0,
   travelPitch: 0,
   dragged: false,
+  interacted: false,
 });
 export function centerFlightInput(input) {
+  input.interacted = true;
   input.lookX = 0;
   input.lookY = 0;
   input.travelPitch = 0;
