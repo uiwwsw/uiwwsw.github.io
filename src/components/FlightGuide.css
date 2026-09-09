@@ -1,0 +1,194 @@
+/* Lives below the flight deck, not over the stars or the hero. No layout shift,
+   backdrop filter, extra canvas, input capture or endless attention loop. */
+.flight-guide {
+  position: absolute;
+  z-index: 21;
+  left: 50%;
+  bottom: max(8px, env(safe-area-inset-bottom));
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: max-content;
+  max-width: calc(100% - 32px);
+  padding: 6px 18px 6px 10px;
+  border: 1px solid #adbec533;
+  border-radius: 30px;
+  background: #0a1420f2;
+  box-shadow: 0 4px 20px #0003;
+  color: var(--gold);
+  pointer-events: none;
+  user-select: none;
+  opacity: 0;
+  visibility: hidden;
+  transform: translate(-50%, 5px);
+  transition:
+    opacity 0.25s var(--ease),
+    transform 0.35s var(--ease),
+    visibility 0s 0.35s;
+}
+.flight-guide[data-visible="true"] {
+  opacity: 1;
+  visibility: visible;
+  transform: translate(-50%, 0);
+  transition-delay: 0s;
+}
+.flight-guide-copy {
+  min-width: 0;
+}
+.flight-guide-copy p {
+  margin: 0 0 3px;
+  font-size: 12px;
+  font-weight: 550;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+  color: #e3e7e7;
+}
+.flight-guide-copy span {
+  display: block;
+  font-size: 10px;
+  line-height: 1.4;
+  color: #adbbc9;
+}
+.guide-trace {
+  opacity: 0.5;
+  stroke-dasharray: 2 3;
+}
+.flight-guide[data-visible="true"][data-quiet="false"] .guide-wheel {
+  animation: guide-wheel 2.4s ease-in-out 3;
+}
+.flight-guide[data-visible="true"][data-quiet="false"] .guide-finger {
+  animation: guide-spread 2.4s ease-in-out 3;
+}
+.guide-finger-left {
+  --finger-x: -3px;
+  --finger-y: 3px;
+}
+.guide-finger-right {
+  --finger-x: 3px;
+  --finger-y: -3px;
+}
+@keyframes guide-wheel {
+  0%,
+  15%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.65;
+  }
+  55%,
+  80% {
+    transform: translateY(6px);
+    opacity: 1;
+  }
+}
+@keyframes guide-spread {
+  0%,
+  15%,
+  100% {
+    transform: translate(0, 0);
+  }
+  55%,
+  80% {
+    transform: translate(var(--finger-x), var(--finger-y));
+  }
+}
+.flight-labels .flight-help {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  line-height: 14px;
+  letter-spacing: 0.02em;
+  color: #c3ccd6;
+}
+/* A 44px hit area expands upward so it cannot cover the travel slider. */
+.flight-help::before {
+  content: "";
+  position: absolute;
+  inset: -26px -10px -4px;
+}
+.flight-help[aria-expanded="true"] {
+  color: var(--gold);
+}
+.bottom-credit.has-flight-guide > span:nth-child(2) {
+  visibility: hidden;
+}
+@media (max-width: 1000px) {
+  .bottom-credit.has-flight-guide > span {
+    visibility: hidden;
+  }
+}
+@media (max-width: 760px), (max-height: 520px) {
+  .flight-guide {
+    padding: 2px 12px 2px 6px;
+    gap: 6px;
+  }
+  .flight-guide-gesture {
+    width: 36px;
+    height: 28px;
+  }
+  .flight-guide-copy p {
+    font-size: 12px;
+    line-height: 15px;
+    margin-bottom: 1px;
+  }
+  .flight-guide-copy span {
+    font-size: 10px;
+    line-height: 13px;
+  }
+  .flight-labels .flight-help {
+    font-size: 10px;
+  }
+}
+/* Short landscape screens use the empty strip below the header. Keep the
+   complete instructions available to assistive tech, even in this one-line UI. */
+@media (max-height: 520px) {
+  .flight-guide {
+    top: 69px;
+    bottom: auto;
+    padding: 2px 12px;
+  }
+  .flight-guide-gesture {
+    width: 24px;
+    height: 18px;
+  }
+  .flight-guide-copy p {
+    font-size: 11px;
+    line-height: 16px;
+    margin: 0;
+  }
+  .flight-guide-copy span {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .flight-guide,
+  .flight-guide * {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+/* Very short landscape has no room between the header and hero. A single
+   compact line fits back below the deck, above the home-indicator safe area. */
+@media (max-height: 380px) {
+  .flight-guide {
+    top: auto;
+    bottom: max(4px, env(safe-area-inset-bottom));
+    height: 16px;
+    padding: 0 8px;
+    border: 0;
+  }
+  .flight-guide-gesture {
+    width: 20px;
+    height: 14px;
+  }
+  .flight-guide-copy p {
+    font-size: 10px;
+    line-height: 14px;
+  }
+}

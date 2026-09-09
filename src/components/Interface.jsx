@@ -2,6 +2,12 @@ import React, { useEffect, useRef, useState } from "react";
 
 export function Icon({ name, size = 18, ...props }) {
   const paths = {
+    help: (
+      <>
+        <circle cx="12" cy="12" r="9" />
+        <path d="M9.5 9a2.5 2.5 0 1 1 4 2c-1 .65-1.5 1-1.5 2M12 16h.01" />
+      </>
+    ),
     compass: (
       <>
         <circle cx="12" cy="12" r="9" />

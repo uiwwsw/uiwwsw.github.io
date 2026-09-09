@@ -1667,11 +1667,6 @@ button {
     margin-top: 13px;
   }
 }
-.bottom-credit .gesture-hint {
-  font-size: 11px;
-  letter-spacing: 0.02em;
-  color: #acb9ca;
-}
 /* Earth approach removes the writing HUD without adding a hint or meter.
    Keep the archive, travel slider and escape controls available throughout. */
 .observatory.is-exploring .scene-shade {
@@ -1679,8 +1674,7 @@ button {
 }
 .explore-heading,
 .journey-rail,
-.location,
-.bottom-credit .gesture-hint {
+.location {
   opacity: calc(1 - var(--earth-focus, 0));
 }
 .screen-frame {
@@ -1696,9 +1690,6 @@ button {
   }
   .location {
     min-width: 0;
-  }
-  .bottom-credit .gesture-hint {
-    font-size: 10px;
   }
 }
 @media (prefers-reduced-motion: reduce) {

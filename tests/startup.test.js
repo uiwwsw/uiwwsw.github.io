@@ -5,6 +5,7 @@ import { createServer } from "vite";
 import { load } from "cheerio";
 import { createHomeSnapshot } from "../src/utils/homeSnapshot.js";
 import { articlePath } from "../src/utils/seo.js";
+import { FLIGHT_GUIDANCE } from "../src/utils/flightGuide.js";
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 
@@ -52,6 +53,35 @@ test("the real App prerenders without browser globals, WebGL or a replacement re
     const { default: SecretSignal } = await renderer.ssrLoadModule(
       "/components/SecretSignal.jsx",
     );
+    const { default: FlightGuide } = await renderer.ssrLoadModule(
+      "/components/FlightGuide.jsx",
+    );
+    // Reuse this SSR renderer instead of opening another HMR port in parallel.
+    // Hidden guidance stays inaccessible; showing it adds no interactive overlay.
+    for (const touch of [false, true])
+      for (const visible of [false, true])
+        for (const quiet of [false, true]) {
+          const $ = load(
+            renderToStaticMarkup(
+              React.createElement(FlightGuide, { touch, visible, quiet }),
+            ),
+          );
+          const guide = $("#flight-guide");
+          assert.equal(guide.attr("role"), "note");
+          assert.equal(guide.attr("aria-label"), "우주 조작 안내");
+          assert.equal(guide.attr("aria-hidden"), String(!visible));
+          assert.equal(guide.attr("data-visible"), String(visible));
+          assert.equal(guide.attr("data-quiet"), String(quiet));
+          assert.equal(guide.is("[inert]"), !visible);
+          assert.equal(guide.find("button, a, input, canvas, img").length, 0);
+          assert.equal(guide.find("svg[aria-hidden=true]").length, 1);
+          assert.equal(guide.find(".guide-finger").length, touch ? 2 : 0);
+          assert.equal(guide.find(".guide-wheel").length, touch ? 0 : 1);
+          assert.equal(
+            guide.find("p").text(),
+            FLIGHT_GUIDANCE[touch ? "touch" : "mouse"].title,
+          );
+        }
     for (const strength of [0, 0.25, 0.99, 0.99999]) {
       assert.equal(
         renderToStaticMarkup(React.createElement(SecretSignal, { strength })),
@@ -72,6 +102,13 @@ test("the real App prerenders without browser globals, WebGL or a replacement re
       assert.equal($(".site-header").length, 1);
       assert.equal($(".intro h1").length, 1);
       assert.equal($(".flight-deck").length, 1);
+      assert.equal($("#flight-guide[aria-hidden='true'][inert]").length, 1);
+      assert.equal(
+        $(
+          ".flight-help[aria-controls='flight-guide'][aria-expanded='false'][disabled]",
+        ).length,
+        1,
+      );
       assert.equal($(".static-fallback, canvas, dialog").length, 0);
       assert.equal($(".opening-sky[aria-hidden='true']").length, 1);
       assert.equal($(".opening-sky circle").length, 96);
