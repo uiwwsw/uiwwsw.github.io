@@ -1,5 +1,7 @@
 # Mobile direction, free look and hidden discovery — 2026-09-09
 
+Historical revision (`88145c2`). Mobile direction/normal-flight tuning remain; forced recoils, hidden-camera behavior and ambient parameters are superseded by [earth-focus-qa.md](./earth-focus-qa.md).
+
 ## Input and camera
 
 - Finger **down** approaches Earth; finger up retreats. Desktop wheel down remains forward. This is scene navigation, not a scrolling document; article panels keep their native reading behavior.

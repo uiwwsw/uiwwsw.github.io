@@ -110,6 +110,18 @@ test("startup uses hydration, defers the scene, and prevents a late font/partial
     read("src/components/SecretSignal.jsx"),
     /onApproach|setInterval|role="meter"|UNIDENTIFIED/,
   );
+  assert.match(
+    read("src/App.jsx"),
+    /inert=\{focusingEarth \? "" : undefined\}/,
+  );
+  assert.match(
+    read("src/components/UniverseScene.jsx"),
+    /earthFocusRef\.current\.toArray\(\)/,
+  );
+  assert.match(
+    read("src/components/CelestialBodies.jsx"),
+    /focusRef\.current\s*\.copy\(korea\)/,
+  );
   assert.match(read("src/App.jsx"), /if \(!locationReady\) return/);
   assert.match(read("src/App.jsx"), /if \(!loadedArticle\?\.bodyUrl\) return/);
   assert.match(read("src/index.css"), /font-display: optional/);

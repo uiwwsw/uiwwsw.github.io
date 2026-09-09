@@ -13,24 +13,27 @@ const dustVertex = `
   attribute vec3 aVelocity;
   attribute float aPhase;
   attribute float aSize;
+  attribute float aLayer;
   uniform float uTime;
   uniform float uPixelRatio;
   uniform vec3 uBounds;
+  uniform float uOpacity;
   varying float vAlpha;
   varying float vWarmth;
   void main() {
     vec3 travel = position + aVelocity * uTime;
-    travel.y += sin(uTime * .14 + aPhase) * .45;
+    travel.y += sin(uTime * .24 + aPhase) * .65;
     // A world-aligned volume follows the observer, wrapping only at its dim
     // outer boundary. Looking around still produces real perspective parallax.
-    vec3 relative = mod(travel - cameraPosition + uBounds * .5, uBounds) - uBounds * .5;
+    vec3 bounds = uBounds * mix(1., .48, aLayer);
+    vec3 relative = mod(travel - cameraPosition + bounds * .5, bounds) - bounds * .5;
     vec3 p = cameraPosition + relative;
     vec4 view = viewMatrix * vec4(p, 1.);
     gl_Position = projectionMatrix * view;
-    gl_PointSize = clamp(aSize * 85. / max(1., -view.z), 1.2, 7.) * uPixelRatio;
-    float edge = max(max(abs(relative.x / uBounds.x), abs(relative.y / uBounds.y)), abs(relative.z / uBounds.z)) * 2.;
+    gl_PointSize = clamp(aSize * 85. / max(1., -view.z), 1.2, 5.5) * uPixelRatio;
+    float edge = max(max(abs(relative.x / bounds.x), abs(relative.y / bounds.y)), abs(relative.z / bounds.z)) * 2.;
     float nearFade = smoothstep(4., 12., length(relative));
-    vAlpha = (1. - smoothstep(.65, 1., edge)) * nearFade * (.42 + .14 * sin(aPhase + uTime * .28));
+    vAlpha = (1. - smoothstep(.65, 1., edge)) * nearFade * (.46 + aLayer * .1 + .12 * sin(aPhase + uTime * .4)) * uOpacity;
     vWarmth = .5 + .5 * sin(aPhase);
   }
 `;
@@ -49,6 +52,7 @@ const dustFragment = `
 export default function AmbientSpace({
   paused,
   compact,
+  focus = 0,
   diagnostics,
   onDiagnostics,
 }) {
@@ -63,6 +67,7 @@ export default function AmbientSpace({
       uTime: { value: 0 },
       uPixelRatio: { value: 1 },
       uBounds: { value: new THREE.Vector3(...DUST_BOUNDS) },
+      uOpacity: { value: 1 },
     }),
     [],
   );
@@ -70,6 +75,7 @@ export default function AmbientSpace({
   useFrame(({ camera, clock }, delta) => {
     time.current = advanceAmbientTime(time.current, delta, paused);
     dustUniforms.uTime.value = time.current;
+    dustUniforms.uOpacity.value = 1 - focus;
     dustUniforms.uPixelRatio.value = Math.min(gl.getPixelRatio(), 1.6);
     const passage = distantStreak(time.current);
     if (diagnostics && clock.elapsedTime - lastReport.current > 1) {
@@ -78,9 +84,9 @@ export default function AmbientSpace({
         `ambient ${time.current.toFixed(2)}s · ${paused ? "paused" : "living"} · ${field.sizes.length} dust · trail ${passage.visible ? "visible" : "resting"}`,
       );
     }
-    streak.current.visible = passage.visible;
-    streakUniforms.uOpacity.value = passage.opacity;
-    if (!passage.visible) return;
+    streak.current.visible = passage.visible && focus < 0.99;
+    streakUniforms.uOpacity.value = passage.opacity * (1 - focus);
+    if (!streak.current.visible) return;
     // A distant, decorative light trail, not another selectable article/star.
     // It stays behind Earth and away from the centered reading/hero text.
     const depth = 175;
@@ -114,6 +120,10 @@ export default function AmbientSpace({
             args={[field.phases, 1]}
           />
           <bufferAttribute attach="attributes-aSize" args={[field.sizes, 1]} />
+          <bufferAttribute
+            attach="attributes-aLayer"
+            args={[field.layers, 1]}
+          />
         </bufferGeometry>
         <shaderMaterial
           vertexShader={dustVertex}
@@ -143,7 +153,8 @@ export default function AmbientSpace({
               void main() {
                 float core = exp(-pow((vUv.y - .5) * 12., 2.));
                 float tail = pow(vUv.x, 2.5) * (1. - smoothstep(.9, 1., vUv.x));
-                gl_FragColor = vec4(mix(vec3(.35,.62,.95), vec3(.85,.94,1.), vUv.x), core * tail * uOpacity);
+                float head = exp(-pow((vUv.x - .87) * 28., 2.)) * .45;
+                gl_FragColor = vec4(mix(vec3(.35,.62,.95), vec3(.85,.94,1.), vUv.x), core * (tail + head) * uOpacity);
                 #include <colorspace_fragment>
               }
             `}

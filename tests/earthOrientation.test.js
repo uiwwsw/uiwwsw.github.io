@@ -1,13 +1,23 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { SphereGeometry, Vector3 } from "three";
+import { SphereGeometry, Vector3, PerspectiveCamera } from "three";
 import {
   EARTH_FOCUS,
   geographicSurfacePoint,
   earthOrientation,
   earthSway,
+  koreaWorldNormal,
 } from "../src/utils/earthOrientation.js";
-import { earthPosition, flightPose } from "../src/utils/observatory.js";
+import {
+  earthPosition,
+  flightPose,
+  EARTH_RADIUS,
+} from "../src/utils/observatory.js";
+import {
+  signalFlightPose,
+  earthFocusFov,
+  EARTH_FOCUS_ALTITUDE,
+} from "../src/utils/secretSignal.js";
 
 // Sample actual SphereGeometry vertices at the map's latitude/longitude UVs
 // so the test also guards against mirrored longitude or a half-turn offset.
@@ -106,5 +116,40 @@ test("Japan stays east/right and China west/left of the Korean center in both la
     const china = geographicSurfacePoint(36, 110).applyQuaternion(orientation);
     assert.ok(japan.dot(right) > 0);
     assert.ok(china.dot(right) < 0);
+  }
+});
+
+test("Earth focus tracks the actual Korean surface through sway on desktop and mobile", () => {
+  for (const compact of [false, true]) {
+    const earth = new Vector3(...earthPosition(compact));
+    for (const sway of [-0.045, 0, 0.045]) {
+      const normal = koreaWorldNormal(compact, sway);
+      const mapped = korea
+        .clone()
+        .applyAxisAngle(new Vector3(0, 1, 0), sway)
+        .applyQuaternion(earthOrientation(compact));
+      assert.ok(normal.distanceTo(mapped) < 1e-7);
+      const surface = normal.clone().multiplyScalar(EARTH_RADIUS).add(earth);
+      for (const strength of [0.24, 0.5, 0.8, 1]) {
+        const pose = signalFlightPose(1, strength, compact, normal.toArray());
+        assert.ok(new Vector3(...pose.target).distanceTo(surface) < 1e-10);
+        const camera = new PerspectiveCamera(
+          earthFocusFov(strength, compact),
+          compact ? 390 / 844 : 1440 / 900,
+          0.1,
+          650,
+        );
+        camera.position.set(...pose.position);
+        camera.lookAt(...pose.target);
+        camera.updateMatrixWorld();
+        const screen = surface.clone().project(camera);
+        assert.ok(Math.abs(screen.x) < 1e-9 && Math.abs(screen.y) < 1e-9);
+        assert.ok(screen.z > -1 && screen.z < 1);
+        assert.ok(
+          camera.position.distanceTo(earth) >=
+            EARTH_RADIUS + EARTH_FOCUS_ALTITUDE - 1e-10,
+        );
+      }
+    }
   }
 });

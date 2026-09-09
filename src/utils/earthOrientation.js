@@ -39,3 +39,9 @@ export function earthSway(elapsed) {
   // A gentle +/- 2.6 degree drift, never a full spin that hides Korea.
   return Math.sin(elapsed * 0.12) * 0.045;
 }
+
+export function koreaWorldNormal(compact, sway = 0) {
+  return geographicSurfacePoint(EARTH_FOCUS.latitude, EARTH_FOCUS.longitude)
+    .applyAxisAngle(new Vector3(0, 1, 0), sway)
+    .applyQuaternion(earthOrientation(compact));
+}

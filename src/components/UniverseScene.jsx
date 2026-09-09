@@ -5,7 +5,11 @@ import AmbientSpace from "./AmbientSpace.jsx";
 import { advanceAmbientTime } from "../utils/ambientMotion.js";
 import * as THREE from "three";
 import { Earth, LunarSurface } from "./CelestialBodies";
-import { signalFlightPose } from "../utils/secretSignal.js";
+import {
+  signalFlightPose,
+  earthFocusBlend,
+  earthFocusFov,
+} from "../utils/secretSignal.js";
 import { flightPose, seededRandom } from "../utils/observatory";
 
 const starVertex = `
@@ -26,6 +30,7 @@ const starVertex = `
 `;
 const starFragment = `
   uniform float uTime;
+  uniform float uOpacity;
   varying float vPhase;
   varying vec3 vColor;
   varying float vBright;
@@ -35,12 +40,16 @@ const starFragment = `
     vec2 p = abs(gl_PointCoord - .5) * 2.;
     float rays = (exp(-p.x * 28.) * pow(max(0., 1.-p.y), 3.) + exp(-p.y * 28.) * pow(max(0., 1.-p.x), 3.)) * vBright * .16;
     float shimmer = .72 + .28 * sin(vPhase + uTime * (.48 + .16 * sin(vPhase * 2.)));
-    gl_FragColor = vec4(vColor, (strength + rays) * shimmer);
+    gl_FragColor = vec4(vColor, (strength + rays) * shimmer * uOpacity);
   }
 `;
-function DeepSky({ paused }) {
-  const uniforms = useMemo(() => ({ uTime: { value: 0 } }), []);
+function DeepSky({ paused, focus }) {
+  const uniforms = useMemo(
+    () => ({ uTime: { value: 0 }, uFocus: { value: 0 } }),
+    [],
+  );
   useFrame((_, delta) => {
+    uniforms.uFocus.value = focus;
     uniforms.uTime.value = advanceAmbientTime(
       uniforms.uTime.value,
       delta,
@@ -61,6 +70,7 @@ function DeepSky({ paused }) {
         fragmentShader={`
       varying vec3 vDirection;
       uniform float uTime;
+      uniform float uFocus;
       float hash(vec3 p) { p = fract(p * .3183099 + vec3(.1, .2, .3)); p *= 17.; return fract(p.x * p.y * p.z * (p.x + p.y + p.z)); }
       float noise(vec3 x) {
         vec3 p = floor(x), f = fract(x); f = f * f * (3. - 2. * f);
@@ -75,18 +85,19 @@ function DeepSky({ paused }) {
         float dust = smoothstep(.29, .76, fbm(d * 16. + cloud * 4. - flow * .48)) * band;
         float breath = .86 + .14 * sin(uTime * .15 + cloud * 5.);
         vec3 color = vec3(.0118, .0235, .047) + mix(vec3(.052,.09,.15), vec3(.14,.098,.11), cloud) * dust * breath;
-        gl_FragColor = vec4(color, 1.);
+        gl_FragColor = vec4(mix(color, vec3(.003, .007, .014), uFocus * .94), 1.);
       }
     `}
       />
     </mesh>
   );
 }
-function BackgroundStars({ paused, compact }) {
+function BackgroundStars({ paused, compact, focus }) {
   const { gl } = useThree();
   const uniforms = useMemo(
     () => ({
       uTime: { value: 0 },
+      uOpacity: { value: 1 },
       uPixelRatio: { value: Math.min(gl.getPixelRatio(), 1.6) },
     }),
     [gl],
@@ -129,6 +140,7 @@ function BackgroundStars({ paused, compact }) {
     };
   }, [compact]);
   useFrame((_, delta) => {
+    uniforms.uOpacity.value = 1 - focus;
     uniforms.uTime.value = advanceAmbientTime(
       uniforms.uTime.value,
       delta,
@@ -184,6 +196,7 @@ function CameraRig({
   compact,
   inputRef,
   sector,
+  earthFocusRef,
 }) {
   const { camera } = useThree();
   const look = useRef(new THREE.Vector3(...flightPose(0, compact).target));
@@ -208,7 +221,23 @@ function CameraRig({
   useFrame((_, delta) => {
     const dt = Math.min(delta, 0.05);
     drift.current = advanceAmbientTime(drift.current, dt, paused);
-    const pose = signalFlightPose(progress, signal, compact);
+    const focus = earthFocusBlend(signal);
+    const pose = signalFlightPose(
+      progress,
+      signal,
+      compact,
+      earthFocusRef.current.lengthSq() > 0.5
+        ? earthFocusRef.current.toArray()
+        : undefined,
+    );
+    const fov = selected ? (compact ? 58 : 46) : earthFocusFov(signal, compact);
+    const nextFov = reducedMotion
+      ? fov
+      : THREE.MathUtils.damp(camera.fov, fov, 4.5, dt);
+    if (Math.abs(camera.fov - nextFov) > 0.00001) {
+      camera.fov = nextFov;
+      camera.updateProjectionMatrix();
+    }
     pose.position = pose.position.map((value, i) => value + sector.origin[i]);
     pose.target = pose.target.map((value, i) => value + sector.origin[i]);
     if (selected) {
@@ -224,18 +253,19 @@ function CameraRig({
       );
     } else {
       targetPosition.set(...pose.position);
-      const viewScale = 1 - signal * signal * 0.9;
+      const viewScale = 1 - focus;
       targetLook.set(
         pose.target[0] + inputRef.current.lookX * viewScale,
         pose.target[1] +
-          (inputRef.current.lookY + (paused ? 0 : inputRef.current.travelPitch)) *
+          (inputRef.current.lookY +
+            (paused ? 0 : inputRef.current.travelPitch)) *
             viewScale,
         pose.target[2],
       );
     }
     if (!reducedMotion && !selected) {
-      targetPosition.x += Math.sin(drift.current * 0.14) * 0.28;
-      targetPosition.y += Math.sin(drift.current * 0.21) * 0.16;
+      targetPosition.x += Math.sin(drift.current * 0.14) * 0.28 * (1 - focus);
+      targetPosition.y += Math.sin(drift.current * 0.21) * 0.16 * (1 - focus);
     }
     const easing = reducedMotion ? 1 : 1 - Math.exp(-dt * 4.5);
     camera.position.lerp(targetPosition, easing);
@@ -275,6 +305,8 @@ export default function UniverseScene({
   onAmbientDiagnostics,
   visible = true,
 }) {
+  const earthFocusRef = useRef(new THREE.Vector3());
+  const focus = earthFocusBlend(signal);
   return (
     <Canvas
       frameloop={visible ? "always" : "never"}
@@ -313,17 +345,18 @@ export default function UniverseScene({
         color="#e2e8f4"
       />
       <group position={sector.origin}>
-        <DeepSky paused={paused} />
-        <BackgroundStars paused={paused} compact={compact} />
+        <DeepSky paused={paused} focus={focus} />
+        <BackgroundStars paused={paused} compact={compact} focus={focus} />
       </group>
       <AmbientSpace
         paused={paused}
         compact={compact}
+        focus={focus}
         diagnostics={diagnostics}
         onDiagnostics={onAmbientDiagnostics}
       />
       <Suspense fallback={null}>
-        <Earth paused={paused} compact={compact} />
+        <Earth paused={paused} compact={compact} focusRef={earthFocusRef} />
         {sector.id === "home" && (
           <LunarSurface progress={progress} reducedMotion={reducedMotion} />
         )}
@@ -331,6 +364,7 @@ export default function UniverseScene({
       </Suspense>
       <ArticleSky
         paused={paused}
+        focus={focus}
         articles={articles}
         progress={progress}
         selected={selected}
@@ -345,6 +379,7 @@ export default function UniverseScene({
         onDiagnostics={onDiagnostics}
       />
       <CameraRig
+        earthFocusRef={earthFocusRef}
         sector={sector}
         progress={progress}
         signal={signal}

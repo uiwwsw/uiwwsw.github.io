@@ -21,7 +21,7 @@ import { createFlightInput, centerFlightInput } from "./utils/flightInput.js";
 import { useFlightInput } from "./hooks/useFlightInput.js";
 import { useFlightMotion } from "./hooks/useFlightMotion.js";
 import SecretSignal from "./components/SecretSignal";
-import { signalStrength } from "./utils/secretSignal.js";
+import { signalStrength, earthFocusBlend } from "./utils/secretSignal.js";
 import { HOME_SECTOR, groupSectors } from "./utils/skyRegistry.js";
 import { useArticleContent } from "./hooks/useArticleContent.js";
 import ArticleBody from "./components/ArticleBody.jsx";
@@ -90,6 +90,8 @@ export default function App({ initialHome } = {}) {
   });
   const progress = clamp(distance);
   const signal = sectorId === "home" ? signalStrength(distance) : 0;
+  const earthFocus = sceneError ? 0 : earthFocusBlend(signal);
+  const focusingEarth = earthFocus > 0.05;
   useEffect(() => {
     const update = () => setPageHidden(document.hidden);
     update();
@@ -398,7 +400,8 @@ export default function App({ initialHome } = {}) {
 
   return (
     <main
-      className={`observatory ${exploring ? "is-exploring" : ""} ${sceneReady ? "scene-ready" : ""}`}
+      className={`observatory ${exploring ? "is-exploring" : ""} ${sceneReady ? "scene-ready" : ""} ${focusingEarth ? "is-earth-focused" : ""}`}
+      style={{ "--earth-focus": earthFocus }}
       ref={sceneRef}
     >
       <a
@@ -559,7 +562,11 @@ export default function App({ initialHome } = {}) {
       )}
 
       {exploring && !panel && signal < 1 && (
-        <section className="explore-heading">
+        <section
+          className="explore-heading"
+          inert={focusingEarth ? "" : undefined}
+          aria-hidden={focusingEarth || undefined}
+        >
           <p className="eyebrow">BETWEEN THE STARS</p>
           <h1>{phase}</h1>
           <p>
@@ -606,11 +613,7 @@ export default function App({ initialHome } = {}) {
       )}
 
       {signal >= 1 && sectorId === "home" && !panel && (
-        <SecretSignal
-          strength={signal}
-          quiet={paused}
-          onLeave={leaveSignal}
-        />
+        <SecretSignal strength={signal} quiet={paused} onLeave={leaveSignal} />
       )}
 
       {!exploring && latestEssay && (
