@@ -10,8 +10,9 @@ export function advanceAmbientTime(time, delta, paused) {
   return time + Math.min(delta, 0.05);
 }
 
-export function createDustField(compact) {
-  const random = seededRandom(7092026);
+export function createDustField(compact, visitSeed = 0) {
+  const random = seededRandom(7092026 ^ visitSeed);
+  const direction = visitSeed && seededRandom(visitSeed)() < 0.5 ? -1 : 1;
   const count = dustBudget(compact);
   const positions = new Float32Array(count * 3);
   const velocity = new Float32Array(count * 3);
@@ -27,7 +28,10 @@ export function createDustField(compact) {
     // Separate depth layers move at different speeds, not a snowfall overlay.
     velocity.set(
       [
-        (0.26 + random() * 0.4) * (near ? 2.2 : 1) * (i % 7 === 0 ? -1 : 1),
+        direction *
+          (0.26 + random() * 0.4) *
+          (near ? 2.2 : 1) *
+          (i % 7 === 0 ? -1 : 1),
         (random() - 0.35) * 0.24 * (near ? 1.4 : 1),
         0.08 + random() * 0.22,
       ],
@@ -39,15 +43,32 @@ export function createDustField(compact) {
   return { positions, velocity, phases, sizes, layers };
 }
 
-export function distantStreak(time) {
-  const period = 18;
+const DEFAULT_STREAK = { first: 3.5, period: 18, lane: 0, direction: 1 };
+export function createStreakSchedule(visitSeed = 0) {
+  if (!visitSeed) return DEFAULT_STREAK;
+  const random = seededRandom(visitSeed ^ 0x51f15e);
+  return {
+    first: 3.5 + random() * 4,
+    period: 16 + random() * 8,
+    lane: Math.floor(random() * 3),
+    direction: random() < 0.5 ? -1 : 1,
+  };
+}
+
+export function distantStreak(time, schedule = DEFAULT_STREAK) {
+  const { period, first } = schedule;
   const duration = 2.6;
-  const elapsed = time - 3.5;
+  const elapsed = time - first;
   if (elapsed < 0) return { visible: false, progress: 0, opacity: 0, lane: 0 };
   const cycle = Math.floor(elapsed / period);
   const phase = elapsed - cycle * period;
   const progress = Math.min(1, phase / duration);
   const opacity =
     phase < duration ? Math.sin(Math.PI * progress) ** 2 * 0.68 : 0;
-  return { visible: opacity > 0.001, progress, opacity, lane: cycle % 3 };
+  return {
+    visible: opacity > 0.001,
+    progress,
+    opacity,
+    lane: (cycle + schedule.lane) % 3,
+  };
 }

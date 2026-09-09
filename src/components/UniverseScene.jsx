@@ -105,7 +105,7 @@ function DeepSky({ paused, focus }) {
     </mesh>
   );
 }
-function BackgroundStars({ paused, compact, focus }) {
+function BackgroundStars({ paused, compact, focus, visitSeed }) {
   const { gl } = useThree();
   const uniforms = useMemo(
     () => ({
@@ -115,7 +115,10 @@ function BackgroundStars({ paused, compact, focus }) {
     }),
     [gl],
   );
-  const data = useMemo(() => createBackgroundStarData(compact), [compact]);
+  const data = useMemo(
+    () => createBackgroundStarData(compact, visitSeed),
+    [compact, visitSeed],
+  );
   useFrame((_, delta) => {
     uniforms.uOpacity.value = 1 - focus;
     uniforms.uTime.value = advanceAmbientTime(
@@ -319,6 +322,7 @@ function SceneRender({ assetsReady, onReady, onError }) {
   return null;
 }
 export default function UniverseScene({
+  visitSeed = 0,
   articles,
   progress,
   signal,
@@ -406,12 +410,14 @@ export default function UniverseScene({
       <group position={sector.origin}>
         <DeepSky paused={paused || !revealed} focus={focus} />
         <BackgroundStars
+          visitSeed={visitSeed}
           paused={paused || !revealed}
           compact={compact}
           focus={focus}
         />
       </group>
       <AmbientSpace
+        visitSeed={visitSeed}
         paused={paused || !revealed}
         compact={compact}
         focus={focus}

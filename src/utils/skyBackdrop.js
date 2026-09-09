@@ -1,9 +1,9 @@
 import { flightPose, seededRandom } from "./observatory.js";
 
-// One deterministic sky for the initial HTML and the WebGL points. A random
-// replacement starfield used to visibly jump when the renderer took over.
-export function createBackgroundStarData(compact) {
-  const random = seededRandom(20260907);
+// A small fixed set of bright guide stars bridges the prerendered HTML and GPU.
+// The rest of the sky can vary per visit without moving those first-paint stars.
+function generateStars(compact, seed = 0) {
+  const random = seededRandom(20260907 ^ seed);
   const count = compact ? 2800 : 6000;
   const positions = [],
     colors = [],
@@ -36,7 +36,7 @@ export function createBackgroundStarData(compact) {
 const dot = (a, b) => a.reduce((sum, value, i) => sum + value * b[i], 0);
 const normalize = (v) => v.map((value) => value / Math.hypot(...v));
 export function createSkyPreview(compact) {
-  const data = createBackgroundStarData(compact);
+  const data = generateStars(compact);
   const pose = flightPose(0, compact);
   const forward = normalize(pose.target.map((v, i) => v - pose.position[i]));
   const right = normalize([-forward[2], 0, forward[0]]);
@@ -69,4 +69,16 @@ export function createSkyPreview(compact) {
     });
   }
   return stars.sort((a, b) => b.radius - a.radius).slice(0, 96);
+}
+
+export function createBackgroundStarData(compact, visitSeed = 0) {
+  const stars = generateStars(compact, visitSeed);
+  if (!visitSeed) return stars;
+  const anchors = generateStars(compact);
+  for (const { id } of createSkyPreview(compact)) {
+    for (const key of ["positions", "colors"])
+      stars[key].set(anchors[key].subarray(id * 3, id * 3 + 3), id * 3);
+    for (const key of ["sizes", "phases"]) stars[key][id] = anchors[key][id];
+  }
+  return stars;
 }

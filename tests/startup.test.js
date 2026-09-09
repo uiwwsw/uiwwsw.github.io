@@ -97,6 +97,11 @@ test("the real App prerenders without browser globals, WebGL or a replacement re
     for (const articles of [catalog.articles, []]) {
       const snapshot = createHomeSnapshot(articles);
       const html = renderHome(snapshot);
+      assert.equal(
+        renderHome(snapshot, 123456),
+        html,
+        "a client visit seed must not replace the prerendered first paint",
+      );
       const $ = load(html);
       assert.equal($("main.observatory").length, 1);
       assert.equal($(".site-header").length, 1);

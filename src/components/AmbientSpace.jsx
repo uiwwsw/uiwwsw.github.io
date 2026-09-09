@@ -6,6 +6,7 @@ import {
   createDustField,
   DUST_BOUNDS,
   distantStreak,
+  createStreakSchedule,
 } from "../utils/ambientMotion.js";
 
 const ignoreRaycast = () => {};
@@ -50,6 +51,7 @@ const dustFragment = `
 `;
 
 export default function AmbientSpace({
+  visitSeed = 0,
   paused,
   compact,
   focus = 0,
@@ -61,7 +63,11 @@ export default function AmbientSpace({
   const lastReport = useRef(-1);
   const streak = useRef();
   const streakAnchor = useRef();
-  const field = useMemo(() => createDustField(compact), [compact]);
+  const field = useMemo(
+    () => createDustField(compact, visitSeed),
+    [compact, visitSeed],
+  );
+  const schedule = useMemo(() => createStreakSchedule(visitSeed), [visitSeed]);
   const dustUniforms = useMemo(
     () => ({
       uTime: { value: 0 },
@@ -77,7 +83,7 @@ export default function AmbientSpace({
     dustUniforms.uTime.value = time.current;
     dustUniforms.uOpacity.value = 1 - focus;
     dustUniforms.uPixelRatio.value = Math.min(gl.getPixelRatio(), 1.6);
-    const passage = distantStreak(time.current);
+    const passage = distantStreak(time.current, schedule);
     if (diagnostics && clock.elapsedTime - lastReport.current > 1) {
       lastReport.current = clock.elapsedTime;
       onDiagnostics?.(
@@ -96,12 +102,15 @@ export default function AmbientSpace({
     streakAnchor.current.position.copy(camera.position);
     streakAnchor.current.quaternion.copy(camera.quaternion);
     streak.current.position.set(
-      width * (-0.53 + passage.progress * 0.78),
+      schedule.direction * width * (-0.53 + passage.progress * 0.78),
       height * (0.34 - passage.lane * 0.065 - passage.progress * 0.14),
       -depth,
     );
     streak.current.scale.set(width * 0.13, height * 0.0045, 1);
-    streak.current.rotation.z = Math.atan2(-height * 0.14, width * 0.78);
+    streak.current.rotation.z = Math.atan2(
+      -height * 0.14,
+      schedule.direction * width * 0.78,
+    );
   });
   return (
     <group>

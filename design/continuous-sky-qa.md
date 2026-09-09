@@ -21,6 +21,8 @@ Camera position, tilt and FOV remain fixed during the opening. There is one Eart
 
 ## Background continuity
 
+The later [visit variation revision](visit-variation-qa.md) keeps these 96 first-paint anchors fixed in each layout while reseeding the remaining background points. The continuity contract below still applies to the anchors; the whole GPU starfield is no longer identical across visits.
+
 `skyBackdrop.js` is a pure, non-Three generator shared by GPU stars and the first-HTML preview. Each responsive SVG contains 96 selected star anchors with matching camera projection and color; their opacity follows the initial shimmer phase. CSS selects one layout before hydration. The preview is a lightweight approximation, not a duplicate planet or an exact raster of the animated nebula. The old blue wash is removed. Bright star anchors no longer get replaced by unrelated random points.
 
 Deep-sky, background-star and dust clocks wait for renderer readiness, so cold-load waiting does not consume initial motion. `transitionend` removes the preview only when the canvas is fully opaque. The no-transition reduced-motion path also follows React's explicit preference, so the DEV reduced-motion fixture cannot remove the backdrop ahead of canvas opacity. The lazy Three boundary and nonblocking service-worker response path remain intact.
