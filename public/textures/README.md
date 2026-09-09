@@ -16,6 +16,14 @@ Earth shading is an original GLSL implementation inspired by the Three.js TSL Ea
 https://threejs.org/examples/webgpu_tsl_earth.html
 The WebGL renderer preserves compatibility with the existing Three.js / React Three Fiber versions.
 
+Rendering separation: day/night geography is sampled once at the unshifted
+SphereGeometry UV. The packed map's **B channel only** drives a thin transparent
+cloud shell and a faint, aligned shadow; its R/G land/elevation information must
+never drift over the surface. All three maps use a single 1×1 equirectangular
+mapping, repeated only at the longitude seam and clamped at the poles. Korea's
+36° N / 128° E center is established by rotating the shared geographic frame,
+not by offsetting or repeating the terrain maps.
+
 The moon asset is distributed in the Three.js example collection under its repository license:
 https://github.com/mrdoob/three.js/blob/dev/LICENSE
 No game assets are used.
