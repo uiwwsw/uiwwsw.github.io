@@ -108,9 +108,14 @@ button {
   overflow: hidden;
   pointer-events: none;
   background:
-    radial-gradient(ellipse at 74% 28%, #233e5c80, transparent 48%),
-    radial-gradient(ellipse at 30% 64%, #26364e65, transparent 52%),
-    linear-gradient(155deg, #050a14, #0b1626 55%, #03060c);
+    linear-gradient(
+      151deg,
+      transparent 36%,
+      #18212d44 48%,
+      #17192122 55%,
+      transparent 66%
+    ),
+    radial-gradient(ellipse at 65% 30%, #14213130, transparent 55%), #03060c;
 }
 .opening-sky svg {
   display: block;
@@ -118,16 +123,30 @@ button {
   height: 100%;
   fill: #c3d8ec;
 }
+.opening-sky .opening-stars-touch {
+  display: none;
+}
+@media (max-width: 760px) {
+  .opening-sky .opening-stars-wide {
+    display: none;
+  }
+  .opening-sky .opening-stars-touch {
+    display: block;
+  }
+}
 .universe-canvas {
   position: absolute;
   inset: 0;
   z-index: 1;
   touch-action: none;
   opacity: 0;
-  transition: opacity 0.32s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: opacity 1.15s linear;
 }
 .scene-ready .universe-canvas {
   opacity: 1;
+}
+.observatory[data-reduced-motion="true"] .universe-canvas {
+  transition: none;
 }
 .universe-canvas canvas {
   touch-action: none;

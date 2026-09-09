@@ -73,7 +73,16 @@ for (const path of expectedPaths) {
       "A different reading layout must never precede the universe",
     );
     assert.equal($("#root .intro h1").length, 1);
-    assert.equal($("#root .opening-sky[aria-hidden='true'] circle").length, 96);
+    assert.equal(
+      $("#root .opening-sky[aria-hidden='true'] .opening-stars-wide circle")
+        .length,
+      96,
+    );
+    assert.equal(
+      $("#root .opening-sky[aria-hidden='true'] .opening-stars-touch circle")
+        .length,
+      96,
+    );
     const criticalImages = $("head link[rel='preload'][as='image']")
       .toArray()
       .map((node) => $(node).attr("href"));

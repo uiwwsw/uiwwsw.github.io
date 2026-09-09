@@ -10,6 +10,7 @@ import {
 } from "../utils/earthOrientation";
 import { advanceAmbientTime } from "../utils/ambientMotion.js";
 import { SCENE_TEXTURES } from "../utils/sceneStartup.js";
+import { patchLunarRevealShader } from "../utils/lunarReveal.js";
 import { SceneBoundary } from "./Interface";
 import {
   assemblyEarthPosition,
@@ -275,13 +276,27 @@ export function LunarSurface({
   const arrival = useRef();
   const group = useRef();
   const ground = useRef();
+  const bufferSize = useMemo(() => new THREE.Vector2(), []);
+  const reveal = useMemo(
+    () => ({ progress: { value: 0 }, height: { value: 1 } }),
+    [],
+  );
+  const emergenceMaterial = useMemo(
+    () => ({
+      transparent: true,
+      onBeforeCompile: (shader) => patchLunarRevealShader(shader, reveal),
+      customProgramCacheKey: () => "lunar-emergence-v1",
+    }),
+    [reveal],
+  );
   useFrame((_, delta) => {
     arrival.current.position.y = assemblyGroundY(
       assemblyRef.current.layout,
       assemblyRef.current.ground,
     );
-    // The Moon begins below the frame. Submit its buffers during the startup
-    // draws too, instead of a first-upload hitch when its ridge enters view.
+    reveal.progress.value = 1 - assemblyRef.current.ground;
+    reveal.height.value = gl.getDrawingBufferSize(bufferSize).y;
+    // Warm the same materials/buffers behind the fully discarded reveal edge.
     const cull = assemblyRef.current.phase === "done";
     ground.current.frustumCulled = cull;
     rocks.current.frustumCulled = cull;
@@ -349,6 +364,7 @@ export function LunarSurface({
       <group ref={group}>
         <mesh ref={ground} name="lunar-ground" geometry={geometry}>
           <meshStandardMaterial
+            {...emergenceMaterial}
             map={lunarMap}
             color="#85837f"
             roughness={1}
@@ -358,7 +374,11 @@ export function LunarSurface({
         </mesh>
         <instancedMesh ref={rocks} args={[undefined, undefined, 180]}>
           <icosahedronGeometry args={[1, 0]} />
-          <meshStandardMaterial color="#545965" roughness={1} />
+          <meshStandardMaterial
+            {...emergenceMaterial}
+            color="#545965"
+            roughness={1}
+          />
         </instancedMesh>
       </group>
     </group>

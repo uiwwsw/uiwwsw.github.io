@@ -1,6 +1,6 @@
 # Progressive first paint and startup dependency repair — 2026-09-09
 
-The progressive-loading infrastructure below is retained. This report records the original 1.4-second visual handoff; the current fixed-camera object entrance uses a **0.32-second crossfade and 1.8-second assembly**, and optional detail loading now waits for both. Current timings and offscreen resource warm-up follow [world-assembly-qa.md](./world-assembly-qa.md).
+The progressive-loading infrastructure below is retained as a historical record. The current entrance uses a **1.15-second linear sky handoff and 2.6-second assembly**, matching star anchors and a restrained, feathered lunar reveal. Optional details wait for both stages. Current timings and verification follow [continuous-sky-qa.md](./continuous-sky-qa.md).
 
 ## Confirmed code/build causes
 

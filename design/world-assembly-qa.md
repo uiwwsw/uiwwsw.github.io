@@ -1,5 +1,7 @@
 # World assembly: fixed camera, offscreen objects
 
+Historical record of the 1.8-second entrance. The later background-pop / floating-floor correction supersedes its large terrain translation and timing; see [continuous-sky-qa.md](./continuous-sky-qa.md) for the current implementation and browser verification.
+
 ## Corrected direction
 
 

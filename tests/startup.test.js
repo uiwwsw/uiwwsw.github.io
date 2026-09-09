@@ -111,7 +111,8 @@ test("the real App prerenders without browser globals, WebGL or a replacement re
       );
       assert.equal($(".static-fallback, canvas, dialog").length, 0);
       assert.equal($(".opening-sky[aria-hidden='true']").length, 1);
-      assert.equal($(".opening-sky circle").length, 96);
+      assert.equal($(".opening-stars-wide circle").length, 96);
+      assert.equal($(".opening-stars-touch circle").length, 96);
       assert.equal($(".opening-sky image, .opening-sky img").length, 0);
       assert.equal($(".secret-signal").length, 0);
       assert.equal($(".nav-count").text(), String(articles.length));
@@ -176,10 +177,12 @@ test("startup uses hydration, defers the scene, and prevents a late font/partial
   );
   assert.match(read("src/App.jsx"), /!sceneSettled && <OpeningSky/);
   assert.match(read("src/App.jsx"), /sceneReady && reducedMotion/);
+  assert.match(read("src/App.jsx"), /data-reduced-motion=\{reducedMotion\}/);
   assert.match(
     read("src/index.css"),
-    /transition: opacity 0\.32s cubic-bezier/,
+    /\[data-reduced-motion="true"\] \.universe-canvas \{\s*transition: none/,
   );
+  assert.match(read("src/index.css"), /transition: opacity 1\.15s linear/);
   assert.ok(!read("src/index.html").includes("/fonts/SUITE-Variable.css"));
   assert.ok(!read("public/sw.js").includes("SUITE-Variable.ttf"));
 });
