@@ -1,5 +1,5 @@
 // Imported only by Vite's development branch. Never published as real writing.
-import { extendRegistry } from "./skyRegistry.js";
+import { extendRegistry, REGISTRY_VERSION } from "./skyRegistry.js";
 import { buildCatalog } from "./observatory.js";
 
 export function makeStressCatalog(index, count) {
@@ -26,7 +26,7 @@ export function makeStressCatalog(index, count) {
     };
   }
   const registry = extendRegistry(source, {
-    version: 1,
+    version: REGISTRY_VERSION,
     sectors: index.sectors,
     stars,
   });

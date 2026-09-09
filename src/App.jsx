@@ -675,7 +675,7 @@ export default function App({ initialHome, visitSeed = 0 } = {}) {
                 ))}
               </select>
             </label>
-            <button onClick={() => setPanel("archive")}>연도별로 찾기 ↗</button>
+            <button onClick={() => setPanel("archive")}>연도·주제로 찾기 ↗</button>
           </div>
         </section>
       )}
