@@ -1,5 +1,7 @@
 # Lunar arrival and Earth reveal
 
+Historical revision (`e17e0a5`). The owner clarified that the world objects themselves should enter from outside the frame, not the camera descend. This camera-led sequence has been replaced by [world-assembly-qa.md](./world-assembly-qa.md).
+
 ## Direction
 
 The opening is a camera-led descent, not the whole Moon appearing at once or a CSS-translated floor. The observer starts slightly higher/back/left, looking into the upper-left sky. Over 7.2 seconds, a quintic rest-to-rest curve lowers the observer and settles the viewing direction toward the existing upper-right Earth composition. No roll, shake, FOV pulse, sun-disc teleport or full-screen exposure flash is added.

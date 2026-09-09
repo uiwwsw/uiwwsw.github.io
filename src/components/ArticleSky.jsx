@@ -62,6 +62,7 @@ export default function ArticleSky({
   articles,
   paused,
   focus = 0,
+  planetPositionRef,
   progress,
   selected,
   highlighted,
@@ -169,7 +170,8 @@ export default function ArticleSky({
     }
     if (clock.elapsedTime - lastCheck.current < 0.2) return;
     lastCheck.current = clock.elapsedTime;
-    planet.set(...earthPosition(compact));
+    if (planetPositionRef) planet.copy(planetPositionRef.current);
+    else planet.set(...earthPosition(compact));
     const planetDistance = planet.distanceTo(camera.position);
     planet.project(camera);
     const planetX = ((planet.x + 1) * size.width) / 2;

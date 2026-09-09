@@ -12,6 +12,10 @@ import { advanceAmbientTime } from "../utils/ambientMotion.js";
 import { SCENE_TEXTURES } from "../utils/sceneStartup.js";
 import { SceneBoundary } from "./Interface";
 import {
+  assemblyEarthPosition,
+  assemblyGroundY,
+} from "../utils/worldAssembly.js";
+import {
   createLunarCraters,
   lunarHeight,
   lunarSegments,
@@ -125,7 +129,16 @@ function EarthDetails({ uniforms, detailsReady }) {
   return null;
 }
 
-export function Earth({ paused, compact, focusRef, enhance }) {
+export function Earth({
+  paused,
+  compact,
+  focusRef,
+  enhance,
+  assemblyRef,
+  planetPositionRef,
+}) {
+  const arrival = useRef();
+  const lastCulling = useRef(null);
   const globe = useRef();
   const orientation = useMemo(() => earthOrientation(compact), [compact]);
   const korea = useMemo(
@@ -152,6 +165,19 @@ export function Earth({ paused, compact, focusRef, enhance }) {
   const detailsReady = useRef(false);
   const detailMix = useRef(0);
   useFrame((_, delta) => {
+    const assembly = assemblyRef.current;
+    arrival.current.position.set(
+      ...assemblyEarthPosition(assembly.layout, assembly.earth),
+    );
+    planetPositionRef.current.copy(arrival.current.position);
+    const cull = assembly.phase === "done";
+    if (lastCulling.current !== cull) {
+      // Warm all three layers during the hidden startup draws, not on entry.
+      arrival.current.traverse((object) => {
+        if (object.isMesh) object.frustumCulled = cull;
+      });
+      lastCulling.current = cull;
+    }
     const target = detailsReady.current ? 1 : 0;
     detailMix.current = paused
       ? target
@@ -180,9 +206,14 @@ export function Earth({ paused, compact, focusRef, enhance }) {
       .copy(korea)
       .applyAxisAngle(north, globe.current.rotation.y)
       .applyQuaternion(orientation);
-  });
+  }, -1);
   return (
-    <group position={earthPosition(compact)} quaternion={orientation}>
+    <group
+      ref={arrival}
+      name="earth-arrival"
+      position={earthPosition(compact)}
+      quaternion={orientation}
+    >
       {enhance && (
         <SceneBoundary onError={ignoreOptionalTextureError}>
           <Suspense fallback={null}>
@@ -234,14 +265,24 @@ export function Earth({ paused, compact, focusRef, enhance }) {
     </group>
   );
 }
-export function LunarSurface({ progress, reducedMotion, compact, landingRef }) {
+export function LunarSurface({
+  progress,
+  reducedMotion,
+  compact,
+  assemblyRef,
+}) {
   const { gl } = useThree();
+  const arrival = useRef();
   const group = useRef();
   const ground = useRef();
   useFrame((_, delta) => {
+    arrival.current.position.y = assemblyGroundY(
+      assemblyRef.current.layout,
+      assemblyRef.current.ground,
+    );
     // The Moon begins below the frame. Submit its buffers during the startup
     // draws too, instead of a first-upload hitch when its ridge enters view.
-    const cull = landingRef.current.phase === "done";
+    const cull = assemblyRef.current.phase === "done";
     ground.current.frustumCulled = cull;
     rocks.current.frustumCulled = cull;
     const target = -Math.pow(progress, 1.3) * 40;
@@ -253,7 +294,7 @@ export function LunarSurface({ progress, reducedMotion, compact, landingRef }) {
           2.2,
           Math.min(delta, 0.05),
         );
-  });
+  }, -1);
   const map = useTexture(SCENE_TEXTURES.moon);
   const { geometry, craters } = useMemo(() => {
     const craters = createLunarCraters();
@@ -304,20 +345,22 @@ export function LunarSurface({ progress, reducedMotion, compact, landingRef }) {
   React.useEffect(() => () => geometry.dispose(), [geometry]);
   React.useEffect(() => () => lunarMap.dispose(), [lunarMap]);
   return (
-    <group ref={group}>
-      <mesh ref={ground} name="lunar-ground" geometry={geometry}>
-        <meshStandardMaterial
-          map={lunarMap}
-          color="#85837f"
-          roughness={1}
-          bumpMap={lunarMap}
-          bumpScale={0.65}
-        />
-      </mesh>
-      <instancedMesh ref={rocks} args={[undefined, undefined, 180]}>
-        <icosahedronGeometry args={[1, 0]} />
-        <meshStandardMaterial color="#545965" roughness={1} />
-      </instancedMesh>
+    <group ref={arrival} name="lunar-arrival">
+      <group ref={group}>
+        <mesh ref={ground} name="lunar-ground" geometry={geometry}>
+          <meshStandardMaterial
+            map={lunarMap}
+            color="#85837f"
+            roughness={1}
+            bumpMap={lunarMap}
+            bumpScale={0.65}
+          />
+        </mesh>
+        <instancedMesh ref={rocks} args={[undefined, undefined, 180]}>
+          <icosahedronGeometry args={[1, 0]} />
+          <meshStandardMaterial color="#545965" roughness={1} />
+        </instancedMesh>
+      </group>
     </group>
   );
 }

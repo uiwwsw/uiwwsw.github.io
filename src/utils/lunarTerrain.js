@@ -14,8 +14,8 @@ export function lunarHeight(x, z, craters) {
     Math.sin(x * 0.08 + z * 0.03) * 1.5 + Math.cos(z * 0.13 - x * 0.04) * 1.1;
   h +=
     Math.sin(x * 0.27 + z * 0.22) * 0.34 + Math.sin(x * 0.9 - z * 0.6) * 0.12;
-  // An asymmetric left ridge gives the descent a near/mid/far silhouette.
-  // It is part of the same fixed ground mesh, never another Moon layer.
+  // An asymmetric left ridge gives the arriving floor a near/mid/far silhouette.
+  // It is part of the same ground mesh, never another Moon layer.
   h += 5.2 * Math.exp(-Math.pow((x + 54) / 32, 2) - Math.pow((z + 44) / 22, 2));
   for (const crater of craters) {
     const d = Math.hypot(x - crater.x, z - crater.z) / crater.radius;

@@ -1,6 +1,6 @@
 # Progressive first paint and startup dependency repair — 2026-09-09
 
-The progressive-loading infrastructure below is retained. The visible opening camera and lunar-resource warm-up now follow [landing-qa.md](./landing-qa.md).
+The progressive-loading infrastructure below is retained. The current fixed-camera object entrance and offscreen resource warm-up follow [world-assembly-qa.md](./world-assembly-qa.md).
 
 ## Confirmed code/build causes
 
