@@ -291,7 +291,9 @@ function CameraRig({
     // Looking responds faster than travel so the finger never feels tethered.
     look.current.lerp(targetLook, reducedMotion ? 1 : 1 - Math.exp(-dt * 8));
     camera.lookAt(look.current);
-  });
+    camera.updateMatrixWorld();
+    // Earth/lunar transforms run at -1; labels and picking run at 0.
+  }, -0.5);
   return null;
 }
 function SceneReady({ assetsReady }) {
@@ -341,7 +343,6 @@ export default function UniverseScene({
   inputRef,
   sector,
   onNearby,
-  onCloud,
   diagnostics,
   onDiagnostics,
   onAmbientDiagnostics,
@@ -457,7 +458,6 @@ export default function UniverseScene({
         compact={compact}
         sector={sector}
         onNearby={onNearby}
-        onCloud={onCloud}
         diagnostics={diagnostics}
         onDiagnostics={onDiagnostics}
       />

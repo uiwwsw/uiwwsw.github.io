@@ -14,7 +14,16 @@ import {
   packStarLabels,
   pickBudget,
   transitionStarLabels,
+  sameStarLabels,
 } from "../utils/starSelection.js";
+import {
+  STAR_NEAR,
+  STAR_EDGE,
+  createStarProjector,
+  createStarUpdateClock,
+  stepStarUpdateClock,
+  readSkyObstacles,
+} from "../utils/starVisibility.js";
 
 const ignoreRaycast = () => {};
 const vertex = `
@@ -30,9 +39,9 @@ const vertex = `
     gl_Position = projectionMatrix * p;
     vColor = aColor;
     float shimmer = .88 + .12 * sin(uTime * .65 + aIndex * 2.399);
-    float nearFade = smoothstep(2.0, 12.0, -p.z);
+    float nearFade = smoothstep(${STAR_NEAR[0].toFixed(1)}, ${STAR_NEAR[1].toFixed(1)}, -p.z);
     vec2 screen = abs(gl_Position.xy / max(.001, gl_Position.w));
-    float edgeFade = 1.0 - smoothstep(.84, 1.02, max(screen.x, screen.y));
+    float edgeFade = 1.0 - smoothstep(${STAR_EDGE[0]}, ${STAR_EDGE[1]}, max(screen.x, screen.y));
     vAlpha = mix(.2, .95, uDetail) * mix(.08, 1.0, aVisible) * shimmer * nearFade * edgeFade * uOpacity;
   }
 `;
@@ -68,7 +77,6 @@ export default function ArticleSky({
   highlighted,
   onSelect,
   onNearby,
-  onCloud,
   inputRef,
   compact,
   sector,
@@ -78,17 +86,17 @@ export default function ArticleSky({
   const { gl, size } = useThree();
   const [labels, setLabels] = useState([]);
   const labelState = useRef([]);
-  const individualLabels = useRef(false);
   const [hovered, setHovered] = useState(null);
   const candidates = useRef([]);
-  const lastCheck = useRef(0);
+  const updateClock = useRef(createStarUpdateClock());
   const frames = useRef(0);
   const lastStats = useRef(0);
-  const vector = useMemo(() => new THREE.Vector3(), []);
+  const projectStar = useMemo(createStarProjector, []);
   const planet = useMemo(() => new THREE.Vector3(), []);
+  const planetScreen = useMemo(() => new THREE.Vector3(), []);
   const glow = useMemo(glowTexture, []);
   useEffect(() => () => glow.dispose(), [glow]);
-  const detail = clamp((progress - 0.22) / 0.3);
+  const detail = clamp((progress - 0.06) / 0.34);
   const focusing = focus > 0.05;
   const buffers = useMemo(() => {
     const positions = new Float32Array(articles.length * 3);
@@ -150,106 +158,93 @@ export default function ArticleSky({
     [articles, highlighted, compact],
   );
 
-  useFrame(({ camera, clock }, delta) => {
+  useFrame(({ camera }, delta) => {
     uniforms.uOpacity.value = 1 - focus;
     uniforms.uTime.value = advanceAmbientTime(
       uniforms.uTime.value,
       delta,
       paused,
     );
+    const tick = stepStarUpdateClock(updateClock.current, delta);
     frames.current++;
-    if (diagnostics && clock.elapsedTime - lastStats.current > 1) {
-      const fps = Math.round(
-        frames.current / (clock.elapsedTime - lastStats.current),
-      );
+    if (diagnostics && tick.now - lastStats.current > 1) {
+      const fps = Math.round(frames.current / (tick.now - lastStats.current));
       onDiagnostics(
         `${fps} FPS · ${gl.info.render.calls} draws · ${articles.length} stars · ${candidates.current.length} pick targets`,
       );
       frames.current = 0;
-      lastStats.current = clock.elapsedTime;
+      lastStats.current = tick.now;
     }
-    if (clock.elapsedTime - lastCheck.current < 0.2) return;
-    lastCheck.current = clock.elapsedTime;
     if (planetPositionRef) planet.copy(planetPositionRef.current);
     else planet.set(...earthPosition(compact));
     const planetDistance = planet.distanceTo(camera.position);
-    planet.project(camera);
-    const planetX = ((planet.x + 1) * size.width) / 2;
-    const planetY = ((1 - planet.y) * size.height) / 2;
+    planetScreen.copy(planet).project(camera);
+    const planetX = ((planetScreen.x + 1) * size.width) / 2;
+    const planetY = ((1 - planetScreen.y) * size.height) / 2;
     const planetRadius =
-      ((EARTH_RADIUS / planetDistance) * size.height) /
+      ((EARTH_RADIUS /
+        Math.sqrt(Math.max(1, planetDistance ** 2 - EARTH_RADIUS ** 2))) *
+        size.height) /
       (2 * Math.tan((camera.fov * Math.PI) / 360));
-    const project = (item) => {
-      vector.set(...item.position);
-      const distance = vector.distanceTo(camera.position);
-      vector.project(camera);
-      const x = ((vector.x + 1) * size.width) / 2;
-      const y = ((1 - vector.y) * size.height) / 2;
-      if (
-        vector.z < -1 ||
-        vector.z > 1 ||
-        x < 0 ||
-        x > size.width ||
-        y < 0 ||
-        y > size.height ||
-        distance < 5 ||
-        distance > 110
-      )
-        return null;
-      if (
-        sector.id === "home" &&
-        Math.hypot(x - planetX, y - planetY) < planetRadius + 20
-      )
-        return null;
-      return { ...item, x, y, distance };
-    };
+    const project = (item) =>
+      projectStar(
+        item,
+        camera,
+        size.width,
+        size.height,
+        sector.id === "home" ? planet : undefined,
+        EARTH_RADIUS,
+      );
     const projected = articles
       .filter((article) => !highlighted || highlighted.has(article.id))
       .map(project)
       .filter(Boolean)
       .sort((a, b) => a.distance - b.distance);
     candidates.current =
-      detail > 0.45 && !selected && !focusing
+      progress > 0.12 && !selected && !focusing
         ? projected.slice(0, pickBudget(compact))
         : [];
-    // A small threshold dead band prevents topic/article labels flickering
-    // back and forth when the user reverses a wheel near their transition.
-    if (detail > 0.62) individualLabels.current = true;
-    else if (detail < 0.45) individualLabels.current = false;
+    // Picking follows the actual camera every frame. Only layout/React work is
+    // throttled. No absolute Fiber time can strand this gate after tab resume.
+    if (!tick.layout) return;
+    const previous = new Map(labelState.current.map((item) => [item.id, item]));
     const visible =
       progress > 0.12 && !selected && !focusing
         ? packStarLabels(
-            individualLabels.current
-              ? projected
-              : clouds.map(project).filter(Boolean),
+            projected.map((item) => ({
+              ...item,
+              offsetX: previous.get(item.id)?.offsetX,
+              offsetY: previous.get(item.id)?.offsetY,
+            })),
             size.width,
             size.height,
             compact,
-            sector.id === "home" && planet.z >= -1 && planet.z <= 1
+            sector.id === "home" && planetScreen.z >= -1 && planetScreen.z <= 1
               ? { x: planetX, y: planetY, radius: planetRadius }
               : undefined,
-            labelState.current.map((item) => item.id),
+            [hovered, ...labelState.current.map((item) => item.id)].filter(
+              Boolean,
+            ),
+            readSkyObstacles(
+              gl.domElement.closest(".observatory"),
+              gl.domElement.getBoundingClientRect(),
+            ),
           )
         : [];
     const next = transitionStarLabels(
       labelState.current,
       visible,
-      clock.elapsedTime,
+      tick.now,
       paused || !!selected,
     );
     labelState.current = next;
-    setLabels((previous) =>
-      previous.map((item) => `${item.id}:${item.leavingAt}`).join() ===
-      next.map((item) => `${item.id}:${item.leavingAt}`).join()
-        ? previous
-        : next,
-    );
+    setLabels((previous) => (sameStarLabels(previous, next) ? previous : next));
   });
 
   useEffect(() => {
     candidates.current = [];
     labelState.current = [];
-    individualLabels.current = false;
+    updateClock.current.nextLayout = 0;
     setLabels([]);
     setHovered(null);
   }, [sector.id, highlighted, articles]);
@@ -340,25 +335,42 @@ export default function ArticleSky({
           style={{
             pointerEvents:
               !focusing && item.leavingAt === null ? "auto" : "none",
-            opacity: 1 - focus,
-            marginLeft: 10,
+            opacity: item.leavingAt !== null ? 0 : 1 - focus,
+            transition: "opacity 0.45s ease",
           }}
         >
+          <svg
+            className="star-connector"
+            aria-hidden="true"
+            width="1"
+            height="1"
+          >
+            <line
+              x1="0"
+              y1="0"
+              x2={
+                item.offsetX > 0
+                  ? item.offsetX
+                  : item.offsetX + (compact ? 156 : 198)
+              }
+              y2="0"
+            />
+            <circle cx="0" cy="0" r="3" />
+          </svg>
           <button
-            className={`star-label ${item.count ? "cloud-label" : ""} ${item.leavingAt !== null ? "is-leaving" : ""}`}
+            className={`star-label ${item.leavingAt !== null ? "is-leaving" : ""}`}
+            data-article-star={item.id}
             tabIndex={!focusing && item.leavingAt === null ? 0 : -1}
             aria-hidden={focusing || item.leavingAt !== null}
-            style={{ "--star-color": item.color }}
-            onClick={() =>
-              !focusing && (item.count ? onCloud(item.topic) : onSelect(item))
-            }
+            style={{
+              "--star-color": item.color,
+              left: item.offsetX,
+              top: item.offsetY,
+            }}
+            onClick={() => !focusing && onSelect(item)}
           >
-            <span>
-              {item.count ? "DISTANT NEBULA" : TOPICS[item.topic].english}
-            </span>
-            <strong>
-              {item.count ? `${item.label} · ${item.count}개의 별` : item.title}
-            </strong>
+            <span>{TOPICS[item.topic].english}</span>
+            <strong>{item.title}</strong>
             <i aria-hidden="true">↗</i>
           </button>
         </Html>

@@ -61,6 +61,7 @@ export default function AmbientSpace({
   const { gl } = useThree();
   const time = useRef(0);
   const lastReport = useRef(-1);
+  const reportTime = useRef(0);
   const streak = useRef();
   const streakAnchor = useRef();
   const field = useMemo(
@@ -78,14 +79,15 @@ export default function AmbientSpace({
     [],
   );
   const streakUniforms = useMemo(() => ({ uOpacity: { value: 0 } }), []);
-  useFrame(({ camera, clock }, delta) => {
+  useFrame(({ camera }, delta) => {
     time.current = advanceAmbientTime(time.current, delta, paused);
     dustUniforms.uTime.value = time.current;
     dustUniforms.uOpacity.value = 1 - focus;
     dustUniforms.uPixelRatio.value = Math.min(gl.getPixelRatio(), 1.6);
     const passage = distantStreak(time.current, schedule);
-    if (diagnostics && clock.elapsedTime - lastReport.current > 1) {
-      lastReport.current = clock.elapsedTime;
+    reportTime.current = advanceAmbientTime(reportTime.current, delta, false);
+    if (diagnostics && reportTime.current - lastReport.current > 1) {
+      lastReport.current = reportTime.current;
       onDiagnostics?.(
         `ambient ${time.current.toFixed(2)}s · ${paused ? "paused" : "living"} · ${field.sizes.length} dust · trail ${passage.visible ? "visible" : "resting"}`,
       );

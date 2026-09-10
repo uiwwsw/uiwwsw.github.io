@@ -1,9 +1,16 @@
 import React from "react";
-import { FLIGHT_GUIDANCE } from "../utils/flightGuide.js";
+import { FLIGHT_GUIDANCE, READING_GUIDANCE } from "../utils/flightGuide.js";
 import "./FlightGuide.css";
 
-export default function FlightGuide({ visible, touch, quiet }) {
-  const copy = FLIGHT_GUIDANCE[touch ? "touch" : "mouse"];
+export default function FlightGuide({
+  visible,
+  touch,
+  quiet,
+  exploring = false,
+}) {
+  const copy = (exploring ? READING_GUIDANCE : FLIGHT_GUIDANCE)[
+    touch ? "touch" : "mouse"
+  ];
   return (
     <aside
       id="flight-guide"
