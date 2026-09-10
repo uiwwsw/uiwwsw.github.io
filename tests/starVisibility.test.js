@@ -222,13 +222,70 @@ test("the native slider has large input/thumb targets without changing pinch or 
   const css = read("src/index.css");
   const app = read("src/App.jsx");
   assert.match(css, /\.flight-slider input \{[^}]*height: 52px/s);
+  assert.match(css, /\.flight-slider \{[^}]*--flight-thumb-size: 44px/s);
   for (const pseudo of ["webkit-slider-thumb", "moz-range-thumb"])
     assert.match(
       css,
-      new RegExp(`::-${pseudo} \\{[^}]*width: 44px;[^}]*height: 44px`, "s"),
+      new RegExp(
+        `::-${pseudo} \\{[^}]*width: var\\(--flight-thumb-size\\);[^}]*height: var\\(--flight-thumb-size\\)`,
+        "s",
+      ),
     );
-  assert.match(app, /className="flight-slider" data-flight-control/);
+  assert.match(app, /className="flight-slider"\s+data-flight-control/);
   assert.match(app, /step="0\.1"/);
   assert.match(app, /aria-valuetext/);
   assert.match(css, /\.flight-slider input:focus-visible/);
+});
+
+test("slider rail and endpoint markers share native thumb travel inside the full touch area", () => {
+  const css = read("src/index.css");
+  const app = read("src/App.jsx");
+  const block = (selector) => {
+    const start = css.indexOf(`${selector} {`);
+    assert.ok(start >= 0, selector);
+    return css.slice(start, css.indexOf("}", start));
+  };
+  const wrapper = block(".flight-slider");
+  assert.match(
+    wrapper,
+    /--flight-thumb-radius: calc\(var\(--flight-thumb-size\) \/ 2\)/,
+  );
+  assert.doesNotMatch(wrapper, /display: flex|gap:/);
+  const track = block(".flight-slider-track");
+  assert.match(track, /left: var\(--flight-thumb-radius\)/);
+  assert.match(track, /right: var\(--flight-thumb-radius\)/);
+  assert.match(track, /pointer-events: none/);
+  assert.match(track, /var\(--flight-progress\)/);
+  const input = block(".flight-slider input");
+  for (const property of [
+    "width: 100%",
+    "margin: 0",
+    "padding: 0",
+    "border: 0",
+    "z-index: 1",
+  ])
+    assert.ok(input.includes(property), property);
+  for (const pseudo of [
+    "webkit-slider-runnable-track",
+    "moz-range-track",
+    "moz-range-progress",
+  ])
+    assert.match(
+      block(`.flight-slider input::-${pseudo}`),
+      /background: transparent/,
+    );
+  assert.match(block(".flight-slider-track .origin-dot"), /left: 0/);
+  assert.match(block(".flight-slider-track > svg"), /right: 0/);
+  assert.match(
+    app,
+    /className="flight-slider-track" aria-hidden="true">\s*<span className="origin-dot" \/>\s*<Icon name="star" size=\{13\} \/>\s*<\/span>\s*<input/,
+  );
+  // Keep range behavior native: screen readers, Home/End and step increments
+  // use the same input; no competing pointer-to-percentage implementation.
+  const slider = app.slice(
+    app.indexOf('className="flight-slider"'),
+    app.indexOf('className="deck-actions"'),
+  );
+  assert.doesNotMatch(slider, /onPointer|onTouch|onMouse/);
+  assert.match(slider, /min="0"\s+max="100"/);
 });

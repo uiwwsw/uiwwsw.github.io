@@ -797,8 +797,15 @@ export default function App({ initialHome, visitSeed = 0 } = {}) {
             )}
             <span>{sectorId === "home" ? "EARTH" : "STARS"}</span>
           </div>
-          <div className="flight-slider" data-flight-control>
-            <span className="origin-dot" />
+          <div
+            className="flight-slider"
+            data-flight-control
+            style={{ "--flight-progress": `${progress * 100}%` }}
+          >
+            <span className="flight-slider-track" aria-hidden="true">
+              <span className="origin-dot" />
+              <Icon name="star" size={13} />
+            </span>
             <input
               aria-label={
                 sectorId === "home"
@@ -811,7 +818,6 @@ export default function App({ initialHome, visitSeed = 0 } = {}) {
               step="0.1"
               value={Math.round(progress * 1000) / 10}
               aria-valuetext={`${Math.round(progress * 100)}% 이동`}
-              style={{ "--flight-progress": `${progress * 100}%` }}
               onChange={(event) => {
                 manualInput();
                 setDistance(Number(event.target.value) / 100);
@@ -841,7 +847,6 @@ export default function App({ initialHome, visitSeed = 0 } = {}) {
                 );
               }}
             />
-            <Icon name="star" size={13} />
           </div>
         </div>
         <div className="deck-actions">

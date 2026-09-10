@@ -553,19 +553,50 @@ button {
   color: #9da5b4;
 }
 .flight-slider {
-  display: flex;
-  align-items: center;
-  gap: 10px;
+  --flight-thumb-size: 44px;
+  --flight-thumb-radius: calc(var(--flight-thumb-size) / 2);
+  position: relative;
+  height: 52px;
   margin-top: 4px;
   color: var(--gold);
 }
-.origin-dot {
+.flight-slider-track {
+  position: absolute;
+  /* Native range thumb centers travel from half a thumb to width - half.
+     Draw the rail AND its endpoints on that same interval, inside the input. */
+  left: var(--flight-thumb-radius);
+  right: var(--flight-thumb-radius);
+  top: 50%;
+  height: 3px;
+  transform: translateY(-50%);
+  border-radius: 3px;
+  background: linear-gradient(
+    90deg,
+    #d2c5b0 var(--flight-progress),
+    #9399a166 var(--flight-progress)
+  );
+  pointer-events: none;
+}
+.flight-slider-track .origin-dot {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translate(-50%, -50%);
   height: 5px;
   width: 5px;
   border-radius: 50%;
   border: 1px solid #d2c5b0;
 }
+.flight-slider-track > svg {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translate(50%, -50%);
+}
 .flight-slider input {
+  position: relative;
+  z-index: 1;
+  display: block;
   -webkit-appearance: none;
   appearance: none;
   width: 100%;
@@ -573,31 +604,26 @@ button {
   min-width: 0;
   touch-action: none;
   margin: 0;
+  padding: 0;
+  border: 0;
   background: transparent;
   cursor: ew-resize;
 }
 .flight-slider input::-webkit-slider-runnable-track {
   height: 3px;
-  border-radius: 3px;
-  background: linear-gradient(
-    90deg,
-    #d2c5b0 var(--flight-progress),
-    #9399a166 var(--flight-progress)
-  );
+  background: transparent;
 }
 .flight-slider input::-moz-range-track {
   height: 3px;
-  border-radius: 3px;
-  background: linear-gradient(
-    90deg,
-    #d2c5b0 var(--flight-progress),
-    #9399a166 var(--flight-progress)
-  );
+  background: transparent;
+}
+.flight-slider input::-moz-range-progress {
+  background: transparent;
 }
 .flight-slider input::-webkit-slider-thumb {
   -webkit-appearance: none;
-  width: 44px;
-  height: 44px;
+  width: var(--flight-thumb-size);
+  height: var(--flight-thumb-size);
   border: 0;
   border-radius: 50%;
   background: radial-gradient(
@@ -609,8 +635,8 @@ button {
   margin-top: -20.5px;
 }
 .flight-slider input::-moz-range-thumb {
-  width: 44px;
-  height: 44px;
+  width: var(--flight-thumb-size);
+  height: var(--flight-thumb-size);
   background: radial-gradient(
     circle,
     var(--gold) 0 5px,
@@ -624,11 +650,6 @@ button {
   outline: 1px solid var(--gold);
   outline-offset: 2px;
   border-radius: 6px;
-}
-.flight-slider > .origin-dot,
-.flight-slider > svg {
-  pointer-events: none;
-  flex-shrink: 0;
 }
 .deck-actions {
   display: flex;
