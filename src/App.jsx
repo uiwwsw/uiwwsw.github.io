@@ -20,6 +20,7 @@ import "./index.css";
 import { createFlightInput, centerFlightInput } from "./utils/flightInput.js";
 import { useFlightInput } from "./hooks/useFlightInput.js";
 import { useFlightMotion } from "./hooks/useFlightMotion.js";
+import { useIdleFlightGuide } from "./hooks/useIdleFlightGuide.js";
 import SecretSignal from "./components/SecretSignal";
 import { signalStrength, earthFocusBlend } from "./utils/secretSignal.js";
 import { HOME_SECTOR, groupSectors } from "./utils/skyRegistry.js";
@@ -74,7 +75,6 @@ export default function App({ initialHome, visitSeed = 0 } = {}) {
   const [sceneReady, setSceneReady] = useState(false);
   const [sceneSettled, setSceneSettled] = useState(false);
   const [assembled, setAssembled] = useState(false);
-  const [guideRequested, setGuideRequested] = useState(true);
   const [guidePointer, setGuidePointer] = useState(null);
   const [sceneError, setSceneError] = useState(
     import.meta.env.DEV && initialParams.get("webgl") === "off",
@@ -107,6 +107,17 @@ export default function App({ initialHome, visitSeed = 0 } = {}) {
   const signal = sectorId === "home" ? signalStrength(distance) : 0;
   const earthFocus = sceneError ? 0 : earthFocusBlend(signal);
   const focusingEarth = earthFocus > 0.05;
+  const { requested: guideRequested, setRequested: setGuideRequested } =
+    useIdleFlightGuide(
+      sceneReady &&
+        assembled &&
+        !sceneError &&
+        dataState === "ready" &&
+        !panel &&
+        !pageHidden &&
+        !cruising &&
+        signal === 0,
+    );
   const guideVisible = shouldShowFlightGuide({
     requested: guideRequested,
     ready: sceneReady,
@@ -251,13 +262,6 @@ export default function App({ initialHome, visitSeed = 0 } = {}) {
     setPanel("nearby");
     setCruising(false);
   }, []);
-  const enterCloud = useCallback((id) => {
-    setGuideRequested(false);
-    setTopic(id);
-    setDistance(0.65);
-    setCruising(false);
-  }, []);
-
   useEffect(() => {
     if (dataState !== "ready" || hydrated.current) return;
     hydrated.current = true;
@@ -448,7 +452,12 @@ export default function App({ initialHome, visitSeed = 0 } = {}) {
       onPointerDownCapture={(event) => {
         if (event.pointerType === "touch" || event.pointerType === "mouse")
           setGuidePointer(event.pointerType);
+        if (!event.target.closest(".flight-help")) setGuideRequested(false);
       }}
+      onKeyDownCapture={(event) => {
+        if (!event.target.closest(".flight-help")) setGuideRequested(false);
+      }}
+      onWheelCapture={() => setGuideRequested(false)}
       className={`observatory ${exploring ? "is-exploring" : ""} ${sceneReady ? "scene-ready" : ""} ${assembled ? "has-assembled" : ""} ${focusingEarth ? "is-earth-focused" : ""}`}
       data-reduced-motion={reducedMotion}
       data-sky-visit={clientReady ? visitSeed : undefined}
@@ -486,7 +495,6 @@ export default function App({ initialHome, visitSeed = 0 } = {}) {
                 articles={sector.articles}
                 sector={sector}
                 onNearby={showNearby}
-                onCloud={enterCloud}
                 diagnostics={
                   import.meta.env.DEV &&
                   (initialParams.has("stress") || initialParams.has("ambient"))
@@ -637,11 +645,7 @@ export default function App({ initialHome, visitSeed = 0 } = {}) {
         >
           <p className="eyebrow">BETWEEN THE STARS</p>
           <h1>{phase}</h1>
-          <p>
-            {progress < 0.38
-              ? "멀리서는 성운으로, 가까이에서는 하나의 이야기로."
-              : "별에 머물러 보세요. 가까이 모인 별은 함께 살펴볼 수 있어요."}
-          </p>
+          <p>별이나 제목을 눌러 읽어보세요. 다가가면 다음 별을 만나요.</p>
           <div className="sky-filters" aria-label="별의 주제">
             <button
               onClick={() => setTopic("all")}
@@ -675,7 +679,9 @@ export default function App({ initialHome, visitSeed = 0 } = {}) {
                 ))}
               </select>
             </label>
-            <button onClick={() => setPanel("archive")}>연도·주제로 찾기 ↗</button>
+            <button onClick={() => setPanel("archive")}>
+              연도·주제로 찾기 ↗
+            </button>
           </div>
         </section>
       )}
@@ -769,8 +775,11 @@ export default function App({ initialHome, visitSeed = 0 } = {}) {
                   guideVisible ? "flight-guide-copy" : undefined
                 }
                 aria-expanded={guideVisible}
-                disabled={!sceneReady}
-                onClick={() => setGuideRequested(!guideVisible)}
+                disabled={!sceneReady || !assembled}
+                onClick={() => {
+                  setCruising(false);
+                  setGuideRequested(!guideVisible);
+                }}
               >
                 조작 안내
                 <Icon name="help" size={13} />
@@ -788,7 +797,7 @@ export default function App({ initialHome, visitSeed = 0 } = {}) {
             )}
             <span>{sectorId === "home" ? "EARTH" : "STARS"}</span>
           </div>
-          <div className="flight-slider">
+          <div className="flight-slider" data-flight-control>
             <span className="origin-dot" />
             <input
               aria-label={
@@ -799,7 +808,10 @@ export default function App({ initialHome, visitSeed = 0 } = {}) {
               type="range"
               min="0"
               max="100"
-              value={Math.round(progress * 100)}
+              step="0.1"
+              value={Math.round(progress * 1000) / 10}
+              aria-valuetext={`${Math.round(progress * 100)}% 이동`}
+              style={{ "--flight-progress": `${progress * 100}%` }}
               onChange={(event) => {
                 manualInput();
                 setDistance(Number(event.target.value) / 100);
@@ -881,6 +893,7 @@ export default function App({ initialHome, visitSeed = 0 } = {}) {
         visible={guideVisible}
         touch={touchControls}
         quiet={paused}
+        exploring={exploring}
       />
       <div
         className={`bottom-credit ${guideVisible ? "has-flight-guide" : ""}`}

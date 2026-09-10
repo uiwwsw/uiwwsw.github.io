@@ -1,5 +1,7 @@
 # First-action guidance
 
+The one-shot dismissal policy below is superseded by [idle-aware guidance and discovery QA](discovery-idle-qa.md): help now appears after 4 seconds initially and returns after 14 seconds without input, with a reading-specific cue during exploration. The pointer-transparent layout, finite animations and accessibility semantics remain.
+
 ## Intent and interaction
 
 Replace the small, permanently printed footer gesture text with a short, visually distinct invitation. Guidance follows the world-assembly completion callback, not a hardcoded duration (the current opening is 2.6 seconds). Its 0.25-second opacity / 0.35-second position transition adds no page-load timer or control lock.

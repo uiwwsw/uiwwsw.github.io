@@ -189,8 +189,10 @@ test("labels stay bounded and do not overlap, including narrow screens", () => {
     for (let i = 0; i < labels.length; i++)
       for (let j = i + 1; j < labels.length; j++)
         assert.ok(
-          Math.abs(labels[i].x - labels[j].x) >= (compact ? 170 : 212) ||
-            Math.abs(labels[i].y - labels[j].y) >= (compact ? 84 : 94),
+          Math.abs(labels[i].rect.x - labels[j].rect.x) >=
+            (compact ? 170 : 212) ||
+            Math.abs(labels[i].rect.y - labels[j].rect.y) >=
+              (compact ? 86 : 96),
         );
   }
 });
