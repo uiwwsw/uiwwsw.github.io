@@ -50,7 +50,7 @@ const dustFragment = `
   }
 `;
 
-export default function AmbientSpace({
+export default React.memo(function AmbientSpace({
   visitSeed = 0,
   paused,
   compact,
@@ -174,4 +174,4 @@ export default function AmbientSpace({
       </group>
     </group>
   );
-}
+});

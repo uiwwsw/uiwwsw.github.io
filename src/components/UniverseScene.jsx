@@ -56,7 +56,7 @@ const starFragment = `
     gl_FragColor = vec4(vColor, (strength + rays) * shimmer * uOpacity);
   }
 `;
-function DeepSky({ paused, focus }) {
+const DeepSky = React.memo(function DeepSky({ paused, focus }) {
   const uniforms = useMemo(
     () => ({ uTime: { value: 0 }, uFocus: { value: 0 } }),
     [],
@@ -104,8 +104,13 @@ function DeepSky({ paused, focus }) {
       />
     </mesh>
   );
-}
-function BackgroundStars({ paused, compact, focus, visitSeed }) {
+});
+const BackgroundStars = React.memo(function BackgroundStars({
+  paused,
+  compact,
+  focus,
+  visitSeed,
+}) {
   const { gl } = useThree();
   const uniforms = useMemo(
     () => ({
@@ -166,7 +171,7 @@ function BackgroundStars({ paused, compact, focus, visitSeed }) {
       />
     </points>
   );
-}
+});
 function WorldAssembly({
   assemblyRef,
   ready,

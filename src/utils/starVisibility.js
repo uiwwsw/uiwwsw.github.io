@@ -24,7 +24,7 @@ export function createStarProjector() {
   const ndc = new Vector3();
   const ray = new Vector3();
   const toPlanet = new Vector3();
-  return (item, camera, width, height, planet, radius) => {
+  return (item, camera, width, height, planet, radius, target) => {
     view.set(...item.position).applyMatrix4(camera.matrixWorldInverse);
     const depth = -view.z;
     ndc.copy(view).applyMatrix4(camera.projectionMatrix);
@@ -48,14 +48,43 @@ export function createStarProjector() {
         if (front > 0 && front < distance) return null;
       }
     }
-    return {
-      ...item,
-      x: ((ndc.x + 1) * width) / 2,
-      y: ((1 - ndc.y) * height) / 2,
-      depth,
-      distance,
-      visibility,
-    };
+    const result = target || { ...item };
+    result.x = ((ndc.x + 1) * width) / 2;
+    result.y = ((1 - ndc.y) * height) / 2;
+    result.depth = depth;
+    result.distance = distance;
+    result.visibility = visibility;
+    return result;
+  };
+}
+
+const nearestFirst = (a, b) => a.distance - b.distance;
+
+// Private, reusable per-sector scratch records. The source catalog never
+// changes; packStarLabels/nearbyStars take snapshots before UI use.
+export function createStarProjectionBuffer(articles, limit) {
+  const records = articles.map((article) => ({ ...article }));
+  const project = createStarProjector();
+  const frame = { projected: [], picks: [] };
+  return {
+    clear() {
+      frame.projected.length = 0;
+      frame.picks.length = 0;
+      return frame;
+    },
+    update(camera, width, height, planet, radius) {
+      let count = 0;
+      for (const record of records) {
+        if (project(record, camera, width, height, planet, radius, record))
+          frame.projected[count++] = record;
+      }
+      frame.projected.length = count;
+      frame.projected.sort(nearestFirst);
+      frame.picks.length = Math.min(frame.projected.length, limit);
+      for (let i = 0; i < frame.picks.length; i++)
+        frame.picks[i] = frame.projected[i];
+      return frame;
+    },
   };
 }
 
