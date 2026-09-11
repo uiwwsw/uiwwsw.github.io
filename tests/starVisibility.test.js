@@ -94,7 +94,7 @@ test("label and click updates resume immediately after long sessions, regardless
   const sky = read("src/components/ArticleSky.jsx");
   assert.doesNotMatch(sky, /clock\.elapsedTime|lastCheck/);
   assert.ok(
-    sky.indexOf("candidates.current =\n") <
+    sky.indexOf("candidates.current = picks") <
       sky.indexOf("if (!tick.layout) return"),
   );
   const scene = read("src/components/UniverseScene.jsx");

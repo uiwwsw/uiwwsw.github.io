@@ -140,7 +140,7 @@ function EarthDetails({ uniforms, detailsReady }) {
   return null;
 }
 
-export function Earth({
+export const Earth = React.memo(function Earth({
   paused,
   compact,
   signal = 0,
@@ -282,7 +282,7 @@ export function Earth({
       </group>
     </group>
   );
-}
+});
 export function LunarSurface({
   progress,
   reducedMotion,

@@ -19,7 +19,7 @@ import {
 import {
   STAR_NEAR,
   STAR_EDGE,
-  createStarProjector,
+  createStarProjectionBuffer,
   createStarUpdateClock,
   stepStarUpdateClock,
   readSkyObstacles,
@@ -91,7 +91,16 @@ export default function ArticleSky({
   const updateClock = useRef(createStarUpdateClock());
   const frames = useRef(0);
   const lastStats = useRef(0);
-  const projectStar = useMemo(createStarProjector, []);
+  const projection = useMemo(
+    () =>
+      createStarProjectionBuffer(
+        articles.filter(
+          (article) => !highlighted || highlighted.has(article.id),
+        ),
+        pickBudget(compact),
+      ),
+    [articles, highlighted, compact],
+  );
   const planet = useMemo(() => new THREE.Vector3(), []);
   const planetScreen = useMemo(() => new THREE.Vector3(), []);
   const glow = useMemo(glowTexture, []);
@@ -175,8 +184,24 @@ export default function ArticleSky({
       frames.current = 0;
       lastStats.current = tick.now;
     }
-    if (planetPositionRef) planet.copy(planetPositionRef.current);
-    else planet.set(...earthPosition(compact));
+    const readable = progress > 0.12 && !selected && !focusing;
+    if (readable) {
+      if (planetPositionRef) planet.copy(planetPositionRef.current);
+      else planet.set(...earthPosition(compact));
+    }
+    const { projected, picks } = readable
+      ? projection.update(
+          camera,
+          size.width,
+          size.height,
+          sector.id === "home" ? planet : undefined,
+          EARTH_RADIUS,
+        )
+      : projection.clear();
+    candidates.current = picks;
+    // Picking stays current on every interactive frame, without rebuilding
+    // metadata/arrays. Only label layout and its planet bounds run at 5 Hz.
+    if (!tick.layout) return;
     const planetDistance = planet.distanceTo(camera.position);
     planetScreen.copy(planet).project(camera);
     const planetX = ((planetScreen.x + 1) * size.width) / 2;
@@ -186,51 +211,29 @@ export default function ArticleSky({
         Math.sqrt(Math.max(1, planetDistance ** 2 - EARTH_RADIUS ** 2))) *
         size.height) /
       (2 * Math.tan((camera.fov * Math.PI) / 360));
-    const project = (item) =>
-      projectStar(
-        item,
-        camera,
-        size.width,
-        size.height,
-        sector.id === "home" ? planet : undefined,
-        EARTH_RADIUS,
-      );
-    const projected = articles
-      .filter((article) => !highlighted || highlighted.has(article.id))
-      .map(project)
-      .filter(Boolean)
-      .sort((a, b) => a.distance - b.distance);
-    candidates.current =
-      progress > 0.12 && !selected && !focusing
-        ? projected.slice(0, pickBudget(compact))
-        : [];
-    // Picking follows the actual camera every frame. Only layout/React work is
-    // throttled. No absolute Fiber time can strand this gate after tab resume.
-    if (!tick.layout) return;
     const previous = new Map(labelState.current.map((item) => [item.id, item]));
-    const visible =
-      progress > 0.12 && !selected && !focusing
-        ? packStarLabels(
-            projected.map((item) => ({
-              ...item,
-              offsetX: previous.get(item.id)?.offsetX,
-              offsetY: previous.get(item.id)?.offsetY,
-            })),
-            size.width,
-            size.height,
-            compact,
-            sector.id === "home" && planetScreen.z >= -1 && planetScreen.z <= 1
-              ? { x: planetX, y: planetY, radius: planetRadius }
-              : undefined,
-            [hovered, ...labelState.current.map((item) => item.id)].filter(
-              Boolean,
-            ),
-            readSkyObstacles(
-              gl.domElement.closest(".observatory"),
-              gl.domElement.getBoundingClientRect(),
-            ),
-          )
-        : [];
+    const visible = readable
+      ? packStarLabels(
+          projected.map((item) => ({
+            ...item,
+            offsetX: previous.get(item.id)?.offsetX,
+            offsetY: previous.get(item.id)?.offsetY,
+          })),
+          size.width,
+          size.height,
+          compact,
+          sector.id === "home" && planetScreen.z >= -1 && planetScreen.z <= 1
+            ? { x: planetX, y: planetY, radius: planetRadius }
+            : undefined,
+          [hovered, ...labelState.current.map((item) => item.id)].filter(
+            Boolean,
+          ),
+          readSkyObstacles(
+            gl.domElement.closest(".observatory"),
+            gl.domElement.getBoundingClientRect(),
+          ),
+        )
+      : [];
     const next = transitionStarLabels(
       labelState.current,
       visible,
