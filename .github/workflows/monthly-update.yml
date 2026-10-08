@@ -13,9 +13,15 @@ permissions:
   pages: write
   id-token: write
 
+# Serialize with normal deployments so a refresh cannot publish an older build.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
 jobs:
   update-data:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}

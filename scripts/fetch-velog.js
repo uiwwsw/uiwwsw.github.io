@@ -1,4 +1,4 @@
-import { fetch } from 'undici';
+import { requestVelog, VELOG_GRAPHQL_URL } from './lib/velog-request.js';
 import * as cheerio from 'cheerio';
 import fs from 'fs/promises';
 import path from 'path';
@@ -9,7 +9,6 @@ import { CONTENT_VERSION, canReuseContent, parseArticleBody, summarizeArticle, a
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-const GQL_URL = 'https://v2cdn.velog.io/graphql';
 const USERNAME = 'uiwwsw';
 const OUTPUT_FILE = path.join(__dirname, '../src/data/velog-words.json');
 const CONTEXT_FILE = path.join(__dirname, '../src/data/velog-context.json');
@@ -63,8 +62,7 @@ function normalizeTags(rawTags) {
 // Helper: Fetch post content and metadata using the page Apollo state
 async function fetchPostData(url, previous) {
     try {
-        const res = await fetch(url, {
-            signal: AbortSignal.timeout(20000),
+        const { response: res, data: html } = await requestVelog(url, {
             headers: {
                 ...(previous?.sourceETag ? { 'If-None-Match': previous.sourceETag } : {}),
                 ...(previous?.sourceModified ? { 'If-Modified-Since': previous.sourceModified } : {}),
@@ -73,7 +71,6 @@ async function fetchPostData(url, previous) {
         });
         if (res.status === 304 && previous?.sentences?.length) return { unchanged: true };
         if (!res.ok) throw new Error(`Failed to fetch ${url}: ${res.status}`);
-        const html = await res.text();
         const $ = cheerio.load(html);
 
         const postData = {
@@ -132,9 +129,8 @@ async function fetchAllPosts(username) {
     console.log(`Fetching post list for ${username}...`);
 
     return collectPosts(async (cursor) => {
-        const res = await fetch(GQL_URL, {
+        const { data: json } = await requestVelog(VELOG_GRAPHQL_URL, {
             method: 'POST',
-            signal: AbortSignal.timeout(20000),
             headers: {
                 'Content-Type': 'application/json',
                 'User-Agent': 'Mozilla/5.0'
@@ -143,9 +139,7 @@ async function fetchAllPosts(username) {
                 query,
                 variables: { username, cursor }
             })
-        });
-        if (!res.ok) throw new Error(`Velog list request failed: ${res.status}`);
-        const json = await res.json();
+        }, { format: 'json' });
 
         if (json.errors) {
             throw new Error(`GraphQL Errors: ${JSON.stringify(json.errors)}`);
@@ -320,7 +314,7 @@ async function fetchAndProcess() {
         console.log(`Saved ${selected.length} sentences to ${OUTPUT_FILE}`);
 
     } catch (error) {
-        console.error('Error in main process:', error);
+        console.error('Error in main process:', error.message);
         process.exitCode = 1;
     }
 }
