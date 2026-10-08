@@ -92,6 +92,8 @@ button {
 }
 .observatory {
   touch-action: auto;
+  -webkit-user-select: none;
+  user-select: none;
   position: relative;
   width: 100%;
   height: 100%;
@@ -829,6 +831,8 @@ button {
 }
 .panel {
   touch-action: pan-y pinch-zoom;
+  -webkit-user-select: text;
+  user-select: text;
   position: fixed;
   inset: 0 0 0 auto;
   margin: 0;
