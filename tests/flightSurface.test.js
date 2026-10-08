@@ -173,6 +173,28 @@ test("two-pointer capture and one RAF batch prevent zoom from pure two-finger pa
   s.cleanup();
 });
 
+test("sky gestures prevent native selection and dragging without disabling label taps", () => {
+  for (const pointerType of ["mouse", "touch", "pen"]) {
+    const s = setup();
+    let focused = false;
+    const label = { focus: () => { focused = true; } };
+    const title = { closest: (selector) => selector === ".star-label" ? label : null };
+    const event = { target: title, pointerType, pointerId: 1, button: 0,
+      isPrimary: true, clientX: 100, clientY: 100 };
+    assert.equal(s.surface.emit("pointerdown", event).defaultPrevented, true);
+    assert.equal(focused, true);
+    assert.equal(s.surface.emit("selectstart", { target: title }).defaultPrevented, true);
+    assert.equal(s.surface.emit("dragstart", { target: title }).defaultPrevented, true);
+    s.surface.emit("pointerup", event);
+    assert.equal(s.surface.emit("click", { target: title }).defaultPrevented, false);
+    s.surface.emit("pointerdown", event);
+    s.surface.emit("pointerup", { ...event, clientX: 160 });
+    assert.notEqual(s.input.lookX, 0, pointerType);
+    assert.equal(s.surface.emit("click", { target: title }).defaultPrevented, true);
+    s.cleanup();
+  }
+});
+
 test("release flushes the last pinch sample once, never as a late zoom or article click", () => {
   const s = setup();
   s.pointer("pointerdown", 100, 200);
@@ -218,7 +240,9 @@ test("OS cancellation, focus loss, unexpected capture loss and unmount discard p
 test("controls, native browser zoom and desktop wheel keep their own behavior", () => {
   const s = setup();
   const control = { closest: () => ({}) };
-  s.pointer("pointerdown", 100, 100, 1, control);
+  assert.equal(s.pointer("pointerdown", 100, 100, 1, control).defaultPrevented, false);
+  assert.equal(s.surface.emit("selectstart", { target: control }).defaultPrevented, false);
+  assert.equal(s.surface.emit("dragstart", { target: control }).defaultPrevented, false);
   s.pointer("pointermove", 100, 300, 1, control);
   assert.equal(s.input.lookY, 0);
   const wheel = { deltaX: 0, deltaY: 100, deltaMode: 0 };

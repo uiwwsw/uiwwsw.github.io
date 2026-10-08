@@ -54,6 +54,10 @@ export function bindFlightSurface({
       return;
     }
     if (!gesture.start(event)) return;
+    // Own the gesture before native text selection or HTML dragging can take it.
+    // Keep the label keyboard-focusable even though pointer defaults are blocked.
+    event.preventDefault();
+    event.target.closest(".star-label")?.focus?.({ preventScroll: true });
     const ids = gesture.pointerIds();
     if (ids.length > 1) {
       onManualInput();
@@ -70,6 +74,8 @@ export function bindFlightSurface({
   }
   function up(event) {
     if (!gesture.pointerIds().includes(event.pointerId)) return;
+    // A quick swipe can end before the browser delivers a final pointermove.
+    move(event);
     flush();
     gesture.end(event);
     release(event.pointerId);
@@ -83,6 +89,9 @@ export function bindFlightSurface({
       event.preventDefault();
       event.stopPropagation();
     }
+  }
+  function preventNativeDrag(event) {
+    if (!isControl(event.target)) event.preventDefault();
   }
   function wheel(event) {
     if (event.ctrlKey || isControl(event.target)) return;
@@ -99,6 +108,8 @@ export function bindFlightSurface({
     pointercancel: cancel,
     lostpointercapture: lostCapture,
     click,
+    dragstart: preventNativeDrag,
+    selectstart: preventNativeDrag,
   };
   for (const [name, handler] of Object.entries(events))
     surface.addEventListener(name, handler, true);
