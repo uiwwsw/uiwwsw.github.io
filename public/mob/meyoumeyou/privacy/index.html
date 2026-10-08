@@ -1,2 +1,73 @@
-<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="description" content="미유미유 개인정보 처리방침"><title>미유미유 개인정보 처리방침 | 모브</title><link rel="stylesheet" href="/mob/styles.css"></head><body><main><a class="brand" href="/mob/meyoumeyou/">MOB · 모브</a><h1>미유미유 개인정보 처리방침</h1><p>모브가 운영하는 미유미유는 별도 회원가입 없이 기기 식별자를 이용해 서비스를 제공하며, 이름·전화번호·이메일을 필수로 수집하지 않습니다.</p><h2>1. 처리 항목과 권한</h2><ul><li>파트너 연결을 위한 기기 식별자</li><li>QR 스캔과 프로필 촬영을 위한 카메라</li><li>프로필 이미지 설정을 위한 사진 접근</li><li>사용자가 설정한 닉네임과 프로필 이미지</li></ul><p>인앱 결제는 Apple 또는 Google의 결제 시스템에서 처리되며 모브는 결제 정보를 직접 저장하지 않습니다.</p><h2>2. 이용 목적</h2><ul><li>파트너 연결, 하트·햅틱·드로잉 기능 제공</li><li>연결 상태와 호출 알림 전송</li><li>서비스 안정성과 사용자 경험 개선</li></ul><h2>3. 보관과 삭제</h2><p>서비스 이용 기간 동안 Supabase에 안전하게 보관하며, 앱의 데이터 삭제 또는 연결 해제 기능을 통한 요청이 완료되면 복구할 수 없도록 삭제합니다.</p><h2>4. 처리 위탁</h2><p>실시간 연결과 데이터 저장을 위해 Supabase를 사용합니다. 법령상 근거 또는 동의가 있는 경우를 제외하고 개인정보를 제3자에게 제공하지 않습니다.</p><h2>5. 이용자 권리</h2><p>기기 설정에서 카메라와 알림 권한을 철회할 수 있고 앱에서 데이터 삭제를 요청할 수 있습니다.</p><h2>6. 문의</h2><p>개인정보 보호 담당: 모브<br><a href="mailto:uiwwsw@icloud.com">uiwwsw@icloud.com</a></p><p>시행일: 2025년 12월 19일 · 최종 갱신: 2026년 9월 25일</p><footer>© 2026 모브</footer></main></body></html>
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="미유미유의 파트너 연결, 실시간 터치, 호출 알림 및 광고 관련 개인정보 처리와 삭제 요청 안내">
+  <title>미유미유 개인정보 처리방침 | 모브</title>
+  <link rel="canonical" href="https://uiwwsw.github.io/mob/meyoumeyou/privacy/">
+  <link rel="stylesheet" href="/mob/styles.css">
+  <style>h1{font-size:clamp(2rem,6vw,3rem);line-height:1.25}h2{line-height:1.4}a{overflow-wrap:anywhere}.notice{padding:20px;border:1px solid #475569;border-radius:16px}nav{display:flex;gap:20px;flex-wrap:wrap}</style>
+</head>
+<body><main>
+  <a class="brand" href="/mob/meyoumeyou/">MOB · 모브</a>
+  <h1>미유미유 개인정보 처리방침</h1>
+  <p>시행·최종 갱신: <time datetime="2026-10-08">2026년 10월 8일</time></p>
+  <nav aria-label="문서 탐색"><a href="#english" lang="en">English summary</a><a href="#rights">삭제·권리 요청</a><a href="2025-12-19.html">이전 방침</a></nav>
+  <p>모브(이하 “운영자”)는 커플 간 터치·진동을 공유하는 미유미유를 운영합니다. 이 방침은 현재 Firebase 기반 앱과 광고 기능이 포함되는 업데이트의 처리 방식을 설명합니다. 설치된 버전에 따라 제공 기능은 다를 수 있습니다.</p>
+  <p class="notice">광고 도입 안내: 2026년 10월 8일 현재 새 광고 기능은 테스트 단계이며 실광고는 비활성화되어 있습니다. 아래 광고 항목은 광고 SDK가 실행되는 버전에 적용됩니다. 본 방침의 게시는 광고 동의나 추적 허용을 대신하지 않습니다.</p>
 
+  <h2>1. 처리하는 정보와 목적</h2>
+  <ul>
+    <li><strong>연결:</strong> Firebase 익명 인증 사용자 ID, 방 ID, 파트너 연결 관계, 초대 코드·연결 요청과 만료 시각. 별도 이름·전화번호·이메일 입력 없이 두 사용자를 구분하고 연결을 승인하기 위해 처리합니다. 이 ID는 앱용 식별자이며 휴대폰 일련번호를 요구하지 않습니다.</li>
+    <li><strong>실시간 공유:</strong> 접속·그리기 준비 상태, 세션 ID, 터치 좌표·도구·시작/이동/종료 상태·강도·누른 시간·순서·전송 시각. 연결된 파트너에게 터치와 그림을 전달하고 오래된 신호의 재생을 방지합니다. 화면의 그림을 사진으로 업로드하지 않지만, 그림을 구성하는 좌표 신호는 서버를 거칩니다.</li>
+    <li><strong>호출 알림:</strong> 알림 수신을 설정한 기기의 FCM 등록 토큰 및 설치 식별자, 호출 요청 시각·연결 방·처리 상태. 파트너 호출, 재전송 방지와 호출 간격 제한에 이용합니다. iOS 알림은 Apple APNs도 거칩니다.</li>
+    <li><strong>기기 내 설정:</strong> 알림 선택, 진동·화면 설정과 인증 상태는 기기에 보관됩니다. 서비스 제공업체는 연결 과정에서 IP 주소, 기기·앱 정보와 보안·진단 정보를 처리할 수 있습니다.</li>
+    <li><strong>문의:</strong> 사용자가 이메일로 보내는 연락처와 문의 내용은 답변 및 본인 확인에 이용합니다. 비밀번호, 인증 토큰, 상대방의 개인정보는 보내지 마세요.</li>
+  </ul>
+  <p>현재 활성 화면에서는 프로필 사진 업로드, 연락처 수집, 마이크 녹음, 정밀 위치 수집 또는 인앱 결제를 제공하지 않습니다. 카메라는 선택적으로 QR 코드를 기기에서 스캔하는 데 사용하며, 촬영 영상을 운영자 서버로 업로드하지 않습니다. 카메라를 허용하지 않아도 코드를 직접 입력할 수 있습니다. 알림 권한을 거절하면 호출 알림 수신이 제한되지만 앱 내 연결·터치는 이용할 수 있습니다.</p>
+
+  <h2>2. 전달 대상과 서비스 제공업체</h2>
+  <ul>
+    <li><strong>연결된 파트너:</strong> 연결 승인 결과, 접속 상태, 실시간 터치 신호와 호출 알림을 공유합니다.</li>
+    <li><strong>Google Firebase:</strong> 익명 인증, Realtime Database를 통한 연결·실시간 신호 저장 및 전달, Cloud Messaging 알림을 처리합니다. 현재 Realtime Database 위치는 싱가포르(asia-southeast1)입니다. 인증은 미국에서 처리되며, 알림 등 일부 서비스는 Google의 글로벌 인프라에서 처리될 수 있습니다.</li>
+    <li><strong>운영자의 맥미니:</strong> 호출 요청, 연결 관계 및 수신 토큰을 읽어 FCM에 알림 전송을 요청합니다. 현재 호출 중계기는 실시간 터치·그림 데이터를 읽지 않습니다.</li>
+    <li><strong>Apple:</strong> iOS 푸시 알림 전달을 처리합니다.</li>
+    <li><strong>Google AdMob·UMP:</strong> 아래 광고 항목에 따라 광고 제공, 동의 선택 및 부정 트래픽 방지를 처리합니다.</li>
+  </ul>
+  <p>위 정보는 기능 이용 시 네트워크를 통해 전달되며 국외에서 처리될 수 있습니다. 서비스 제공업체의 처리·보관 정보는 <a href="https://firebase.google.com/support/privacy">Firebase 개인정보 안내</a>, <a href="https://policies.google.com/privacy">Google 개인정보처리방침</a>, <a href="https://www.apple.com/legal/privacy/">Apple 개인정보처리방침</a>을 확인하세요. 국외 처리나 서비스 이용에 관한 문의·중단 요청은 아래 연락처로 할 수 있으며, 필수 처리 중단 시 해당 연결·알림 기능을 제공하기 어렵습니다.</p>
+
+  <h2>3. 광고와 개인정보 선택</h2>
+  <p>광고 지원 버전에서는 홈 하단 배너만 사용하고, 그리기 화면·연결·호출을 광고 시청이나 클릭의 조건으로 두지 않습니다. 운영자 앱 코드는 파트너 ID, 연결 코드, 터치 좌표 및 그림을 광고 요청의 맞춤 정보로 전달하지 않습니다.</p>
+  <p>Google 모바일 광고 SDK는 IP 주소(대략적 위치 추정), 앱·기기 식별자, 광고 노출·상호작용 및 성능·오류 정보를 광고 제공·측정·보안 목적으로 처리할 수 있습니다. 비개인화 광고도 기기 정보 처리가 전혀 없는 광고는 아닙니다. Google 및 메시지에 표시된 광고 서비스 제공업체의 처리 방식과 보관 기간은 각 제공업체의 안내를 따릅니다.</p>
+  <p>현재 통합은 비개인화 광고를 요청하고 iOS IDFA 추적 권한을 요청하지 않습니다. 실광고 버전은 Google UMP에서 동의 상태를 갱신하고 필요한 안내를 표시한 뒤 광고 요청 가능 여부를 확인합니다. 필요한 지역에서는 동의·거절·옵션 관리 선택을 제공합니다. UMP가 개인정보 옵션을 요구하는 경우 홈 설정의 “광고 개인정보 설정”에서 선택을 변경할 수 있습니다. 변경 중 기존 광고를 제거하고 요청 가능 여부를 다시 확인합니다. 동의 거절은 기본 터치 기능 이용을 막지 않으며, 선택에 따라 광고가 제한되거나 표시되지 않을 수 있습니다.</p>
+  <p>자세한 내용: <a href="https://policies.google.com/technologies/partner-sites">Google 파트너 앱 데이터 이용</a> · <a href="https://developers.google.com/admob/ios/privacy/data-disclosure">광고 SDK 데이터 공개 안내</a>. 현재 앱은 별도의 Firebase Analytics 이벤트 수집을 활성화하지 않습니다.</p>
+
+  <h2>4. 보관과 삭제</h2>
+  <ul>
+    <li>인증 사용자와 연결 정보, 알림 토큰은 기능을 유지하는 동안 서버에 남을 수 있습니다. 사용자가 삭제를 요청하면 본인 확인 후 해당 데이터를 확인하고 삭제를 처리합니다.</li>
+    <li>터치 데이터는 사용자별 최신 신호를 덮어쓰는 구조입니다. 전체 그림·대화의 재생 기록을 쌓지는 않지만, 마지막 신호는 서버에 남을 수 있습니다. 화면에서 선이 사라지는 것이 서버 데이터의 즉시 삭제를 뜻하지 않습니다.</li>
+    <li>접속 정보는 정상적인 연결 종료 감지 시 제거되도록 설정됩니다. 초대 코드와 연결 요청은 유효 시간이 지나면 사용이 제한되지만, 만료가 모든 저장 데이터의 즉시 삭제를 보장하지는 않습니다.</li>
+    <li>호출은 사용자별 최신 요청·상태가 덮어써집니다. 알림 유효 시간은 1분이며 이는 전송 유효 시간으로, 호출 기록의 자동 삭제 기한이 아닙니다.</li>
+    <li><strong>“파트너 연결 해제”는 공유를 중단하는 기능입니다.</strong> 인증 사용자, 토큰, 비활성 방·마지막 신호 등 서버 데이터를 모두 삭제하는 기능이 아닙니다. 앱 삭제 또는 OS 알림 해제만으로 서버 데이터가 모두 지워지지는 않습니다.</li>
+    <li>운영자가 삭제를 처리한 뒤에도 제공업체의 백업·보안 로그는 해당 제공업체의 보관 절차에 따라 제거될 수 있습니다. 법령상 보존 의무가 적용되는 정보는 해당 의무 범위에서 별도 보관합니다.</li>
+  </ul>
+
+  <h2 id="rights">5. 이용자 권리와 삭제 요청</h2>
+  <p>개인정보의 열람·정정·삭제·처리 중단을 <a href="mailto:uiwwsw@icloud.com?subject=MeyouMeyou%20privacy%20request">uiwwsw@icloud.com</a>으로 요청할 수 있습니다. 제목에 “미유미유 개인정보 요청”을 적고 앱 버전과 운영체제, 요청 내용을 알려주세요. 익명 사용자 데이터를 안전하게 찾기 위한 본인 확인 방법을 안내합니다. 상대방의 데이터까지 임의로 삭제하지 않으며, 확인에 필요한 범위를 넘는 정보를 요구하지 않도록 합니다.</p>
+  <p>앱 설정에서 파트너 연결을 해제하고, 기기 설정에서 카메라·알림 권한을 철회할 수 있습니다. 광고 개인정보 선택은 위 3항을 따릅니다. 아동의 개인정보가 의도치 않게 처리된 것으로 의심되면 보호자가 같은 연락처로 문의할 수 있습니다.</p>
+
+  <h2>6. 연락처와 변경 안내</h2>
+  <p>개인정보 처리 운영자·담당: 모브<br>이메일: <a href="mailto:uiwwsw@icloud.com">uiwwsw@icloud.com</a><br><a href="/mob/meyoumeyou/support/">미유미유 고객지원</a></p>
+  <p>처리 목적·항목·제공업체 등 중요한 사항이 바뀌면 본 페이지에 갱신일과 내용을 게시하고, 별도 고지나 동의가 필요한 변경은 해당 절차를 진행합니다. 이번 개정은 현재 Firebase·맥미니 호출 중계 구조, 실제 보관·연결 해제 동작, 광고 SDK 처리 및 선택권을 명확히 설명하기 위한 것입니다.</p>
+
+  <section id="english" lang="en">
+    <h2>English summary</h2>
+    <p>Effective October 8, 2026. MOB operates MeyouMeyou. The current Firebase-based app uses an anonymous app user ID, pairing/room records, online status, touch coordinates and timing/strength signals to connect two partners. It does not require your name, phone number or email for pairing. Camera access is optional for on-device QR scanning. The active app does not upload profile photos or collect precise location or microphone recordings.</p>
+    <p>Firebase Authentication and Realtime Database provide identity and live sharing. The database is in Singapore; Authentication is processed in the United States. Other provider services may process data globally. A MOB-operated Mac mini reads call requests, pairing metadata and notification tokens to send notifications through Firebase Cloud Messaging and Apple APNs; this relay does not read touch signals.</p>
+    <p>Advertising is currently in testing, with live inventory disabled. In ad-enabled builds, Google Mobile Ads may process IP-derived approximate location, app/device identifiers, ad interactions and diagnostics. Our app does not attach pairing codes, partner IDs or touch coordinates as ad targeting data. Requests are non-personalized and this integration does not request iOS IDFA permission. UMP checks consent before live requests, with consent/refusal/options where required. A required privacy-options entry is available in home settings. Basic sharing does not depend on accepting ads.</p>
+    <p>Only the latest touch signal is overwritten per user, not a full replay history, but the last signal can remain on the server. Disappearing drawings, expired invitations and unpairing are not promises of immediate server deletion. Authentication, inactive rooms, tokens and the latest call status may remain until overwritten or deleted. Contact us for access, correction, deletion or processing restrictions. We will explain how to verify ownership of an anonymous record. Provider backups and security records follow provider retention procedures.</p>
+    <p>Contact: MOB, <a href="mailto:uiwwsw@icloud.com">uiwwsw@icloud.com</a>. Do not email passwords, authentication tokens or your partner's private information. The full Korean sections above include provider links and request instructions. This notice does not replace consent.</p>
+  </section>
+  <footer>© 2026 모브 · 미유미유</footer>
+</main></body></html>
