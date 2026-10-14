@@ -100,7 +100,7 @@ test("App uses pointer capability and actual touch, dismisses on exploration and
   assert.match(app, /useMedia\("\(pointer: coarse\)"\)/);
   assert.match(app, /onPointerDownCapture/);
   assert.match(app, /setGuidePointer\(event.pointerType\)/);
-  assert.match(app, /touchControls \? "PINCH TO EXPLORE"/);
+  assert.match(app, /touchControls \? "위로 쓸어 달과 지구를 만나세요"/);
   assert.match(app, /focusingEarth: signal > 0/);
   assert.match(app, /sceneError: sceneError \|\| dataState === "error"/);
   for (const action of [
@@ -233,7 +233,7 @@ test("explicit help can stop cruise and open as soon as the scene becomes eligib
 test("idle guidance is wired to scene eligibility and deliberate actions without mouse-jitter loops", () => {
   const app = read("src/App.jsx");
   assert.match(app, /useIdleFlightGuide\(/);
-  assert.match(app, /!cruising\s*&&\s*signal === 0/);
+  assert.match(app, /!cruising\s*&&\s*progress < 0\.12\s*&&\s*signal === 0/);
   assert.match(app, /onWheelCapture/);
   assert.match(app, /onKeyDownCapture/);
   assert.match(app, /exploring=\{exploring\}/);

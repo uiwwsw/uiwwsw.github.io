@@ -110,7 +110,11 @@ export function flightPose(progress, compact = false) {
   const p = clamp(progress);
   return {
     position: [p * (compact ? 4 : 7), 2 + p * 8, 32 - p * 49],
-    target: [p * 3 + (compact ? 5 : 0), 7 + p * 4, -50],
+    target: [
+      (compact ? 5 : 0) * (1 - p) + earthPosition(compact)[0] * p,
+      7 * (1 - p) + earthPosition(compact)[1] * p,
+      -50 * (1 - p) + earthPosition(compact)[2] * p,
+    ],
   };
 }
 export function formatDate(value) {

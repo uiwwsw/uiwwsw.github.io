@@ -17,11 +17,13 @@ import {
   earthFocusFov,
 } from "../utils/secretSignal.js";
 import { flightPose, earthPosition } from "../utils/observatory";
+import { elasticLook, relaxFlightLook } from "../utils/flightInput.js";
+import { corridorStars } from "../utils/flightCorridor.js";
 import { createBackgroundStarData } from "../utils/skyBackdrop.js";
 import { createSceneStartup } from "../utils/sceneStartup.js";
 import {
   createWorldAssembly,
-  stepWorldAssembly,
+  scrubWorldAssembly,
   worldAssemblyLayout,
 } from "../utils/worldAssembly.js";
 
@@ -178,7 +180,7 @@ function WorldAssembly({
   visible,
   skip,
   progress,
-  inputRef,
+  entry,
   onComplete,
   compact,
 }) {
@@ -190,12 +192,7 @@ function WorldAssembly({
   );
   useFrame((_, delta) => {
     assemblyRef.current.layout = layout;
-    stepWorldAssembly(assemblyRef.current, delta, {
-      ready,
-      paused: !visible,
-      skip,
-      interrupted: progress > 0 || inputRef.current.interacted,
-    });
+    if (ready && visible) scrubWorldAssembly(assemblyRef.current, skip || progress > 0 ? 1 : entry);
     if (assemblyRef.current.phase === "done" && !reported.current) {
       reported.current = true;
       onComplete?.();
@@ -238,6 +235,7 @@ function CameraRig({
   }, [sector.id]);
   useFrame((_, delta) => {
     const dt = Math.min(delta, 0.05);
+    relaxFlightLook(inputRef.current, dt);
     // During construction the camera has no cinematic offsets or idle drift.
     // User look/travel below remain live; only the world objects slide in.
     drift.current = advanceAmbientTime(
@@ -279,9 +277,9 @@ function CameraRig({
       targetPosition.set(...pose.position);
       const viewScale = 1 - focus;
       targetLook.set(
-        pose.target[0] + inputRef.current.lookX * viewScale,
+        pose.target[0] + elasticLook(inputRef.current.lookX, 9) * viewScale,
         pose.target[1] +
-          (inputRef.current.lookY +
+          (elasticLook(inputRef.current.lookY, 6) +
             (paused ? 0 : inputRef.current.travelPitch)) *
             viewScale,
         pose.target[2],
@@ -329,6 +327,7 @@ function SceneRender({ assetsReady, onReady, onError }) {
   return null;
 }
 export default function UniverseScene({
+  entry = 0,
   visitSeed = 0,
   articles,
   progress,
@@ -360,6 +359,7 @@ export default function UniverseScene({
     new THREE.Vector3(...earthPosition(compact)),
   );
   const focus = earthFocusBlend(signal);
+  const routeArticles = useMemo(() => corridorStars(articles, sector, compact), [articles, sector, compact]);
   return (
     <Canvas
       frameloop={visible ? "always" : "never"}
@@ -405,7 +405,7 @@ export default function UniverseScene({
           sector.id !== "home"
         }
         progress={progress}
-        inputRef={inputRef}
+        entry={entry}
       />
       <ambientLight intensity={0.12} color="#8a9fca" />
       <directionalLight
@@ -454,7 +454,7 @@ export default function UniverseScene({
         planetPositionRef={planetPositionRef}
         paused={paused}
         focus={focus}
-        articles={articles}
+        articles={routeArticles}
         progress={progress}
         selected={selected}
         highlighted={highlighted}

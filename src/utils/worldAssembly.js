@@ -112,3 +112,11 @@ export const assemblyGroundY = ({ groundOffset }, amount) =>
   clamp(amount) === 0
     ? 0
     : -Math.min(3.2, Math.abs(groundOffset) * 0.055) * clamp(amount) ** 2;
+
+// The opening is a scrubbed timeline: no elapsed time or residual momentum.
+export function scrubWorldAssembly(state, progress) {
+  state.elapsed = ASSEMBLY_DURATION * clamp(progress);
+  for (const key of ["earth", "ground"])
+    state[key] = remainingOffset(state.elapsed, ASSEMBLY_TIMING[key]);
+  state.phase = progress >= 1 ? "done" : "assembling";
+}

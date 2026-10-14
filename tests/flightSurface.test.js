@@ -256,7 +256,7 @@ test("controls, native browser zoom and desktop wheel keep their own behavior", 
   );
   assert.equal(s.manual(), 0);
   assert.equal(s.surface.emit("wheel", wheel).defaultPrevented, true);
-  assert.deepEqual(s.impulses, [0.018000000000000002]);
+  assert.deepEqual(s.impulses, [-0.018000000000000002]);
   s.input.dragged = true;
   assert.equal(
     s.surface.emit("click", { target: control }).defaultPrevented,

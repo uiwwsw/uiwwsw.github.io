@@ -235,7 +235,7 @@ test("desktop dragging still moves both look axes and trackpad sideways scroll p
     0,
   );
   assert.ok(input.lookX < before);
-  assert.ok(gesture.wheel({ deltaX: 3, deltaY: 60, deltaMode: 0 }).travel > 0);
+  assert.ok(gesture.wheel({ deltaX: 3, deltaY: 60, deltaMode: 0 }).travel < 0);
 });
 
 test("look bounds and centering work even before leaving the Moon", () => {

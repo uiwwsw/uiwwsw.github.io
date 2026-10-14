@@ -1,0 +1,27 @@
+{
+  "schema": 1,
+  "id": "uiwwsw-github-io",
+  "name": "글의 우주",
+  "en": "Writing Universe",
+  "category": "창작·콘텐츠",
+  "symbol": "✳",
+  "color": "#c0bee4",
+  "summary": "별을 따라, 글과 생각을 탐색합니다.",
+  "description": "달에서 지구로 이어지는 공간 속에서 각각의 별이 하나의 글로 연결되는 인터랙티브 포트폴리오입니다. 스크롤로 시작 장면부터 우주 유영까지 전진·후진하며 경로 주변의 글을 탐색합니다.",
+  "features": [
+    "스크롤로 전진·후진하는 달과 지구의 여정",
+    "좁은 경로를 따라 발견하는 글 별",
+    "주제·연도별 글 검색과 읽기"
+  ],
+  "status": "live",
+  "links": [
+    {
+      "platform": "web",
+      "url": "https://uiwwsw.github.io/"
+    }
+  ],
+  "evidence": {
+    "verifiedAt": "2026-10-14",
+    "note": "공개 URL HTTP 200 확인. 로컬 Chrome에서 스크롤 시작 연출의 전진·역재생·완전 복귀 및 지구와 겹친 글 열기 확인. 모바일 레이아웃 및 전방 경로의 모든 글 별 가시성 검증. GitHub Pages main 배포 워크플로 유지."
+  }
+}

@@ -104,7 +104,7 @@ test("the initial backdrop has no image request or Three dependency and keeps ma
     /<img|<image|<canvas/,
   );
   const css = read("src/index.css");
-  assert.match(css, /transition: opacity 1\.15s linear/);
+  assert.match(css, /transition: opacity \.25s linear/);
   assert.doesNotMatch(css, /#233e5c80|#26364e65/);
   assert.match(
     read("src/components/UniverseScene.jsx"),

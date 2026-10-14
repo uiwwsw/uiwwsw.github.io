@@ -4,8 +4,8 @@ export const FLIGHT_GUIDANCE = {
     detail: "드래그로 둘러보기 · 별을 눌러 글 읽기",
   },
   mouse: {
-    title: "스크롤을 내려, 별 사이로",
-    detail: "드래그로 둘러보기 · ↑↓ 이동 · 별 클릭",
+    title: "위로 스크롤해 별 사이로",
+    detail: "아래로 스크롤해 돌아오기 · 드래그로 둘러보기",
   },
 };
 

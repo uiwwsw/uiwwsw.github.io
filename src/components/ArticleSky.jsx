@@ -6,8 +6,6 @@ import { advanceAmbientTime } from "../utils/ambientMotion.js";
 import {
   clamp,
   TOPICS,
-  earthPosition,
-  EARTH_RADIUS,
 } from "../utils/observatory.js";
 import {
   nearbyStars,
@@ -50,7 +48,10 @@ const fragment = `
   void main() {
     float d = length(gl_PointCoord - .5) * 2.0;
     float glow = pow(max(0.0, 1.0-d), 3.0);
-    gl_FragColor = vec4(vColor, glow * vAlpha);
+    float core = 1.0 - smoothstep(.10, .26, d);
+    float ring = smoothstep(.24, .32, d) * (1.0 - smoothstep(.43, .56, d));
+    vec3 color = mix(vColor, vec3(.015, .025, .045), ring);
+    gl_FragColor = vec4(mix(color, vec3(1.), core), max(glow, max(core, ring * .85)) * vAlpha);
     #include <colorspace_fragment>
   }
 `;
@@ -71,7 +72,6 @@ export default function ArticleSky({
   articles,
   paused,
   focus = 0,
-  planetPositionRef,
   progress,
   selected,
   highlighted,
@@ -101,8 +101,6 @@ export default function ArticleSky({
       ),
     [articles, highlighted, compact],
   );
-  const planet = useMemo(() => new THREE.Vector3(), []);
-  const planetScreen = useMemo(() => new THREE.Vector3(), []);
   const glow = useMemo(glowTexture, []);
   useEffect(() => () => glow.dispose(), [glow]);
   const detail = clamp((progress - 0.06) / 0.34);
@@ -185,32 +183,15 @@ export default function ArticleSky({
       lastStats.current = tick.now;
     }
     const readable = progress > 0.12 && !selected && !focusing;
-    if (readable) {
-      if (planetPositionRef) planet.copy(planetPositionRef.current);
-      else planet.set(...earthPosition(compact));
-    }
+    // Reading stars are an overlay, including where the Earth lies behind them.
+    // Keep hit testing consistent with the depth-independent point material.
     const { projected, picks } = readable
-      ? projection.update(
-          camera,
-          size.width,
-          size.height,
-          sector.id === "home" ? planet : undefined,
-          EARTH_RADIUS,
-        )
+      ? projection.update(camera, size.width, size.height)
       : projection.clear();
     candidates.current = picks;
     // Picking stays current on every interactive frame, without rebuilding
-    // metadata/arrays. Only label layout and its planet bounds run at 5 Hz.
+    // metadata/arrays. Only label layout runs at 5 Hz.
     if (!tick.layout) return;
-    const planetDistance = planet.distanceTo(camera.position);
-    planetScreen.copy(planet).project(camera);
-    const planetX = ((planetScreen.x + 1) * size.width) / 2;
-    const planetY = ((1 - planetScreen.y) * size.height) / 2;
-    const planetRadius =
-      ((EARTH_RADIUS /
-        Math.sqrt(Math.max(1, planetDistance ** 2 - EARTH_RADIUS ** 2))) *
-        size.height) /
-      (2 * Math.tan((camera.fov * Math.PI) / 360));
     const previous = new Map(labelState.current.map((item) => [item.id, item]));
     const visible = readable
       ? packStarLabels(
@@ -222,9 +203,7 @@ export default function ArticleSky({
           size.width,
           size.height,
           compact,
-          sector.id === "home" && planetScreen.z >= -1 && planetScreen.z <= 1
-            ? { x: planetX, y: planetY, radius: planetRadius }
-            : undefined,
+          undefined,
           [hovered, ...labelState.current.map((item) => item.id)].filter(
             Boolean,
           ),
@@ -285,7 +264,7 @@ export default function ArticleSky({
   }, [gl, compact, inputRef, onSelect, onNearby, focusing]);
   return (
     <group>
-      <points raycast={ignoreRaycast} frustumCulled={false}>
+      <points raycast={ignoreRaycast} frustumCulled={false} renderOrder={20}>
         <bufferGeometry key={`${sector.id}:${articles.length}`}>
           <bufferAttribute
             attach="attributes-position"
@@ -310,7 +289,8 @@ export default function ArticleSky({
           uniforms={uniforms}
           transparent
           depthWrite={false}
-          blending={THREE.AdditiveBlending}
+          depthTest={false}
+          blending={THREE.NormalBlending}
         />
       </points>
       {clouds.map((cloud) => (

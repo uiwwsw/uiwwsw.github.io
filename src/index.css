@@ -142,7 +142,7 @@ button {
   z-index: 1;
   touch-action: none;
   opacity: 0;
-  transition: opacity 1.15s linear;
+  transition: opacity .25s linear;
 }
 .scene-ready .universe-canvas {
   opacity: 1;
@@ -1785,4 +1785,25 @@ button {
     transition: none !important;
     scroll-behavior: auto !important;
   }
+}
+
+/* Quiet, scroll-led entry and a clear reading layer above the Earth. */
+.entry-progress { width: 160px; height: 2px; margin-top: 24px; background: #ffffff20; }
+.entry-progress span { display: block; height: 100%; background: #d9e7f2; box-shadow: 0 0 12px #cce7ff80; }
+.journey-button small { letter-spacing: .06em; }
+.star-label { background: linear-gradient(100deg, #050b16f5, #091424eb); box-shadow: 0 3px 18px #0006; border-top: 1px solid #ffffff15; }
+.star-connector { filter: drop-shadow(0 1px 2px #000); }
+.is-exploring .journey-rail, .is-exploring .top-coordinate,
+.is-exploring .bottom-credit, .is-exploring .screen-frame,
+.is-exploring .explore-heading, .is-exploring .location { display: none; }
+.is-exploring .flight-deck { opacity: .2; transition: opacity .2s; }
+.is-exploring .flight-deck:hover, .is-exploring .flight-deck:focus-within { opacity: 1; }
+.is-exploring .site-header .github-link,
+.is-exploring .site-header nav > button { display: none; }
+@media (pointer: coarse) { .is-exploring .flight-deck { opacity: .7; } }
+
+.is-exploring .flight-deck { left: 50%; right: auto; bottom: 24px; width: min(520px, 90%); transform: translateX(-50%); grid-template-columns: minmax(140px, 1fr) auto; gap: 24px; }
+@media (max-width: 760px) {
+  .is-exploring .flight-deck { bottom: 18px; gap: 12px; }
+  .journey-button small { max-width: 230px; line-height: 1.7; }
 }
