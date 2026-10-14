@@ -1,122 +1,35 @@
-import {
-  clamp,
-  earthPosition,
-  EARTH_RADIUS,
-  flightPose,
-} from "./observatory.js";
+import { clamp, earthPosition, EARTH_RADIUS, flightPose } from './observatory.js';
+import { lunarDeparture } from './lunarDeparture.js';
 
-// Seconds from real readiness. Background handoff and world entry overlap,
-// without launching the planet at full velocity or lifting an entire slab.
-export const ASSEMBLY_TIMING = {
-  earth: { start: 0.12, duration: 2 },
-  ground: { start: 0.65, duration: 1.95 },
-};
-export const ASSEMBLY_DURATION =
-  ASSEMBLY_TIMING.ground.start + ASSEMBLY_TIMING.ground.duration;
-const remainingOffset = (elapsed, { start, duration }) => {
-  const t = clamp((elapsed - start) / duration);
-  return clamp(1 - t * t * t * (t * (t * 6 - 15) + 10));
-};
+const normalize = v => v.map(value => value / Math.hypot(...v));
+const cross = (a,b) => [a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]];
+const dot = (a,b) => a.reduce((sum,v,i) => sum+v*b[i],0);
 
-const dot = (a, b) => a.reduce((sum, value, i) => sum + value * b[i], 0);
-const normalize = (v) => v.map((value) => value / Math.hypot(...v));
-const cross = (a, b) => [
-  a[1] * b[2] - a[2] * b[1],
-  a[2] * b[0] - a[0] * b[2],
-  a[0] * b[1] - a[1] * b[0],
-];
-
-// Calibrate against the fixed opening frustum, never against a moving camera.
-// The entire atmosphere sphere starts past the right plane. The ground uses
-// a feathered screen-edge reveal plus a small physical settlement instead.
-export function worldAssemblyLayout(compact, aspect = 1) {
+// Screen-up, not world-x: the whole atmosphere starts above the viewport.
+// The opening camera remains below this calibrated flight origin until liftoff.
+export function worldAssemblyLayout(compact) {
   const pose = flightPose(0, compact);
-  const forward = normalize(pose.target.map((v, i) => v - pose.position[i]));
-  const right = normalize(cross(forward, [0, 1, 0]));
-  const up = cross(right, forward);
-  const tanV = Math.tan(((compact ? 58 : 46) * Math.PI) / 360);
-  const tanH = tanV * (Number.isFinite(aspect) && aspect > 0 ? aspect : 1);
+  const forward = normalize(pose.target.map((v,i) => v-pose.position[i]));
+  const right = normalize(cross(forward,[0,1,0]));
+  const up = cross(right,forward);
   const baseEarth = earthPosition(compact);
-  const relative = baseEarth.map((v, i) => v - pose.position[i]);
-  const depth = dot(relative, forward);
-  const radius = EARTH_RADIUS * 1.025;
-  const margin = Math.max(8, depth * 0.12);
-  const shift = Math.max(
-    0,
-    depth * tanH + radius * Math.hypot(1, tanH) + margin - dot(relative, right),
-  );
-  let lowestPlaneClearance = -Infinity;
-  // A conservative ground/rock AABB, including the portion behind the camera.
-  for (const x of [-132, 132])
-    for (const z of [-82, 142]) {
-      const p = [x, 4, z].map((v, i) => v - pose.position[i]);
-      lowestPlaneClearance = Math.max(
-        lowestPlaneClearance,
-        dot(p, up) + dot(p, forward) * tanV,
-      );
-    }
-  const drop = (lowestPlaneClearance + 12) / (up[1] + forward[1] * tanV);
-  return {
-    baseEarth,
-    earthOffset: right.map((v) => v * shift),
-    groundOffset: -drop,
-  };
+  const depth = dot(baseEarth.map((v,i)=>v-pose.position[i]),forward);
+  const tanV = Math.tan((compact ? 58 : 46)*Math.PI/360);
+  const radius = EARTH_RADIUS*1.025;
+  const shift = depth*tanV + radius*Math.hypot(1,tanV) + 72;
+  return {baseEarth, earthOffset:up.map(v=>v*shift)};
 }
-
-export const createWorldAssembly = (compact = false) => ({
-  phase: "waiting",
-  elapsed: 0,
-  earth: 1,
-  ground: 1,
-  layout: worldAssemblyLayout(compact),
+export const createWorldAssembly = (compact=false) => ({
+  phase:'waiting', earth:1, ground:1,
+  departure:lunarDeparture(0),
+  layout:worldAssemblyLayout(compact),
 });
+export const assemblyEarthPosition = ({baseEarth,earthOffset}, amount) =>
+  baseEarth.map((v,i)=>v+earthOffset[i]*clamp(amount));
 
-export function stepWorldAssembly(
-  state,
-  delta,
-  { ready = false, paused = false, skip = false, interrupted = false } = {},
-) {
-  if (state.phase === "done") return;
-  if (skip || (interrupted && state.phase === "waiting")) {
-    state.phase = "done";
-    state.earth = state.ground = 0;
-    return;
-  }
-  if (interrupted) state.phase = "handoff";
-  if (!ready || paused || !Number.isFinite(delta) || delta <= 0) return;
-  const dt = Math.min(delta, 0.05);
-  if (state.phase === "waiting") state.phase = "assembling";
-  if (state.phase === "handoff") {
-    for (const key of ["earth", "ground"]) {
-      state[key] *= Math.exp(-8 * dt);
-      if (state[key] < 0.001) state[key] = 0;
-    }
-  } else {
-    state.elapsed = Math.min(ASSEMBLY_DURATION, state.elapsed + dt);
-    for (const key of ["earth", "ground"])
-      state[key] = Math.min(
-        state[key],
-        remainingOffset(state.elapsed, ASSEMBLY_TIMING[key]),
-      );
-  }
-  if (state.elapsed === ASSEMBLY_DURATION) state.earth = state.ground = 0;
-  if (state.earth === 0 && state.ground === 0) {
-    if (state.phase === "assembling") state.elapsed = ASSEMBLY_DURATION;
-    state.phase = "done";
-  }
-}
-
-export const assemblyEarthPosition = ({ baseEarth, earthOffset }, amount) =>
-  baseEarth.map((v, i) => v + earthOffset[i] * clamp(amount));
-export const assemblyGroundY = ({ groundOffset }, amount) =>
-  clamp(amount) === 0
-    ? 0
-    : -Math.min(3.2, Math.abs(groundOffset) * 0.055) * clamp(amount) ** 2;
-
-// The opening is a scrubbed timeline: no elapsed time or residual momentum.
 export function scrubWorldAssembly(state, progress) {
-  state.elapsed = ASSEMBLY_DURATION * clamp(progress);
-  for (const key of ["earth", "ground"])
-    state[key] = remainingOffset(state.elapsed, ASSEMBLY_TIMING[key]);
-  state.phase = progress >= 1 ? "done" : "assembling";
+  state.departure = lunarDeparture(progress);
+  state.earth = state.departure.earth;
+  state.ground = 1-state.departure.landing;
+  state.phase = progress >= 1 ? 'done' : 'assembling';
 }

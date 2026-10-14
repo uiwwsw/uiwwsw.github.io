@@ -89,6 +89,7 @@ function glowTexture() {
 }
 
 export default function ArticleSky({
+  assemblyRef,
   articles,
   paused,
   focus = 0,
@@ -194,7 +195,7 @@ export default function ArticleSky({
   );
 
   useFrame(({ camera }, delta) => {
-    uniforms.uOpacity.value = 1 - focus;
+    uniforms.uOpacity.value = (1 - focus) * assemblyRef.current.departure.takeoff;
     uniforms.uTime.value = advanceAmbientTime(
       uniforms.uTime.value,
       delta,
