@@ -129,6 +129,7 @@ test("only day and Moon maps are critical; optional cloud/night maps cannot gate
   assert.match(earth, /<SceneBoundary onError=\{ignoreOptionalTextureError\}>/);
   assert.match(earth, /nightStrength: \{ value: 0 \}/);
   assert.match(earth, /cloudOpacity: \{ value: 0 \}/);
-  // Large optional uploads must not land on the short world-entry beats.
-  assert.match(read("src/App.jsx"), /enhance=\{sceneSettled && assembled\}/);
+  // Optional uploads wait for completed entry and stay mounted on reversal.
+  assert.match(read("src/App.jsx"), /enhanced \|\| !sceneSettled \|\| !assembled/);
+  assert.match(read("src/App.jsx"), /enhance=\{enhanced\}/);
 });

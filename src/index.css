@@ -1807,3 +1807,5 @@ button {
   .is-exploring .flight-deck { bottom: 18px; gap: 12px; }
   .journey-button small { max-width: 230px; line-height: 1.7; }
 }
+
+.star-label.is-pointer-revealed { animation-duration: .12s; }

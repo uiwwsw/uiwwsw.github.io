@@ -9,6 +9,7 @@ import {
 } from "../utils/observatory.js";
 import {
   nearbyStars,
+  pointerStarPriority,
   packStarLabels,
   pickBudget,
   transitionStarLabels,
@@ -88,6 +89,9 @@ export default function ArticleSky({
   const labelState = useRef([]);
   const [hovered, setHovered] = useState(null);
   const candidates = useRef([]);
+  const pointer = useRef(null);
+  const pointerLabel = useRef(null);
+  const pointerLayout = useRef(0);
   const updateClock = useRef(createStarUpdateClock());
   const frames = useRef(0);
   const lastStats = useRef(0);
@@ -189,6 +193,12 @@ export default function ArticleSky({
       ? projection.update(camera, size.width, size.height)
       : projection.clear();
     candidates.current = picks;
+    // Desktop hit targets must include the same distant stars the pointer can reveal.
+    if (pointer.current) candidates.current = projected;
+    if (pointer.current && tick.now >= pointerLayout.current) {
+      tick.layout = true;
+      pointerLayout.current = tick.now + .075;
+    }
     // Picking stays current on every interactive frame, without rebuilding
     // metadata/arrays. Only label layout runs at 5 Hz.
     if (!tick.layout) return;
@@ -204,9 +214,12 @@ export default function ArticleSky({
           size.height,
           compact,
           undefined,
-          [hovered, ...labelState.current.map((item) => item.id)].filter(
-            Boolean,
-          ),
+          pointer.current
+            ? pointerStarPriority(projected, pointer.current, [
+                pointerLabel.current,
+                gl.domElement.closest(".observatory")?.querySelector(".star-label:focus-visible")?.dataset.articleStar,
+              ])
+            : [hovered, ...labelState.current.map((item) => item.id)].filter(Boolean),
           readSkyObstacles(
             gl.domElement.closest(".observatory"),
             gl.domElement.getBoundingClientRect(),
@@ -217,7 +230,7 @@ export default function ArticleSky({
       labelState.current,
       visible,
       tick.now,
-      paused || !!selected,
+      paused || !!selected || !!pointer.current,
     );
     labelState.current = next;
     setLabels((previous) => (sameStarLabels(previous, next) ? previous : next));
@@ -225,6 +238,8 @@ export default function ArticleSky({
 
   useEffect(() => {
     candidates.current = [];
+    pointer.current = null;
+    pointerLabel.current = null;
     labelState.current = [];
     updateClock.current.nextLayout = 0;
     setLabels([]);
@@ -247,19 +262,28 @@ export default function ArticleSky({
       if (nearby.length > 1) onNearby(nearby);
       else if (nearby.length === 1) onSelect(nearby[0]);
     };
+    const surface = canvas.closest(".observatory") || canvas;
     const move = (event) => {
-      if (event.pointerType === "touch" || inputRef.current.dragged || focusing)
-        return;
+      if (event.pointerType !== "mouse" || event.buttons || focusing) return;
+      const rect = canvas.getBoundingClientRect();
+      pointer.current = { x: event.clientX - rect.left, y: event.clientY - rect.top };
+      pointerLabel.current = event.target.closest(".star-label")?.dataset.articleStar || null;
       setHovered(hits(event)[0]?.id || null);
     };
-    const leave = () => setHovered(null);
+    const leave = () => {
+      pointer.current = null;
+      pointerLabel.current = null;
+      setHovered(null);
+    };
     canvas.addEventListener("click", click);
-    canvas.addEventListener("pointermove", move);
-    canvas.addEventListener("pointerleave", leave);
+    // Listen above the HTML labels as well as the canvas: crossing a title must
+    // not look like leaving the universe, or restore the old depth-ranked labels.
+    surface.addEventListener("pointermove", move, true);
+    surface.addEventListener("pointerleave", leave);
     return () => {
       canvas.removeEventListener("click", click);
-      canvas.removeEventListener("pointermove", move);
-      canvas.removeEventListener("pointerleave", leave);
+      surface.removeEventListener("pointermove", move, true);
+      surface.removeEventListener("pointerleave", leave);
     };
   }, [gl, compact, inputRef, onSelect, onNearby, focusing]);
   return (
@@ -341,7 +365,7 @@ export default function ArticleSky({
             <circle cx="0" cy="0" r="3" />
           </svg>
           <button
-            className={`star-label ${item.leavingAt !== null ? "is-leaving" : ""}`}
+            className={`star-label ${pointer.current ? "is-pointer-revealed" : ""} ${item.leavingAt !== null ? "is-leaving" : ""}`}
             data-article-star={item.id}
             tabIndex={!focusing && item.leavingAt === null ? 0 : -1}
             aria-hidden={focusing || item.leavingAt !== null}
