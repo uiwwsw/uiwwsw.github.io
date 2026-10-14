@@ -1,6 +1,7 @@
 import { clamp } from "./observatory.js";
 
 export const createFlightInput = () => ({
+  looking: false,
   lookX: 0,
   lookY: 0,
   travelPitch: 0,
@@ -55,6 +56,7 @@ export function createFlightGesture(input, getViewport) {
         return false;
       if (!pointers.size) input.dragged = false;
       input.travelPitch = 0;
+      input.looking = true;
       pointers.set(event.pointerId, {
         id: event.pointerId,
         type: event.pointerType,
@@ -89,6 +91,7 @@ export function createFlightGesture(input, getViewport) {
       pointer.y = event.clientY;
       const { width, height } = getViewport();
       const touch = pointer.type === "touch";
+      if (touch && input.opening) return { travel: -dy * 0.0006, kind: "travel" };
       input.lookX = clamp(
         input.lookX - dx * (touch ? 72 / Math.max(width, 320) : 0.055),
         -52,
@@ -120,11 +123,13 @@ export function createFlightGesture(input, getViewport) {
     end(event) {
       if (!pointers.delete(event.pointerId)) return;
       rebase();
+      input.looking = pointers.size > 0;
       input.travelPitch = 0;
     },
     cancel() {
       if (pointers.size) input.dragged = true;
       pointers.clear();
+      input.looking = false;
       pinch = null;
       input.travelPitch = 0;
     },
@@ -141,7 +146,20 @@ export function createFlightGesture(input, getViewport) {
         input.lookX = clamp(input.lookX - clamp(dx, -180, 180) * 0.07, -52, 52);
         return { travel: 0 };
       }
-      return { travel: clamp(dy, -180, 180) * 0.00018 };
+      return { travel: -clamp(dy, -180, 180) * 0.00018 };
     },
   };
+}
+
+export function elasticLook(value, limit) {
+  const magnitude = Math.abs(value);
+  return Math.sign(value) * (Math.min(magnitude, limit) +
+    (magnitude > limit ? 2 * (1 - Math.exp(-(magnitude - limit) / 8)) : 0));
+}
+export function relaxFlightLook(input, dt) {
+  if (input.looking) return;
+  for (const [axis, limit] of [["lookX", 9], ["lookY", 6]]) {
+    const rest = clamp(input[axis], -limit, limit);
+    input[axis] = rest + (input[axis] - rest) * Math.exp(-12 * dt);
+  }
 }

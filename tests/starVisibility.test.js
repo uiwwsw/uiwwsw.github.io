@@ -1,3 +1,4 @@
+import { corridorStars } from "../src/utils/flightCorridor.js";
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
@@ -159,11 +160,11 @@ test("the ordinary Moon–Earth route exposes real titles without requiring side
   for (const compact of [false, true]) {
     const [width, height] = compact ? [390, 844] : [1440, 900];
     for (const seed of [1, 7, 42, 20260909, 0xffffffff]) {
-      const articles = arrangeVisitStars(
+      const articles = corridorStars(arrangeVisitStars(
         index.articles,
         index.sectors,
         seed,
-      ).filter((a) => a.sectorId === "home");
+      ).filter((a) => a.sectorId === "home"), index.sectors.find(s => s.id === "home"), compact);
       const discovered = new Set();
       let emptySamples = 0;
       for (let i = 1; i <= 18; i++) {
@@ -188,14 +189,10 @@ test("the ordinary Moon–Earth route exposes real titles without requiring side
             height) /
           (2 * Math.tan((camera.fov * Math.PI) / 360));
         const projected = articles
-          .map((a) => project(a, camera, width, height, planet, EARTH_RADIUS))
+          .map((a) => project(a, camera, width, height))
           .filter(Boolean)
           .sort((a, b) => a.distance - b.distance);
-        const labels = packStarLabels(projected, width, height, compact, {
-          x: ((projectedPlanet.x + 1) * width) / 2,
-          y: ((1 - projectedPlanet.y) * height) / 2,
-          radius,
-        });
+        const labels = packStarLabels(projected, width, height, compact);
         if (!labels.length) emptySamples++;
         labels.forEach((a) => discovered.add(a.id));
       }

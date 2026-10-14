@@ -335,7 +335,7 @@ test("scene translates the actual planet and floor, not the camera or a duplicat
   );
   assert.match(
     read("src/components/ArticleSky.jsx"),
-    /planet\.copy\(planetPositionRef\.current\)/,
+    /depthTest=\{false\}/,
   );
   assert.match(app, /onAssemblyComplete=\{assemblyComplete\}/);
   assert.match(app, /skipAssembly=\{motionPaused \|\| !!panel\}/);

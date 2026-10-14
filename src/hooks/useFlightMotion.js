@@ -21,7 +21,7 @@ export function useFlightMotion({ enabled, reducedMotion, allowSignal }) {
   const travel = useCallback(
     (delta) => {
       if (!enabled) return;
-      queueFlightImpulse(motion.current, delta, { reducedMotion, allowSignal });
+      queueFlightImpulse(motion.current, delta, { reducedMotion: true, allowSignal });
       publish(motion.current.distance);
     },
     [enabled, reducedMotion, allowSignal],

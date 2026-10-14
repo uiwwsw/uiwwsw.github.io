@@ -27,7 +27,7 @@ const wheel = (deltaY = 100, deltaMode = 0) =>
   createFlightGesture(createFlightInput(), () => ({
     width: 390,
     height: 844,
-  })).wheel({ deltaX: 0, deltaY, deltaMode }).travel;
+  })).wheel({ deltaX: 0, deltaY: -deltaY, deltaMode }).travel;
 
 test("a wheel notch gives a small, smooth impulse instead of an immediate jump", () => {
   const state = createFlightMotion();

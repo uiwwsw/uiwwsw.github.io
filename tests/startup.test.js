@@ -187,7 +187,7 @@ test("startup uses hydration, defers the scene, and prevents a late font/partial
     read("src/index.css"),
     /\[data-reduced-motion="true"\] \.universe-canvas \{\s*transition: none/,
   );
-  assert.match(read("src/index.css"), /transition: opacity 1\.15s linear/);
+  assert.match(read("src/index.css"), /transition: opacity \.25s linear/);
   assert.ok(!read("src/index.html").includes("/fonts/SUITE-Variable.css"));
   assert.ok(!read("public/sw.js").includes("SUITE-Variable.ttf"));
 });

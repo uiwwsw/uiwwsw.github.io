@@ -158,7 +158,7 @@ test("inactive screens skip projection and stable scene subtrees are memoized wi
       sky.indexOf("if (!tick.layout) return"),
   );
   assert.ok(
-    sky.indexOf("if (!tick.layout) return") < sky.indexOf("planetScreen.copy"),
+    sky.indexOf("if (!tick.layout) return") < sky.indexOf("packStarLabels(", sky.indexOf("if (!tick.layout) return")),
   );
   const scene = read("src/components/UniverseScene.jsx");
   for (const name of ["DeepSky", "BackgroundStars"])

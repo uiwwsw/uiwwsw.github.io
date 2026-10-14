@@ -52,7 +52,7 @@ test("ordinary wheel and pinch press only a little into the field; dragging neve
   for (let i = 0; i < 4; i++)
     distance = advanceFlight(
       distance,
-      gesture.wheel({ deltaX: 0, deltaY: 180, deltaMode: 0 }).travel,
+      gesture.wheel({ deltaX: 0, deltaY: -180, deltaMode: 0 }).travel,
     );
   assert.ok(signalStrength(distance) > 0 && signalStrength(distance) < 0.2);
   const touch = (x, y, pointerId = 1) => ({

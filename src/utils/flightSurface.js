@@ -69,7 +69,8 @@ export function bindFlightSurface({
     if (!result) return;
     capture(event.pointerId);
     onManualInput();
-    if (result.kind === "look") onLook();
+    if (result.kind === "travel") onTravel(result.travel);
+    else if (result.kind === "look") onLook();
     else if (frame === null) frame = host.requestAnimationFrame(flush);
   }
   function up(event) {
