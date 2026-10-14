@@ -18,6 +18,7 @@ import {
 } from "../utils/secretSignal.js";
 import { flightPose, earthPosition } from "../utils/observatory";
 import { elasticLook, relaxFlightLook } from "../utils/flightInput.js";
+import { createScrollSmoothing, stepScrollSmoothing } from "../utils/scrollSmoothing.js";
 import { corridorStars } from "../utils/flightCorridor.js";
 import { createBackgroundStarData } from "../utils/skyBackdrop.js";
 import { createSceneStartup } from "../utils/sceneStartup.js";
@@ -185,6 +186,7 @@ function WorldAssembly({
   compact,
 }) {
   const reported = useRef(false);
+  const scrub = useRef(createScrollSmoothing());
   const { size } = useThree();
   const layout = useMemo(
     () => worldAssemblyLayout(compact, size.width / size.height),
@@ -192,7 +194,12 @@ function WorldAssembly({
   );
   useFrame((_, delta) => {
     assemblyRef.current.layout = layout;
-    if (ready && visible) scrubWorldAssembly(assemblyRef.current, skip || progress > 0 ? 1 : entry);
+    if (ready && visible) {
+      const target = skip || progress > 0 ? 1 : entry;
+      const value = stepScrollSmoothing(scrub.current, target, delta, skip);
+      scrubWorldAssembly(assemblyRef.current, value);
+    }
+    if (assemblyRef.current.phase !== "done") reported.current = false;
     if (assemblyRef.current.phase === "done" && !reported.current) {
       reported.current = true;
       onComplete?.();

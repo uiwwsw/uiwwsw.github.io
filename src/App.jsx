@@ -75,6 +75,7 @@ export default function App({ initialHome, visitSeed = 0 } = {}) {
   const [sceneReady, setSceneReady] = useState(false);
   const [sceneSettled, setSceneSettled] = useState(false);
   const [assembled, setAssembled] = useState(false);
+  const [enhanced, setEnhanced] = useState(false);
   const [entry, setEntry] = useState(0);
   const entryRef = useRef(0);
   const [guidePointer, setGuidePointer] = useState(null);
@@ -112,7 +113,7 @@ export default function App({ initialHome, visitSeed = 0 } = {}) {
       const next = entryRef.current + delta * 5;
       entryRef.current = clamp(next);
       setEntry(entryRef.current);
-      setAssembled(entryRef.current >= 1);
+      if (entryRef.current < 1) setAssembled(false);
       if (next > 1) travel((next - 1) / 5);
       return;
     }
@@ -445,6 +446,13 @@ export default function App({ initialHome, visitSeed = 0 } = {}) {
   );
   const ready = useCallback(() => setSceneReady(true), []);
   const assemblyComplete = useCallback(() => setAssembled(true), []);
+  useEffect(() => {
+    if (enhanced || !sceneSettled || !assembled) return;
+    // Upload optional maps after entry settles, then keep them mounted during
+    // reverse scrubbing instead of repeatedly tearing down/reloading details.
+    const timer = setTimeout(() => setEnhanced(true), 250);
+    return () => clearTimeout(timer);
+  }, [enhanced, sceneSettled, assembled]);
   const fail = useCallback(() => {
     setSceneError(true);
     setSceneReady(false);
@@ -538,7 +546,7 @@ export default function App({ initialHome, visitSeed = 0 } = {}) {
                 revealed={sceneReady}
                 onAssemblyComplete={assemblyComplete}
                 skipAssembly={motionPaused || !!panel}
-                enhance={sceneSettled && assembled}
+                enhance={enhanced}
                 onError={fail}
                 inputRef={inputRef}
               />

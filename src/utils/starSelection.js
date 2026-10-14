@@ -142,3 +142,16 @@ export function sameStarLabels(a, b) {
     )
   );
 }
+
+// Rank in screen space, across every projected star (including distant ones).
+// Retain a title under the pointer or keyboard focus so it never dodges a click.
+export function pointerStarPriority(projected, pointer, pinned = []) {
+  if (!pointer) return pinned.filter(Boolean);
+  return [...new Set([
+    ...pinned.filter(Boolean),
+    ...[...projected].sort((a, b) =>
+      Math.hypot(a.x - pointer.x, a.y - pointer.y) -
+      Math.hypot(b.x - pointer.x, b.y - pointer.y)
+    ).map(item => item.id),
+  ])];
+}
