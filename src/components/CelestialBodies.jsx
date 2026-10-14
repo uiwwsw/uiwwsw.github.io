@@ -20,7 +20,6 @@ import {
 import { SceneBoundary } from "./Interface";
 import {
   assemblyEarthPosition,
-  assemblyGroundY,
 } from "../utils/worldAssembly.js";
 import {
   createLunarCraters,
@@ -295,7 +294,7 @@ export function LunarSurface({
   const ground = useRef();
   const bufferSize = useMemo(() => new THREE.Vector2(), []);
   const reveal = useMemo(
-    () => ({ progress: { value: 0 }, height: { value: 1 } }),
+    () => ({ progress: { value: 1 }, height: { value: 1 } }),
     [],
   );
   const emergenceMaterial = useMemo(
@@ -307,13 +306,10 @@ export function LunarSurface({
     [reveal],
   );
   useFrame((_, delta) => {
-    arrival.current.position.y = assemblyGroundY(
-      assemblyRef.current.layout,
-      assemblyRef.current.ground,
-    );
-    reveal.progress.value = 1 - assemblyRef.current.ground;
+    // The visitor starts standing on the Moon; never wipe away the floor.
+    arrival.current.position.y = 0;
+    reveal.progress.value = 1;
     reveal.height.value = gl.getDrawingBufferSize(bufferSize).y;
-    // Warm the same materials/buffers behind the fully discarded reveal edge.
     const cull = assemblyRef.current.phase === "done";
     ground.current.frustumCulled = cull;
     rocks.current.frustumCulled = cull;

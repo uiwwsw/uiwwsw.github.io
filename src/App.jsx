@@ -110,21 +110,21 @@ export default function App({ initialHome, visitSeed = 0 } = {}) {
   const scrollTravel = useCallback((delta) => {
     const hasOpening = !sceneError && !reducedMotion && !motionPaused && sectorId === "home";
     if (hasOpening && (distance <= 0 && (entryRef.current < 1 || delta < 0))) {
-      const next = entryRef.current + delta * 5;
+      const next = entryRef.current + delta * 2;
       entryRef.current = clamp(next);
       setEntry(entryRef.current);
       if (entryRef.current < 1) setAssembled(false);
-      if (next > 1) travel((next - 1) / 5);
+      if (next > 1) travel((next - 1) / 2 * .55);
       return;
     }
-    if (hasOpening && delta < -distance) {
+    if (hasOpening && delta * .55 < -distance) {
       setDistance(0);
-      entryRef.current = clamp(1 + (distance + delta) * 5);
+      entryRef.current = clamp(1 + (distance / .55 + delta) * 2);
       setEntry(entryRef.current);
       setAssembled(false);
       return;
     }
-    travel(delta);
+    travel(delta * .55);
   }, [travel, distance, setDistance, sceneError, sectorId, reducedMotion, motionPaused]);
   const signal = sectorId === "home" ? signalStrength(distance) : 0;
   const earthFocus = sceneError ? 0 : earthFocusBlend(signal);

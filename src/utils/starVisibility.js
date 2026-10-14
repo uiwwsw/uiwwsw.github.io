@@ -2,6 +2,7 @@ import { Vector3 } from "three";
 import { clamp } from "./observatory.js";
 
 export const STAR_NEAR = [2, 12];
+export const STAR_FAR = [38, 58];
 export const STAR_EDGE = [0.84, 1.02];
 export const STAR_PICK_ALPHA = 0.12;
 const smooth = (a, b, value) => {
@@ -13,6 +14,7 @@ export function starVisibility(depth, ndcX, ndcY) {
   if (depth <= 0) return 0;
   return (
     smooth(...STAR_NEAR, depth) *
+    (1 - smooth(...STAR_FAR, depth)) *
     (1 - smooth(...STAR_EDGE, Math.max(Math.abs(ndcX), Math.abs(ndcY))))
   );
 }

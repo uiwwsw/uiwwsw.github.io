@@ -50,3 +50,21 @@ test('irregular pockets keep every article in the forward route across visits an
     }
   }
 });
+test('deep route reveals a limited neighborhood while retaining every article along the journey', () => {
+  for (const compact of [false,true]) {
+    const stars=corridorStars(catalog,{id:'home',origin:[0,0,0]},compact,42);
+    const camera=new PerspectiveCamera(compact?58:46,compact?390/844:1440/900,.1,650);
+    const project=createStarProjector();
+    const seen=new Set();
+    let peak=0;
+    for(let step=0;step<=100;step++){
+      const pose=flightPose(step/100,compact);
+      camera.position.set(...pose.position);camera.lookAt(...pose.target);camera.updateMatrixWorld();
+      const visible=stars.filter(s=>project(s,camera,compact?390:1440,compact?844:900));
+      peak=Math.max(peak,visible.length);
+      visible.forEach(s=>seen.add(s.id));
+    }
+    assert.ok(peak<40, 'no wall of 50+ article stars');
+    assert.equal(seen.size,96,'all articles remain discoverable');
+  }
+});

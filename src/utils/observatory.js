@@ -16,7 +16,7 @@ export const clamp = (value, min = 0, max = 1) =>
   Math.min(max, Math.max(min, value));
 export const EARTH_RADIUS = 12.3;
 export const earthPosition = (compact) =>
-  compact ? [14, 35, -75] : [22.4, 20, -55];
+  compact ? [14, 35, -186] : [22.4, 20, -166];
 export function seededRandom(seed) {
   let state = seed >>> 0;
   return () => {
@@ -109,7 +109,7 @@ export function filterCatalog(
 export function flightPose(progress, compact = false) {
   const p = clamp(progress);
   return {
-    position: [p * (compact ? 4 : 7), 2 + p * 8, 32 - p * 49],
+    position: [p * (compact ? 10 : 18), 2 + p * (compact ? 24 : 14), 32 - p * 160],
     target: [
       (compact ? 5 : 0) * (1 - p) + earthPosition(compact)[0] * p,
       7 * (1 - p) + earthPosition(compact)[1] * p,

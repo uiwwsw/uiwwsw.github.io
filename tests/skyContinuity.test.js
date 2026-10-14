@@ -89,7 +89,7 @@ test("both lunar materials share the same reveal and physical drawing-buffer hei
   );
   assert.equal((bodies.match(/\.\.\.emergenceMaterial/g) || []).length, 2);
   assert.match(bodies, /gl.getDrawingBufferSize\(bufferSize\).y/);
-  assert.match(bodies, /progress.value = 1 - assemblyRef.current.ground/);
+  assert.match(bodies, /progress.value = 1/);
 });
 
 test("the initial backdrop has no image request or Three dependency and keeps matching clocks at reveal", () => {
