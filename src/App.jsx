@@ -26,6 +26,7 @@ import { signalStrength, earthFocusBlend } from "./utils/secretSignal.js";
 import { HOME_SECTOR, groupSectors } from "./utils/skyRegistry.js";
 import { useArticleContent } from "./hooks/useArticleContent.js";
 import ArticleBody from "./components/ArticleBody.jsx";
+import { useOpeningPresentation } from "./hooks/useOpeningPresentation.js";
 import OpeningSky from "./components/OpeningSky.jsx";
 import FlightGuide from "./components/FlightGuide.jsx";
 import { shouldShowFlightGuide } from "./utils/flightGuide.js";
@@ -158,6 +159,7 @@ export default function App({ initialHome, visitSeed = 0 } = {}) {
     return () => document.removeEventListener("visibilitychange", update);
   }, []);
   const sceneRef = useRef();
+  const openingFrame = useOpeningPresentation(sceneRef);
   const inputRef = useRef(createFlightInput());
   inputRef.current.opening = distance <= 0 && entry < 1 && !sceneError && !reducedMotion && !motionPaused;
   const searchRef = useRef();
@@ -462,6 +464,7 @@ export default function App({ initialHome, visitSeed = 0 } = {}) {
     // A reduced-motion handoff has no transitionend event.
     if (sceneReady && reducedMotion) setSceneSettled(true);
   }, [sceneReady, reducedMotion]);
+  const cinematic = !sceneError && !reducedMotion && !motionPaused && sectorId === "home" && !panel && !selected;
   const exploring = sectorId !== "home" || progress > 0.12 || !!selected;
   const latestEssay =
     articles.find((article) => article.topic === "essay") ||
@@ -489,7 +492,7 @@ export default function App({ initialHome, visitSeed = 0 } = {}) {
         if (!event.target.closest(".flight-help")) setGuideRequested(false);
       }}
       onWheelCapture={() => setGuideRequested(false)}
-      className={`observatory ${exploring ? "is-exploring" : ""} ${sceneReady ? "scene-ready" : ""} ${assembled ? "has-assembled" : ""} ${focusingEarth ? "is-earth-focused" : ""}`}
+      className={`observatory ${cinematic ? "is-cinematic" : ""} ${exploring ? "is-exploring" : ""} ${sceneReady ? "scene-ready" : ""} ${assembled ? "has-assembled" : ""} ${focusingEarth ? "is-earth-focused" : ""}`}
       data-reduced-motion={reducedMotion}
       data-sky-visit={clientReady ? visitSeed : undefined}
       style={{ "--earth-focus": earthFocus }}
@@ -523,6 +526,7 @@ export default function App({ initialHome, visitSeed = 0 } = {}) {
             <Suspense fallback={null}>
               <UniverseScene
                 entry={entry}
+                onOpeningFrame={openingFrame}
                 visitSeed={visitSeed}
                 articles={sector.articles}
                 sector={sector}
@@ -575,9 +579,24 @@ export default function App({ initialHome, visitSeed = 0 } = {}) {
         <span />
       </div>
 
+      {cinematic && (
+        <>
+          <div className="opening-veil" aria-hidden="true" />
+          <div className="departure-captions" aria-hidden="true">
+            <p className="departure-landed"><span>THE MOON</span>잠시, 달의 고요 속에.</p>
+            <p className="departure-takeoff"><span>LIFT OFF</span>이제, 생각의 궤도로.</p>
+          </div>
+          {entry < 1 && <div className="opening-scroll-cue" inert={entry > .18 ? "" : undefined} aria-hidden={entry > .18 || undefined}>
+            <p>{touchControls ? "위로 쓸어 여정을 시작하세요" : "위로 스크롤해 여정을 시작하세요"}</p>
+            <span>달에 내려서고, 다시 우주로.</span>
+            <button onClick={beginJourney}>바로 탐험 <span aria-hidden="true">↗</span></button>
+          </div>}
+        </>
+      )}
       <header className="site-header">
         <button
           className="wordmark"
+          data-flight-opening={cinematic && entry < .25 ? "" : undefined}
           onClick={returnHome}
           aria-label="uiwwsw, 달로 돌아가기"
         >
@@ -586,7 +605,7 @@ export default function App({ initialHome, visitSeed = 0 } = {}) {
             uiwwsw<span className="wordmark-period">.</span>
           </span>
         </button>
-        <nav aria-label="메인 메뉴">
+        <nav aria-label="메인 메뉴" inert={cinematic && entry < .88 ? "" : undefined} aria-hidden={cinematic && entry < .88 || undefined}>
           <button className={!panel ? "active" : ""} onClick={beginJourney}>
             우주 탐험
           </button>
@@ -608,6 +627,8 @@ export default function App({ initialHome, visitSeed = 0 } = {}) {
         </nav>
         <a
           className="github-link"
+          inert={cinematic && entry < .88 ? "" : undefined}
+          aria-hidden={cinematic && entry < .88 || undefined}
           href="https://github.com/uiwwsw"
           target="_blank"
           rel="noreferrer"
@@ -623,8 +644,8 @@ export default function App({ initialHome, visitSeed = 0 } = {}) {
 
       <section
         className="intro"
-        aria-hidden={exploring}
-        inert={exploring ? "" : undefined}
+        aria-hidden={exploring || cinematic}
+        inert={exploring || cinematic ? "" : undefined}
       >
         <p className="eyebrow intro-eyebrow">
           <span className="tiny-line" /> A LITTLE SPACE FOR MY THOUGHTS

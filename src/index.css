@@ -1813,3 +1813,83 @@ button {
 .star-label > span { display: flex; align-items: center; gap: 7px; letter-spacing: .04em; }
 .star-invitation { font-style: normal; font-size: 8px; color: #e4e5e9; opacity: .85; white-space: nowrap; }
 .star-invitation::before { content: "·"; padding-right: 6px; opacity: .5; }
+
+/* Logo → landing → liftoff. All values come from the WebGL scroll sample. */
+.is-cinematic {
+  --opening-logo: 0;
+  --opening-veil: 1;
+  --opening-chrome: 0;
+  --opening-cue: 1;
+  --opening-landedCaption: 0;
+  --opening-takeoffCaption: 0;
+  --logo-dx: calc(50vw - 125px);
+  --logo-dy: calc(50vh - 64px);
+  --logo-enlarge: 3;
+}
+.opening-veil {
+  position: absolute;
+  inset: 0;
+  z-index: 19;
+  background: #03060c;
+  opacity: var(--opening-veil);
+  pointer-events: none;
+}
+.is-cinematic .wordmark {
+  transform-origin: center;
+  transform: translate(
+    calc(var(--logo-dx) * (1 - var(--opening-logo))),
+    calc(var(--logo-dy) * (1 - var(--opening-logo)))
+  ) scale(calc(1 + var(--logo-enlarge) * (1 - var(--opening-logo))));
+  will-change: transform;
+}
+.is-cinematic .site-header nav,
+.is-cinematic .github-link { opacity: var(--opening-chrome); }
+.is-cinematic .intro,
+.is-cinematic .top-coordinate,
+.is-cinematic .screen-frame,
+.is-cinematic .journey-rail,
+.is-cinematic .location,
+.is-cinematic .bottom-credit,
+.is-cinematic .featured-signal,
+.is-cinematic .earth-note { display: none; }
+.is-cinematic:not(.is-exploring) .flight-deck { visibility: hidden; }
+.opening-scroll-cue {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: max(9vh, 42px);
+  z-index: 21;
+  text-align: center;
+  color: #e1dccd;
+  opacity: var(--opening-cue);
+  pointer-events: none;
+  font-size: 13px;
+  letter-spacing: .04em;
+}
+.opening-scroll-cue p { margin: 0 0 10px; }
+.opening-scroll-cue > span { color: #777e89; font-size: 11px; }
+.opening-scroll-cue button {
+  display: block;
+  margin: 20px auto 0;
+  padding: 8px 18px;
+  color: #989da6;
+  font-size: 11px;
+  pointer-events: auto;
+}
+.opening-scroll-cue:focus-within { opacity: 1; }
+.departure-captions {
+  position: absolute;
+  inset: auto 20px 11vh;
+  z-index: 20;
+  text-align: center;
+  pointer-events: none;
+  font-size: clamp(16px, 2vw, 22px);
+  color: #e5e1d8;
+}
+.departure-captions p { position: absolute; bottom: 0; left: 0; right: 0; margin: 0; }
+.departure-captions span { display: block; font-size: 9px; letter-spacing: .28em; color: #9eaaaf; margin-bottom: 14px; }
+.departure-landed { opacity: var(--opening-landedCaption); }
+.departure-takeoff { opacity: var(--opening-takeoffCaption); }
+@media (max-width: 760px) {
+  .is-cinematic { --logo-dx: calc(50vw - 90px); --logo-dy: calc(50vh - 45px); --logo-enlarge: 1.3; }
+}

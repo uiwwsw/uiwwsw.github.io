@@ -306,22 +306,14 @@ export function LunarSurface({
     [reveal],
   );
   useFrame((_, delta) => {
-    // The visitor starts standing on the Moon; never wipe away the floor.
+    // Terrain stays fixed. Landing and liftoff belong to the camera.
     arrival.current.position.y = 0;
     reveal.progress.value = 1;
     reveal.height.value = gl.getDrawingBufferSize(bufferSize).y;
     const cull = assemblyRef.current.phase === "done";
     ground.current.frustumCulled = cull;
     rocks.current.frustumCulled = cull;
-    const target = -Math.pow(progress, 1.3) * 40;
-    group.current.position.y = reducedMotion
-      ? target
-      : THREE.MathUtils.damp(
-          group.current.position.y,
-          target,
-          2.2,
-          Math.min(delta, 0.05),
-        );
+    group.current.position.y = 0;
   }, -1);
   const map = useTexture(SCENE_TEXTURES.moon);
   const { geometry, craters } = useMemo(() => {

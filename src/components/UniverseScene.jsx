@@ -1,3 +1,4 @@
+import { departurePose } from "../utils/lunarDeparture.js";
 import React, {
   Suspense,
   useEffect,
@@ -183,21 +184,19 @@ function WorldAssembly({
   progress,
   entry,
   onComplete,
+  onOpeningFrame,
   compact,
 }) {
   const reported = useRef(false);
   const scrub = useRef(createScrollSmoothing());
-  const { size } = useThree();
-  const layout = useMemo(
-    () => worldAssemblyLayout(compact, size.width / size.height),
-    [compact, size.width, size.height],
-  );
+  const layout = useMemo(() => worldAssemblyLayout(compact), [compact]);
   useFrame((_, delta) => {
     assemblyRef.current.layout = layout;
     if (ready && visible) {
       const target = skip || progress > 0 ? 1 : entry;
       const value = stepScrollSmoothing(scrub.current, target, delta, skip);
       scrubWorldAssembly(assemblyRef.current, value);
+      onOpeningFrame?.(assemblyRef.current.departure);
     }
     if (assemblyRef.current.phase !== "done") reported.current = false;
     if (assemblyRef.current.phase === "done" && !reported.current) {
@@ -243,15 +242,15 @@ function CameraRig({
   useFrame((_, delta) => {
     const dt = Math.min(delta, 0.05);
     relaxFlightLook(inputRef.current, dt);
-    // During construction the camera has no cinematic offsets or idle drift.
-    // User look/travel below remain live; only the world objects slide in.
+    // The scroll timeline owns the landing camera; idle sway begins in flight.
     drift.current = advanceAmbientTime(
       drift.current,
       dt,
       paused || assemblyRef.current.phase !== "done",
     );
     const focus = earthFocusBlend(signal);
-    const pose = signalFlightPose(
+    const opening = (progress === 0 || assemblyRef.current.departure.progress < 1) && !selected && !reducedMotion && sector.id === "home";
+    const pose = opening ? departurePose(assemblyRef.current.departure.progress, compact) : signalFlightPose(
       progress,
       signal,
       compact,
@@ -282,7 +281,7 @@ function CameraRig({
       );
     } else {
       targetPosition.set(...pose.position);
-      const viewScale = 1 - focus;
+      const viewScale = opening ? 0 : 1 - focus;
       targetLook.set(
         pose.target[0] + elasticLook(inputRef.current.lookX, 9) * viewScale,
         pose.target[1] +
@@ -292,14 +291,14 @@ function CameraRig({
         pose.target[2],
       );
     }
-    if (!reducedMotion && !selected) {
+    if (!reducedMotion && !selected && !opening) {
       targetPosition.x += Math.sin(drift.current * 0.14) * 0.28 * (1 - focus);
       targetPosition.y += Math.sin(drift.current * 0.21) * 0.16 * (1 - focus);
     }
-    const easing = reducedMotion ? 1 : 1 - Math.exp(-dt * 4.5);
+    const easing = reducedMotion ? 1 : 1 - Math.exp(-dt * (opening ? 18 : 4.5));
     camera.position.lerp(targetPosition, easing);
     // Looking responds faster than travel so the finger never feels tethered.
-    look.current.lerp(targetLook, reducedMotion ? 1 : 1 - Math.exp(-dt * 8));
+    look.current.lerp(targetLook, reducedMotion ? 1 : 1 - Math.exp(-dt * (opening ? 18 : 8)));
     camera.lookAt(look.current);
     camera.updateMatrixWorld();
     // Earth/lunar transforms run at -1; labels and picking run at 0.
@@ -348,6 +347,7 @@ export default function UniverseScene({
   onReady,
   revealed = false,
   onAssemblyComplete,
+  onOpeningFrame,
   skipAssembly = false,
   enhance = false,
   onError,
@@ -403,6 +403,7 @@ export default function UniverseScene({
         assemblyRef={assemblyRef}
         ready={revealed}
         onComplete={onAssemblyComplete}
+        onOpeningFrame={onOpeningFrame}
         visible={visible}
         skip={
           reducedMotion ||
@@ -458,6 +459,7 @@ export default function UniverseScene({
         <SceneReady assetsReady={assetsReady} />
       </Suspense>
       <ArticleSky
+        assemblyRef={assemblyRef}
         planetPositionRef={planetPositionRef}
         paused={paused}
         focus={focus}

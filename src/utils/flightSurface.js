@@ -2,7 +2,7 @@ import { createFlightGesture } from "./flightInput.js";
 
 const isControl = (target) =>
   !!target.closest(
-    'a, input, select, textarea, button:not(.star-label), dialog, summary, label, [data-flight-control], [contenteditable="true"]',
+    'a, input, select, textarea, button:not(.star-label):not([data-flight-opening]), dialog, summary, label, [data-flight-control], [contenteditable="true"]',
   );
 
 // DOM adapter kept independent of React so capture, RAF and cancellation paths
