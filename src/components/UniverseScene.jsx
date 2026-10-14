@@ -366,7 +366,7 @@ export default function UniverseScene({
     new THREE.Vector3(...earthPosition(compact)),
   );
   const focus = earthFocusBlend(signal);
-  const routeArticles = useMemo(() => corridorStars(articles, sector, compact), [articles, sector, compact]);
+  const routeArticles = useMemo(() => corridorStars(articles, sector, compact, visitSeed), [articles, sector, compact, visitSeed]);
   return (
     <Canvas
       frameloop={visible ? "always" : "never"}
