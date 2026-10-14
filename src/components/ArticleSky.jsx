@@ -27,17 +27,23 @@ import {
 const ignoreRaycast = () => {};
 const vertex = `
   attribute vec3 aColor; attribute float aVisible; attribute float aIndex;
+  attribute vec4 aStyle; attribute float aAccent;
   uniform float uSize; uniform float uDetail; uniform float uFocus;
   uniform float uTime;
   uniform float uOpacity;
   varying vec3 vColor; varying float vAlpha;
+  varying float vShape; varying float vFlare;
   void main() {
     vec4 p = modelViewMatrix * vec4(position, 1.0);
     float focus = abs(aIndex-uFocus) < .5 ? 1.6 : 1.0;
-    gl_PointSize = clamp(uSize * focus / max(1.0, -p.z), 2.0, 60.0);
+    gl_PointSize = clamp(uSize * aStyle.x * focus / max(1.0, -p.z), 2.0, 60.0);
     gl_Position = projectionMatrix * p;
     vColor = aColor;
-    float shimmer = .88 + .12 * sin(uTime * .65 + aIndex * 2.399);
+    vShape = aStyle.w;
+    float wave = .5 + .5 * sin(uTime * 6.283185 / aStyle.z + aStyle.y);
+    vFlare = pow(wave, 24.) * (.35 + aAccent * .5);
+    float shimmer = .78 + .12 * sin(uTime * .7 + aStyle.y) + vFlare * .35;
+    gl_PointSize *= 1. + vFlare * .18;
     float nearFade = smoothstep(${STAR_NEAR[0].toFixed(1)}, ${STAR_NEAR[1].toFixed(1)}, -p.z);
     vec2 screen = abs(gl_Position.xy / max(.001, gl_Position.w));
     float edgeFade = 1.0 - smoothstep(${STAR_EDGE[0]}, ${STAR_EDGE[1]}, max(screen.x, screen.y));
@@ -46,16 +52,27 @@ const vertex = `
 `;
 const fragment = `
   varying vec3 vColor; varying float vAlpha;
+  varying float vShape; varying float vFlare;
   void main() {
-    float d = length(gl_PointCoord - .5) * 2.0;
-    float glow = pow(max(0.0, 1.0-d), 3.0);
-    float core = 1.0 - smoothstep(.10, .26, d);
-    float ring = smoothstep(.24, .32, d) * (1.0 - smoothstep(.43, .56, d));
-    vec3 color = mix(vColor, vec3(.015, .025, .045), ring);
-    gl_FragColor = vec4(mix(color, vec3(1.), core), max(glow, max(core, ring * .85)) * vAlpha);
+    vec2 p = (gl_PointCoord - .5) * 2.;
+    float d = length(p);
+    float core = 1. - smoothstep(.06, .21, d);
+    float halo = exp(-d * d * 9.) * .55;
+    vec2 axis = abs(p);
+    if (vShape > 2.5) axis = abs(vec2(p.x+p.y, p.y-p.x)) * .7071;
+    float rays = (exp(-axis.x * 38.) * exp(-axis.y * 4.) + exp(-axis.y * 38.) * exp(-axis.x * 4.)) * (.18 + vFlare * .4);
+    float orbit = exp(-pow((d - .48) * 28., 2.)) * .2;
+    float shape = vShape < .5 ? halo * .3 : vShape < 1.5 ? rays : vShape < 2.5 ? orbit : rays * .65;
+    float light = clamp(core + halo + shape + vFlare * halo, 0., 1.);
+    // A small dark skirt keeps colored points legible over the bright Earth.
+    float skirt = exp(-pow((d - .25) * 12., 2.)) * .35;
+    vec3 color = mix(vColor, vec3(1.), core * .8);
+    color *= light / max(.001, light + skirt);
+    gl_FragColor = vec4(color, min(1., light + skirt) * vAlpha * (1. - smoothstep(.85, 1., d)));
     #include <colorspace_fragment>
   }
 `;
+
 function glowTexture() {
   const canvas = document.createElement("canvas");
   canvas.width = canvas.height = 64;
@@ -114,14 +131,19 @@ export default function ArticleSky({
     const colors = new Float32Array(articles.length * 3);
     const visibility = new Float32Array(articles.length);
     const indices = new Float32Array(articles.length);
+    const styles = new Float32Array(articles.length * 4);
+    const accents = new Float32Array(articles.length);
     const color = new THREE.Color();
     articles.forEach((article, i) => {
       positions.set(article.position, i * 3);
       color.set(article.color).toArray(colors, i * 3);
       visibility[i] = !highlighted || highlighted.has(article.id) ? 1 : 0;
       indices[i] = i;
+      const style = article.starStyle;
+      styles.set(style ? [style.size, style.phase, style.period, style.shape] : [1, i, 24, 0], i * 4);
+      accents[i] = style?.accent || 0;
     });
-    return { positions, colors, visibility, indices };
+    return { positions, colors, visibility, indices, styles, accents };
   }, [articles, highlighted]);
   const uniforms = useMemo(
     () => ({
@@ -290,6 +312,8 @@ export default function ArticleSky({
     <group>
       <points raycast={ignoreRaycast} frustumCulled={false} renderOrder={20}>
         <bufferGeometry key={`${sector.id}:${articles.length}`}>
+          <bufferAttribute attach="attributes-aStyle" args={[buffers.styles, 4]} />
+          <bufferAttribute attach="attributes-aAccent" args={[buffers.accents, 1]} />
           <bufferAttribute
             attach="attributes-position"
             args={[buffers.positions, 3]}
@@ -376,7 +400,7 @@ export default function ArticleSky({
             }}
             onClick={() => !focusing && onSelect(item)}
           >
-            <span>{TOPICS[item.topic].english}</span>
+            <span>{TOPICS[item.topic].label}{item.starStyle?.invitation && <em className="star-invitation" title={item.starStyle.invitation}>{item.starStyle.invitation === "다시 발견한 기록" ? "다시 발견" : item.starStyle.invitation}</em>}</span>
             <strong>{item.title}</strong>
             <i aria-hidden="true">↗</i>
           </button>

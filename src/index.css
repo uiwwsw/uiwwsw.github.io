@@ -1809,3 +1809,7 @@ button {
 }
 
 .star-label.is-pointer-revealed { animation-duration: .12s; }
+
+.star-label > span { display: flex; align-items: center; gap: 7px; letter-spacing: .04em; }
+.star-invitation { font-style: normal; font-size: 8px; color: #e4e5e9; opacity: .85; white-space: nowrap; }
+.star-invitation::before { content: "·"; padding-right: 6px; opacity: .5; }

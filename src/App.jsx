@@ -1221,6 +1221,11 @@ export default function App({ initialHome, visitSeed = 0 } = {}) {
             <br />
             어떤 별에는 조금 더 오래 머물러 주세요.
           </p>
+          <details className="credits star-story">
+            <summary>별의 색과 빛에는 이야기가 있어요</summary>
+            <p>금빛은 사유와 일상, 푸른빛은 개발과 기술, 청록빛은 만드는 이야기, 보랏빛은 회고와 성장입니다.</p>
+            <p>최근 기록은 조금 더 밝게, 예전 기록 중 두 편은 방문할 때마다 ‘다시 발견’할 별로 골랐어요. 모두 이미 공개된 글입니다. 천천히 반짝이는 별에 잠시 머물러 보세요.</p>
+          </details>
           <div className="about-links">
             <a
               href="https://velog.io/@uiwwsw/posts"
