@@ -17,6 +17,7 @@ import {
 } from "../utils/starSelection.js";
 import {
   STAR_NEAR,
+  STAR_FAR,
   STAR_EDGE,
   createStarProjectionBuffer,
   createStarUpdateClock,
@@ -45,9 +46,10 @@ const vertex = `
     float shimmer = .78 + .12 * sin(uTime * .7 + aStyle.y) + vFlare * .35;
     gl_PointSize *= 1. + vFlare * .18;
     float nearFade = smoothstep(${STAR_NEAR[0].toFixed(1)}, ${STAR_NEAR[1].toFixed(1)}, -p.z);
+    float farFade = 1.0 - smoothstep(${STAR_FAR[0].toFixed(1)}, ${STAR_FAR[1].toFixed(1)}, -p.z);
     vec2 screen = abs(gl_Position.xy / max(.001, gl_Position.w));
     float edgeFade = 1.0 - smoothstep(${STAR_EDGE[0]}, ${STAR_EDGE[1]}, max(screen.x, screen.y));
-    vAlpha = mix(.2, .95, uDetail) * mix(.08, 1.0, aVisible) * shimmer * nearFade * edgeFade * uOpacity;
+    vAlpha = mix(.2, .95, uDetail) * mix(.08, 1.0, aVisible) * shimmer * nearFade * farFade * edgeFade * uOpacity;
   }
 `;
 const fragment = `

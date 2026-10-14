@@ -323,7 +323,7 @@ test("scene translates the actual planet and floor, not the camera or a duplicat
     bodies,
     /arrival\.current\.position\.set\([\s\S]*?assemblyEarthPosition/,
   );
-  assert.match(bodies, /arrival\.current\.position\.y = assemblyGroundY/);
+  assert.match(bodies, /arrival\.current\.position\.y = 0/);
   assert.equal((bodies.match(/name="earth-surface"/g) || []).length, 1);
   assert.equal((bodies.match(/name="lunar-ground"/g) || []).length, 1);
   assert.match(bodies, /gl\.initTexture\(lunarMap\)/);

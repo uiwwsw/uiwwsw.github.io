@@ -11,7 +11,7 @@ export function corridorStars(articles, sector, compact, visitSeed = 0) {
   const placed = [];
   return giveStarsPersonality(articles, visitSeed).map((article, index) => {
     const random = seededRandom(starSeed(article.id, visitSeed));
-    const t = clamp(.16 + index / Math.max(1, articles.length - 1) * .82 + (random() - .5) * .05);
+    const t = clamp(.16 + index / Math.max(1, articles.length - 1) * .82 + (random() - .5) * .025);
     const pose = flightPose(t, compact);
     const forward = pose.target.map((v, i) => v - pose.position[i]);
     const length = Math.hypot(...forward);
@@ -28,7 +28,7 @@ export function corridorStars(articles, sector, compact, visitSeed = 0) {
       const candidate = pose.position.map((v, i) => v + sector.origin[i] + direction[i] * depth + right[i] * x * (compact ? 3.7 : 8) + (i === 1 ? y * 4.5 : 0));
       const clearance = placed.reduce((min, p) => Math.min(min, Math.hypot(...p.map((v,i) => v - candidate[i]))), Infinity);
       if (clearance > bestClearance) { position = candidate; bestClearance = clearance; }
-      if (clearance >= 1.65) break;
+      if (clearance >= 3.2) break;
     }
     placed.push(position);
     return { ...article, position };
