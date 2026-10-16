@@ -32,6 +32,7 @@ const articles = buildCatalog(
 const pages = Math.max(1, Math.ceil(articles.length / PAGE_SIZE));
 const expectedPaths = [
   "/",
+  "/content-rights/",
   ...Array.from({ length: pages }, (_, i) => archivePath(i + 1)),
   ...articles.map(articlePath),
 ];

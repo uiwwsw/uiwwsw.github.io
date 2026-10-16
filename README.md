@@ -1,5 +1,7 @@
 # uiwwsw.github.io
 
+Author-owned writing and images: [콘텐츠 이용 안내](CONTENT-RIGHTS.md). Existing code and third-party licenses remain unchanged.
+
 A 3D writing portfolio: leave the Moon, approach Earth, and discover a real Velog article in every star. Built with React, Vite, Three.js, React Three Fiber, and drei.
 
 ## Exploring the universe

@@ -1,3 +1,4 @@
+import { RIGHTS_PATH, RIGHTS_SHORT } from "./utils/contentRights.js";
 import React, {
   Suspense,
   lazy,
@@ -1211,6 +1212,7 @@ export default function App({ initialHome, visitSeed = 0 } = {}) {
           <div className="reading-end">
             <Icon name="star" size={24} />
             <p>잠시, 같은 별을 바라봐 주셔서 고마워요.</p>
+            <p className="panel-description">{RIGHTS_SHORT} <a href={RIGHTS_PATH}>콘텐츠 이용 안내</a></p>
             <button onClick={closePanel}>
               다시 우주로 <Icon name="arrow" size={16} />
             </button>

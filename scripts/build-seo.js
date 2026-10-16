@@ -1,4 +1,5 @@
 import { readFile, writeFile, mkdir } from "node:fs/promises";
+import { RIGHTS_PATH, renderRobots } from "../src/utils/contentRights.js";
 import { load } from "cheerio";
 import { createHash } from "node:crypto";
 import { createServer } from "vite";
@@ -18,6 +19,7 @@ import {
   renderArticlePage,
   renderArchivePage,
   renderSitemap,
+  renderRightsPage,
 } from "./lib/seo-pages.js";
 
 const root = new URL("../", import.meta.url);
@@ -114,10 +116,11 @@ for (const article of articles) {
 const archivePages = Math.max(1, Math.ceil(articles.length / PAGE_SIZE));
 for (let page = 1; page <= archivePages; page++)
   await writePage(archivePath(page), renderArchivePage(articles, page));
+await writePage(RIGHTS_PATH, renderRightsPage());
 await writeFile(new URL("sitemap.xml", dist), renderSitemap(articles));
 await writeFile(
   new URL("robots.txt", dist),
-  `User-agent: *\nAllow: /\n\nSitemap: ${SITE.url}/sitemap.xml\n`,
+  renderRobots(SITE.url),
 );
 console.log(
   `Built SEO: ${articles.length} complete article pages, ${archivePages} archive pages, homepage, sitemap and robots.txt.`,

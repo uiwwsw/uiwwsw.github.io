@@ -159,7 +159,7 @@ test("paginated static archives and sitemap expose every article exactly once", 
   }
   assert.deepEqual(paths, new Set(articles.map(articlePath)));
   const $ = load(renderSitemap(articles), { xmlMode: true });
-  assert.equal($("loc").length, articles.length + pages + 1);
+  assert.equal($("loc").length, articles.length + pages + 2);
   assert.equal($("lastmod").length, 0);
 });
 
