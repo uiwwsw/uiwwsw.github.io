@@ -1,3 +1,4 @@
+import { RIGHTS_PATH, RIGHTS_SHORT, RIGHTS_PARAGRAPHS } from "../../src/utils/contentRights.js";
 import {
   SITE,
   AUTHOR,
@@ -55,7 +56,7 @@ ${seo.type === "article" ? tag("property", "article:author", AUTHOR.url) : ""}
 }
 
 const navigation = `<header class="reading-site-header"><a class="reading-brand" href="/">윤창원<span>uiwwsw · 작은 우주</span></a><nav aria-label="메인 메뉴"><a href="/">우주 탐험 ↗</a><a href="/writing/">모든 글</a></nav></header>`;
-const footer = `<footer class="reading-site-footer"><p>코드를 쓰고, 생각을 씁니다.<br>글 쓰는 프론트엔드 개발자 윤창원.</p><nav aria-label="작가의 다른 공간"><a href="${SITE.github}">GitHub ↗</a><a href="${SITE.velog}">Velog ↗</a><a href="/">작은 우주로 ↗</a></nav></footer>`;
+const footer = `<footer class="reading-site-footer"><p>코드를 쓰고, 생각을 씁니다.<br>글 쓰는 프론트엔드 개발자 윤창원.</p><nav aria-label="작가의 다른 공간"><a href="${SITE.github}">GitHub ↗</a><a href="${SITE.velog}">Velog ↗</a><a href="/">작은 우주로 ↗</a><a href="${RIGHTS_PATH}">콘텐츠 이용 안내</a></nav></footer>`;
 
 function documentPage(seo, schema, content) {
   return `<!doctype html>
@@ -122,6 +123,7 @@ export function renderArticlePage(article, related = []) {
 <article><header class="writing-heading"><p class="reading-eyebrow">${escapeHtml(TOPICS[article.topic]?.label || "기록")}</p><h1>${escapeHtml(article.title)}</h1><p class="writing-byline"><a href="/">윤창원 · 프론트엔드 개발자</a>${dateMarkup(article)}<span>${article.readingTime}분 읽기</span></p></header>
 <nav class="writing-actions" aria-label="이 글 읽기"><a href="/?article=${encodeURIComponent(article.id)}">우주에서 이 별 만나기 ↗</a><a href="${escapeHtml(article.link)}" target="_blank" rel="noreferrer">벨로그 원문 ↗</a></nav>
 <div class="static-article-body">${renderBlocks(article)}</div>
+<p class="writing-source">${RIGHTS_SHORT} <a href="${RIGHTS_PATH}">콘텐츠 이용 안내</a></p>
 <p class="writing-source">윤창원이 벨로그에 남긴 글을 이 작은 우주에도 모았습니다. 사진은 누르면 원본 크기로 볼 수 있습니다. <a href="${escapeHtml(article.link)}">원문의 전체 서식 보기 ↗</a></p></article>
 ${related.length ? `<section class="related-writing" aria-labelledby="related-title"><p class="reading-eyebrow">ANOTHER STAR, ANOTHER STORY</p><h2 id="related-title">이어서 읽는 기록</h2>${articleCards(related)}</section>` : ""}
 <a class="writing-all-link" href="/writing/">모든 글 둘러보기 →</a>`,
@@ -168,9 +170,15 @@ export function renderHomeFallback(articles) {
   return `<div class="static-fallback reading-site">${navigation}<main class="reading-content"><header class="writing-heading"><p class="reading-eyebrow">A LITTLE SPACE FOR MY THOUGHTS</p><h1>기록은 별이 되고,<br>생각은 우주가 된다.</h1><p class="writing-introduction">글 쓰는 프론트엔드 개발자 윤창원입니다.<br>코드를 쓰고, 생각을 씁니다.</p><p>${escapeHtml(SITE.description)}</p></header><a class="writing-all-link" href="/writing/">글 ${articles.length}편 모두 읽기 →</a><section aria-labelledby="latest-title"><h2 id="latest-title">최근에 띄운 기록</h2>${articleCards(articles.slice(0, 6))}</section></main>${footer}</div>`;
 }
 
+export function renderRightsPage() {
+  const seo = { ...pageSeo(), title: "콘텐츠 이용 안내 | uiwwsw", description: "글과 이미지의 이용 범위, 검색 허용 및 AI 학습용 수집 제한 안내.", url: `${SITE.url}${RIGHTS_PATH}` };
+  return documentPage(seo, { "@context": "https://schema.org", "@type": "WebPage", name: "콘텐츠 이용 안내", url: seo.url }, `<article><header class="writing-heading"><p class="reading-eyebrow">CONTENT RIGHTS</p><h1>콘텐츠 이용 안내</h1></header><div class="static-article-body">${RIGHTS_PARAGRAPHS.map(text => `<p>${escapeHtml(text)}</p>`).join("")}<h2>검색과 수집에 관하여</h2><p>일반 검색과 검색용 크롤러의 접근은 허용하고, GPTBot·ClaudeBot·Google-Extended·CCBot에는 robots.txt로 수집 제한 의사를 전달합니다. robots.txt는 자발적 준수에 의존하며, 공개 콘텐츠의 열람·복제나 기존 수집 자료의 이용을 완전히 막지 못합니다.</p><p>이 안내는 각 플랫폼 약관이나 기존 이용 허락을 소급 변경하지 않습니다. GitHub·Velog에 있는 원본에는 해당 플랫폼의 정책과 기술적 제약이 적용됩니다.</p></div></article>`);
+}
+
 export function renderSitemap(articles) {
   const paths = [
     "/",
+    RIGHTS_PATH,
     ...Array.from(
       { length: Math.max(1, Math.ceil(articles.length / PAGE_SIZE)) },
       (_, i) => archivePath(i + 1),
