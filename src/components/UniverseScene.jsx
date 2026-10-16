@@ -219,6 +219,7 @@ function CameraRig({
   earthFocusRef,
   assemblyRef,
   labelInteraction,
+  navigation,
 }) {
   const { camera } = useThree();
   const look = useRef(new THREE.Vector3(...flightPose(0, compact).target));
@@ -267,7 +268,7 @@ function CameraRig({
   useFrame((_, delta) => {
     const dt = Math.min(delta, 0.05);
     // A title under the pointer/finger is a reading target, not a moving camera.
-    if (!selected && labelInteraction.current.locked && labelInteraction.current.progress === progress) return;
+    if (!selected && !navigation?.moving && labelInteraction.current.locked && labelInteraction.current.progress === progress) return;
     relaxFlightLook(inputRef.current, dt);
     // The scroll timeline owns the landing camera; idle sway begins in flight.
     drift.current = advanceAmbientTime(
@@ -359,6 +360,14 @@ function SceneRender({ assetsReady, onReady, onError }) {
   useFrame(() => startup.current?.frame(assetsReady.current), 1);
   return null;
 }
+function ArticleRoute({ articles, sector, compact, visitSeed, ...props }) {
+  const { size } = useThree();
+  const route = useMemo(
+    () => corridorStars(articles, sector, compact, visitSeed, size),
+    [articles, sector, compact, visitSeed, size.width, size.height],
+  );
+  return <ArticleSky {...props} articles={route} sector={sector} compact={compact} />;
+}
 export default function UniverseScene({
   entry = 0,
   visitSeed = 0,
@@ -368,6 +377,8 @@ export default function UniverseScene({
   selected,
   highlighted,
   onSelect,
+  onSeek,
+  navigation,
   paused,
   reducedMotion,
   compact,
@@ -394,7 +405,6 @@ export default function UniverseScene({
     new THREE.Vector3(...earthPosition(compact)),
   );
   const focus = earthFocusBlend(signal);
-  const routeArticles = useMemo(() => corridorStars(articles, sector, compact, visitSeed), [articles, sector, compact, visitSeed]);
   return (
     <Canvas
       frameloop={visible ? "always" : "never"}
@@ -486,13 +496,16 @@ export default function UniverseScene({
         )}
         <SceneReady assetsReady={assetsReady} />
       </Suspense>
-      <ArticleSky
+      <ArticleRoute
+        visitSeed={visitSeed}
+        onSeek={onSeek}
+        navigation={navigation}
         labelInteraction={labelInteraction}
         assemblyRef={assemblyRef}
         planetPositionRef={planetPositionRef}
         paused={paused}
         focus={focus}
-        articles={routeArticles}
+        articles={articles}
         progress={progress}
         selected={selected}
         highlighted={highlighted}
@@ -505,6 +518,7 @@ export default function UniverseScene({
         onDiagnostics={onDiagnostics}
       />
       <CameraRig
+        navigation={navigation}
         labelInteraction={labelInteraction}
         assemblyRef={assemblyRef}
         earthFocusRef={earthFocusRef}

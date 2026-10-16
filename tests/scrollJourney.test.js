@@ -40,9 +40,9 @@ test('every reading star crosses the forward view on narrow and wide screens wit
   const project = createStarProjector();
   for (const [width, height] of [[320,568], [390,844], [1440,900], [844,390]]) {
     const compact = width <= 760;
-    const stars = corridorStars(Array.from({length:96}, (_,i) => ({id:String(i)})), {origin:[0,0,0]}, compact);
+    const stars = corridorStars(Array.from({length:96}, (_,i) => ({id:String(i)})), {origin:[0,0,0]}, compact, 0, {width,height});
     stars.forEach((star, i) => {
-      const pose = flightPose(.16 + i / 95 * .82, compact);
+      const pose = flightPose(star.readAt, compact);
       const camera = new PerspectiveCamera(compact ? 58 : 46, width/height, .1, 650);
       camera.position.set(...pose.position);
       camera.lookAt(...pose.target);
