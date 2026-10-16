@@ -192,6 +192,7 @@ export default function ArticleSky({
   const events = useRef({});
   const pointer = useRef(null);
   const pointerLabel = useRef(null);
+  const pointerOverLabel = useRef(null);
   const pointerLayout = useRef(0);
   const layoutMemory = useRef(createStarLabelMemory());
   const keyboardLabel = useRef(null);
@@ -340,7 +341,7 @@ export default function ArticleSky({
     // Keep the actual DOM/layout alive behind the reader. Closing it restores
     // this same set instead of packing against the article-focused camera.
     if (selected || labelInteraction.current.restored) return;
-    if (pointer.current && !keyboardLabel.current && !focusing) {
+    if (pointer.current && !keyboardLabel.current && !pointerOverLabel.current && !focusing) {
       const intent = approachingStarLabel(labelState.current, pointer.current, pointerLabel.current, compact);
       if (intent !== pointerLabel.current) {
         pointerLabel.current = intent;
@@ -350,14 +351,24 @@ export default function ArticleSky({
       }
     }
     const activeId = keyboardLabel.current || pointerLabel.current;
+    const activeLabel = labelState.current.find(item => item.id === activeId);
     const visible = readable
       ? packStarLabels(
-          projected.filter(item => item.bandIndex === readingBand.current)
+          projected.filter(item => item.bandIndex === readingBand.current && item.id !== activeLabel?.id)
             .sort((a,b) => a.slotIndex-b.slotIndex)
             .map(item => item.labelPlacement ? {
               ...item, offsetX:item.labelPlacement.x-item.x,
               offsetY:item.labelPlacement.y-item.y,
-            } : layoutMemory.current.apply(item)),
+            } : layoutMemory.current.apply(item))
+            .concat(activeLabel ? [{
+              ...activeLabel,
+              // Preserve the actual click target even as its star crosses a
+              // depth band. The connector can continue following the star.
+              labelPlacement: { x: activeLabel.rect.x, y: activeLabel.rect.y },
+              offsetX: activeLabel.rect.x - activeLabel.x,
+              offsetY: activeLabel.rect.y - activeLabel.y,
+              leavingAt: null,
+            }] : []),
           size.width,
           size.height,
           compact,
@@ -386,6 +397,7 @@ export default function ArticleSky({
     candidates.current = [];
     pointer.current = null;
     pointerLabel.current = null;
+    pointerOverLabel.current = null;
     labelState.current = [];
     layoutMemory.current.clear();
     readingBand.current = null;
@@ -428,13 +440,14 @@ export default function ArticleSky({
       if (events.current.selected || labelInteraction.current.returnRequested) return;
       labelInteraction.current.restored = false;
       pointerLabel.current = null;
+      pointerOverLabel.current = null;
       keyboardLabel.current = null;
       labelInteraction.current.locked = false;
       setHovered(null);
     };
     const activate = (id) => {
       keyboardLabel.current = null;
-      labelInteraction.current.restored = false;
+      if (id !== pointerLabel.current) labelInteraction.current.restored = false;
       pointerLabel.current = id;
       labelInteraction.current.locked = !!id;
       labelInteraction.current.progress = events.current.progress;
@@ -448,7 +461,8 @@ export default function ArticleSky({
       }
       const rect = canvas.getBoundingClientRect();
       pointer.current = { x: event.clientX - rect.left, y: event.clientY - rect.top };
-      const id = event.target.closest(".star-label")?.dataset.articleStar ||
+      pointerOverLabel.current = event.target.closest(".star-label")?.dataset.articleStar || null;
+      const id = pointerOverLabel.current ||
         approachingStarLabel(labelState.current, pointer.current, pointerLabel.current, compact);
       activate(id);
       if (!id) setHovered(hits(event)[0]?.id || null);
@@ -456,6 +470,7 @@ export default function ArticleSky({
     const down = (event) => {
       if (events.current.selected || events.current.focusing) return;
       const id = event.target.closest(".star-label")?.dataset.articleStar;
+      pointerOverLabel.current = id || null;
       if (id) activate(id);
       else release();
     };
