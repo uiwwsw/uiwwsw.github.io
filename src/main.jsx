@@ -7,7 +7,8 @@ import { beginSkyVisit } from "./utils/visitSky.js";
 const root = document.getElementById("root");
 const bootstrap = document.getElementById("initial-home");
 const initialHome = bootstrap ? JSON.parse(bootstrap.textContent) : undefined;
-const visitSeed = beginSkyVisit(window);
+const profilingSeed = import.meta.env.DEV ? new URLSearchParams(window.location.search).get("profile") : null;
+const visitSeed = profilingSeed && /^\d+$/.test(profilingSeed) ? Number(profilingSeed) : beginSkyVisit(window);
 const app = (
   <React.StrictMode>
     <App initialHome={initialHome} visitSeed={visitSeed} />

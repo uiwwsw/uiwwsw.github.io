@@ -1,0 +1,76 @@
+{
+  "baselineCommit": "98b79cfd7851950e2e54356b364b26a47119765d",
+  "conditions": {
+    "browser": "existing Chrome on same Mac",
+    "mode": "Vite development",
+    "seed": 42,
+    "warmupFrames": 120,
+    "sampleFrames": 600,
+    "articles": 62,
+    "route": ".16 + .2 * (1 - cos(step / 60 * pi / 4))",
+    "profileUrl": "/?ambient=1&profile=42"
+  },
+  "limits": "Sky callback CPU excludes GPU rendering and asynchronous React work. One warmed browser sample per layout; clock resolution and other host activity affect timings. Projection benchmark uses 7 alternating rounds, median, 12000 updates, and exact output equality.",
+  "desktop": {
+    "viewport": [
+      1200,
+      754
+    ],
+    "before": {
+      "fps": 60,
+      "draws": 13,
+      "skyCpuP50Ms": 0.2,
+      "skyCpuP95Ms": 0.9,
+      "labelStateCommits": 88,
+      "listenerBinds": 600,
+      "svgWrites": 14400
+    },
+    "after": {
+      "fps": 60,
+      "draws": 13,
+      "skyCpuP50Ms": 0.2,
+      "skyCpuP95Ms": 0.7,
+      "labelStateCommits": 24,
+      "listenerBinds": 0,
+      "svgWrites": 10930
+    }
+  },
+  "mobile": {
+    "viewport": [
+      390,
+      844
+    ],
+    "before": {
+      "fps": 60,
+      "draws": 12,
+      "skyCpuP50Ms": 0.1,
+      "skyCpuP95Ms": 0.6,
+      "labelStateCommits": 26,
+      "listenerBinds": 600,
+      "svgWrites": 7200
+    },
+    "after": {
+      "fps": 60,
+      "draws": 12,
+      "skyCpuP50Ms": 0.1,
+      "skyCpuP95Ms": 0.6,
+      "labelStateCommits": 21,
+      "listenerBinds": 0,
+      "svgWrites": 5364
+    }
+  },
+  "projectionCpu": {
+    "iterations": 12000,
+    "rounds": 7,
+    "desktop": {
+      "baselineMs": 119.9,
+      "optimizedMs": 107.48,
+      "identicalOutput": true
+    },
+    "mobile": {
+      "baselineMs": 121.53,
+      "optimizedMs": 110.23,
+      "identicalOutput": true
+    }
+  }
+}

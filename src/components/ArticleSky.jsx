@@ -1,3 +1,5 @@
+import { updateDepthConnector } from "../utils/depthConnector.js";
+import { createSkyProfile } from "../utils/skyProfile.js";
 import { resolveReadingBand } from "../utils/depthBands.js";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
@@ -91,15 +93,74 @@ function glowTexture() {
 }
 
 function DepthConnector({ item, registry }) {
-  const line = useRef(), dot = useRef();
+  const line = useRef(), dot = useRef(), previous = useRef({});
   React.useLayoutEffect(() => {
-    registry.current.set(item.id, { item, line:line.current, dot:dot.current });
+    registry.current.set(item.id, { item, line:line.current, dot:dot.current, previous:previous.current });
     return () => registry.current.delete(item.id);
   }, [item, registry]);
   return <svg className="star-connector" aria-hidden="true" width="1" height="1">
     <line ref={line} /><circle ref={dot} r="3" />
   </svg>;
 }
+
+const StarLabels=React.memo(function StarLabels({
+  labels,hovered,navigationId,focus,focusing,selected,compact,registry,events,pointerRevealed,
+}) {
+  return <>      {labels.map((item) => (
+        <Html
+          key={item.id}
+          position={item.position}
+          zIndexRange={[8, 1]}
+          calculatePosition={item.labelPlacement ? () => [item.labelPlacement.x, item.labelPlacement.y] : undefined}
+          style={{
+            pointerEvents:
+              !selected && !focusing && item.leavingAt === null ? "auto" : "none",
+            opacity: selected || item.leavingAt !== null ? 0 : 1 - focus,
+            transition: "opacity 0.45s ease",
+          }}
+        >
+          {item.labelPlacement ? <DepthConnector item={item} registry={registry} /> : (
+          <svg
+            className="star-connector"
+            aria-hidden="true"
+            width="1"
+            height="1"
+          >
+            <line
+              x1="0"
+              y1="0"
+              x2={
+                item.offsetX > 0
+                  ? item.offsetX
+                  : item.offsetX + (compact ? 156 : 198)
+              }
+              y2="0"
+            />
+            <circle cx="0" cy="0" r="3" />
+          </svg>
+          )}
+          <button
+            className={`star-label ${(hovered === item.id || navigationId === item.id) ? "is-active" : ""} ${pointerRevealed ? "is-pointer-revealed" : ""} ${item.leavingAt !== null ? "is-leaving" : ""}`}
+            data-article-star={item.id}
+            data-reading-band={item.bandIndex}
+            tabIndex={!selected && !focusing && item.leavingAt === null ? 0 : -1}
+            aria-hidden={!!selected || focusing || item.leavingAt !== null}
+            style={{
+              "--star-color": item.color,
+              left: item.labelPlacement ? 0 : item.offsetX,
+              top: item.labelPlacement ? 0 : item.offsetY,
+            }}
+            onFocus={event => events.current.focusLabel(item,event)}
+            onBlur={() => events.current.blurLabel()}
+            onClick={() => events.current.openLabel(item)}
+          >
+            <span>{TOPICS[item.topic].label}{item.starStyle?.invitation && <em className="star-invitation" title={item.starStyle.invitation}>{item.starStyle.invitation === "다시 발견한 기록" ? "다시 발견" : item.starStyle.invitation}</em>}</span>
+            <strong>{item.title}</strong>
+            <i aria-hidden="true">↗</i>
+          </button>
+        </Html>
+      ))}</>;
+});
 
 export default function ArticleSky({
   assemblyRef,
@@ -121,10 +182,14 @@ export default function ArticleSky({
   onDiagnostics,
 }) {
   const { gl, size } = useThree();
+  const profile = useMemo(() => import.meta.env.DEV && diagnostics &&
+    new URLSearchParams(window.location.search).has("profile") ? createSkyProfile() : null, [diagnostics]);
   const [labels, setLabels] = useState([]);
+  React.useLayoutEffect(() => profile?.labelCommit(), [labels, profile]);
   const labelState = useRef([]);
   const [hovered, setHovered] = useState(null);
   const candidates = useRef([]);
+  const events = useRef({});
   const pointer = useRef(null);
   const pointerLabel = useRef(null);
   const pointerLayout = useRef(0);
@@ -146,6 +211,14 @@ export default function ArticleSky({
       ),
     [articles, highlighted, compact],
   );
+  const bandIds = useMemo(() => {
+    const groups=new Map();
+    for(const item of articles){
+      if(!groups.has(item.bandIndex))groups.set(item.bandIndex,[]);
+      groups.get(item.bandIndex).push(item.id);
+    }
+    return groups;
+  }, [articles]);
   const glow = useMemo(glowTexture, []);
   useEffect(() => () => glow.dispose(), [glow]);
   const detail = clamp((progress - 0.06) / 0.34);
@@ -216,16 +289,11 @@ export default function ArticleSky({
   );
 
   useFrame(({ camera }, delta) => {
-    for (const {item,line,dot} of connectorRefs.current.values()) {
-      if (!line || !dot) continue;
-      connectorPoint.set(...item.position).project(camera);
-      const x=(connectorPoint.x+1)*size.width/2-item.labelPlacement.x;
-      const y=(1-connectorPoint.y)*size.height/2-item.labelPlacement.y;
-      const width=compact?156:198, height=compact?72:82;
-      line.setAttribute("x1",x); line.setAttribute("y1",y);
-      line.setAttribute("x2",x<width/2?0:width);
-      line.setAttribute("y2",Math.max(0,Math.min(height,y)));
-      dot.setAttribute("cx",x); dot.setAttribute("cy",y);
+    const profileStart=profile?.begin(progress > .12 && !selected) ?? null;
+    try {
+    for (const record of connectorRefs.current.values()) {
+      const writes=updateDepthConnector(record,camera,size,compact,connectorPoint);
+      profile?.write(writes);
     }
     uniforms.uOpacity.value = (1 - focus) * assemblyRef.current.departure.takeoff;
     uniforms.uTime.value = advanceAmbientTime(
@@ -238,7 +306,7 @@ export default function ArticleSky({
     if (diagnostics && tick.now - lastStats.current > 1) {
       const fps = Math.round(frames.current / (tick.now - lastStats.current));
       onDiagnostics(
-        `${fps} FPS · ${gl.info.render.calls} draws · ${articles.length} stars · ${candidates.current.length} pick targets`,
+        `${fps} FPS · ${gl.info.render.calls} draws · ${articles.length} stars · ${candidates.current.length} pick targets${profile ? " · " + profile.summary() : ""}`,
       );
       frames.current = 0;
       lastStats.current = tick.now;
@@ -294,7 +362,7 @@ export default function ArticleSky({
           size.height,
           compact,
           undefined,
-          articles.filter(item => item.bandIndex === readingBand.current).map(item => item.id),
+          bandIds.get(readingBand.current) || [],
           readSkyObstacles(
             gl.domElement.closest(".observatory"),
             gl.domElement.getBoundingClientRect(),
@@ -311,6 +379,7 @@ export default function ArticleSky({
     );
     labelState.current = next;
     setLabels((previous) => (sameStarLabels(previous, next) ? previous : next));
+    } finally { profile?.end(profileStart); }
   });
 
   useEffect(() => {
@@ -330,6 +399,7 @@ export default function ArticleSky({
   }, [sector.id, highlighted, articles, size.width, size.height, labelInteraction]);
   useEffect(() => {
     const canvas = gl.domElement;
+    profile?.bind();
     const hits = (event) => {
       const rect = canvas.getBoundingClientRect();
       return nearbyStars(
@@ -340,7 +410,7 @@ export default function ArticleSky({
       );
     };
     const click = (event) => {
-      if (inputRef.current.dragged || focusing) return;
+      if (inputRef.current.dragged || events.current.focusing) return;
       const nearby = hits(event);
       if (nearby.length) {
         const item = nearby[0];
@@ -349,13 +419,13 @@ export default function ArticleSky({
           labelInteraction.current.restored = false;
           pointerLabel.current = null;
           keyboardLabel.current = null;
-          onSeek(item);
-        } else openLabel(item);
+          events.current.onSeek(item);
+        } else events.current.openLabel(item);
       }
     };
     const surface = canvas.closest(".observatory") || canvas;
     const release = () => {
-      if (selected || labelInteraction.current.returnRequested) return;
+      if (events.current.selected || labelInteraction.current.returnRequested) return;
       labelInteraction.current.restored = false;
       pointerLabel.current = null;
       keyboardLabel.current = null;
@@ -367,11 +437,11 @@ export default function ArticleSky({
       labelInteraction.current.restored = false;
       pointerLabel.current = id;
       labelInteraction.current.locked = !!id;
-      labelInteraction.current.progress = progress;
+      labelInteraction.current.progress = events.current.progress;
       setHovered(id);
     };
     const move = (event) => {
-      if (selected || focusing) return;
+      if (events.current.selected || events.current.focusing) return;
       if (event.buttons || event.pointerType === "touch") {
         if (inputRef.current.dragged) release();
         return;
@@ -384,13 +454,13 @@ export default function ArticleSky({
       if (!id) setHovered(hits(event)[0]?.id || null);
     };
     const down = (event) => {
-      if (selected || focusing) return;
+      if (events.current.selected || events.current.focusing) return;
       const id = event.target.closest(".star-label")?.dataset.articleStar;
       if (id) activate(id);
       else release();
     };
     const leave = () => {
-      if (selected || labelInteraction.current.returnRequested) return;
+      if (events.current.selected || labelInteraction.current.returnRequested) return;
       pointer.current = null;
       release();
     };
@@ -412,7 +482,7 @@ export default function ArticleSky({
       surface.removeEventListener("pointercancel", release);
       surface.removeEventListener("wheel", wheel, true);
     };
-  }, [gl, compact, inputRef, onSelect, onNearby, focusing, selected, progress, labelInteraction, onSeek]);
+  }, [gl, compact, inputRef, labelInteraction, profile]);
   const openLabel = (item) => {
     // Pointer drags are filtered by the surface; keyboard activation stays valid.
     if (focusing) return;
@@ -423,6 +493,25 @@ export default function ArticleSky({
     labelInteraction.current.restored = false;
     setHovered(item.id);
     onSelect(item);
+  };
+  events.current = {
+    selected, focusing, progress, onSeek, openLabel,
+    focusLabel(item,event) {
+      if (!event.currentTarget.matches(":focus-visible")) return;
+      labelInteraction.current.restored=false;
+      keyboardLabel.current=item.id;
+      labelInteraction.current.locked=true;
+      labelInteraction.current.progress=progress;
+      setHovered(item.id);
+    },
+    blurLabel() {
+      if(labelInteraction.current.returnRequested)return;
+      labelInteraction.current.restored=false;
+      keyboardLabel.current=null;
+      pointerLabel.current=null;
+      labelInteraction.current.locked=false;
+      setHovered(null);
+    },
   };
   return (
     <group>
@@ -474,74 +563,9 @@ export default function ArticleSky({
           />
         </sprite>
       ))}
-      {labels.map((item) => (
-        <Html
-          key={item.id}
-          position={item.position}
-          zIndexRange={[8, 1]}
-          calculatePosition={item.labelPlacement ? () => [item.labelPlacement.x, item.labelPlacement.y] : undefined}
-          style={{
-            pointerEvents:
-              !selected && !focusing && item.leavingAt === null ? "auto" : "none",
-            opacity: selected || item.leavingAt !== null ? 0 : 1 - focus,
-            transition: "opacity 0.45s ease",
-          }}
-        >
-          {item.labelPlacement ? <DepthConnector item={item} registry={connectorRefs} /> : (
-          <svg
-            className="star-connector"
-            aria-hidden="true"
-            width="1"
-            height="1"
-          >
-            <line
-              x1="0"
-              y1="0"
-              x2={
-                item.offsetX > 0
-                  ? item.offsetX
-                  : item.offsetX + (compact ? 156 : 198)
-              }
-              y2="0"
-            />
-            <circle cx="0" cy="0" r="3" />
-          </svg>
-          )}
-          <button
-            className={`star-label ${(hovered === item.id || navigation?.id === item.id) ? "is-active" : ""} ${pointer.current ? "is-pointer-revealed" : ""} ${item.leavingAt !== null ? "is-leaving" : ""}`}
-            data-article-star={item.id}
-            data-reading-band={item.bandIndex}
-            tabIndex={!selected && !focusing && item.leavingAt === null ? 0 : -1}
-            aria-hidden={!!selected || focusing || item.leavingAt !== null}
-            style={{
-              "--star-color": item.color,
-              left: item.labelPlacement ? 0 : item.offsetX,
-              top: item.labelPlacement ? 0 : item.offsetY,
-            }}
-            onFocus={(event) => {
-              if (!event.currentTarget.matches(":focus-visible")) return;
-              labelInteraction.current.restored = false;
-              keyboardLabel.current = item.id;
-              labelInteraction.current.locked = true;
-              labelInteraction.current.progress = progress;
-              setHovered(item.id);
-            }}
-            onBlur={() => {
-              if (labelInteraction.current.returnRequested) return;
-              labelInteraction.current.restored = false;
-              keyboardLabel.current = null;
-              pointerLabel.current = null;
-              labelInteraction.current.locked = false;
-              setHovered(null);
-            }}
-            onClick={() => openLabel(item)}
-          >
-            <span>{TOPICS[item.topic].label}{item.starStyle?.invitation && <em className="star-invitation" title={item.starStyle.invitation}>{item.starStyle.invitation === "다시 발견한 기록" ? "다시 발견" : item.starStyle.invitation}</em>}</span>
-            <strong>{item.title}</strong>
-            <i aria-hidden="true">↗</i>
-          </button>
-        </Html>
-      ))}
+      <StarLabels labels={labels} hovered={hovered} navigationId={navigation?.id}
+        focus={focus} focusing={focusing} selected={!!selected} compact={compact}
+        registry={connectorRefs} events={events} pointerRevealed={!!pointer.current} />
     </group>
   );
 }

@@ -139,8 +139,10 @@ export function sameStarLabels(a, b) {
       (item, i) =>
         item.id === b[i].id &&
         item.leavingAt === b[i].leavingAt &&
-        item.offsetX === b[i].offsetX &&
-        item.offsetY === b[i].offsetY &&
+        !!item.labelPlacement === !!b[i].labelPlacement &&
+        (item.labelPlacement && b[i].labelPlacement
+          ? item.labelPlacement.x === b[i].labelPlacement.x && item.labelPlacement.y === b[i].labelPlacement.y
+          : item.offsetX === b[i].offsetX && item.offsetY === b[i].offsetY) &&
         item.position === b[i].position,
     )
   );

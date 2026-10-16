@@ -91,7 +91,7 @@ test("decorative motion does not mutate article coordinates or intercept picking
     sky,
     /advanceAmbientTime\(\s*uniforms\.uTime\.value,\s*delta,\s*paused,?\s*\)/,
   );
-  assert.match(sky, /if \(inputRef\.current\.dragged \|\| focusing\) return/);
+  assert.match(sky, /if \(inputRef\.current\.dragged \|\| events\.current\.focusing\) return/);
   assert.match(sky, /aria-hidden=\{!!selected \|\| focusing \|\| item\.leavingAt !== null\}/);
 });
 
