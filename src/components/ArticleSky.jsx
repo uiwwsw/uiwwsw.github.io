@@ -1,3 +1,4 @@
+import { resolveReadingBand } from "../utils/depthBands.js";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
 import { Html } from "@react-three/drei";
@@ -9,7 +10,6 @@ import {
 } from "../utils/observatory.js";
 import {
   nearbyStars,
-  pointerStarPriority,
   packStarLabels,
   pickBudget,
   transitionStarLabels,
@@ -90,6 +90,17 @@ function glowTexture() {
   return new THREE.CanvasTexture(canvas);
 }
 
+function DepthConnector({ item, registry }) {
+  const line = useRef(), dot = useRef();
+  React.useLayoutEffect(() => {
+    registry.current.set(item.id, { item, line:line.current, dot:dot.current });
+    return () => registry.current.delete(item.id);
+  }, [item, registry]);
+  return <svg className="star-connector" aria-hidden="true" width="1" height="1">
+    <line ref={line} /><circle ref={dot} r="3" />
+  </svg>;
+}
+
 export default function ArticleSky({
   assemblyRef,
   labelInteraction,
@@ -100,6 +111,8 @@ export default function ArticleSky({
   selected,
   highlighted,
   onSelect,
+  onSeek,
+  navigation,
   onNearby,
   inputRef,
   compact,
@@ -117,6 +130,9 @@ export default function ArticleSky({
   const pointerLayout = useRef(0);
   const layoutMemory = useRef(createStarLabelMemory());
   const keyboardLabel = useRef(null);
+  const readingBand = useRef(null);
+  const connectorRefs = useRef(new Map());
+  const connectorPoint = useMemo(() => new THREE.Vector3(), []);
   const updateClock = useRef(createStarUpdateClock());
   const frames = useRef(0);
   const lastStats = useRef(0);
@@ -167,9 +183,9 @@ export default function ArticleSky({
     uniforms.uSize.value = size.height * gl.getPixelRatio() * 0.8;
     uniforms.uDetail.value = detail;
     uniforms.uFocus.value = articles.findIndex(
-      (article) => article.id === (selected?.id || hovered),
+      (article) => article.id === (selected?.id || hovered || navigation?.id),
     );
-  }, [uniforms, size.height, gl, detail, articles, selected?.id, hovered]);
+  }, [uniforms, size.height, gl, detail, articles, selected?.id, hovered, navigation?.id]);
   const clouds = useMemo(
     () =>
       Object.entries(TOPICS).flatMap(([topic, info]) => {
@@ -200,6 +216,17 @@ export default function ArticleSky({
   );
 
   useFrame(({ camera }, delta) => {
+    for (const {item,line,dot} of connectorRefs.current.values()) {
+      if (!line || !dot) continue;
+      connectorPoint.set(...item.position).project(camera);
+      const x=(connectorPoint.x+1)*size.width/2-item.labelPlacement.x;
+      const y=(1-connectorPoint.y)*size.height/2-item.labelPlacement.y;
+      const width=compact?156:198, height=compact?72:82;
+      line.setAttribute("x1",x); line.setAttribute("y1",y);
+      line.setAttribute("x2",x<width/2?0:width);
+      line.setAttribute("y2",Math.max(0,Math.min(height,y)));
+      dot.setAttribute("cx",x); dot.setAttribute("cy",y);
+    }
     uniforms.uOpacity.value = (1 - focus) * assemblyRef.current.departure.takeoff;
     uniforms.uTime.value = advanceAmbientTime(
       uniforms.uTime.value,
@@ -222,6 +249,10 @@ export default function ArticleSky({
       pointerLabel.current = null;
       keyboardLabel.current = null;
     }
+    // Use the actual camera depth, not its scroll target, during a flight.
+    const viewProgress = clamp((32 + sector.origin[2] - camera.position.z) / 160);
+    readingBand.current = resolveReadingBand(viewProgress, articles[0]?.bandCount || 1, readingBand.current);
+    if (navigation?.moving) labelInteraction.current.locked = false;
     const readable = progress > 0.12 && !selected && !focusing;
     // Reading stars are an overlay, including where the Earth lies behind them.
     // Keep hit testing consistent with the depth-independent point material.
@@ -253,16 +284,17 @@ export default function ArticleSky({
     const activeId = keyboardLabel.current || pointerLabel.current;
     const visible = readable
       ? packStarLabels(
-          projected.map((item) => layoutMemory.current.apply(item)),
+          projected.filter(item => item.bandIndex === readingBand.current)
+            .sort((a,b) => a.slotIndex-b.slotIndex)
+            .map(item => item.labelPlacement ? {
+              ...item, offsetX:item.labelPlacement.x-item.x,
+              offsetY:item.labelPlacement.y-item.y,
+            } : layoutMemory.current.apply(item)),
           size.width,
           size.height,
           compact,
           undefined,
-          pointer.current
-            ? pointerStarPriority(projected, pointer.current, [
-                activeId,
-              ])
-            : [activeId, hovered, ...labelState.current.map((item) => item.id)].filter(Boolean),
+          articles.filter(item => item.bandIndex === readingBand.current).map(item => item.id),
           readSkyObstacles(
             gl.domElement.closest(".observatory"),
             gl.domElement.getBoundingClientRect(),
@@ -275,7 +307,7 @@ export default function ArticleSky({
       labelState.current,
       visible,
       tick.now,
-      paused || !!selected || !!pointer.current,
+      paused,
     );
     labelState.current = next;
     setLabels((previous) => (sameStarLabels(previous, next) ? previous : next));
@@ -287,6 +319,7 @@ export default function ArticleSky({
     pointerLabel.current = null;
     labelState.current = [];
     layoutMemory.current.clear();
+    readingBand.current = null;
     keyboardLabel.current = null;
     labelInteraction.current.locked = false;
     labelInteraction.current.returnRequested = false;
@@ -309,8 +342,16 @@ export default function ArticleSky({
     const click = (event) => {
       if (inputRef.current.dragged || focusing) return;
       const nearby = hits(event);
-      if (nearby.length > 1) onNearby(nearby);
-      else if (nearby.length === 1) openLabel(nearby[0]);
+      if (nearby.length) {
+        const item = nearby[0];
+        if (item.bandIndex !== readingBand.current) {
+          labelInteraction.current.locked = false;
+          labelInteraction.current.restored = false;
+          pointerLabel.current = null;
+          keyboardLabel.current = null;
+          onSeek(item);
+        } else openLabel(item);
+      }
     };
     const surface = canvas.closest(".observatory") || canvas;
     const release = () => {
@@ -371,7 +412,7 @@ export default function ArticleSky({
       surface.removeEventListener("pointercancel", release);
       surface.removeEventListener("wheel", wheel, true);
     };
-  }, [gl, compact, inputRef, onSelect, onNearby, focusing, selected, progress, labelInteraction]);
+  }, [gl, compact, inputRef, onSelect, onNearby, focusing, selected, progress, labelInteraction, onSeek]);
   const openLabel = (item) => {
     // Pointer drags are filtered by the surface; keyboard activation stays valid.
     if (focusing) return;
@@ -438,6 +479,7 @@ export default function ArticleSky({
           key={item.id}
           position={item.position}
           zIndexRange={[8, 1]}
+          calculatePosition={item.labelPlacement ? () => [item.labelPlacement.x, item.labelPlacement.y] : undefined}
           style={{
             pointerEvents:
               !selected && !focusing && item.leavingAt === null ? "auto" : "none",
@@ -445,6 +487,7 @@ export default function ArticleSky({
             transition: "opacity 0.45s ease",
           }}
         >
+          {item.labelPlacement ? <DepthConnector item={item} registry={connectorRefs} /> : (
           <svg
             className="star-connector"
             aria-hidden="true"
@@ -463,15 +506,17 @@ export default function ArticleSky({
             />
             <circle cx="0" cy="0" r="3" />
           </svg>
+          )}
           <button
-            className={`star-label ${hovered === item.id ? "is-active" : ""} ${pointer.current ? "is-pointer-revealed" : ""} ${item.leavingAt !== null ? "is-leaving" : ""}`}
+            className={`star-label ${(hovered === item.id || navigation?.id === item.id) ? "is-active" : ""} ${pointer.current ? "is-pointer-revealed" : ""} ${item.leavingAt !== null ? "is-leaving" : ""}`}
             data-article-star={item.id}
+            data-reading-band={item.bandIndex}
             tabIndex={!selected && !focusing && item.leavingAt === null ? 0 : -1}
             aria-hidden={!!selected || focusing || item.leavingAt !== null}
             style={{
               "--star-color": item.color,
-              left: item.offsetX,
-              top: item.offsetY,
+              left: item.labelPlacement ? 0 : item.offsetX,
+              top: item.labelPlacement ? 0 : item.offsetY,
             }}
             onFocus={(event) => {
               if (!event.currentTarget.matches(":focus-visible")) return;

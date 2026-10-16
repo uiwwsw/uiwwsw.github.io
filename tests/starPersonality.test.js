@@ -38,9 +38,9 @@ test('irregular pockets keep every article in the forward route across visits an
   for (const [width,height] of [[320,568],[390,844],[1440,900],[844,390]]) {
     const compact=width<=760;
     for (const seed of [1,42,100,0xffffffff]) {
-      const stars=corridorStars(catalog,{id:'home',origin:[0,0,0]},compact,seed);
+      const stars=corridorStars(catalog,{id:'home',origin:[0,0,0]},compact,seed,{width,height});
       stars.forEach((star,i)=>{
-        const pose=flightPose(.16+i/95*.82,compact);
+        const pose=flightPose(star.readAt,compact);
         const camera=new PerspectiveCamera(compact?58:46,width/height,.1,650);
         camera.position.set(...pose.position); camera.lookAt(...pose.target); camera.updateMatrixWorld();
         assert.ok(project(star,camera,width,height),`${width}/${seed}/${i} stays discoverable`);

@@ -164,11 +164,10 @@ test("the ordinary Moon–Earth route exposes real titles without requiring side
         index.articles,
         index.sectors,
         seed,
-      ).filter((a) => a.sectorId === "home"), index.sectors.find(s => s.id === "home"), compact);
+      ).filter((a) => a.sectorId === "home"), index.sectors.find(s => s.id === "home"), compact, 0, {width,height});
       const discovered = new Set();
       let emptySamples = 0;
-      for (let i = 1; i <= 18; i++) {
-        const progress = 0.1 + i * 0.05;
+      for (const progress of [...new Set(articles.map(a => a.readAt))]) {
         const camera = new PerspectiveCamera(
           compact ? 58 : 46,
           width / height,
@@ -192,7 +191,7 @@ test("the ordinary Moon–Earth route exposes real titles without requiring side
           .map((a) => project(a, camera, width, height))
           .filter(Boolean)
           .sort((a, b) => a.distance - b.distance);
-        const labels = packStarLabels(projected, width, height, compact);
+        const labels = packStarLabels(projected.filter(a => a.readAt === progress).map(a => ({...a,...a.labelPlacement})), width, height, compact, undefined, [], []);
         if (!labels.length) emptySamples++;
         labels.forEach((a) => discovered.add(a.id));
       }

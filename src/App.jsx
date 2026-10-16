@@ -19,6 +19,7 @@ import {
 import "./index.css";
 import { createFlightInput, centerFlightInput } from "./utils/flightInput.js";
 import { useFlightInput } from "./hooks/useFlightInput.js";
+import { useStarNavigation } from "./hooks/useStarNavigation.js";
 import { useFlightMotion } from "./hooks/useFlightMotion.js";
 import { useIdleFlightGuide } from "./hooks/useIdleFlightGuide.js";
 import SecretSignal from "./components/SecretSignal";
@@ -106,6 +107,9 @@ export default function App({ initialHome, visitSeed = 0 } = {}) {
     enabled: !panel && !pageHidden,
     reducedMotion: reducedMotion || motionPaused,
     allowSignal: sectorId === "home",
+  });
+  const { navigation, seek: seekStar, cancel: cancelStarNavigation } = useStarNavigation({
+    distance, setDistance, enabled: !panel && !pageHidden && !motionPaused && !sceneError, reducedMotion: reducedMotion || motionPaused,
   });
   const progress = clamp(distance);
   const scrollTravel = useCallback((delta) => {
@@ -231,6 +235,14 @@ export default function App({ initialHome, visitSeed = 0 } = {}) {
     setCruising(false);
     if (!preserveJourney) setDistance((current) => clamp(current, 0.35, 1));
   }, []);
+  const navigateToStar = useCallback((article) => {
+    centerFlightInput(inputRef.current);
+    setCruising(false);
+    setGuideRequested(false);
+    entryRef.current = 1;
+    setEntry(1);
+    seekStar(article);
+  }, [seekStar]);
   const selectSkyArticle = useCallback((article) => selectArticle(article, true), [selectArticle]);
   const followArticle = (event, article) => {
     if (!plainNavigation(event)) return;
@@ -245,6 +257,7 @@ export default function App({ initialHome, visitSeed = 0 } = {}) {
     setSelected(null);
   }, []);
   const returnHome = useCallback(() => {
+    cancelStarNavigation();
     setSectorId("home");
     setYear("all");
     centerFlightInput(inputRef.current);
@@ -260,6 +273,7 @@ export default function App({ initialHome, visitSeed = 0 } = {}) {
     setCodeOnly(false);
   }, []);
   const beginJourney = useCallback(() => {
+    cancelStarNavigation();
     setGuideRequested(false);
     setSectorId("home");
     centerFlightInput(inputRef.current);
@@ -271,6 +285,7 @@ export default function App({ initialHome, visitSeed = 0 } = {}) {
     setCruising(false);
   }, [reducedMotion, motionPaused]);
   const visitSector = useCallback((id) => {
+    cancelStarNavigation();
     setGuideRequested(false);
     centerFlightInput(inputRef.current);
     setSectorId(id);
@@ -361,6 +376,7 @@ export default function App({ initialHome, visitSeed = 0 } = {}) {
     if (progress >= 1) setCruising(false);
   }, [progress]);
   const manualInput = useCallback(() => {
+    cancelStarNavigation();
     inputRef.current.interacted = true;
     setGuideRequested(false);
     setCruising(false);
@@ -493,7 +509,7 @@ export default function App({ initialHome, visitSeed = 0 } = {}) {
         if (!event.target.closest(".flight-help")) setGuideRequested(false);
       }}
       onWheelCapture={() => setGuideRequested(false)}
-      className={`observatory ${cinematic ? "is-cinematic" : ""} ${exploring ? "is-exploring" : ""} ${sceneReady ? "scene-ready" : ""} ${assembled ? "has-assembled" : ""} ${focusingEarth ? "is-earth-focused" : ""}`}
+      className={`observatory ${navigation ? "has-star-destination" : ""} ${cinematic ? "is-cinematic" : ""} ${exploring ? "is-exploring" : ""} ${sceneReady ? "scene-ready" : ""} ${assembled ? "has-assembled" : ""} ${focusingEarth ? "is-earth-focused" : ""}`}
       data-reduced-motion={reducedMotion}
       data-sky-visit={clientReady ? visitSeed : undefined}
       style={{ "--earth-focus": earthFocus }}
@@ -544,6 +560,8 @@ export default function App({ initialHome, visitSeed = 0 } = {}) {
                 selected={selected}
                 highlighted={highlighted}
                 onSelect={selectSkyArticle}
+                onSeek={navigateToStar}
+                navigation={navigation}
                 paused={paused}
                 reducedMotion={reducedMotion}
                 compact={compact}
@@ -567,6 +585,11 @@ export default function App({ initialHome, visitSeed = 0 } = {}) {
             {ambientStats}
           </output>
         )}
+      {navigation && !panel && <aside className="star-navigation-status" role="status">
+        <span>{navigation.moving ? "별을 향해 이동 중" : "도착했어요 · 제목을 눌러 읽기"}</span>
+        <strong>{navigation.title}</strong>
+        {navigation.moving && <button onClick={cancelStarNavigation}>이동 멈추기</button>}
+      </aside>}
       <div className="scene-shade" aria-hidden="true" />
       <p className="screen-reader-only" role="status">
         {signal >= 1
