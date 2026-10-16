@@ -362,7 +362,8 @@ export default function ArticleSky({
     };
   }, [gl, compact, inputRef, onSelect, onNearby, focusing, selected, progress, labelInteraction]);
   const openLabel = (item) => {
-    if (focusing || inputRef.current.dragged) return;
+    // Pointer drags are filtered by the surface; keyboard activation stays valid.
+    if (focusing) return;
     pointerLabel.current = item.id;
     labelInteraction.current.locked = true;
     labelInteraction.current.progress = progress;
