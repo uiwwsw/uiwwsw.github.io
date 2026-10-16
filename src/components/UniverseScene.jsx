@@ -219,7 +219,6 @@ function CameraRig({
   earthFocusRef,
   assemblyRef,
   labelInteraction,
-  navigation,
 }) {
   const { camera } = useThree();
   const look = useRef(new THREE.Vector3(...flightPose(0, compact).target));
@@ -267,8 +266,7 @@ function CameraRig({
   }, [sector.id]);
   useFrame((_, delta) => {
     const dt = Math.min(delta, 0.05);
-    // A title under the pointer/finger is a reading target, not a moving camera.
-    if (!selected && !navigation?.moving && labelInteraction.current.locked && labelInteraction.current.progress === progress) return;
+    // Labels hold their screen slots while the camera keeps drifting/flying.
     relaxFlightLook(inputRef.current, dt);
     // The scroll timeline owns the landing camera; idle sway begins in flight.
     drift.current = advanceAmbientTime(
@@ -518,7 +516,6 @@ export default function UniverseScene({
         onDiagnostics={onDiagnostics}
       />
       <CameraRig
-        navigation={navigation}
         labelInteraction={labelInteraction}
         assemblyRef={assemblyRef}
         earthFocusRef={earthFocusRef}
