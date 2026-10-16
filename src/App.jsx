@@ -330,7 +330,7 @@ export default function App({ initialHome, visitSeed = 0 } = {}) {
     if (!locationReady) return;
     const params = new URLSearchParams();
     if (import.meta.env.DEV)
-      for (const key of ["stress", "webgl", "motion", "ambient"])
+      for (const key of ["stress", "webgl", "motion", "ambient", "profile"])
         if (initialParams.has(key)) params.set(key, initialParams.get(key));
     if (query) params.set("q", query);
     if (topic !== "all") params.set("topic", topic);
@@ -375,6 +375,17 @@ export default function App({ initialHome, visitSeed = 0 } = {}) {
   useEffect(() => {
     if (progress >= 1) setCruising(false);
   }, [progress]);
+  useEffect(() => {
+    if (!import.meta.env.DEV || !initialParams.has("profile") || !sceneReady || entry < 1 || panel) return;
+    let frame, step=0;
+    const tick=()=>{
+      setDistance(.16 + .2 * (1 - Math.cos(step / 60 * Math.PI / 4)));
+      step++;
+      if(step<=780)frame=requestAnimationFrame(tick);
+    };
+    frame=requestAnimationFrame(tick);
+    return ()=>cancelAnimationFrame(frame);
+  }, [sceneReady, entry >= 1, panel]);
   const manualInput = useCallback(() => {
     cancelStarNavigation();
     inputRef.current.interacted = true;

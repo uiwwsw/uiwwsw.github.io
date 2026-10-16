@@ -29,8 +29,13 @@ export function createStarProjector() {
   return (item, camera, width, height, planet, radius, target) => {
     view.set(...item.position).applyMatrix4(camera.matrixWorldInverse);
     const depth = -view.z;
+    // The edge fade can only decrease alpha. Reject depth-invisible points
+    // before the perspective divide; the surviving math stays identical.
+    const depthVisibility = smooth(...STAR_NEAR, depth) * (1 - smooth(...STAR_FAR, depth));
+    if (depthVisibility < STAR_PICK_ALPHA) return null;
     ndc.copy(view).applyMatrix4(camera.projectionMatrix);
-    const visibility = starVisibility(depth, ndc.x, ndc.y);
+    const visibility = depthVisibility *
+      (1 - smooth(...STAR_EDGE, Math.max(Math.abs(ndc.x), Math.abs(ndc.y))));
     if (
       ndc.z < -1 ||
       ndc.z > 1 ||

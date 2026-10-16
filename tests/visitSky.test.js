@@ -237,7 +237,7 @@ test("client entry chooses once outside React and reading/URL updates retain the
     readFileSync(new URL(`../${path}`, import.meta.url), "utf8");
   assert.match(
     read("src/main.jsx"),
-    /const visitSeed = beginSkyVisit\(window\)/,
+    /const visitSeed = [^;]+beginSkyVisit\(window\)/,
   );
   assert.match(
     read("src/main.jsx"),
