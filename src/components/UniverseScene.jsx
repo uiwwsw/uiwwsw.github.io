@@ -218,10 +218,35 @@ function CameraRig({
   sector,
   earthFocusRef,
   assemblyRef,
+  labelInteraction,
 }) {
   const { camera } = useThree();
   const look = useRef(new THREE.Vector3(...flightPose(0, compact).target));
   const drift = useRef(0);
+  const returnView = useRef(null);
+  useLayoutEffect(() => {
+    if (selected && labelInteraction.current.returnRequested && !returnView.current) {
+      returnView.current = {
+        position: camera.position.clone(), quaternion: camera.quaternion.clone(),
+        look: look.current.clone(), fov: camera.fov, sector: sector.id, progress,
+      };
+    } else if (!selected && returnView.current) {
+      const saved = returnView.current;
+      if (saved.sector === sector.id && saved.progress === progress) {
+        camera.position.copy(saved.position);
+        camera.quaternion.copy(saved.quaternion);
+        look.current.copy(saved.look);
+        camera.fov = saved.fov;
+        camera.updateProjectionMatrix();
+        camera.updateMatrixWorld();
+        labelInteraction.current.restored = true;
+      } else {
+        labelInteraction.current.locked = false;
+      }
+      returnView.current = null;
+      labelInteraction.current.returnRequested = false;
+    }
+  }, [selected, camera, sector.id, labelInteraction]);
   useEffect(() => {
     camera.fov = compact ? 58 : 46;
     camera.updateProjectionMatrix();
@@ -241,6 +266,8 @@ function CameraRig({
   }, [sector.id]);
   useFrame((_, delta) => {
     const dt = Math.min(delta, 0.05);
+    // A title under the pointer/finger is a reading target, not a moving camera.
+    if (!selected && labelInteraction.current.locked && labelInteraction.current.progress === progress) return;
     relaxFlightLook(inputRef.current, dt);
     // The scroll timeline owns the landing camera; idle sway begins in flight.
     drift.current = advanceAmbientTime(
@@ -362,6 +389,7 @@ export default function UniverseScene({
   const earthFocusRef = useRef(new THREE.Vector3());
   const assetsReady = useRef(false);
   const assemblyRef = useRef(createWorldAssembly(compact));
+  const labelInteraction = useRef({ locked: false, returnRequested: false });
   const planetPositionRef = useRef(
     new THREE.Vector3(...earthPosition(compact)),
   );
@@ -459,6 +487,7 @@ export default function UniverseScene({
         <SceneReady assetsReady={assetsReady} />
       </Suspense>
       <ArticleSky
+        labelInteraction={labelInteraction}
         assemblyRef={assemblyRef}
         planetPositionRef={planetPositionRef}
         paused={paused}
@@ -476,6 +505,7 @@ export default function UniverseScene({
         onDiagnostics={onDiagnostics}
       />
       <CameraRig
+        labelInteraction={labelInteraction}
         assemblyRef={assemblyRef}
         earthFocusRef={earthFocusRef}
         sector={sector}

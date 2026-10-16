@@ -222,15 +222,16 @@ export default function App({ initialHome, visitSeed = 0 } = {}) {
     };
   }, []);
 
-  const selectArticle = useCallback((article) => {
+  const selectArticle = useCallback((article, preserveJourney = false) => {
     setGuideRequested(false);
     setSectorId(article.sectorId || "home");
     setNearby([]);
     setSelected(article);
     setPanel("article");
     setCruising(false);
-    setDistance((current) => clamp(current, 0.35, 1));
+    if (!preserveJourney) setDistance((current) => clamp(current, 0.35, 1));
   }, []);
+  const selectSkyArticle = useCallback((article) => selectArticle(article, true), [selectArticle]);
   const followArticle = (event, article) => {
     if (!plainNavigation(event)) return;
     const loadedArticle = articles.find((item) => item.id === article.id);
@@ -542,7 +543,7 @@ export default function App({ initialHome, visitSeed = 0 } = {}) {
                 signal={signal}
                 selected={selected}
                 highlighted={highlighted}
-                onSelect={selectArticle}
+                onSelect={selectSkyArticle}
                 paused={paused}
                 reducedMotion={reducedMotion}
                 compact={compact}

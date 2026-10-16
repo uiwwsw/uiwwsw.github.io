@@ -92,7 +92,7 @@ test("decorative motion does not mutate article coordinates or intercept picking
     /advanceAmbientTime\(\s*uniforms\.uTime\.value,\s*delta,\s*paused,?\s*\)/,
   );
   assert.match(sky, /if \(inputRef\.current\.dragged \|\| focusing\) return/);
-  assert.match(sky, /aria-hidden=\{focusing \|\| item\.leavingAt !== null\}/);
+  assert.match(sky, /aria-hidden=\{!!selected \|\| focusing \|\| item\.leavingAt !== null\}/);
 });
 
 test("idle dust has visible-scale motion in both opening camera frustums", () => {
