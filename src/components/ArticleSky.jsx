@@ -15,6 +15,7 @@ import {
   transitionStarLabels,
   sameStarLabels,
   createStarLabelMemory,
+  approachingStarLabel,
 } from "../utils/starSelection.js";
 import {
   STAR_NEAR,
@@ -240,6 +241,15 @@ export default function ArticleSky({
     // Keep the actual DOM/layout alive behind the reader. Closing it restores
     // this same set instead of packing against the article-focused camera.
     if (selected || labelInteraction.current.restored) return;
+    if (pointer.current && !keyboardLabel.current && !focusing) {
+      const intent = approachingStarLabel(labelState.current, pointer.current, pointerLabel.current, compact);
+      if (intent !== pointerLabel.current) {
+        pointerLabel.current = intent;
+        labelInteraction.current.locked = !!intent;
+        labelInteraction.current.progress = progress;
+        if (intent) setHovered(intent);
+      }
+    }
     const activeId = keyboardLabel.current || pointerLabel.current;
     const visible = readable
       ? packStarLabels(
@@ -327,7 +337,8 @@ export default function ArticleSky({
       }
       const rect = canvas.getBoundingClientRect();
       pointer.current = { x: event.clientX - rect.left, y: event.clientY - rect.top };
-      const id = event.target.closest(".star-label")?.dataset.articleStar || null;
+      const id = event.target.closest(".star-label")?.dataset.articleStar ||
+        approachingStarLabel(labelState.current, pointer.current, pointerLabel.current, compact);
       activate(id);
       if (!id) setHovered(hits(event)[0]?.id || null);
     };

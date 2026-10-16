@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { packStarLabels, createStarLabelMemory, transitionStarLabels } from '../src/utils/starSelection.js';
+import { packStarLabels, createStarLabelMemory, transitionStarLabels, approachingStarLabel } from '../src/utils/starSelection.js';
 
 test('an active label keeps its placement and reserves its rectangle before new neighbors', () => {
   const active={id:'reading',x:400,y:300,offsetX:-210,offsetY:-82};
@@ -42,4 +42,19 @@ test('remembered placements adapt safely to a smaller viewport',()=>{
   const labels=packStarLabels([memory.apply({id:'a',x:30,y:400})],390,844,true,undefined,[],[]);
   assert.equal(labels.length,1);
   assert.ok(labels[0].rect.x>=12 && labels[0].rect.x+156<=378);
+});
+
+
+test('approaching a title protects it before hover and uses a wider exit boundary',()=>{
+  const labels=[
+    {id:'a',rect:{x:200,y:200,width:198,height:82},leavingAt:null},
+    {id:'b',rect:{x:500,y:200,width:198,height:82},leavingAt:null},
+    {id:'fading',rect:{x:100,y:100,width:198,height:82},leavingAt:1},
+  ];
+  assert.equal(approachingStarLabel(labels,{x:170,y:240},null),'a');
+  assert.equal(approachingStarLabel(labels,{x:120,y:240},'a'),'a');
+  assert.equal(approachingStarLabel(labels,{x:100,y:240},'a'),null);
+  assert.equal(approachingStarLabel(labels,{x:530,y:240},'a'),'b');
+  assert.equal(approachingStarLabel(labels,{x:110,y:110},null),null);
+  assert.equal(approachingStarLabel(labels,{x:180,y:240},null,true),'a');
 });

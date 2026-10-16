@@ -178,3 +178,21 @@ export function createStarLabelMemory() {
     clear() { placements.clear(); },
   };
 }
+
+// Protect the title the user is approaching before the pointer reaches its
+// button. A larger exit radius avoids flicker at the edge of this intent area.
+export function approachingStarLabel(labels, pointer, currentId, compact = false) {
+  const distance = item => {
+    const r = item.rect;
+    if (!r || item.leavingAt != null) return Infinity;
+    return Math.hypot(
+      Math.max(r.x - pointer.x, 0, pointer.x - r.x - r.width),
+      Math.max(r.y - pointer.y, 0, pointer.y - r.y - r.height),
+    );
+  };
+  const current = labels.find(item => item.id === currentId);
+  if (current && distance(current) <= (compact ? 56 : 88)) return current.id;
+  const nearest = labels.map(item => ({id:item.id,distance:distance(item)}))
+    .sort((a,b) => a.distance-b.distance)[0];
+  return nearest && nearest.distance <= (compact ? 28 : 48) ? nearest.id : null;
+}
