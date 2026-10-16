@@ -798,6 +798,7 @@ button {
   font-size: 12px;
 }
 .star-label:hover,
+.star-label.is-active,
 .star-label.is-selected {
   background: #142236e6;
 }

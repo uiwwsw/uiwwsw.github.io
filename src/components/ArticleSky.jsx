@@ -14,6 +14,7 @@ import {
   pickBudget,
   transitionStarLabels,
   sameStarLabels,
+  createStarLabelMemory,
 } from "../utils/starSelection.js";
 import {
   STAR_NEAR,
@@ -90,6 +91,7 @@ function glowTexture() {
 
 export default function ArticleSky({
   assemblyRef,
+  labelInteraction,
   articles,
   paused,
   focus = 0,
@@ -112,6 +114,8 @@ export default function ArticleSky({
   const pointer = useRef(null);
   const pointerLabel = useRef(null);
   const pointerLayout = useRef(0);
+  const layoutMemory = useRef(createStarLabelMemory());
+  const keyboardLabel = useRef(null);
   const updateClock = useRef(createStarUpdateClock());
   const frames = useRef(0);
   const lastStats = useRef(0);
@@ -211,6 +215,12 @@ export default function ArticleSky({
       frames.current = 0;
       lastStats.current = tick.now;
     }
+    if ((labelInteraction.current.locked || labelInteraction.current.restored) && labelInteraction.current.progress !== progress) {
+      labelInteraction.current.restored = false;
+      labelInteraction.current.locked = false;
+      pointerLabel.current = null;
+      keyboardLabel.current = null;
+    }
     const readable = progress > 0.12 && !selected && !focusing;
     // Reading stars are an overlay, including where the Earth lies behind them.
     // Keep hit testing consistent with the depth-independent point material.
@@ -227,30 +237,30 @@ export default function ArticleSky({
     // Picking stays current on every interactive frame, without rebuilding
     // metadata/arrays. Only label layout runs at 5 Hz.
     if (!tick.layout) return;
-    const previous = new Map(labelState.current.map((item) => [item.id, item]));
+    // Keep the actual DOM/layout alive behind the reader. Closing it restores
+    // this same set instead of packing against the article-focused camera.
+    if (selected || labelInteraction.current.restored) return;
+    const activeId = keyboardLabel.current || pointerLabel.current;
     const visible = readable
       ? packStarLabels(
-          projected.map((item) => ({
-            ...item,
-            offsetX: previous.get(item.id)?.offsetX,
-            offsetY: previous.get(item.id)?.offsetY,
-          })),
+          projected.map((item) => layoutMemory.current.apply(item)),
           size.width,
           size.height,
           compact,
           undefined,
           pointer.current
             ? pointerStarPriority(projected, pointer.current, [
-                pointerLabel.current,
-                gl.domElement.closest(".observatory")?.querySelector(".star-label:focus-visible")?.dataset.articleStar,
+                activeId,
               ])
-            : [hovered, ...labelState.current.map((item) => item.id)].filter(Boolean),
+            : [activeId, hovered, ...labelState.current.map((item) => item.id)].filter(Boolean),
           readSkyObstacles(
             gl.domElement.closest(".observatory"),
             gl.domElement.getBoundingClientRect(),
           ),
+          [activeId],
         )
       : [];
+    layoutMemory.current.remember(visible);
     const next = transitionStarLabels(
       labelState.current,
       visible,
@@ -266,10 +276,15 @@ export default function ArticleSky({
     pointer.current = null;
     pointerLabel.current = null;
     labelState.current = [];
+    layoutMemory.current.clear();
+    keyboardLabel.current = null;
+    labelInteraction.current.locked = false;
+    labelInteraction.current.returnRequested = false;
+    labelInteraction.current.restored = false;
     updateClock.current.nextLayout = 0;
     setLabels([]);
     setHovered(null);
-  }, [sector.id, highlighted, articles]);
+  }, [sector.id, highlighted, articles, size.width, size.height, labelInteraction]);
   useEffect(() => {
     const canvas = gl.domElement;
     const hits = (event) => {
@@ -285,32 +300,77 @@ export default function ArticleSky({
       if (inputRef.current.dragged || focusing) return;
       const nearby = hits(event);
       if (nearby.length > 1) onNearby(nearby);
-      else if (nearby.length === 1) onSelect(nearby[0]);
+      else if (nearby.length === 1) openLabel(nearby[0]);
     };
     const surface = canvas.closest(".observatory") || canvas;
-    const move = (event) => {
-      if (event.pointerType !== "mouse" || event.buttons || focusing) return;
-      const rect = canvas.getBoundingClientRect();
-      pointer.current = { x: event.clientX - rect.left, y: event.clientY - rect.top };
-      pointerLabel.current = event.target.closest(".star-label")?.dataset.articleStar || null;
-      setHovered(hits(event)[0]?.id || null);
-    };
-    const leave = () => {
-      pointer.current = null;
+    const release = () => {
+      if (selected || labelInteraction.current.returnRequested) return;
+      labelInteraction.current.restored = false;
       pointerLabel.current = null;
+      keyboardLabel.current = null;
+      labelInteraction.current.locked = false;
       setHovered(null);
     };
+    const activate = (id) => {
+      keyboardLabel.current = null;
+      labelInteraction.current.restored = false;
+      pointerLabel.current = id;
+      labelInteraction.current.locked = !!id;
+      labelInteraction.current.progress = progress;
+      setHovered(id);
+    };
+    const move = (event) => {
+      if (selected || focusing) return;
+      if (event.buttons || event.pointerType === "touch") {
+        if (inputRef.current.dragged) release();
+        return;
+      }
+      const rect = canvas.getBoundingClientRect();
+      pointer.current = { x: event.clientX - rect.left, y: event.clientY - rect.top };
+      const id = event.target.closest(".star-label")?.dataset.articleStar || null;
+      activate(id);
+      if (!id) setHovered(hits(event)[0]?.id || null);
+    };
+    const down = (event) => {
+      if (selected || focusing) return;
+      const id = event.target.closest(".star-label")?.dataset.articleStar;
+      if (id) activate(id);
+      else release();
+    };
+    const leave = () => {
+      if (selected || labelInteraction.current.returnRequested) return;
+      pointer.current = null;
+      release();
+    };
+    const wheel = () => {
+      release();
+      pointerLayout.current = 0;
+    };
     canvas.addEventListener("click", click);
-    // Listen above the HTML labels as well as the canvas: crossing a title must
-    // not look like leaving the universe, or restore the old depth-ranked labels.
     surface.addEventListener("pointermove", move, true);
+    surface.addEventListener("pointerdown", down, true);
     surface.addEventListener("pointerleave", leave);
+    surface.addEventListener("pointercancel", release);
+    surface.addEventListener("wheel", wheel, true);
     return () => {
       canvas.removeEventListener("click", click);
       surface.removeEventListener("pointermove", move, true);
+      surface.removeEventListener("pointerdown", down, true);
       surface.removeEventListener("pointerleave", leave);
+      surface.removeEventListener("pointercancel", release);
+      surface.removeEventListener("wheel", wheel, true);
     };
-  }, [gl, compact, inputRef, onSelect, onNearby, focusing]);
+  }, [gl, compact, inputRef, onSelect, onNearby, focusing, selected, progress, labelInteraction]);
+  const openLabel = (item) => {
+    if (focusing || inputRef.current.dragged) return;
+    pointerLabel.current = item.id;
+    labelInteraction.current.locked = true;
+    labelInteraction.current.progress = progress;
+    labelInteraction.current.returnRequested = true;
+    labelInteraction.current.restored = false;
+    setHovered(item.id);
+    onSelect(item);
+  };
   return (
     <group>
       <points raycast={ignoreRaycast} frustumCulled={false} renderOrder={20}>
@@ -368,8 +428,8 @@ export default function ArticleSky({
           zIndexRange={[8, 1]}
           style={{
             pointerEvents:
-              !focusing && item.leavingAt === null ? "auto" : "none",
-            opacity: item.leavingAt !== null ? 0 : 1 - focus,
+              !selected && !focusing && item.leavingAt === null ? "auto" : "none",
+            opacity: selected || item.leavingAt !== null ? 0 : 1 - focus,
             transition: "opacity 0.45s ease",
           }}
         >
@@ -392,16 +452,32 @@ export default function ArticleSky({
             <circle cx="0" cy="0" r="3" />
           </svg>
           <button
-            className={`star-label ${pointer.current ? "is-pointer-revealed" : ""} ${item.leavingAt !== null ? "is-leaving" : ""}`}
+            className={`star-label ${hovered === item.id ? "is-active" : ""} ${pointer.current ? "is-pointer-revealed" : ""} ${item.leavingAt !== null ? "is-leaving" : ""}`}
             data-article-star={item.id}
-            tabIndex={!focusing && item.leavingAt === null ? 0 : -1}
-            aria-hidden={focusing || item.leavingAt !== null}
+            tabIndex={!selected && !focusing && item.leavingAt === null ? 0 : -1}
+            aria-hidden={!!selected || focusing || item.leavingAt !== null}
             style={{
               "--star-color": item.color,
               left: item.offsetX,
               top: item.offsetY,
             }}
-            onClick={() => !focusing && onSelect(item)}
+            onFocus={(event) => {
+              if (!event.currentTarget.matches(":focus-visible")) return;
+              labelInteraction.current.restored = false;
+              keyboardLabel.current = item.id;
+              labelInteraction.current.locked = true;
+              labelInteraction.current.progress = progress;
+              setHovered(item.id);
+            }}
+            onBlur={() => {
+              if (labelInteraction.current.returnRequested) return;
+              labelInteraction.current.restored = false;
+              keyboardLabel.current = null;
+              pointerLabel.current = null;
+              labelInteraction.current.locked = false;
+              setHovered(null);
+            }}
+            onClick={() => openLabel(item)}
           >
             <span>{TOPICS[item.topic].label}{item.starStyle?.invitation && <em className="star-invitation" title={item.starStyle.invitation}>{item.starStyle.invitation === "다시 발견한 기록" ? "다시 발견" : item.starStyle.invitation}</em>}</span>
             <strong>{item.title}</strong>

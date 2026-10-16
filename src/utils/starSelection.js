@@ -21,6 +21,7 @@ export function packStarLabels(
   obstacle,
   previousIds = [],
   reservedRects,
+  pinnedIds = [],
 ) {
   const labelWidth = compact ? 156 : 198;
   const labelHeight = compact ? 72 : 82;
@@ -50,8 +51,10 @@ export function packStarLabels(
   const priority = new Map(
     [...new Set(previousIds)].map((id, index) => [id, index]),
   );
+  const pinned = new Set(pinnedIds.filter(Boolean));
   const ordered = [...candidates].sort(
     (a, b) =>
+      Number(pinned.has(b.id)) - Number(pinned.has(a.id)) ||
       (priority.get(a.id) ?? Infinity) - (priority.get(b.id) ?? Infinity),
   );
   for (const item of ordered) {
@@ -76,9 +79,9 @@ export function packStarLabels(
         rect.y + labelHeight > height - 12
       )
         continue;
-      if (reserved.some((other) => overlaps(rect, other))) continue;
+      if (!pinned.has(item.id) && reserved.some((other) => overlaps(rect, other))) continue;
       if (kept.some((other) => overlaps(rect, other.rect, 14))) continue;
-      if (obstacle) {
+      if (obstacle && !pinned.has(item.id)) {
         const closestX = Math.max(
           rect.x,
           Math.min(obstacle.x, rect.x + labelWidth),
@@ -154,4 +157,24 @@ export function pointerStarPriority(projected, pointer, pinned = []) {
       Math.hypot(b.x - pointer.x, b.y - pointer.y)
     ).map(item => item.id),
   ])];
+}
+
+
+// Keep a visit's chosen side and vertical offset when a label leaves/re-enters.
+// Copy only geometry, never mutable projection records or fading timestamps.
+export function createStarLabelMemory() {
+  const placements = new Map();
+  return {
+    remember(labels) {
+      for (const item of labels) {
+        if (item.leavingAt == null) placements.set(item.id, {
+          offsetX: item.offsetX, offsetY: item.offsetY,
+        });
+      }
+    },
+    apply(item) {
+      return { ...item, ...placements.get(item.id) };
+    },
+    clear() { placements.clear(); },
+  };
 }
