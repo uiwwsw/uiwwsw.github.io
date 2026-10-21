@@ -60,3 +60,43 @@ test('body stream failures are retried too', async () => {
   assert.equal(result.data, 'article');
   assert.equal(attempts, 2);
 });
+
+
+test('honors Retry-After seconds and dates with a bounded wait', async () => {
+  for (const [header, expected] of [['12', 12000], ['999', 60000], ['invalid', 1000]]) {
+    let calls = 0;
+    const waits = [];
+    await requestVelog(url, {}, {
+      fetchImpl: async () => ++calls === 1
+        ? new Response('', { status: 429, headers: { 'Retry-After': header } })
+        : new Response('ok'),
+      sleep: async (ms) => waits.push(ms),
+    });
+    assert.deepEqual(waits, [expected]);
+  }
+  let calls = 0;
+  const waits = [];
+  await requestVelog(url, {}, {
+    fetchImpl: async () => ++calls === 1
+      ? new Response('', { status: 503, headers: { 'Retry-After': new Date(Date.now() + 30000).toUTCString() } })
+      : new Response('ok'),
+    sleep: async (ms) => waits.push(ms),
+  });
+  assert.ok(waits[0] > 28000 && waits[0] <= 30000);
+});
+
+test('retries transport errors while reading a response body', async () => {
+  let calls = 0;
+  const result = await requestVelog(url, {}, {
+    fetchImpl: async () => ({
+      ok: true,
+      text: async () => {
+        if (++calls === 1) throw Object.assign(new Error('socket closed'), { code: 'ECONNRESET' });
+        return 'complete article';
+      },
+    }),
+    sleep: async () => {},
+  });
+  assert.equal(calls, 2);
+  assert.equal(result.data, 'complete article');
+});
