@@ -39,38 +39,43 @@ test("a horizontal mobile swipe changes the view without advancing the flight", 
   assert.equal(input.dragged, true);
 });
 
-test("vertical touch only looks, even with lateral drift", () => {
-  const { input, gesture } = setup();
-  gesture.start(touch(180, 520));
-  assert.equal(gesture.move(touch(185, 330)).travel, 0);
-  assert.ok(input.lookY < 0);
-  assert.equal(gesture.move(touch(260, 400)).travel, 0);
-  assert.ok(input.lookX < 0);
+test("vertical touch scrolls before, during and after the opening without reading layout", () => {
+  let reads = 0;
+  const input = createFlightInput();
+  const gesture = createFlightGesture(input, () => { reads++; return { width: 390, height: 844 }; });
+  for (const opening of [true, false, false]) {
+    input.opening = opening;
+    gesture.start(touch(180, 520));
+    assert.ok(gesture.move(touch(185, 330)).travel > 0);
+    input.opening = false;
+    assert.ok(gesture.move(touch(260, 400)).travel < 0, "vertical intent survives lateral drift and opening completion");
+    gesture.end(touch(260, 400));
+  }
+  assert.equal(input.lookX, 0);
+  assert.equal(input.lookY, 0);
+  assert.equal(reads, 0);
 });
 
-test("repeated up/down drags never request travel or travel pitch", () => {
+test("repeated swipes keep scrolling in both directions after each finger reset", () => {
   const { input, gesture } = setup();
   for (let stroke = 0; stroke < 20; stroke++) {
+    gesture.start(touch(180, 500));
+    assert.equal(gesture.move(touch(180, 200)).travel, 0.18);
+    gesture.end(touch(180, 200));
     gesture.start(touch(180, 200));
-    assert.equal(gesture.move(touch(180, 500)).travel, 0);
-    assert.equal(input.travelPitch, 0);
-    assert.ok(input.lookY > 0);
+    assert.equal(gesture.move(touch(180, 500)).travel, -0.18);
     gesture.end(touch(180, 500));
-    assert.equal(input.travelPitch, 0);
   }
-  gesture.start(touch(180, 500));
-  assert.equal(gesture.move(touch(180, 200)).travel, 0);
   assert.equal(input.travelPitch, 0);
-  gesture.cancel();
-  assert.equal(input.travelPitch, 0);
+  assert.equal(input.lookY, 0);
 });
 
-test("diagonal gestures look vertically without flight and pitch has generous safe bounds", () => {
+test("horizontal intent stays locked despite vertical drift and mouse drag retains both view axes", () => {
   const { input, gesture } = setup();
-  gesture.start(touch(100, 100));
+  gesture.start(touch(100, 100, { pointerType: "mouse" }));
   assert.equal(gesture.move(touch(220, 230)).travel, 0);
-  assert.ok(input.lookX < 0 && input.lookY > 8);
-  assert.equal(gesture.move(touch(220, 2000)).travel, 0);
+  assert.ok(input.lookX < 0 && input.lookY > 0);
+  gesture.move(touch(220, 2000));
   assert.equal(input.lookY, 36);
   gesture.move(touch(220, -2000));
   assert.equal(input.lookY, -32);

@@ -75,7 +75,7 @@ test("the real App prerenders without browser globals, WebGL or a replacement re
           assert.equal(guide.is("[inert]"), !visible);
           assert.equal(guide.find("button, a, input, canvas, img").length, 0);
           assert.equal(guide.find("svg[aria-hidden=true]").length, 1);
-          assert.equal(guide.find(".guide-finger").length, touch ? 2 : 0);
+          assert.equal(guide.find(".guide-finger").length, touch ? 1 : 0);
           assert.equal(guide.find(".guide-wheel").length, touch ? 0 : 1);
           assert.equal(
             guide.find("p").text(),

@@ -1,7 +1,7 @@
 export const FLIGHT_GUIDANCE = {
   touch: {
-    title: "두 손가락을 벌려 다가가 보세요",
-    detail: "드래그로 둘러보기 · 별을 눌러 글 읽기",
+    title: "위로 쓸어 별 사이로 다가가 보세요",
+    detail: "좌우로 쓸어 둘러보기 · 별을 눌러 글 읽기",
   },
   mouse: {
     title: "위로 스크롤해 별 사이로",
@@ -12,7 +12,7 @@ export const FLIGHT_GUIDANCE = {
 export const READING_GUIDANCE = {
   touch: {
     title: "별이나 제목을 눌러 글을 읽어보세요",
-    detail: "드래그로 둘러보기 · 아래 슬라이더로 이동",
+    detail: "위아래로 쓸어 이동 · 좌우로 둘러보기",
   },
   mouse: {
     title: "별이나 제목을 눌러 글을 읽어보세요",

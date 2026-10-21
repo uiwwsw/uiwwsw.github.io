@@ -166,7 +166,6 @@ export default function App({ initialHome, visitSeed = 0 } = {}) {
   const sceneRef = useRef();
   const openingFrame = useOpeningPresentation(sceneRef);
   const inputRef = useRef(createFlightInput());
-  inputRef.current.opening = distance <= 0 && entry < 1 && !sceneError && !reducedMotion && !motionPaused;
   const searchRef = useRef();
   const hydrated = useRef(false);
   const deferredQuery = useDeferredValue(query);
@@ -548,7 +547,7 @@ export default function App({ initialHome, visitSeed = 0 } = {}) {
           )
             setSceneSettled(true);
         }}
-        aria-label="달에서 지구를 바라보는 3D 우주. 한 손가락 드래그로 상하좌우를 둘러봅니다. 두 손가락을 벌리면 다가가고 오므리면 멀어집니다. PC에서는 휠로 이동합니다. 별을 선택해 글을 읽을 수 있습니다."
+        aria-label="달에서 지구를 바라보는 3D 우주. 한 손가락으로 위로 쓸어 다가가고 아래로 쓸어 돌아옵니다. 좌우로 쓸어 둘러봅니다. PC에서는 휠로 이동합니다. 별을 선택해 글을 읽을 수 있습니다."
       >
         {clientReady && !sceneError && (
           <SceneBoundary onError={fail}>

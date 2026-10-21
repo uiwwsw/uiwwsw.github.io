@@ -36,16 +36,10 @@ export default function FlightGuide({
       >
         {touch ? (
           <>
-            <path className="guide-trace" d="m18 28 20-16" />
+            <path className="guide-trace" d="M28 30V8m-5 5 5-5 5 5" />
             <g className="guide-finger guide-finger-left">
-              <circle cx="20" cy="26" r="6" />
-              <circle cx="20" cy="26" r="2" fill="currentColor" />
-              <path d="m13 28-5 5m0-5v5h5" />
-            </g>
-            <g className="guide-finger guide-finger-right">
-              <circle cx="36" cy="14" r="6" />
-              <circle cx="36" cy="14" r="2" fill="currentColor" />
-              <path d="m43 12 5-5m-5 0h5v5" />
+              <circle cx="28" cy="26" r="6" />
+              <circle cx="28" cy="26" r="2" fill="currentColor" />
             </g>
           </>
         ) : (

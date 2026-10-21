@@ -60,8 +60,8 @@
   animation: guide-spread 2.4s ease-in-out 3;
 }
 .guide-finger-left {
-  --finger-x: -3px;
-  --finger-y: 3px;
+  --finger-x: 0px;
+  --finger-y: -8px;
 }
 .guide-finger-right {
   --finger-x: 3px;

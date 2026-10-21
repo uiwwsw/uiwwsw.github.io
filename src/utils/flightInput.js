@@ -18,7 +18,8 @@ export function centerFlightInput(input) {
 export const PINCH_GAIN = 0.18;
 const MIN_PINCH_SPAN = 40;
 
-// One pointer looks; two touch pointers travel. Pinch is sampled once per frame
+// Vertical touch swipes travel throughout the journey; horizontal swipes look.
+// Two-finger pinch remains an optional travel input, sampled once per frame
 // so two fingers translating together cannot generate alternating zoom impulses.
 export function createFlightGesture(input, getViewport) {
   const pointers = new Map();
@@ -33,6 +34,7 @@ export function createFlightGesture(input, getViewport) {
       point.originX = point.x;
       point.originY = point.y;
       point.looking = false;
+      point.mode = null;
     }
     if (pointers.size === 2) {
       const distance = span();
@@ -75,6 +77,7 @@ export function createFlightGesture(input, getViewport) {
       if (!pointer) return null;
       const dx = event.clientX - pointer.x;
       const dy = event.clientY - pointer.y;
+      if (dx === 0 && dy === 0) return null;
       if (pointers.size > 1) {
         pointer.x = event.clientX;
         pointer.y = event.clientY;
@@ -85,13 +88,17 @@ export function createFlightGesture(input, getViewport) {
       if (!pointer.looking) {
         if (Math.hypot(totalX, totalY) < 8) return null;
         pointer.looking = true;
+        pointer.mode = pointer.type === "touch" && Math.abs(totalY) >= Math.abs(totalX)
+          ? "travel" : "look";
       }
       input.dragged = true;
       pointer.x = event.clientX;
       pointer.y = event.clientY;
-      const { width, height } = getViewport();
+      // Lock the intent for this stroke, including when crossing the opening boundary.
+      // Vertical scrolling needs no layout read and must never change the view.
+      if (pointer.mode === "travel") return { travel: -dy * 0.0006, kind: "travel" };
       const touch = pointer.type === "touch";
-      if (touch && input.opening) return { travel: -dy * 0.0006, kind: "travel" };
+      const { width, height } = touch ? getViewport() : { width: 0, height: 0 };
       input.lookX = clamp(
         input.lookX - dx * (touch ? 72 / Math.max(width, 320) : 0.055),
         -52,
@@ -156,10 +163,12 @@ export function elasticLook(value, limit) {
   return Math.sign(value) * (Math.min(magnitude, limit) +
     (magnitude > limit ? 2 * (1 - Math.exp(-(magnitude - limit) / 8)) : 0));
 }
+const LOOK_LIMITS = [["lookX", 9], ["lookY", 6]];
 export function relaxFlightLook(input, dt) {
   if (input.looking) return;
-  for (const [axis, limit] of [["lookX", 9], ["lookY", 6]]) {
+  const decay = Math.exp(-12 * dt);
+  for (const [axis, limit] of LOOK_LIMITS) {
     const rest = clamp(input[axis], -limit, limit);
-    input[axis] = rest + (input[axis] - rest) * Math.exp(-12 * dt);
+    input[axis] = rest + (input[axis] - rest) * decay;
   }
 }

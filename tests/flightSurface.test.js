@@ -113,12 +113,12 @@ test("surface drag stops prior zoom coast, leaves travel unchanged and suppresse
   const label = { closest: () => null }; // star-label intentionally isn't a control
   s.pointer("pointerdown", 200, 200, 1, label);
   assert.equal(s.captured.size, 0, "a tap isn't forcibly captured");
-  s.pointer("pointermove", 200, 450, 1, label);
+  s.pointer("pointermove", 450, 220, 1, label);
   assert.ok(s.input.lookY > 0);
   assert.equal(s.motion.pending, 0);
   stepFlightMotion(s.motion, 1 / 60);
   assert.equal(s.motion.distance, 0.3);
-  s.pointer("pointerup", 200, 450);
+  s.pointer("pointerup", 450, 220);
   assert.equal(
     s.surface.emit("click", { target: label }).defaultPrevented,
     true,
@@ -167,7 +167,8 @@ test("two-pointer capture and one RAF batch prevent zoom from pure two-finger pa
   s.pointer("pointermove", 240, 231, 2);
   assert.equal(s.input.lookY, 0);
   s.pointer("pointermove", 240, 251, 2);
-  assert.ok(s.input.lookY > 0);
+  assert.equal(s.input.lookY, 0);
+  assert.ok(s.impulses.at(-1) < 0, "remaining finger resumes vertical scrolling");
   s.pointer("pointerup", 240, 251, 2);
   assert.equal(s.captured.size, 0);
   s.cleanup();
@@ -277,7 +278,7 @@ test("custom pinch is scoped to the sky; reading and controls retain native zoom
   assert.match(css, /\.intro\s*\{\s*pointer-events: none/);
   assert.match(css, /\.journey-button\s*\{\s*pointer-events: auto/);
   const app = readFileSync(new URL("../src/App.jsx", import.meta.url), "utf8");
-  assert.match(app, /두 손가락을 벌리면 다가가고 오므리면 멀어집니다/);
+  assert.match(app, /한 손가락으로 위로 쓸어 다가가고 아래로 쓸어 돌아옵니다/);
   assert.match(app, /onLook: stopTravel/);
   assert.doesNotMatch(app, /아래로 끌어 다가가기|가로·대각선 · 시선/);
   const html = readFileSync(
@@ -285,4 +286,23 @@ test("custom pinch is scoped to the sky; reading and controls retain native zoom
     "utf8",
   );
   assert.doesNotMatch(html, /user-scalable=no|maximum-scale=1/);
+});
+
+
+test("one-finger scrolling keeps driving flight across repeated strokes and opening completion", () => {
+  const s = setup();
+  s.input.opening = true;
+  s.pointer("pointerdown", 180, 500);
+  s.pointer("pointermove", 180, 400);
+  s.input.opening = false;
+  s.pointer("pointermove", 180, 300);
+  s.pointer("pointerup", 180, 300);
+  s.pointer("pointerdown", 180, 500);
+  s.pointer("pointermove", 180, 300);
+  s.pointer("pointerup", 180, 300);
+  assert.equal(s.impulses.length, 3);
+  assert.ok(s.impulses.every(delta => delta > 0));
+  assert.equal(s.input.lookY, 0);
+  assert.equal(s.captured.size, 0);
+  s.cleanup();
 });

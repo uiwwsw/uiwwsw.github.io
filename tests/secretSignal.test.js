@@ -43,7 +43,7 @@ test("signal progress is bounded, reversible and can be rediscovered", () => {
   assert.equal(signalStrength(distance), 1);
 });
 
-test("ordinary wheel and pinch press only a little into the field; dragging never does", () => {
+test("ordinary wheel and pinch press only a little into the field; horizontal looking never does", () => {
   const gesture = createFlightGesture(createFlightInput(), () => ({
     width: 390,
     height: 844,
@@ -63,7 +63,7 @@ test("ordinary wheel and pinch press only a little into the field; dragging neve
     clientY: y,
   });
   gesture.start(touch(180, 350));
-  assert.equal(gesture.move(touch(180, 600)).travel, 0);
+  assert.ok(gesture.move(touch(180, 600)).travel < 0);
   gesture.start(touch(280, 600, 2));
   gesture.move(touch(310, 600, 2));
   const touchSignal = signalStrength(advanceFlight(1, gesture.flush().travel));
