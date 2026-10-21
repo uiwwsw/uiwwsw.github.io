@@ -90,16 +90,20 @@ GitHub Pages deployment is automated through `.github/workflows/deploy.yml`:
 - The artifact is published to the GitHub Pages environment so the site stays in sync with the latest code without committing build outputs manually.
 - Because CI rebuilds and deploys automatically, the generated `dist` directory is ignored in Git and does not need to be checked in.
 
-Monthly content refresh is handled separately by `.github/workflows/monthly-update.yml`:
+Weekly content refresh is handled separately by `.github/workflows/monthly-update.yml`:
 
-- On the 1st of each month at 9:17 AM KST, the workflow refreshes Velog data, builds the site, commits refreshed JSON only when content changed, and deploys the updated Pages artifact in the same run.
+- Every Monday at 9:17 AM KST, the workflow refreshes Velog data, builds the site, commits refreshed JSON only when content changed, and deploys the updated Pages artifact in the same run.
 - Running refresh and deployment in one workflow avoids a stale-data race between scheduled content updates and the Pages deploy job.
 - Pagination continues to an empty page, without the old 1,000-post cutoff. Invalid responses, repeated/cyclic cursors and failed extraction abort before replacing archive content. Unchanged posts reuse parsed content; HTTP validators avoid downloading unchanged bodies when Velog supplies and honors them, with a source hash as the fallback. This still checks all post URLs—there is no assumed reliable update timestamp.
 - The refresh commits `sky-registry.json` together with the archive and runs the same tests before deploying.
+- The workflow filename stays `monthly-update.yml` to preserve its existing dispatch/API URL, but its schedule is weekly. No content changes means no build, commit or deploy on scheduled runs.
+- The `uiwwsw/uiwwsw` profile follows at 09:47 KST every Monday. It checks this workflow's current-week completion through the public GitHub API before reading the published archive, waiting up to 30 minutes for a delayed run. A failed/missing refresh blocks the scheduled profile update rather than treating old content as fresh. GitHub schedules can be delayed or dropped; these times are targets, not delivery guarantees.
+- For an urgent new article, manually run **Weekly Data Update**, wait for its successful completion (including Pages deployment), then run **Update Profile Content** in `uiwwsw/uiwwsw`. There is no cross-repository dispatch secret; manual source runs do not automatically trigger the profile. Both repos retain their last published content on fetch failures.
+- Weekly refresh balances freshness (normally within a week) against checking every Velog article. The profile's pins and product feed update weekly too; its manual trigger remains available between runs.
 
 ## Search visibility
 
-`scripts/build-seo.js` runs after Vite on every build, including the monthly refresh. It generates:
+`scripts/build-seo.js` runs after Vite on every build, including the weekly refresh. It generates:
 
 - A homepage title/description identifying **윤창원 / Yoon Changwon / uiwwsw**, a frontend developer who writes. Matching visible profile copy and `Person`, `ProfilePage`, and `WebSite` structured data connect the author to the existing GitHub and Velog profiles.
 - `/writing/<slug>/index.html` for every real article: the full ordered text, code and photographs are present in the HTTP response, without requiring JavaScript or WebGL. Each page includes a unique title/description, self-canonical, article social metadata, `BlogPosting` and breadcrumbs. Photo posts use their first real image; text-only posts use the portfolio thumbnail. Publication dates come from Velog; modification dates are deliberately omitted because the source does not currently provide a reliable one.
@@ -120,7 +124,7 @@ Refresh starts with an inline decorative star/nebula backdrop in the real preren
 ### One-time owner setup
 
 1. In [Google Search Console](https://search.google.com/search-console), add the URL-prefix property `https://uiwwsw.github.io/` and verify ownership. In [Naver Search Advisor](https://searchadvisor.naver.com/), add and verify the same site. Preserve any verification file/meta tag supplied by those services; no token or registration is fabricated by the build.
-2. Submit `https://uiwwsw.github.io/sitemap.xml` to both services. You only need to submit the sitemap once; the monthly workflow keeps its contents current.
+2. Submit `https://uiwwsw.github.io/sitemap.xml` to both services. You only need to submit the sitemap once; the weekly workflow keeps its contents current.
 3. Inspect the homepage and a `/writing/<slug>/` page in Search Console, then request indexing if needed. Check Naver's collection/indexing status separately. Account registration and sitemap submission require the owner's authenticated access and are not performed by the GitHub workflow.
 
 SEO makes pages discoverable; it cannot promise indexing or a rank for broad searches such as “개발자”. Because the original articles also appear on Velog, a search engine may choose the Velog original as its canonical even though the portfolio declares its own preferred URL. Original-source links remain visible, and Velog content/settings are not modified. See [the SEO QA record](design/seo-qa.md).

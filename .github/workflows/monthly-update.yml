@@ -1,10 +1,10 @@
-name: Monthly Data Update
+name: Weekly Data Update
 
 on:
   schedule:
-    # Run at 00:17 UTC on the 1st of each month (9:17 AM KST)
+    # Every Monday at 00:17 UTC (09:17 KST). Profile follows at 09:47 KST.
     # Avoids the top-of-hour window where scheduled jobs are more likely to be delayed.
-    - cron: '17 0 1 * *'
+    - cron: '17 0 * * 1'
   # Allow manual trigger for testing
   workflow_dispatch:
 
