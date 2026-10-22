@@ -1,5 +1,15 @@
 # uiwwsw.github.io
 
+<!-- repository-presentation:start -->
+
+> A 3D writing portfolio: travel from the Moon to Earth and discover Velog articles among the stars.
+
+![React](https://img.shields.io/badge/React-087ea4?style=flat-square)
+
+[Source](https://github.com/uiwwsw/uiwwsw.github.io/tree/main) · [Issues](https://github.com/uiwwsw/uiwwsw.github.io/issues)
+
+<!-- repository-presentation:end -->
+
 Author-owned writing and images: [콘텐츠 이용 안내](CONTENT-RIGHTS.md). Existing code and third-party licenses remain unchanged.
 
 A 3D writing portfolio: leave the Moon, approach Earth, and discover a real Velog article in every star. Built with React, Vite, Three.js, React Three Fiber, and drei.
