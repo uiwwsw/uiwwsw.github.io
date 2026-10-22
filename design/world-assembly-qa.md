@@ -4,6 +4,7 @@ Historical record of the 1.8-second entrance. The later background-pop / floatin
 
 ## Corrected direction
 
+The opening animates the world objects sliding into place with a brief, rhythmic cinematic sequence. The previous camera descent and changing warm sidelight remain removed. On a fresh load, Earth starts fully beyond the right edge and the entire lunar terrain/rock group below the bottom edge. Earth slides horizontally toward its existing upper-right position; the floor follows upward on a delayed curve. Both now settle without overshoot in **1.8 seconds**, down from 5.6. This is real group translation, not a fade of stationary objects, a CSS canvas transform, a moved camera or a duplicate globe/poster.
 
 The camera remains on the existing opening pose and FOV; its idle drift clock also waits until assembly is complete. User drag, pinch, wheel, keyboard and slider are not locked. Manual input shortens the remaining object placement with a continuous handoff. Reduced motion, motion pause, reading, non-home sectors and secret focus skip immediately. Returning home does not replay the animation.
 
@@ -44,3 +45,4 @@ The large optional cloud/night maps now wait for **both** the sky crossfade and 
 
 `tests/worldAssembly.test.js` replaces the superseded landing tests. Checks include full sphere/AABB exclusion at 320×568, 390×844, 430×932, 768×1024, 1440×900, 3440×1440 and 844×390; fixed camera basis/projection; horizontal Earth and upward Moon trajectories; visible entry timing on all seven viewports at 30/60/120 Hz; immediate first-frame movement and soft endpoints; waiting/hidden/resume; interruptions/skips; exact resting transforms; resize state retention; single-object/resource/picking wiring. Startup regressions also check the shorter crossfade and the deferred enhancement gate.
 
+Live refresh recordings and actual mobile/desktop motion quality are not visually verified. These frustum/trajectory tests establish that objects really start outside the screen and move into it, but are not a physical-device performance or perceptual-quality measurement.

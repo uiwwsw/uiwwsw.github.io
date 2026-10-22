@@ -28,3 +28,4 @@ The progressive-loading infrastructure below is retained as a historical record.
 
 ## Live QA limitation
 
+Cold/warm refresh appearance, actual shader-driver behavior, transition events on physical iOS/Android devices, CLS, LCP and GPU timings have **not** been measured here. The automated readiness/cache tests and build graph support the implementation, not a claim of zero flash or a guaranteed device performance gain.

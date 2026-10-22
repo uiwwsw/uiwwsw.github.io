@@ -26,3 +26,4 @@ The canvas also rendered background layers while Earth/Moon textures were still 
 
 ## Live verification limitation
 
+This revision has **not** been live-tested for cold/warm refresh, hydration console warnings, CLS, visual transitions, physical-phone FPS or GPU load. The automated source/build checks are not substitutes for those measurements. No claim of zero CLS or a measured frame rate is made.

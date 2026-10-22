@@ -28,3 +28,4 @@ More deliberate input should mean more time among the writing, not more abrupt j
 
 ## Browser verification limitation
 
+Live wheel/touch, hold-button focus behavior, visual fade quality and physical mobile feel have **not** been verified in this revision; automated tests and build checks must not be represented as live-device testing.

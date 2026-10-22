@@ -26,3 +26,4 @@ The pinch-only control remains unchanged. The later [Seoul signal revision](seou
 - Motion tests send real pinch-recognizer output into the flight integrator and verify secret reachability. Existing release recovery, reduced-motion and frame-rate tests remain enabled.
 - CSS/wiring assertions guard scene-only gesture ownership and retained native reading zoom.
 
+These are automated event/physics checks, not physical iOS/Android usability measurements. Still verify on a real device: spread/close, up/down look, pinch→one-finger look, star-label gestures, rotation, browser chrome interruptions, article scrolling and native article zoom.

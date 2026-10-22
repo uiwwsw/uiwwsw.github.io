@@ -27,3 +27,4 @@ The visible guide is a named note. Hidden guidance is `aria-hidden` and inert, w
 
 Production build and SEO validation pass: 62 indexable pages, 58 complete articles, 17 photos. No new dependency or GPU resource is added; the lazy Three import boundary and deployment/monthly refresh workflows are unchanged.
 
+Physical-device layout, font wrapping, gesture playback and screen-reader announcements have not been visually/manually verified. The responsive CSS and SSR/input tests are not a substitute for device screenshots or interaction QA.

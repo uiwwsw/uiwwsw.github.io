@@ -19,3 +19,4 @@
 
 - **75 automated tests pass**, including geographic anchor/UV agreement, Korea centering, Japan/China left-right checks, explicit one-map coverage, cloud channel selection, opacity/shadow bounds and one opaque geographic mesh.
 - Production build and SEO validation pass: 62 pages, 58 complete articles, 17 photos.
+- No live WebGL shader compilation, before/after screenshot or physical-device verification was possible in this revision. Further visual QA should distinguish texture artifacts from cloud appearance and device-specific rendering issues.

@@ -42,3 +42,4 @@ All timings below start at the ordinary Earth boundary; they are **model simulat
 
 ## Live verification limitation
 
+Live mouse/trackpad, mobile dragging, camera response and short-screen reward scrolling have not been verified during this revision. Automated simulations must not be described as a physical-device usability test.

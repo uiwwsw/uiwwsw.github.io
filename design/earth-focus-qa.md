@@ -34,3 +34,4 @@ The previous dust count alone was misleading: a very large volume, low speed and
 - CPU projection estimates at the opening camera find 19 mobile / 77 desktop dust points inside the frustum above the test alpha threshold, with median displacement about 8.3 / 10.8 pixels per second. These figures exclude UI/planet occlusion and are not screenshots or measured GPU FPS. The regression requires conservative minimum moving counts, not these exact samples.
 - Production build and SEO checks pass: 62 indexable pages, 58 complete articles and 17 photos. No runtime dependency, texture, extra point batch or deployment/Velog workflow changed.
 
+Live visual composition, physical mobile input and GPU performance remain unverified; the geometric/model checks above are not substitutes for claiming live-device validation.

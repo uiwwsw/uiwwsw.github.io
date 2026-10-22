@@ -1,5 +1,6 @@
 # Lunar arrival and Earth reveal
 
+Historical revision (`e17e0a5`). World objects now enter from outside the frame while the camera stays in place. This camera-led sequence has been replaced by [world-assembly-qa.md](./world-assembly-qa.md).
 
 ## Direction
 
@@ -33,3 +34,4 @@ Actual Three.js perspective projections were calculated for desktop 1440×900, p
 
 ## Live-verification limitation
 
+Cold/warm refresh videos, actual GPU upload behavior, mobile frame time and physical pinch/drag handoff have not been verified visually. Still check the full opening and interrupt it at 0/2/4/6 seconds on real desktop/mobile browsers, plus reduced motion, immediate article open, hidden-tab resume and orientation changes.
