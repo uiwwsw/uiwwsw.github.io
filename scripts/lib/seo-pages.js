@@ -171,8 +171,8 @@ export function renderHomeFallback(articles) {
 }
 
 export function renderRightsPage() {
-  const seo = { ...pageSeo(), title: "콘텐츠 이용 안내 | uiwwsw", description: "글과 이미지의 이용 범위, 검색 허용 및 AI 학습용 수집 제한 안내.", url: `${SITE.url}${RIGHTS_PATH}` };
-  return documentPage(seo, { "@context": "https://schema.org", "@type": "WebPage", name: "콘텐츠 이용 안내", url: seo.url }, `<article><header class="writing-heading"><p class="reading-eyebrow">CONTENT RIGHTS</p><h1>콘텐츠 이용 안내</h1></header><div class="static-article-body">${RIGHTS_PARAGRAPHS.map(text => `<p>${escapeHtml(text)}</p>`).join("")}<h2>검색과 수집에 관하여</h2><p>일반 검색과 검색용 크롤러의 접근은 허용하고, GPTBot·ClaudeBot·Google-Extended·CCBot에는 robots.txt로 수집 제한 의사를 전달합니다. robots.txt는 자발적 준수에 의존하며, 공개 콘텐츠의 열람·복제나 기존 수집 자료의 이용을 완전히 막지 못합니다.</p><p>이 안내는 각 플랫폼 약관이나 기존 이용 허락을 소급 변경하지 않습니다. GitHub·Velog에 있는 원본에는 해당 플랫폼의 정책과 기술적 제약이 적용됩니다.</p></div></article>`);
+  const seo = { ...pageSeo(), title: "콘텐츠 이용 안내 | uiwwsw", description: "글과 이미지의 이용 범위와 검색 허용 안내.", url: `${SITE.url}${RIGHTS_PATH}` };
+  return documentPage(seo, { "@context": "https://schema.org", "@type": "WebPage", name: "콘텐츠 이용 안내", url: seo.url }, `<article><header class="writing-heading"><p class="reading-eyebrow">CONTENT RIGHTS</p><h1>콘텐츠 이용 안내</h1></header><div class="static-article-body">${RIGHTS_PARAGRAPHS.map(text => `<p>${escapeHtml(text)}</p>`).join("")}<h2>검색과 수집에 관하여</h2><p>일반 검색과 검색용 크롤러의 접근은 허용합니다.</p><p>이 안내는 각 플랫폼 약관이나 기존 이용 허락을 소급 변경하지 않습니다. GitHub·Velog에 있는 원본에는 해당 플랫폼의 정책과 기술적 제약이 적용됩니다.</p></div></article>`);
 }
 
 export function renderSitemap(articles) {
