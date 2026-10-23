@@ -1208,7 +1208,7 @@ export default function App({ initialHome, visitSeed = 0 } = {}) {
               articleLink={selected.link}
             />
           </div>
-          <div className="reading-end"><details data-ai-training-notice="true" className="ai-training-notice print:hidden"><summary>AI 학습·수집 반대 · AI training opt-out</summary><p>사전 서면 동의 없는 AI 학습·미세조정 및 학습용 데이터 수집에 반대합니다.</p><p lang="en">No AI training, fine-tuning or training-data collection without prior written consent.</p><p>기존 라이선스와 제삼자·사용자 콘텐츠의 권리는 유지됩니다. Existing licenses and third-party/user rights remain unchanged.</p><a href="/ai-training-notice.txt">전문 · Full notice</a></details>
+          <div className="reading-end">
             <Icon name="star" size={24} />
             <p>잠시, 같은 별을 바라봐 주셔서 고마워요.</p>
             <p className="panel-description">{RIGHTS_SHORT} <a href={RIGHTS_PATH}>콘텐츠 이용 안내</a></p>

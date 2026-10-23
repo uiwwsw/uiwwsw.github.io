@@ -10,5 +10,6 @@
   "packages": [],
   "outputs": [
     "dist"
-  ]
+  ],
+  "uiPolicy": "source-only"
 }

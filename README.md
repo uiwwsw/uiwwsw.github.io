@@ -139,9 +139,4 @@ In development only, `?stress=300`, `?stress=1000`, and `?stress=3000` add clear
 
 `?ambient=1` shows the real sky's FPS/draw counts and ambient clock in development (without synthetic posts). Use it to verify idle motion, pause/resume and `&motion=reduce`; it is not displayed in production. See [ambient QA](design/ambient-qa.md).
 
-<!-- ai-training-notice -->
-## AI 학습·수집 반대 / AI training notice
-
-사전 서면 동의 없는 AI 학습·미세조정 및 학습용 데이터 수집에 반대합니다. No AI training, fine-tuning or training-data collection without prior written consent.
-
-[전문 / Full notice](AI-TRAINING-NOTICE.md). 기존 라이선스와 제삼자·사용자 콘텐츠의 권리는 유지됩니다. Existing licenses and third-party/user rights remain unchanged.
+AI 학습·미세조정 및 학습용 데이터 수집에 대한 권리자 의사는 [AI 이용 고지 / AI use notice](AI-TRAINING-NOTICE.md)를 참고하세요.
