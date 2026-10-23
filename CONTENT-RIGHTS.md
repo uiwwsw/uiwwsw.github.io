@@ -11,3 +11,5 @@
 일반 검색은 허용합니다. robots.txt는 자발적 준수 규칙으로 공개 콘텐츠의 복제·기존 학습 결과를 완전히 차단하지 못합니다. 이 문서는 GitHub·Velog 약관에 따라 이미 부여된 권한을 소급 철회하지 않습니다.
 
 [상세 안내](https://uiwwsw.github.io/content-rights/)
+
+AI 학습·수집에 관한 공통 입장은 [AI 학습·수집 반대 고지](AI-TRAINING-NOTICE.md)를 참고하세요.
