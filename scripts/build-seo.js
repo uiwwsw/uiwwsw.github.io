@@ -1,4 +1,4 @@
-import { readFile, writeFile, mkdir } from "node:fs/promises";
+import { readFile, writeFile, mkdir, readdir } from "node:fs/promises";
 import { RIGHTS_PATH, renderRobots } from "../src/utils/contentRights.js";
 import { load } from "cheerio";
 import { createHash } from "node:crypto";
@@ -125,3 +125,28 @@ await writeFile(
 console.log(
   `Built SEO: ${articles.length} complete article pages, ${archivePages} archive pages, homepage, sitemap and robots.txt.`,
 );
+
+async function publicUsageRoutes(directory, prefix='') {
+  const result=[];
+  for(const entry of await readdir(directory,{withFileTypes:true})) {
+    const path=prefix+'/'+entry.name;
+    if(entry.isDirectory()) result.push(...await publicUsageRoutes(new URL(entry.name+'/',directory),path));
+    else if(entry.name.endsWith('.html')) result.push(entry.name==='index.html'?path.slice(0,-'index.html'.length):path);
+  }
+  return result;
+}
+const usagePaths=['/',...articles.map(articlePath),...Array.from({length:archivePages},(_,i)=>archivePath(i+1)),RIGHTS_PATH,...await publicUsageRoutes(new URL('public/mob/',root),'/mob')];
+const escapeUsagePath=path=>Array.from(path,char=>'.?+*^$[]\\(){}|'.includes(char)?'\\'+char:char).join('');
+const usageConfig={service:'uiwwsw-github-io',origin:SITE.url,hosts:[new URL(SITE.url).hostname],bottom:80,routes:[...new Set(usagePaths)].map(path=>({match:path==='/'?'^/$':`^${escapeUsagePath(path.endsWith('/')?path.slice(0,-1):path)}${path.endsWith('.html')?'':'/?'}$`,path,name:path==='/'?'home':decodeURIComponent(path).split('/').filter(Boolean).join('_').slice(0,90)})),sections:{archive:'archive'},outbound:[{url:SITE.github,name:'github'},{url:SITE.velog,name:'velog'}]};
+for(const name of ['article_preview','panel_archive','panel_nearby','panel_about']) usageConfig.routes.push({match:'^$',path:'/screens/'+name+'/',name});
+const appServices={miripay:'qrcoin',meringuetrip:'taste-district',meyoumeyou:'manjijak',tootbeep:'tootbeep'};
+for(const path of [...new Set(usagePaths)]) {
+ const service=appServices[path.split('/')[2]]||usageConfig.service;
+ const usageAttr=JSON.stringify({...usageConfig,service}).replaceAll('&','&amp;').replaceAll('"','&quot;').replaceAll('<','&lt;');
+ const usageTag=`<script type="module" src="/usage-analytics.js" data-usage-config="${usageAttr}"></script>`;
+ const file=new URL('.'+(path.endsWith('.html')?path:(path.endsWith('/')?path:path+'/')+'index.html'),dist);
+ const usagePage=load(await readFile(file,'utf8'));
+ usagePage('script[data-usage-config]').remove();
+ usagePage('head').append(usageTag);
+ await writeFile(file,usagePage.html());
+}

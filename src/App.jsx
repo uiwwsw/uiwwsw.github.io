@@ -92,6 +92,19 @@ export default function App({ initialHome, visitSeed = 0 } = {}) {
   const [query, setQuery] = useState("");
   const [topic, setTopic] = useState("all");
   const [codeOnly, setCodeOnly] = useState(false);
+  const lastUsageScreen = useRef("home");
+  useEffect(() => {
+    const screen = panel === "article" ? "article_preview" : ["archive", "nearby", "about"].includes(panel) ? `panel_${panel}` : "home";
+    const sync = () => {
+      if (lastUsageScreen.current === screen || !window.movvUsage) return;
+      window.movvUsage.screen(screen);
+      lastUsageScreen.current = screen;
+    };
+    sync();
+    window.addEventListener("movv-usage-ready", sync);
+    return () => window.removeEventListener("movv-usage-ready", sync);
+  }, [panel]);
+
   const compact = useMedia("(max-width: 760px)");
   const coarsePointer = useMedia("(pointer: coarse)");
   const touchControls = guidePointer ? guidePointer === "touch" : coarsePointer;
