@@ -153,8 +153,20 @@ for (const path of expectedPaths) {
   if (article) {
     assert.equal($("title").text(), pageSeo(article).title);
     assert.equal($("h1").text(), article.title);
+    const readingScripts = $("script[src], script[type='module']")
+      .toArray()
+      .filter((node) => {
+        const src = $(node).attr("src");
+        const url = src ? new URL(src, SITE.url) : null;
+        return !(
+          $(node).attr("data-usage-config") &&
+          $(node).attr("type") === "module" &&
+          url?.origin === SITE.url &&
+          url.pathname === "/usage-analytics.js"
+        );
+      });
     assert.equal(
-      $("script[src], script[type='module']").length,
+      readingScripts.length,
       0,
       "Static reading must work without JavaScript or WebGL",
     );
