@@ -4,13 +4,11 @@ import { load } from "cheerio";
 import { renderRobots, RIGHTS_PATH } from "../src/utils/contentRights.js";
 import { renderRightsPage } from "../scripts/lib/seo-pages.js";
 
-test("training restrictions preserve general and AI search crawler access", () => {
+test("robots preserve crawler access and sitemap", () => {
   const groups = renderRobots("https://uiwwsw.github.io").trim().split(/\n\n/);
   const rules = agent => groups.find(group => group.split("\n").includes(`User-agent: ${agent}`)) || groups[0];
-  for (const agent of ["Googlebot", "Bingbot", "Yeti", "OAI-SearchBot", "Claude-SearchBot"])
+  for (const agent of ["Googlebot", "Bingbot", "Yeti", "OAI-SearchBot", "Claude-SearchBot", "GPTBot", "ClaudeBot", "Google-Extended", "CCBot"])
     assert.equal(rules(agent), "User-agent: *\nAllow: /");
-  for (const agent of ["GPTBot", "ClaudeBot", "Google-Extended", "CCBot"])
-    assert.match(rules(agent), /Disallow: \/$/);
   assert.equal(groups.at(-1), "Sitemap: https://uiwwsw.github.io/sitemap.xml");
 });
 

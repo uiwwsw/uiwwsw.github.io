@@ -1,7 +1,7 @@
 # Content rights rollout — 2026-10-17 (Asia/Seoul)
 
 - Site implementation: `96ccd09`; GitHub Pages run `38921822615` succeeded.
-- Public `/content-rights/` HTML matches the built output byte for byte; `/robots.txt` exposes only GPTBot, ClaudeBot, Google-Extended and CCBot disallow rules, with the wildcard allow and sitemap preserved.
+- Public `/content-rights/` HTML matches the built output byte for byte; `/robots.txt` preserves wildcard allow and sitemap rules.
 - 192 tests pass. Production build and SEO checks verify 67 indexable HTML pages, all 62 original complete article bodies and 17 images. No noindex/nosnippet or general-search restrictions were introduced.
 - GitHub profile implementation: `uiwwsw/uiwwsw@c18d73f`. English/Korean README notices and CONTENT-RIGHTS.md are public; the generator retains notices on refresh. Its 18 tests pass. Existing code and third-party licenses were not edited.
 - Velog's existing logged-in author session allowed editing. The introduction keeps its original text and appends the full notice and exceptions. All 62 public posts (of 67 author-visible posts) now have the same short footer with the detailed policy link. Five private posts were left untouched.
