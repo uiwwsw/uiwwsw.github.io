@@ -138,5 +138,3 @@ References: [Google's JavaScript SEO guidance](https://developers.google.com/sea
 In development only, `?stress=300`, `?stress=1000`, and `?stress=3000` add clearly marked synthetic writing and a rendering counter. Combine with `&webgl=off` or `&motion=reduce` for fallback checks. These switches and synthetic articles are excluded from production builds. See [the QA record](design/scaling-qa.md) for observations and limits. If the metadata catalog itself becomes too large, the next step is year-sharded indexes; batching the scene does not eliminate metadata download costs.
 
 `?ambient=1` shows the real sky's FPS/draw counts and ambient clock in development (without synthetic posts). Use it to verify idle motion, pause/resume and `&motion=reduce`; it is not displayed in production. See [ambient QA](design/ambient-qa.md).
-
-AI 학습·미세조정 및 학습용 데이터 수집에 대한 권리자 의사는 [AI 이용 고지 / AI use notice](AI-TRAINING-NOTICE.md)를 참고하세요.
