@@ -233,7 +233,7 @@ test("explicit help can stop cruise and open as soon as the scene becomes eligib
 test("idle guidance is wired to scene eligibility and deliberate actions without mouse-jitter loops", () => {
   const app = read("src/App.jsx");
   assert.match(app, /useIdleFlightGuide\(/);
-  assert.match(app, /!cruising\s*&&\s*progress < 0\.12\s*&&\s*signal === 0/);
+  assert.match(app, /!cruising\s*&&\s*signal === 0,\s*progress < 0\.12,/);
   assert.match(app, /onWheelCapture/);
   assert.match(app, /onKeyDownCapture/);
   assert.match(app, /exploring=\{exploring\}/);
@@ -243,4 +243,17 @@ test("idle guidance is wired to scene eligibility and deliberate actions without
     hook,
     /setInterval|localStorage|sessionStorage|pointermove/,
   );
+});
+
+test("explicit help opens in flight without scheduling automatic prompts", () => {
+  const { guide, changes, timers } = idleFixture();
+  guide.enable(true, false);
+  assert.equal(timers.size, 0);
+  guide.request(true);
+  assert.deepEqual(changes, [true]);
+  guide.request(false);
+  assert.deepEqual(changes, [true, false]);
+  assert.equal(timers.size, 0);
+  guide.enable(true, true);
+  assert.equal(timers.size, 1);
 });

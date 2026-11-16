@@ -25,6 +25,7 @@ function emitter() {
       const event = {
         target: this,
         detail: 1,
+        cancelable: true,
         defaultPrevented: false,
         preventDefault() {
           this.defaultPrevented = true;
@@ -115,6 +116,7 @@ test("surface drag stops prior zoom coast, leaves travel unchanged and suppresse
   assert.equal(s.captured.size, 0, "a tap isn't forcibly captured");
   s.pointer("pointermove", 450, 220, 1, label);
   assert.ok(s.input.lookY > 0);
+  s.tick();
   assert.equal(s.motion.pending, 0);
   stepFlightMotion(s.motion, 1 / 60);
   assert.equal(s.motion.distance, 0.3);
@@ -167,6 +169,7 @@ test("two-pointer capture and one RAF batch prevent zoom from pure two-finger pa
   s.pointer("pointermove", 240, 231, 2);
   assert.equal(s.input.lookY, 0);
   s.pointer("pointermove", 240, 251, 2);
+  s.tick();
   assert.equal(s.input.lookY, 0);
   assert.ok(s.impulses.at(-1) < 0, "remaining finger resumes vertical scrolling");
   s.pointer("pointerup", 240, 251, 2);
@@ -257,12 +260,56 @@ test("controls, native browser zoom and desktop wheel keep their own behavior", 
   );
   assert.equal(s.manual(), 0);
   assert.equal(s.surface.emit("wheel", wheel).defaultPrevented, true);
+  assert.deepEqual(s.impulses, []);
+  s.tick();
   assert.deepEqual(s.impulses, [-0.018000000000000002]);
   s.input.dragged = true;
   assert.equal(
     s.surface.emit("click", { target: control }).defaultPrevented,
     false,
   );
+  s.cleanup();
+});
+
+test("wheel batches normalize units, use the net axis and stop when the surface loses focus", () => {
+  const s = setup();
+  const scroll = (deltaX, deltaY, deltaMode = 0, options) =>
+    s.surface.emit("wheel", { deltaX, deltaY, deltaMode, ...options });
+
+  scroll(13, 2);
+  scroll(0, -3, 1);
+  const nonCancelable = scroll(0, -48, 0, { cancelable: false });
+  assert.equal(nonCancelable.defaultPrevented, false);
+  assert.equal(s.frames.size, 1);
+  assert.equal(s.manual(), 0);
+  s.tick();
+  assert.equal(s.manual(), 1);
+  assert.deepEqual(s.impulses, [0.018000000000000002]);
+  assert.equal(s.input.lookX, 0);
+
+  scroll(500, 320);
+  s.tick();
+  assert.equal(s.impulses.length, 1);
+  assert.ok(s.input.lookX < 0);
+
+  scroll(0, -100);
+  scroll(0, 100);
+  s.tick();
+  assert.equal(s.impulses.length, 1);
+  scroll(0, -100);
+  s.host.emit("blur");
+  s.tick();
+  assert.equal(s.impulses.length, 1);
+  assert.equal(s.frames.size, 0);
+  s.cleanup();
+});
+
+test("a diagonal trackpad sample keeps flying until lateral intent is clear", () => {
+  const s = setup();
+  s.surface.emit("wheel", { deltaX: 88, deltaY: -80, deltaMode: 0 });
+  s.tick();
+  assert.ok(s.impulses[0] > 0);
+  assert.equal(s.input.lookX, 0);
   s.cleanup();
 });
 
@@ -296,11 +343,14 @@ test("one-finger scrolling keeps driving flight across repeated strokes and open
   s.pointer("pointermove", 180, 400);
   s.input.opening = false;
   s.pointer("pointermove", 180, 300);
+  assert.equal(s.impulses.length, 0, "travel waits for a single frame");
+  assert.equal(s.frames.size, 1);
   s.pointer("pointerup", 180, 300);
+  assert.equal(s.impulses.length, 1, "release flushes the frame exactly once");
   s.pointer("pointerdown", 180, 500);
   s.pointer("pointermove", 180, 300);
   s.pointer("pointerup", 180, 300);
-  assert.equal(s.impulses.length, 3);
+  assert.deepEqual(s.impulses, [0.12, 0.12]);
   assert.ok(s.impulses.every(delta => delta > 0));
   assert.equal(s.input.lookY, 0);
   assert.equal(s.captured.size, 0);

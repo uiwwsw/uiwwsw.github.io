@@ -1,5 +1,8 @@
 import { createFlightGesture } from "./flightInput.js";
 
+const MAX_WHEEL_EVENT = 180;
+const MAX_WHEEL_FRAME = 320;
+
 const isControl = (target) =>
   !!target.closest(
     'a, input, select, textarea, button:not(.star-label):not([data-flight-opening]), dialog, summary, label, [data-flight-control], [contenteditable="true"]',
@@ -20,6 +23,11 @@ export function bindFlightSurface({
   );
   const captured = new Set();
   let frame = null;
+  let pointerTravel = 0;
+  let pointerLook = false;
+  let wheelFrame = null;
+  let wheelX = 0;
+  let wheelY = 0;
   const capture = (id) => {
     if (captured.has(id)) return;
     try {
@@ -39,11 +47,25 @@ export function bindFlightSurface({
   };
   const flush = () => {
     stopFrame();
+    const travel = pointerTravel;
+    const look = pointerLook;
+    pointerTravel = 0;
+    pointerLook = false;
     const result = gesture.flush();
-    if (result?.travel) onTravel(result.travel);
+    onManualInput();
+    if (travel || result?.travel) onTravel(travel || result.travel);
+    else if (look) onLook();
   };
+  function cancelWheel() {
+    if (wheelFrame !== null) host.cancelAnimationFrame(wheelFrame);
+    wheelFrame = null;
+    wheelX = wheelY = 0;
+  }
   function cancel() {
     stopFrame();
+    pointerTravel = 0;
+    pointerLook = false;
+    cancelWheel();
     gesture.cancel();
     onLook();
     for (const id of [...captured]) release(id);
@@ -53,7 +75,9 @@ export function bindFlightSurface({
       cancel();
       return;
     }
+    if (frame !== null) flush();
     if (!gesture.start(event)) return;
+    cancelWheel();
     // Own the gesture before native text selection or HTML dragging can take it.
     // Keep the label keyboard-focusable even though pointer defaults are blocked.
     event.preventDefault();
@@ -68,16 +92,15 @@ export function bindFlightSurface({
     const result = gesture.move(event);
     if (!result) return;
     capture(event.pointerId);
-    onManualInput();
-    if (result.kind === "travel") onTravel(result.travel);
-    else if (result.kind === "look") onLook();
-    else if (frame === null) frame = host.requestAnimationFrame(flush);
+    if (result.kind === "travel") pointerTravel += result.travel;
+    else if (result.kind === "look") pointerLook = true;
+    if (frame === null) frame = host.requestAnimationFrame(flush);
   }
   function up(event) {
     if (!gesture.pointerIds().includes(event.pointerId)) return;
     // A quick swipe can end before the browser delivers a final pointermove.
     move(event);
-    flush();
+    if (frame !== null) flush();
     gesture.end(event);
     release(event.pointerId);
   }
@@ -94,13 +117,30 @@ export function bindFlightSurface({
   function preventNativeDrag(event) {
     if (!isControl(event.target)) event.preventDefault();
   }
-  function wheel(event) {
-    if (event.ctrlKey || isControl(event.target)) return;
-    event.preventDefault();
-    const result = gesture.wheel(event);
+  function flushWheel() {
+    wheelFrame = null;
+    const x = wheelX;
+    const y = wheelY;
+    wheelX = wheelY = 0;
+    if (!x && !y) return;
     onManualInput();
-    if (result.travel) onTravel(result.travel);
+    const { travel } = gesture.wheel(
+      { deltaX: x, deltaY: y, deltaMode: 0 },
+      MAX_WHEEL_FRAME,
+    );
+    if (travel) onTravel(travel);
     else onLook();
+  }
+  function wheel(event) {
+    if (event.defaultPrevented || event.ctrlKey || isControl(event.target) || input.looking) return;
+    const { x, y } = gesture.wheelPixels(event);
+    if (!Number.isFinite(x) || !Number.isFinite(y) || (!x && !y)) return;
+    if (event.cancelable) event.preventDefault();
+    const scale = Math.min(1, MAX_WHEEL_EVENT / Math.max(Math.abs(x), Math.abs(y)));
+    wheelX += x * scale;
+    wheelY += y * scale;
+    if (wheelFrame !== null) return;
+    wheelFrame = host.requestAnimationFrame(flushWheel);
   }
   const events = {
     pointerdown: down,

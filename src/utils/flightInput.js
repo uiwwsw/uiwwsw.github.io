@@ -24,6 +24,15 @@ const MIN_PINCH_SPAN = 40;
 export function createFlightGesture(input, getViewport) {
   const pointers = new Map();
   let pinch = null;
+  function wheelPixels(event) {
+    // Read deltaMode before the deltas, since browsers may adapt legacy units.
+    const unit = event.deltaMode === 1
+      ? 18
+      : event.deltaMode === 2
+        ? Math.max(getViewport().height, 320)
+        : 1;
+    return { x: event.deltaX * unit, y: event.deltaY * unit };
+  }
   const span = () => {
     const [a, b] = pointers.values();
     return Math.hypot(a.x - b.x, a.y - b.y);
@@ -90,6 +99,11 @@ export function createFlightGesture(input, getViewport) {
         pointer.looking = true;
         pointer.mode = pointer.type === "touch" && Math.abs(totalY) >= Math.abs(totalX)
           ? "travel" : "look";
+        if (pointer.type === "touch" && pointer.mode === "look") {
+          const { width, height } = getViewport();
+          pointer.gainX = 72 / Math.max(width, 320);
+          pointer.gainY = 56 / Math.max(height, 320);
+        }
       }
       input.dragged = true;
       pointer.x = event.clientX;
@@ -97,15 +111,13 @@ export function createFlightGesture(input, getViewport) {
       // Lock the intent for this stroke, including when crossing the opening boundary.
       // Vertical scrolling needs no layout read and must never change the view.
       if (pointer.mode === "travel") return { travel: -dy * 0.0006, kind: "travel" };
-      const touch = pointer.type === "touch";
-      const { width, height } = touch ? getViewport() : { width: 0, height: 0 };
       input.lookX = clamp(
-        input.lookX - dx * (touch ? 72 / Math.max(width, 320) : 0.055),
+        input.lookX - dx * (pointer.gainX ?? 0.055),
         -52,
         52,
       );
       input.lookY = clamp(
-        input.lookY + dy * (touch ? 56 / Math.max(height, 320) : 0.055),
+        input.lookY + dy * (pointer.gainY ?? 0.055),
         -32,
         36,
       );
@@ -140,20 +152,15 @@ export function createFlightGesture(input, getViewport) {
       pinch = null;
       input.travelPitch = 0;
     },
-    wheel(event) {
-      const unit =
-        event.deltaMode === 1
-          ? 18
-          : event.deltaMode === 2
-            ? Math.max(getViewport().height, 320)
-            : 1;
-      const dx = event.deltaX * unit;
-      const dy = event.deltaY * unit;
-      if (Math.abs(dx) > Math.abs(dy)) {
-        input.lookX = clamp(input.lookX - clamp(dx, -180, 180) * 0.07, -52, 52);
+    wheelPixels,
+    wheel(event, limit = 180) {
+      const { x: dx, y: dy } = wheelPixels(event);
+      // Small sideways drift on a trackpad should keep driving flight.
+      if (Math.abs(dx) > Math.abs(dy) * 1.2) {
+        input.lookX = clamp(input.lookX - clamp(dx, -limit, limit) * 0.07, -52, 52);
         return { travel: 0 };
       }
-      return { travel: -clamp(dy, -180, 180) * 0.00018 };
+      return { travel: -clamp(dy, -limit, limit) * 0.00018 };
     },
   };
 }

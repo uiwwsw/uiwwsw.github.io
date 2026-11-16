@@ -25,6 +25,7 @@ export function useOpeningPresentation(rootRef) {
     const style = rootRef.current?.style;
     if (!style || lastSample.current === frame.progress) return;
     lastSample.current = frame.progress;
+    style.setProperty('--opening-progress', String(frame.progress));
     for (const key of ['logo','veil','chrome','cue','landedCaption','takeoffCaption']) {
       style.setProperty(`--opening-${key}`, String(frame[key]));
     }

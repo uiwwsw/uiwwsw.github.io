@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 
 export function Icon({ name, size = 18, ...props }) {
   const paths = {
@@ -91,10 +91,18 @@ export function Icon({ name, size = 18, ...props }) {
 
 export function Panel({ name, title, onClose, children, className = "" }) {
   const ref = useRef();
-  useEffect(() => {
+  useLayoutEffect(() => {
     const dialog = ref.current;
+    const opener = document.activeElement;
     dialog.showModal();
-    return () => dialog.close();
+    return () => {
+      dialog.close();
+      // The star may still be hidden until the scene applies the closing render.
+      requestAnimationFrame(() => {
+        if (document.activeElement !== document.body || document.querySelector("dialog[open]")) return;
+        if (opener?.isConnected) opener.focus({ preventScroll: true });
+      });
+    };
   }, []);
   return (
     <dialog

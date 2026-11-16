@@ -36,6 +36,8 @@ import { arrangeVisitStars } from "./utils/visitSky.js";
 import { articlePath, updatePageSeo } from "./utils/seo.js";
 
 const UniverseScene = lazy(() => import("./components/UniverseScene"));
+const OPENING_GAIN = 3.2;
+const FLIGHT_GAIN = 0.55;
 const initialParams = new URLSearchParams(
   typeof window === "undefined" ? "" : window.location.search,
 );
@@ -81,6 +83,8 @@ export default function App({ initialHome, visitSeed = 0 } = {}) {
   const [enhanced, setEnhanced] = useState(false);
   const [entry, setEntry] = useState(0);
   const entryRef = useRef(0);
+  const focusFlightAfterOpening = useRef(false);
+  const flightRangeRef = useRef(null);
   const [guidePointer, setGuidePointer] = useState(null);
   const [sceneError, setSceneError] = useState(
     import.meta.env.DEV && initialParams.get("webgl") === "off",
@@ -114,6 +118,7 @@ export default function App({ initialHome, visitSeed = 0 } = {}) {
   const paused = motionPaused || reducedMotion || !!panel || pageHidden;
   const {
     distance,
+    getDistance,
     setDistance,
     travel,
     stop: stopTravel,
@@ -127,24 +132,24 @@ export default function App({ initialHome, visitSeed = 0 } = {}) {
   });
   const progress = clamp(distance);
   const scrollTravel = useCallback((delta) => {
+    const distance = getDistance();
     const hasOpening = !sceneError && !reducedMotion && !motionPaused && sectorId === "home";
-    if (hasOpening && (distance <= 0 && (entryRef.current < 1 || delta < 0))) {
-      const next = entryRef.current + delta * 2;
-      entryRef.current = clamp(next);
-      setEntry(entryRef.current);
-      if (entryRef.current < 1) setAssembled(false);
-      if (next > 1) travel((next - 1) / 2 * .55);
-      return;
+    const crossesIntoOpening = delta * FLIGHT_GAIN < -distance;
+    if (hasOpening && (crossesIntoOpening || (distance === 0 && entryRef.current < 1))) {
+      const start = distance > 0 ? 1 + distance / FLIGHT_GAIN * OPENING_GAIN : entryRef.current;
+      const next = start + delta * OPENING_GAIN;
+      const clamped = clamp(next);
+      if (distance > 0) setDistance(0);
+      if (clamped !== entryRef.current) {
+        entryRef.current = clamped;
+        setEntry(clamped);
+      }
+      if (clamped < 1) setAssembled(false);
+      if (next > 1) travel((next - 1) / OPENING_GAIN * FLIGHT_GAIN);
+    } else {
+      travel(delta * FLIGHT_GAIN);
     }
-    if (hasOpening && delta * .55 < -distance) {
-      setDistance(0);
-      entryRef.current = clamp(1 + (distance / .55 + delta) * 2);
-      setEntry(entryRef.current);
-      setAssembled(false);
-      return;
-    }
-    travel(delta * .55);
-  }, [travel, distance, setDistance, sceneError, sectorId, reducedMotion, motionPaused]);
+  }, [travel, getDistance, setDistance, sceneError, sectorId, reducedMotion, motionPaused]);
   const signal = sectorId === "home" ? signalStrength(distance) : 0;
   const earthFocus = sceneError ? 0 : earthFocusBlend(signal);
   const focusingEarth = earthFocus > 0.05;
@@ -156,9 +161,9 @@ export default function App({ initialHome, visitSeed = 0 } = {}) {
         dataState === "ready" &&
         !panel &&
         !pageHidden &&
-        !cruising &&
-        progress < 0.12 &&
-        signal === 0,
+      !cruising &&
+      signal === 0,
+      progress < 0.12,
     );
   const guideVisible = shouldShowFlightGuide({
     requested: guideRequested,
@@ -246,7 +251,11 @@ export default function App({ initialHome, visitSeed = 0 } = {}) {
     setSelected(article);
     setPanel("article");
     setCruising(false);
-    if (!preserveJourney) setDistance((current) => clamp(current, 0.35, 1));
+    if (!preserveJourney) {
+      entryRef.current = 1;
+      setEntry(1);
+      setDistance((current) => clamp(current, 0.35, 1));
+    }
   }, []);
   const navigateToStar = useCallback((article) => {
     centerFlightInput(inputRef.current);
@@ -297,6 +306,13 @@ export default function App({ initialHome, visitSeed = 0 } = {}) {
     setDistance((current) => current >= 0.98 ? 0.2 : Math.max(current, 0.16));
     setCruising(false);
   }, [reducedMotion, motionPaused]);
+  useEffect(() => {
+    if ((!assembled && !sceneError && !reducedMotion) || !focusFlightAfterOpening.current) return;
+    focusFlightAfterOpening.current = false;
+    if (document.activeElement === document.body) {
+      flightRangeRef.current?.focus({ preventScroll: true });
+    }
+  }, [assembled, sceneError, reducedMotion]);
   const visitSector = useCallback((id) => {
     cancelStarNavigation();
     setGuideRequested(false);
@@ -401,6 +417,7 @@ export default function App({ initialHome, visitSeed = 0 } = {}) {
   }, [sceneReady, entry >= 1, panel]);
   const manualInput = useCallback(() => {
     cancelStarNavigation();
+    inputRef.current.releaseSkyInteraction?.();
     inputRef.current.interacted = true;
     setGuideRequested(false);
     setCruising(false);
@@ -412,7 +429,8 @@ export default function App({ initialHome, visitSeed = 0 } = {}) {
   }, []);
   useEffect(() => {
     function keydown(event) {
-      const editing = /INPUT|TEXTAREA|SELECT/.test(event.target.tagName);
+      if (event.defaultPrevented || event.altKey || event.ctrlKey || event.metaKey) return;
+      const editing = /INPUT|TEXTAREA|SELECT/.test(event.target.tagName) || event.target.isContentEditable;
       if (event.key === "Escape" && !panel && signal > 0) {
         event.preventDefault();
         leaveSignal();
@@ -423,8 +441,7 @@ export default function App({ initialHome, visitSeed = 0 } = {}) {
         setPanel("archive");
         return;
       }
-      if (panel || editing || event.altKey || event.ctrlKey || event.metaKey)
-        return;
+      if (panel || editing) return;
       // Arrow keys scroll a revealed card on short screens instead of closing it.
       if (event.target.closest("[data-flight-control]") && event.key !== "Home")
         return;
@@ -506,6 +523,7 @@ export default function App({ initialHome, visitSeed = 0 } = {}) {
     if (sceneReady && reducedMotion) setSceneSettled(true);
   }, [sceneReady, reducedMotion]);
   const cinematic = !sceneError && !reducedMotion && !motionPaused && sectorId === "home" && !panel && !selected;
+  const openingActive = cinematic && !assembled;
   const exploring = sectorId !== "home" || progress > 0.12 || !!selected;
   const latestEssay =
     articles.find((article) => article.topic === "essay") ||
@@ -532,8 +550,10 @@ export default function App({ initialHome, visitSeed = 0 } = {}) {
       onKeyDownCapture={(event) => {
         if (!event.target.closest(".flight-help")) setGuideRequested(false);
       }}
-      onWheelCapture={() => setGuideRequested(false)}
-      className={`observatory ${navigation ? "has-star-destination" : ""} ${cinematic ? "is-cinematic" : ""} ${exploring ? "is-exploring" : ""} ${sceneReady ? "scene-ready" : ""} ${assembled ? "has-assembled" : ""} ${focusingEarth ? "is-earth-focused" : ""}`}
+      onWheelCapture={(event) => {
+        if (guideRequested && !event.ctrlKey) setGuideRequested(false);
+      }}
+      className={`observatory ${cinematic ? "is-cinematic" : ""} ${exploring ? "is-exploring" : ""} ${sceneReady ? "scene-ready" : ""} ${assembled ? "has-assembled" : ""} ${focusingEarth ? "is-earth-focused" : ""}`}
       data-reduced-motion={reducedMotion}
       data-sky-visit={clientReady ? visitSeed : undefined}
       style={{ "--earth-focus": earthFocus }}
@@ -634,11 +654,25 @@ export default function App({ initialHome, visitSeed = 0 } = {}) {
             <p className="departure-landed"><span>THE MOON</span>잠시, 달의 고요 속에.</p>
             <p className="departure-takeoff"><span>LIFT OFF</span>이제, 생각의 궤도로.</p>
           </div>
-          {entry < 1 && <div className="opening-scroll-cue" inert={entry > .18 ? "" : undefined} aria-hidden={entry > .18 || undefined}>
-            <p>{touchControls ? "위로 쓸어 여정을 시작하세요" : "위로 스크롤해 여정을 시작하세요"}</p>
-            <span>달에 내려서고, 다시 우주로.</span>
-            <button onClick={beginJourney}>바로 탐험 <span aria-hidden="true">↗</span></button>
-          </div>}
+          <div className="opening-progress" aria-hidden="true">
+            <span />
+          </div>
+          {openingActive && (
+            <>
+              <p className="opening-scroll-cue" aria-hidden={entry > .18 || undefined}>
+                {touchControls ? "위로 쓸어 여정을 시작하세요" : "위로 스크롤해 여정을 시작하세요"}
+              </p>
+              <button
+                className="opening-skip"
+                onClick={() => {
+                  focusFlightAfterOpening.current = true;
+                  beginJourney();
+                }}
+              >
+                바로 탐험 <span aria-hidden="true">↗</span>
+              </button>
+            </>
+          )}
         </>
       )}
       <header className="site-header">
@@ -653,7 +687,7 @@ export default function App({ initialHome, visitSeed = 0 } = {}) {
             uiwwsw<span className="wordmark-period">.</span>
           </span>
         </button>
-        <nav aria-label="메인 메뉴" inert={cinematic && entry < .88 ? "" : undefined} aria-hidden={cinematic && entry < .88 || undefined}>
+        <nav aria-label="메인 메뉴" inert={openingActive ? "" : undefined} aria-hidden={openingActive || undefined}>
           <button className={!panel ? "active" : ""} onClick={beginJourney}>
             우주 탐험
           </button>
@@ -675,8 +709,8 @@ export default function App({ initialHome, visitSeed = 0 } = {}) {
         </nav>
         <a
           className="github-link"
-          inert={cinematic && entry < .88 ? "" : undefined}
-          aria-hidden={cinematic && entry < .88 || undefined}
+          inert={openingActive ? "" : undefined}
+          aria-hidden={openingActive || undefined}
           href="https://github.com/uiwwsw"
           target="_blank"
           rel="noreferrer"
@@ -911,6 +945,7 @@ export default function App({ initialHome, visitSeed = 0 } = {}) {
               <Icon name="star" size={13} />
             </span>
             <input
+              ref={flightRangeRef}
               aria-label={
                 sectorId === "home"
                   ? "달에서 지구까지 이동"
@@ -927,28 +962,19 @@ export default function App({ initialHome, visitSeed = 0 } = {}) {
                 setDistance(Number(event.target.value) / 100);
               }}
               onKeyDown={(event) => {
+                const forward = ["ArrowUp", "ArrowRight", "PageDown"].includes(event.key);
+                const reverse = ["ArrowDown", "ArrowLeft", "PageUp"].includes(event.key);
                 if (
+                  sectorId !== "home" ||
                   event.altKey ||
                   event.ctrlKey ||
                   event.metaKey ||
-                  progress < 1 ||
-                  ![
-                    "ArrowUp",
-                    "ArrowRight",
-                    "PageDown",
-                    "ArrowDown",
-                    "ArrowLeft",
-                    "PageUp",
-                  ].includes(event.key)
+                  !((forward && progress === 1) || (reverse && distance > 1))
                 )
                   return;
                 event.preventDefault();
                 manualInput();
-                travel(
-                  ["ArrowUp", "ArrowRight", "PageDown"].includes(event.key)
-                    ? 0.03
-                    : -0.03,
-                );
+                travel(forward ? 0.03 : -0.03);
               }}
             />
           </div>

@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createIdleGuide } from "../utils/flightGuide.js";
 
-export function useIdleFlightGuide(enabled) {
+export function useIdleFlightGuide(enabled, automatic) {
   const [requested, publish] = useState(false);
   const controller = useRef();
   useEffect(() => {
@@ -13,7 +13,7 @@ export function useIdleFlightGuide(enabled) {
     controller.current = idle;
     return () => idle.dispose();
   }, []);
-  useEffect(() => controller.current.enable(enabled), [enabled]);
+  useEffect(() => controller.current.enable(enabled, automatic), [enabled, automatic]);
   const setRequested = useCallback(
     (value) => controller.current?.request(value),
     [],

@@ -28,6 +28,7 @@ export const GUIDE_RETURN_IDLE_MS = 14000;
 // Hidden tabs, reading, cruising and discovery never bank an overdue prompt.
 export function createIdleGuide({ onChange, schedule, cancel }) {
   let enabled = false;
+  let automatic = true;
   let interacted = false;
   let visible = false;
   let explicit = false;
@@ -46,7 +47,7 @@ export function createIdleGuide({ onChange, schedule, cancel }) {
   };
   const arm = () => {
     clear();
-    if (!enabled || disposed) return;
+    if (!enabled || !automatic || disposed) return;
     const revision = generation;
     timer = schedule(
       () => {
@@ -58,9 +59,10 @@ export function createIdleGuide({ onChange, schedule, cancel }) {
     );
   };
   return {
-    enable(next) {
-      if (disposed || enabled === next) return;
+    enable(next, allowAutomatic = true) {
+      if (disposed || (enabled === next && automatic === allowAutomatic)) return;
       enabled = next;
+      automatic = allowAutomatic;
       if (!enabled) explicit = false;
       publish(enabled && explicit);
       if (enabled && explicit) clear();

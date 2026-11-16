@@ -1817,6 +1817,7 @@ button {
 
 /* Logo → landing → liftoff. All values come from the WebGL scroll sample. */
 .is-cinematic {
+  --opening-progress: 0;
   --opening-logo: 0;
   --opening-veil: 1;
   --opening-chrome: 0;
@@ -1853,13 +1854,35 @@ button {
 .is-cinematic .bottom-credit,
 .is-cinematic .featured-signal,
 .is-cinematic .earth-note { display: none; }
-.is-cinematic:not(.is-exploring) .flight-deck { visibility: hidden; }
+.is-cinematic:not(.has-assembled) .flight-deck { visibility: hidden; }
+.opening-progress {
+  position: absolute;
+  z-index: 20;
+  left: 50%;
+  bottom: max(4vh, calc(env(safe-area-inset-bottom) + 14px));
+  width: min(120px, 30vw);
+  height: 2px;
+  border-radius: 2px;
+  background: #ddd1b744;
+  opacity: calc(1 - var(--opening-chrome));
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+.opening-progress span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: #e5d6b7;
+  transform: scaleX(var(--opening-progress));
+  transform-origin: left;
+}
 .opening-scroll-cue {
   position: absolute;
   left: 0;
   right: 0;
-  bottom: max(9vh, 42px);
+  bottom: max(13vh, 58px);
   z-index: 21;
+  margin: 0 20px;
   text-align: center;
   color: #e1dccd;
   opacity: var(--opening-cue);
@@ -1867,17 +1890,18 @@ button {
   font-size: 13px;
   letter-spacing: .04em;
 }
-.opening-scroll-cue p { margin: 0 0 10px; }
-.opening-scroll-cue > span { color: #777e89; font-size: 11px; }
-.opening-scroll-cue button {
-  display: block;
-  margin: 20px auto 0;
-  padding: 8px 18px;
-  color: #989da6;
-  font-size: 11px;
-  pointer-events: auto;
+.opening-skip {
+  position: absolute;
+  z-index: 21;
+  right: max(16px, env(safe-area-inset-right));
+  bottom: max(12px, env(safe-area-inset-bottom));
+  min-height: 44px;
+  padding: 0 12px;
+  border-radius: 6px;
+  background-color: #08111dcc;
+  color: #e1dccd;
+  font-size: 12px;
 }
-.opening-scroll-cue:focus-within { opacity: 1; }
 .departure-captions {
   position: absolute;
   inset: auto 20px 11vh;
@@ -1913,8 +1937,12 @@ button {
 .star-navigation-status button { margin-top: 9px; font-size: 10px; color: #c1b28c; pointer-events: auto; padding: 4px 10px; }
 @media(max-width:760px) { .star-navigation-status { bottom: 98px; } }
 @media(max-height:500px) {
-  .star-navigation-status { bottom: 12px; left: auto; right: 20px; transform: none; width: 260px; }
-}
-@media(max-height:500px) {
-  .has-star-destination .flight-deck { visibility: hidden; }
+  .star-navigation-status {
+    top: 72px;
+    bottom: auto;
+    left: auto;
+    right: 20px;
+    transform: none;
+    width: min(260px, 42vw);
+  }
 }
