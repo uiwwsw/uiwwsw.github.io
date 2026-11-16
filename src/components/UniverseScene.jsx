@@ -74,7 +74,9 @@ const DeepSky = React.memo(function DeepSky({ paused, focus }) {
     );
   });
   return (
-    <mesh>
+    // Render the opaque sky after the planet and terrain so depth testing can
+    // reject their pixels before evaluating the full-screen nebula shader.
+    <mesh renderOrder={10}>
       <sphereGeometry args={[480, 32, 20]} />
       <shaderMaterial
         uniforms={uniforms}
@@ -349,9 +351,10 @@ function SceneReady({ assetsReady }) {
   }, [assetsReady]);
   return null;
 }
-function SceneRender({ assetsReady, onReady, onError }) {
+function SceneRender({ assetsReady, onReady, onError, limitDraws }) {
   const { gl, scene, camera } = useThree();
   const startup = useRef();
+  const elapsed = useRef(0);
   useEffect(() => {
     const controller = createSceneStartup({
       warm: () => gl.compileAsync(scene, camera),
@@ -364,7 +367,17 @@ function SceneRender({ assetsReady, onReady, onError }) {
   }, [gl, scene, camera, onReady, onError]);
   // Positive priority owns the render, after camera/uniform updates. Do not
   // force pending GPU programs to draw while compileAsync is still warming.
-  useFrame(() => startup.current?.frame(assetsReady.current), 1);
+  useFrame((_, delta) => {
+    if (limitDraws) {
+      const interval = 1 / 30;
+      elapsed.current += delta;
+      if (elapsed.current < interval) return;
+      elapsed.current %= interval;
+    } else {
+      elapsed.current = 0;
+    }
+    startup.current?.frame(assetsReady.current);
+  }, 1);
   return null;
 }
 function ArticleRoute({ articles, sector, compact, visitSeed, ...props }) {
@@ -496,8 +509,6 @@ export default function UniverseScene({
         {sector.id === "home" && (
           <LunarSurface
             assemblyRef={assemblyRef}
-            progress={progress}
-            reducedMotion={reducedMotion}
             compact={compact}
           />
         )}
@@ -539,6 +550,7 @@ export default function UniverseScene({
       />
       <SceneRender
         assetsReady={assetsReady}
+        limitDraws={revealed && paused}
         onReady={onReady}
         onError={onError}
       />

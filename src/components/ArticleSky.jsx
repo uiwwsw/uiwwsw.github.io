@@ -106,7 +106,9 @@ function DepthConnector({ item, registry }) {
 const StarLabels=React.memo(function StarLabels({
   labels,hovered,navigationId,focus,focusing,selected,compact,registry,events,pointerRevealed,
 }) {
-  return <>      {labels.map((item) => (
+  return (
+    <>
+      {labels.map((item) => (
         <Html
           key={item.id}
           position={item.position}
@@ -159,7 +161,9 @@ const StarLabels=React.memo(function StarLabels({
             <i aria-hidden="true">↗</i>
           </button>
         </Html>
-      ))}</>;
+      ))}
+    </>
+  );
 });
 
 export default function ArticleSky({
@@ -411,6 +415,7 @@ export default function ArticleSky({
   }, [sector.id, highlighted, articles, size.width, size.height, labelInteraction]);
   useEffect(() => {
     const canvas = gl.domElement;
+    const input = inputRef.current;
     profile?.bind();
     const hits = (event) => {
       const rect = canvas.getBoundingClientRect();
@@ -455,10 +460,7 @@ export default function ArticleSky({
     };
     const move = (event) => {
       if (events.current.selected || events.current.focusing) return;
-      if (event.buttons || event.pointerType === "touch") {
-        if (inputRef.current.dragged) release();
-        return;
-      }
+      if (event.buttons || event.pointerType === "touch") return;
       const rect = canvas.getBoundingClientRect();
       pointer.current = { x: event.clientX - rect.left, y: event.clientY - rect.top };
       pointerOverLabel.current = event.target.closest(".star-label")?.dataset.articleStar || null;
@@ -479,23 +481,20 @@ export default function ArticleSky({
       pointer.current = null;
       release();
     };
-    const wheel = () => {
-      release();
-      pointerLayout.current = 0;
-    };
+    // Accepted flight gestures release the label without changing the layout cadence.
+    input.releaseSkyInteraction = release;
     canvas.addEventListener("click", click);
     surface.addEventListener("pointermove", move, true);
     surface.addEventListener("pointerdown", down, true);
     surface.addEventListener("pointerleave", leave);
     surface.addEventListener("pointercancel", release);
-    surface.addEventListener("wheel", wheel, true);
     return () => {
+      if (input.releaseSkyInteraction === release) delete input.releaseSkyInteraction;
       canvas.removeEventListener("click", click);
       surface.removeEventListener("pointermove", move, true);
       surface.removeEventListener("pointerdown", down, true);
       surface.removeEventListener("pointerleave", leave);
       surface.removeEventListener("pointercancel", release);
-      surface.removeEventListener("wheel", wheel, true);
     };
   }, [gl, compact, inputRef, labelInteraction, profile]);
   const openLabel = (item) => {

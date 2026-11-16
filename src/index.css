@@ -1854,7 +1854,7 @@ button {
 .is-cinematic .bottom-credit,
 .is-cinematic .featured-signal,
 .is-cinematic .earth-note { display: none; }
-.is-cinematic:not(.has-assembled):not(.is-exploring) .flight-deck { visibility: hidden; }
+.is-cinematic:not(.has-assembled) .flight-deck { visibility: hidden; }
 .opening-progress {
   position: absolute;
   z-index: 20;
@@ -1880,8 +1880,9 @@ button {
   position: absolute;
   left: 0;
   right: 0;
-  bottom: max(9vh, 42px);
+  bottom: max(13vh, 58px);
   z-index: 21;
+  margin: 0 20px;
   text-align: center;
   color: #e1dccd;
   opacity: var(--opening-cue);
@@ -1889,17 +1890,18 @@ button {
   font-size: 13px;
   letter-spacing: .04em;
 }
-.opening-scroll-cue p { margin: 0 0 10px; }
-.opening-scroll-cue > span { color: #777e89; font-size: 11px; }
-.opening-scroll-cue button {
-  display: block;
-  margin: 20px auto 0;
-  padding: 8px 18px;
-  color: #989da6;
-  font-size: 11px;
-  pointer-events: auto;
+.opening-skip {
+  position: absolute;
+  z-index: 21;
+  right: max(16px, env(safe-area-inset-right));
+  bottom: max(12px, env(safe-area-inset-bottom));
+  min-height: 44px;
+  padding: 0 12px;
+  border-radius: 6px;
+  background-color: #08111dcc;
+  color: #e1dccd;
+  font-size: 12px;
 }
-.opening-scroll-cue:focus-within { opacity: 1; }
 .departure-captions {
   position: absolute;
   inset: auto 20px 11vh;
@@ -1935,8 +1937,12 @@ button {
 .star-navigation-status button { margin-top: 9px; font-size: 10px; color: #c1b28c; pointer-events: auto; padding: 4px 10px; }
 @media(max-width:760px) { .star-navigation-status { bottom: 98px; } }
 @media(max-height:500px) {
-  .star-navigation-status { bottom: 12px; left: auto; right: 20px; transform: none; width: 260px; }
-}
-@media(max-height:500px) {
-  .has-star-destination .flight-deck { visibility: hidden; }
+  .star-navigation-status {
+    top: 72px;
+    bottom: auto;
+    left: auto;
+    right: 20px;
+    transform: none;
+    width: min(260px, 42vw);
+  }
 }

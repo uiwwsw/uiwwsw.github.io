@@ -7,10 +7,6 @@ import {
   createSkyPreview,
 } from "../src/utils/skyBackdrop.js";
 import { flightPose } from "../src/utils/observatory.js";
-import {
-  lunarRevealOpacity,
-  patchLunarRevealShader,
-} from "../src/utils/lunarReveal.js";
 
 test("initial HTML star anchors project to the same positions as the actual GPU starfield", () => {
   for (const compact of [false, true]) {
@@ -43,53 +39,18 @@ test("initial HTML star anchors project to the same positions as the actual GPU 
   }
 });
 
-test("terrain reveal is empty initially, solid finally, and progresses from bottom to horizon without flashing", () => {
-  for (let height = 0; height <= 1; height += 0.01) {
-    assert.equal(lunarRevealOpacity(height, 0), 0);
-    assert.equal(lunarRevealOpacity(height, 1), 1);
-    let previous = 0;
-    for (let progress = 0; progress < 1; progress += 0.005) {
-      const alpha = lunarRevealOpacity(height, progress);
-      assert.ok(alpha >= previous && alpha <= 1);
-      previous = alpha;
-    }
-  }
-  assert.ok(lunarRevealOpacity(0.1, 0.4) > lunarRevealOpacity(0.3, 0.4));
-  const feather = lunarRevealOpacity(0.25, 0.5);
-  assert.ok(
-    feather > 0 && feather < 1,
-    "the advancing edge is soft, not a hard clip",
-  );
-  for (const height of [0, 0.1, 0.2, 0.3, 0.4, 0.45])
-    assert.equal(
-      lunarRevealOpacity(height, 0.99),
-      1,
-      "final settlement cannot pop visible ground",
-    );
-});
-
-test("both lunar materials share the same reveal and physical drawing-buffer height", () => {
-  const uniforms = { progress: { value: 0 }, height: { value: 1000 } };
-  for (let i = 0; i < 2; i++) {
-    const shader = {
-      uniforms: {},
-      fragmentShader: THREE.ShaderLib.standard.fragmentShader,
-    };
-    patchLunarRevealShader(shader, uniforms);
-    assert.equal(shader.uniforms.uLunarReveal, uniforms.progress);
-    assert.equal(shader.uniforms.uLunarViewportHeight, uniforms.height);
-    assert.match(shader.fragmentShader, /gl_FragCoord.y/);
-    assert.match(shader.fragmentShader, /if \(emergence <= .001\) discard/);
-    assert.match(shader.fragmentShader, /diffuseColor.a \*= emergence/);
-    assert.ok(shader.fragmentShader.includes("#include <alphatest_fragment>"));
-  }
+test("fixed lunar geometry writes depth before the nebula draw", () => {
   const bodies = readFileSync(
     new URL("../src/components/CelestialBodies.jsx", import.meta.url),
     "utf8",
-  );
-  assert.equal((bodies.match(/\.\.\.emergenceMaterial/g) || []).length, 2);
-  assert.match(bodies, /gl.getDrawingBufferSize\(bufferSize\).y/);
-  assert.match(bodies, /progress.value = 1/);
+  ).split("function LunarSurface")[1];
+  assert.equal((bodies.match(/<meshStandardMaterial/g) || []).length, 2);
+  assert.doesNotMatch(bodies, /transparent|depthWrite|getDrawingBufferSize/);
+  const scene = readFileSync(
+    new URL("../src/components/UniverseScene.jsx", import.meta.url),
+    "utf8",
+  ).split("function DeepSky")[1].split("const BackgroundStars")[0];
+  assert.match(scene, /<mesh renderOrder=\{10\}>/);
 });
 
 test("the initial backdrop has no image request or Three dependency and keeps matching clocks at reveal", () => {

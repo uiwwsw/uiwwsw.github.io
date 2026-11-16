@@ -23,6 +23,8 @@ export function bindFlightSurface({
   );
   const captured = new Set();
   let frame = null;
+  let pointerTravel = 0;
+  let pointerLook = false;
   let wheelFrame = null;
   let wheelX = 0;
   let wheelY = 0;
@@ -45,8 +47,14 @@ export function bindFlightSurface({
   };
   const flush = () => {
     stopFrame();
+    const travel = pointerTravel;
+    const look = pointerLook;
+    pointerTravel = 0;
+    pointerLook = false;
     const result = gesture.flush();
-    if (result?.travel) onTravel(result.travel);
+    onManualInput();
+    if (travel || result?.travel) onTravel(travel || result.travel);
+    else if (look) onLook();
   };
   function cancelWheel() {
     if (wheelFrame !== null) host.cancelAnimationFrame(wheelFrame);
@@ -55,6 +63,8 @@ export function bindFlightSurface({
   }
   function cancel() {
     stopFrame();
+    pointerTravel = 0;
+    pointerLook = false;
     cancelWheel();
     gesture.cancel();
     onLook();
@@ -65,6 +75,7 @@ export function bindFlightSurface({
       cancel();
       return;
     }
+    if (frame !== null) flush();
     if (!gesture.start(event)) return;
     cancelWheel();
     // Own the gesture before native text selection or HTML dragging can take it.
@@ -81,16 +92,15 @@ export function bindFlightSurface({
     const result = gesture.move(event);
     if (!result) return;
     capture(event.pointerId);
-    onManualInput();
-    if (result.kind === "travel") onTravel(result.travel);
-    else if (result.kind === "look") onLook();
-    else if (frame === null) frame = host.requestAnimationFrame(flush);
+    if (result.kind === "travel") pointerTravel += result.travel;
+    else if (result.kind === "look") pointerLook = true;
+    if (frame === null) frame = host.requestAnimationFrame(flush);
   }
   function up(event) {
     if (!gesture.pointerIds().includes(event.pointerId)) return;
     // A quick swipe can end before the browser delivers a final pointermove.
     move(event);
-    flush();
+    if (frame !== null) flush();
     gesture.end(event);
     release(event.pointerId);
   }
@@ -113,6 +123,7 @@ export function bindFlightSurface({
     const y = wheelY;
     wheelX = wheelY = 0;
     if (!x && !y) return;
+    onManualInput();
     const { travel } = gesture.wheel(
       { deltaX: x, deltaY: y, deltaMode: 0 },
       MAX_WHEEL_FRAME,
@@ -129,7 +140,6 @@ export function bindFlightSurface({
     wheelX += x * scale;
     wheelY += y * scale;
     if (wheelFrame !== null) return;
-    onManualInput();
     wheelFrame = host.requestAnimationFrame(flushWheel);
   }
   const events = {

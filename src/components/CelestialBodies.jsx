@@ -10,7 +10,6 @@ import {
 } from "../utils/earthOrientation";
 import { advanceAmbientTime } from "../utils/ambientMotion.js";
 import { SCENE_TEXTURES } from "../utils/sceneStartup.js";
-import { patchLunarRevealShader } from "../utils/lunarReveal.js";
 import {
   seoulSurfacePoint,
   seoulFocusBlend,
@@ -282,38 +281,17 @@ export const Earth = React.memo(function Earth({
     </group>
   );
 });
-export function LunarSurface({
-  progress,
-  reducedMotion,
-  compact,
-  assemblyRef,
-}) {
+export const LunarSurface = React.memo(function LunarSurface({ compact, assemblyRef }) {
   const { gl } = useThree();
-  const arrival = useRef();
-  const group = useRef();
   const ground = useRef();
-  const bufferSize = useMemo(() => new THREE.Vector2(), []);
-  const reveal = useMemo(
-    () => ({ progress: { value: 1 }, height: { value: 1 } }),
-    [],
-  );
-  const emergenceMaterial = useMemo(
-    () => ({
-      transparent: true,
-      onBeforeCompile: (shader) => patchLunarRevealShader(shader, reveal),
-      customProgramCacheKey: () => "lunar-emergence-v1",
-    }),
-    [reveal],
-  );
-  useFrame((_, delta) => {
-    // Terrain stays fixed. Landing and liftoff belong to the camera.
-    arrival.current.position.y = 0;
-    reveal.progress.value = 1;
-    reveal.height.value = gl.getDrawingBufferSize(bufferSize).y;
+  const rocks = useRef();
+  const lastCulling = useRef(null);
+  useFrame(() => {
     const cull = assemblyRef.current.phase === "done";
+    if (lastCulling.current === cull) return;
     ground.current.frustumCulled = cull;
     rocks.current.frustumCulled = cull;
-    group.current.position.y = 0;
+    lastCulling.current = cull;
   }, -1);
   const map = useTexture(SCENE_TEXTURES.moon);
   const { geometry, craters } = useMemo(() => {
@@ -343,7 +321,6 @@ export function LunarSurface({
     texture.needsUpdate = true;
     return texture;
   }, [map]);
-  const rocks = useRef();
   React.useLayoutEffect(() => {
     gl.initTexture(lunarMap);
   }, [gl, lunarMap]);
@@ -365,27 +342,20 @@ export function LunarSurface({
   React.useEffect(() => () => geometry.dispose(), [geometry]);
   React.useEffect(() => () => lunarMap.dispose(), [lunarMap]);
   return (
-    <group ref={arrival} name="lunar-arrival">
-      <group ref={group}>
-        <mesh ref={ground} name="lunar-ground" geometry={geometry}>
-          <meshStandardMaterial
-            {...emergenceMaterial}
-            map={lunarMap}
-            color="#85837f"
-            roughness={1}
-            bumpMap={lunarMap}
-            bumpScale={0.65}
-          />
-        </mesh>
-        <instancedMesh ref={rocks} args={[undefined, undefined, 180]}>
-          <icosahedronGeometry args={[1, 0]} />
-          <meshStandardMaterial
-            {...emergenceMaterial}
-            color="#545965"
-            roughness={1}
-          />
-        </instancedMesh>
-      </group>
+    <group name="lunar-arrival">
+      <mesh ref={ground} name="lunar-ground" geometry={geometry}>
+        <meshStandardMaterial
+          map={lunarMap}
+          color="#85837f"
+          roughness={1}
+          bumpMap={lunarMap}
+          bumpScale={0.65}
+        />
+      </mesh>
+      <instancedMesh ref={rocks} args={[undefined, undefined, 180]}>
+        <icosahedronGeometry args={[1, 0]} />
+        <meshStandardMaterial color="#545965" roughness={1} />
+      </instancedMesh>
     </group>
   );
-}
+});
