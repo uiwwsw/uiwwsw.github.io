@@ -24,6 +24,15 @@ const MIN_PINCH_SPAN = 40;
 export function createFlightGesture(input, getViewport) {
   const pointers = new Map();
   let pinch = null;
+  function wheelPixels(event) {
+    // Read deltaMode before the deltas, since browsers may adapt legacy units.
+    const unit = event.deltaMode === 1
+      ? 18
+      : event.deltaMode === 2
+        ? Math.max(getViewport().height, 320)
+        : 1;
+    return { x: event.deltaX * unit, y: event.deltaY * unit };
+  }
   const span = () => {
     const [a, b] = pointers.values();
     return Math.hypot(a.x - b.x, a.y - b.y);
@@ -140,20 +149,14 @@ export function createFlightGesture(input, getViewport) {
       pinch = null;
       input.travelPitch = 0;
     },
-    wheel(event) {
-      const unit =
-        event.deltaMode === 1
-          ? 18
-          : event.deltaMode === 2
-            ? Math.max(getViewport().height, 320)
-            : 1;
-      const dx = event.deltaX * unit;
-      const dy = event.deltaY * unit;
+    wheelPixels,
+    wheel(event, limit = 180) {
+      const { x: dx, y: dy } = wheelPixels(event);
       if (Math.abs(dx) > Math.abs(dy)) {
-        input.lookX = clamp(input.lookX - clamp(dx, -180, 180) * 0.07, -52, 52);
+        input.lookX = clamp(input.lookX - clamp(dx, -limit, limit) * 0.07, -52, 52);
         return { travel: 0 };
       }
-      return { travel: -clamp(dy, -180, 180) * 0.00018 };
+      return { travel: -clamp(dy, -limit, limit) * 0.00018 };
     },
   };
 }

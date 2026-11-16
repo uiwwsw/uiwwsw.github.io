@@ -1817,6 +1817,7 @@ button {
 
 /* Logo → landing → liftoff. All values come from the WebGL scroll sample. */
 .is-cinematic {
+  --opening-progress: 0;
   --opening-logo: 0;
   --opening-veil: 1;
   --opening-chrome: 0;
@@ -1853,7 +1854,28 @@ button {
 .is-cinematic .bottom-credit,
 .is-cinematic .featured-signal,
 .is-cinematic .earth-note { display: none; }
-.is-cinematic:not(.is-exploring) .flight-deck { visibility: hidden; }
+.is-cinematic:not(.has-assembled):not(.is-exploring) .flight-deck { visibility: hidden; }
+.opening-progress {
+  position: absolute;
+  z-index: 20;
+  left: 50%;
+  bottom: max(4vh, calc(env(safe-area-inset-bottom) + 14px));
+  width: min(120px, 30vw);
+  height: 2px;
+  border-radius: 2px;
+  background: #ddd1b744;
+  opacity: calc(1 - var(--opening-chrome));
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+.opening-progress span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: #e5d6b7;
+  transform: scaleX(var(--opening-progress));
+  transform-origin: left;
+}
 .opening-scroll-cue {
   position: absolute;
   left: 0;

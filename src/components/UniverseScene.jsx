@@ -190,13 +190,18 @@ function WorldAssembly({
   const reported = useRef(false);
   const scrub = useRef(createScrollSmoothing());
   const layout = useMemo(() => worldAssemblyLayout(compact), [compact]);
-  useFrame((_, delta) => {
+  useLayoutEffect(() => {
     assemblyRef.current.layout = layout;
+  }, [assemblyRef, layout]);
+  useFrame((_, delta) => {
     if (ready && visible) {
       const target = skip || progress > 0 ? 1 : entry;
       const value = stepScrollSmoothing(scrub.current, target, delta, skip);
-      scrubWorldAssembly(assemblyRef.current, value);
-      onOpeningFrame?.(assemblyRef.current.departure);
+      const assembly = assemblyRef.current;
+      if (assembly.phase === "waiting" || value !== assembly.departure.progress) {
+        scrubWorldAssembly(assembly, value);
+        onOpeningFrame?.(assembly.departure);
+      }
     }
     if (assemblyRef.current.phase !== "done") reported.current = false;
     if (assemblyRef.current.phase === "done" && !reported.current) {
@@ -253,6 +258,8 @@ function CameraRig({
   }, [camera, compact]);
   const targetPosition = useMemo(() => new THREE.Vector3(), []);
   const targetLook = useMemo(() => new THREE.Vector3(), []);
+  const origin = useMemo(() => new THREE.Vector3(...sector.origin), [sector]);
+  const flight = useMemo(() => flightPose(progress, compact), [progress, compact]);
   useLayoutEffect(() => {
     // Warp between distant regions; never fly through Earth to reach a sector.
     const pose = flightPose(progress, compact);
@@ -276,14 +283,17 @@ function CameraRig({
     );
     const focus = earthFocusBlend(signal);
     const opening = (progress === 0 || assemblyRef.current.departure.progress < 1) && !selected && !reducedMotion && sector.id === "home";
-    const pose = opening ? departurePose(assemblyRef.current.departure.progress, compact) : signalFlightPose(
-      progress,
-      signal,
-      compact,
-      earthFocusRef.current.lengthSq() > 0.5
-        ? earthFocusRef.current.toArray()
-        : undefined,
-    );
+    let pose = flight;
+    if (opening) {
+      pose = departurePose(assemblyRef.current.departure.progress, compact);
+    } else if (signal > 0) {
+      pose = signalFlightPose(
+        progress,
+        signal,
+        compact,
+        earthFocusRef.current.lengthSq() > 0.5 ? earthFocusRef.current.toArray() : undefined,
+      );
+    }
     const fov = selected ? (compact ? 58 : 46) : earthFocusFov(signal, compact);
     const nextFov = reducedMotion
       ? fov
@@ -292,8 +302,6 @@ function CameraRig({
       camera.fov = nextFov;
       camera.updateProjectionMatrix();
     }
-    pose.position = pose.position.map((value, i) => value + sector.origin[i]);
-    pose.target = pose.target.map((value, i) => value + sector.origin[i]);
     if (selected) {
       targetPosition.set(
         selected.position[0] + (compact ? 0 : 4),
@@ -306,7 +314,7 @@ function CameraRig({
         selected.position[2],
       );
     } else {
-      targetPosition.set(...pose.position);
+      targetPosition.fromArray(pose.position).add(origin);
       const viewScale = opening ? 0 : 1 - focus;
       targetLook.set(
         pose.target[0] + elasticLook(inputRef.current.lookX, 9) * viewScale,
@@ -315,16 +323,17 @@ function CameraRig({
             (paused ? 0 : inputRef.current.travelPitch)) *
             viewScale,
         pose.target[2],
-      );
+      ).add(origin);
     }
     if (!reducedMotion && !selected && !opening) {
       targetPosition.x += Math.sin(drift.current * 0.14) * 0.28 * (1 - focus);
       targetPosition.y += Math.sin(drift.current * 0.21) * 0.16 * (1 - focus);
     }
-    const easing = reducedMotion ? 1 : 1 - Math.exp(-dt * (opening ? 18 : 4.5));
+    const travelResponse = opening ? 18 : selected || signal > 0 ? 4.5 : 9;
+    const easing = reducedMotion ? 1 : 1 - Math.exp(-dt * travelResponse);
     camera.position.lerp(targetPosition, easing);
     // Looking responds faster than travel so the finger never feels tethered.
-    look.current.lerp(targetLook, reducedMotion ? 1 : 1 - Math.exp(-dt * (opening ? 18 : 8)));
+    look.current.lerp(targetLook, reducedMotion ? 1 : 1 - Math.exp(-dt * (opening ? 18 : 13)));
     camera.lookAt(look.current);
     camera.updateMatrixWorld();
     // Earth/lunar transforms run at -1; labels and picking run at 0.

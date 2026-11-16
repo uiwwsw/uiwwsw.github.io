@@ -25,6 +25,7 @@ function emitter() {
       const event = {
         target: this,
         detail: 1,
+        cancelable: true,
         defaultPrevented: false,
         preventDefault() {
           this.defaultPrevented = true;
@@ -257,12 +258,46 @@ test("controls, native browser zoom and desktop wheel keep their own behavior", 
   );
   assert.equal(s.manual(), 0);
   assert.equal(s.surface.emit("wheel", wheel).defaultPrevented, true);
+  assert.deepEqual(s.impulses, []);
+  s.tick();
   assert.deepEqual(s.impulses, [-0.018000000000000002]);
   s.input.dragged = true;
   assert.equal(
     s.surface.emit("click", { target: control }).defaultPrevented,
     false,
   );
+  s.cleanup();
+});
+
+test("wheel batches normalize units, use the net axis and stop when the surface loses focus", () => {
+  const s = setup();
+  const scroll = (deltaX, deltaY, deltaMode = 0, options) =>
+    s.surface.emit("wheel", { deltaX, deltaY, deltaMode, ...options });
+
+  scroll(13, 2);
+  scroll(0, -3, 1);
+  const nonCancelable = scroll(0, -48, 0, { cancelable: false });
+  assert.equal(nonCancelable.defaultPrevented, false);
+  assert.equal(s.frames.size, 1);
+  assert.equal(s.manual(), 1);
+  s.tick();
+  assert.deepEqual(s.impulses, [0.018000000000000002]);
+  assert.equal(s.input.lookX, 0);
+
+  scroll(500, 450);
+  s.tick();
+  assert.equal(s.impulses.length, 1);
+  assert.ok(s.input.lookX < 0);
+
+  scroll(0, -100);
+  scroll(0, 100);
+  s.tick();
+  assert.equal(s.impulses.length, 1);
+  scroll(0, -100);
+  s.host.emit("blur");
+  s.tick();
+  assert.equal(s.impulses.length, 1);
+  assert.equal(s.frames.size, 0);
   s.cleanup();
 });
 
