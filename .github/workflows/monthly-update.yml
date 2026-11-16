@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
   pages: write
   id-token: write
 
@@ -38,6 +38,18 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      # main is protected, so refreshed data is not committed. Each refresh is
+      # kept in the Actions cache; deploy.yml restores the newest one.
+      - name: Restore latest refreshed archive data
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            src/data/velog-words.json
+            src/data/velog-context.json
+            src/data/sky-registry.json
+          key: velog-data-none
+          restore-keys: velog-data-
+
       - name: Run Scraper
         run: npm run refresh-content
 
@@ -56,13 +68,15 @@ jobs:
         if: steps.content_changes.outputs.changed == 'true' || github.event_name == 'workflow_dispatch'
         run: npm test && npm run build
 
-      - name: Commit and Push Changes
+      - name: Keep refreshed archive data for later deploys
         if: steps.content_changes.outputs.changed == 'true'
-        run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git commit -m "chore: refresh Velog archive data"
-          git push
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            src/data/velog-words.json
+            src/data/velog-context.json
+            src/data/sky-registry.json
+          key: velog-data-${{ github.run_id }}
 
       - name: Configure GitHub Pages
         if: steps.content_changes.outputs.changed == 'true' || github.event_name == 'workflow_dispatch'

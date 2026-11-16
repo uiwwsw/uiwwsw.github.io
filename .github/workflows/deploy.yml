@@ -30,6 +30,18 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      # The weekly refresh stores new archive data in the Actions cache instead
+      # of committing to protected main; build with the newest copy when present.
+      - name: Restore latest refreshed archive data
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            src/data/velog-words.json
+            src/data/velog-context.json
+            src/data/sky-registry.json
+          key: velog-data-none
+          restore-keys: velog-data-
+
       - name: Build site
         run: npm test && npm run build
 
