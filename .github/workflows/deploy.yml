@@ -1,8 +1,9 @@
 name: Deploy site
 
 on:
-  push:
-    branches: [main]
+  # Deploy once a week (Monday 09:37 KST, after the content refresh) or by hand.
+  schedule:
+    - cron: '37 0 * * 1'
   workflow_dispatch:
 
 permissions:
