@@ -1,9 +1,7 @@
 name: Deploy site
 
 on:
-  # Deploy once a week (Monday 09:37 KST, after the content refresh) or by hand.
-  schedule:
-    - cron: '37 0 * * 1'
+  # By hand, or by the Monday workspace run when main changed since the last deploy.
   workflow_dispatch:
 
 permissions:
